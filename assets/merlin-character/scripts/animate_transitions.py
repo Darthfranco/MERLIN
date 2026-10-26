@@ -37,7 +37,13 @@ for _activity, _last in [('Nap', 192), ('WallToss', 240), ('WalkWhistle', 192)]:
                   76: 'Hello', 90: 'Wave', 108: 'Ready'},
     }
 TRANSITION_GUIDE['ReadyToNap']['poses'] = {1:'Ready', 27:'Kneel', 50:'Lower', 78:'Rest', 96:'Nap'}
-TRANSITION_GUIDE['NapToReady']['poses'] = {1:'Wake', 12:'Hands down', 32:'Tuck', 42:'Takeoff', 48:'Hop', 56:'Land', 76:'Hello', 108:'Ready'}
+TRANSITION_GUIDE['NapToReady']['poses'] = {
+    1:'Wake', 12:'Plant hand', 20:'Push from side', 32:'Gather feet',
+    41:'Compress', 48:'Hop', 56:'Absorb landing', 76:'Hello', 108:'Ready'}
+TRANSITION_GUIDE['NapToReady']['wake_phases'] = {
+    'stir':[1,8], 'hand_support':[12,20], 'gather_feet':[14,35],
+    'compress':[35,41], 'hop':[42,54], 'landing':[54,59], 'wave':[60,108]}
+
 TRANSITION_GUIDE['ReadyToWallToss'].update(ball_reveal_start=76, ball_reveal_end=90)
 TRANSITION_GUIDE['WallTossToReady'].update(ball_stow_start=5, ball_stow_end=16)
 
@@ -141,6 +147,116 @@ def _nap_hands_down(rig, nap, context):
     return _capture(rig)
 
 
+def _wake_up(rig, source, ready, frame, context):
+    """Weight-led recovery: brace, gather feet, push, hop and absorb the landing.
+
+    The pelvis is the turning pivot instead of the floor origin. One palm and
+    the heels support the early rise; each foot then steps beneath the body on
+    its own arc. All targets are baked to the original unstretched rigid rig.
+    """
+    basis, inverse, _ = context
+    crouch = _crouch(rig, context)
+    if frame >= 42:
+        # Fast extension, a brief tucked airborne pose, and an articulated
+        # landing replace the old linear float directly into standing.
+        if frame <= 48:
+            pose = _blend(crouch, ready, .82 * _ramp(frame, 41, 47))
+        elif frame <= 54:
+            pose = _blend(crouch, ready, .82 - .18 * _ramp(frame, 48, 54))
+        else:
+            pose = _blend(crouch, ready, .64 + .36 * _ramp(frame, 54, 59))
+        _apply(rig, pose)
+        height = .29 * max(0., sin(pi * (frame - 41) / 13))
+        _move_root(rig, (0, 0, height), inverse)
+        foot_width = .36 - .03 * _ramp(frame, 41, 59)
+        for side, sign in [('L',1),('R',-1)]:
+            hip = rig.pose.bones['thigh.' + side].head.copy()
+            _limb(rig, 'thigh.' + side, 'shin.' + side, 'foot.' + side,
+                  Vector((sign*foot_width, -.12, .25 + height)),
+                  hip + Vector((sign*.16,-1,0)), Matrix.Identity(3),
+                  Matrix.Identity(3), basis)
+        bpy.context.view_layer.update()
+        return _capture(rig)
+
+    _apply(rig, source)
+    original_pivot = rig.pose.bones['body'].head.copy()
+    original_rotation = (rig.pose.bones['root'].matrix.to_3x3()
+                         @ basis['root'].inverted()).to_quaternion()
+    old_hands = {side: rig.pose.bones['hand.' + side].head.copy() for side in ('L','R')}
+    old_elbows = {side: rig.pose.bones['forearm.' + side].head.copy() for side in ('L','R')}
+    old_feet = {side: rig.pose.bones['foot.' + side].head.copy() for side in ('L','R')}
+    old_poles = {side: rig.pose.bones['shin.' + side].head.copy() for side in ('L','R')}
+    old_foot_rotations = {
+        side:(rig.pose.bones['foot.' + side].matrix.to_3x3()
+              @ basis['foot.' + side].inverted()).to_quaternion() for side in ('L','R')}
+    old_hand_rotations = {
+        side:(rig.pose.bones['hand.' + side].matrix.to_3x3()
+              @ basis['hand.' + side].inverted()).to_quaternion() for side in ('L','R')}
+
+    rise = .09 * _ramp(frame, 6, 13) + .91 * _ramp(frame, 13, 35)
+    rotation = original_rotation.slerp(Matrix.Identity(3).to_quaternion(), rise).to_matrix()
+    pivot = original_pivot.lerp(Vector((0,0,.87)), _ramp(frame, 10, 35))
+    # A small first shift onto the camera-side palm reads as weight transfer.
+    pivot.y -= .055 * _ramp(frame, 6, 13) * (1 - _ramp(frame, 20, 34))
+    pivot.z -= .055 * _ramp(frame, 6, 13) * (1 - _ramp(frame, 24, 35))
+    pivot.z -= .065 * _ramp(frame, 35, 41)
+    pose = _blend(source, crouch, rise)
+    _apply(rig, pose)
+    root = rig.pose.bones['root']
+    root.rotation_euler = (inverse['root'] @ rotation @ basis['root']).to_euler('XYZ', root.rotation_euler)
+    root.location = inverse['root'] @ (pivot - rotation @ rig.data.bones['body'].head_local)
+    bpy.context.view_layer.update()
+    # Let the head lead the chest and then recover, instead of remaining locked
+    # to the rotating torso throughout the stand-up.
+    head_lead = 8 * _ramp(frame, 5, 15) * (1 - _ramp(frame, 22, 34))
+    head = rig.pose.bones['head']
+    head.rotation_euler.rotate_axis('X', -head_lead * pi / 180)
+    bpy.context.view_layer.update()
+
+    for side, sign in [('L',1),('R',-1)]:
+        begin, end = (15,34) if side == 'L' else (10,29)
+        step = _ramp(frame, begin, end)
+        target = old_feet[side].lerp(Vector((sign*.36,-.12,.25)), step)
+        if begin < frame < end:
+            target.z += .14 * sin(pi*(frame-begin)/(end-begin)) ** 1.4
+        hip = rig.pose.bones['thigh.' + side].head.copy()
+        pole = old_poles[side].lerp(hip + Vector((sign*.16,-1,0)), rise)
+        foot_rotation = old_foot_rotations[side].slerp(Matrix.Identity(3).to_quaternion(), step).to_matrix()
+        _limb(rig, 'thigh.' + side, 'shin.' + side, 'foot.' + side,
+              target, pole, rotation, foot_rotation, basis)
+    bpy.context.view_layer.update()
+    _clearance(rig, context)
+
+    for side, sign in [('L',1),('R',-1)]:
+        shoulder = rig.pose.bones['upper_arm.' + side].head.copy()
+        # The near hand makes firm contact first; the far hand lightly braces
+        # beside the torso. Keeping the elbows out clears the oversized head.
+        brace = Vector((.04, sign*.76, .215 if side == 'R' else .28))
+        target = old_hands[side].lerp(brace, _ramp(frame, 3 if side == 'R' else 6, 12 if side == 'R' else 15))
+        release = _ramp(frame, 18 if side == 'R' else 15, 33)
+        held = shoulder + Vector((sign*.27,-.24,-.46))
+        target = target.lerp(held, release)
+        pole = old_elbows[side].lerp(shoulder + Vector((sign*.52,-.12,-.18)),
+                                    _ramp(frame,6,18))
+        hand_rotation = old_hand_rotations[side].slerp(_rotation(x=-70).to_quaternion(), _ramp(frame,4,12))
+        hand_rotation = hand_rotation.slerp(Matrix.Identity(3).to_quaternion(), release).to_matrix()
+        _limb(rig, 'upper_arm.' + side, 'forearm.' + side, 'hand.' + side,
+              target, pole, rotation, hand_rotation, basis)
+    bpy.context.view_layer.update()
+    _clearance(rig, context)
+    pose = _capture(rig)
+    # Gather both arms into the launch pose only after the supporting hand has
+    # left the floor, so the pull and push are visible as separate actions.
+    pose = _blend(pose, crouch, _ramp(frame, 35, 41))
+    _apply(rig, pose)
+    # Before the deliberate hop, retain a visible point of support rather than
+    # letting simultaneous IK arcs lift the whole robot clear of the floor.
+    bottom = _extreme(rig, context[2], 2)
+    if bottom > .035:
+        _move_root(rig, (0,0,.035-bottom), inverse)
+    return _capture(rig)
+
+
 def _run(rig, start, finish, frame, frames, context):
     """Short eager run with alternating planted targets and a soft torso bob."""
     rig.animation_data.action = None
@@ -236,29 +352,13 @@ def _return(rig, source, source_name, source_frame, name, context):
     guide = dict(TRANSITION_GUIDE.get(name, TRANSITION_GUIDE['NapToReady' if lying else 'WalkWhistleToReady']))
     guide.update(source_activity=source_name, source_frame=source_frame, target_activity='ReadyIdle', target_frame=1)
     action = _new_action(name, guide)
-    if lying:
-        hands_down = _nap_hands_down(rig, source, context)
-        crouch = _crouch(rig, context)
     for frame in range(1, 109):
         if frame == 1:
             pose = source
         elif frame >= 60:
             pose = wave[frame] if frame < 108 else ready
         elif lying:
-            if frame <= 12:
-                pose = _blend(source, hands_down, _ramp(frame, 1, 12))
-            elif frame <= 34:
-                pose = _blend(hands_down, crouch, _ramp(frame, 12, 34))
-            elif frame <= 42:
-                pose = crouch
-            elif frame <= 56:
-                pose = _blend(crouch, ready, _ramp(frame, 42, 55))
-                _apply(rig, pose)
-                height = .34 * sin(pi * (frame - 42) / 14)
-                _move_root(rig, (0, 0, height), context[1])
-                pose = _capture(rig)
-            else:
-                pose = ready
+            pose = _wake_up(rig, source, ready, frame, context)
         elif abs(source_x) < .10:
             pose = _blend(source, ready, _ramp(frame, 1, 40))
         else:

@@ -1,0 +1,942 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-10-26T23:20:07.657265+00:00",
+  "blender_version": "4.0.2",
+  "blend_file": "merlin-interactions.blend",
+  "blend_sha256": "d26c58de38b08d1292b5b7a2a901f211677047f8ed1394db5e7bf36884faf1b7",
+  "glb_file": "merlin-interactions.glb",
+  "checks": [
+    {
+      "name": "nineteen_individual_blender_clips",
+      "passed": true,
+      "missing": []
+    },
+    {
+      "name": "new_clip_lengths",
+      "passed": true,
+      "actual": {
+        "ReadyToPanel": [
+          1.0,
+          180.0
+        ],
+        "PanelIdle": [
+          1.0,
+          96.0
+        ],
+        "PanelToReady": [
+          1.0,
+          144.0
+        ],
+        "ReadyToFace": [
+          1.0,
+          40.0
+        ],
+        "FullFaceIdle": [
+          1.0,
+          96.0
+        ],
+        "FaceToReady": [
+          1.0,
+          36.0
+        ]
+      }
+    },
+    {
+      "name": "all_synchronized_owner_actions",
+      "passed": true,
+      "missing": []
+    },
+    {
+      "name": "original_fifteen_bones",
+      "passed": true
+    },
+    {
+      "name": "original_rig_scale",
+      "passed": true,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "four_by_three_at_twenty_four_fps",
+      "passed": true,
+      "aspect": 1.3333333333333333,
+      "fps": 24.0
+    },
+    {
+      "name": "NapToReady_source_continuity",
+      "passed": true,
+      "maximum_error": 5.960464477539062e-07,
+      "errors": []
+    },
+    {
+      "name": "NapToReady_target_continuity",
+      "passed": true,
+      "maximum_error": 2.980232238769531e-07,
+      "errors": []
+    },
+    {
+      "name": "ReadyToPanel_source_continuity",
+      "passed": true,
+      "maximum_error": 5.960464477539063e-08,
+      "errors": []
+    },
+    {
+      "name": "ReadyToPanel_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "PanelToReady_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "PanelToReady_target_continuity",
+      "passed": true,
+      "maximum_error": 5.960464477539063e-08,
+      "errors": []
+    },
+    {
+      "name": "ReadyToFace_source_continuity",
+      "passed": true,
+      "maximum_error": 5.960464477539063e-08,
+      "errors": []
+    },
+    {
+      "name": "ReadyToFace_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "FaceToReady_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "FaceToReady_target_continuity",
+      "passed": true,
+      "maximum_error": 5.960464477539063e-08,
+      "errors": []
+    },
+    {
+      "name": "PanelIdle_seamless_loop",
+      "passed": true,
+      "maximum_error": 1.4695761072969157e-18,
+      "errors": []
+    },
+    {
+      "name": "FullFaceIdle_seamless_loop",
+      "passed": true,
+      "maximum_error": 2.9995195879107854e-33,
+      "errors": []
+    },
+    {
+      "name": "ReadyToPanel_robot_floor_clearance",
+      "passed": true,
+      "lowest": {
+        "z": 0.032999925315380096,
+        "object": "Foot L \u2022 graphite outsole",
+        "frame": 4
+      }
+    },
+    {
+      "name": "ReadyToPanel_robot_side_wall_clearance",
+      "passed": true,
+      "x_extent": [
+        -2.6989998817443848,
+        4.4919843673706055
+      ]
+    },
+    {
+      "name": "ReadyToPanel_robot_in_camera",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "ReadyToPanel_no_bone_stretch",
+      "passed": true,
+      "maximum_scale_error": 3.5762786865234375e-07
+    },
+    {
+      "name": "PanelIdle_robot_floor_clearance",
+      "passed": true,
+      "lowest": {
+        "z": 0.03499993681907654,
+        "object": "Foot R \u2022 graphite outsole",
+        "frame": 1
+      }
+    },
+    {
+      "name": "PanelIdle_robot_side_wall_clearance",
+      "passed": true,
+      "x_extent": [
+        -2.763873815536499,
+        -0.40099990367889404
+      ]
+    },
+    {
+      "name": "PanelIdle_robot_in_camera",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "PanelIdle_no_bone_stretch",
+      "passed": true,
+      "maximum_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "PanelToReady_robot_floor_clearance",
+      "passed": true,
+      "lowest": {
+        "z": 0.03299989551305771,
+        "object": "Foot R \u2022 graphite outsole",
+        "frame": 122
+      }
+    },
+    {
+      "name": "PanelToReady_robot_side_wall_clearance",
+      "passed": true,
+      "x_extent": [
+        -2.717726230621338,
+        1.1733900308609009
+      ]
+    },
+    {
+      "name": "PanelToReady_robot_in_camera",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "PanelToReady_no_bone_stretch",
+      "passed": true,
+      "maximum_scale_error": 3.5762786865234375e-07
+    },
+    {
+      "name": "ReadyToFace_robot_floor_clearance",
+      "passed": true,
+      "lowest": {
+        "z": 0.03499993681907654,
+        "object": "Foot R \u2022 graphite outsole",
+        "frame": 1
+      }
+    },
+    {
+      "name": "ReadyToFace_robot_side_wall_clearance",
+      "passed": true,
+      "x_extent": [
+        -1.1490000486373901,
+        1.1490000486373901
+      ]
+    },
+    {
+      "name": "ReadyToFace_robot_in_camera",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "ReadyToFace_no_bone_stretch",
+      "passed": true,
+      "maximum_scale_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "FullFaceIdle_robot_floor_clearance",
+      "passed": true,
+      "lowest": {
+        "z": 0.03499993681907654,
+        "object": "Foot R \u2022 graphite outsole",
+        "frame": 1
+      }
+    },
+    {
+      "name": "FullFaceIdle_robot_side_wall_clearance",
+      "passed": true,
+      "x_extent": [
+        -1.1490000486373901,
+        1.1490000486373901
+      ]
+    },
+    {
+      "name": "FullFaceIdle_robot_in_camera",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "FullFaceIdle_no_bone_stretch",
+      "passed": true,
+      "maximum_scale_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "FaceToReady_robot_floor_clearance",
+      "passed": true,
+      "lowest": {
+        "z": 0.03499993681907654,
+        "object": "Foot R \u2022 graphite outsole",
+        "frame": 1
+      }
+    },
+    {
+      "name": "FaceToReady_robot_side_wall_clearance",
+      "passed": true,
+      "x_extent": [
+        -1.1490000486373901,
+        1.1490000486373901
+      ]
+    },
+    {
+      "name": "FaceToReady_robot_in_camera",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "FaceToReady_no_bone_stretch",
+      "passed": true,
+      "maximum_scale_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "NapToReady_robot_floor_clearance",
+      "passed": true,
+      "lowest": {
+        "z": 0.03299926966428757,
+        "object": "Hand R \u2022 soft mitten",
+        "frame": 1
+      }
+    },
+    {
+      "name": "NapToReady_robot_side_wall_clearance",
+      "passed": true,
+      "x_extent": [
+        -2.0207810401916504,
+        1.6131471395492554
+      ]
+    },
+    {
+      "name": "NapToReady_robot_in_camera",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "NapToReady_no_bone_stretch",
+      "passed": true,
+      "maximum_scale_error": 3.5762786865234375e-07
+    },
+    {
+      "name": "NapToReady_supported_before_hop",
+      "passed": true,
+      "maximum_lowest_vertex": 0.035000115633010864
+    },
+    {
+      "name": "panel_and_fullscreen_geometry_present",
+      "passed": true,
+      "panel_objects": 31,
+      "display_objects": 12
+    },
+    {
+      "name": "helpers_hidden_in_unrelated_clips",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "dismissal_removes_entire_panel",
+      "passed": true,
+      "final_scales": {
+        "Panel \u2022 white card": 0.0,
+        "Panel \u2022 fragment 01": 0.0,
+        "Panel \u2022 fragment 02": 0.0,
+        "Panel \u2022 fragment 03": 0.0,
+        "Panel \u2022 fragment 04": 0.0,
+        "Panel \u2022 fragment 05": 0.0,
+        "Panel \u2022 fragment 06": 0.0,
+        "Panel \u2022 fragment 07": 0.0,
+        "Panel \u2022 fragment 08": 0.0,
+        "Panel \u2022 fragment 09": 0.0,
+        "Panel \u2022 fragment 10": 0.0,
+        "Panel \u2022 fragment 11": 0.0,
+        "Panel \u2022 fragment 12": 0.0,
+        "Panel \u2022 fragment 13": 0.0,
+        "Panel \u2022 fragment 14": 0.0,
+        "Panel \u2022 fragment 15": 0.0,
+        "Panel \u2022 fragment 16": 0.0,
+        "Panel \u2022 fragment 17": 0.0,
+        "Panel \u2022 fragment 18": 0.0,
+        "Panel \u2022 fragment 19": 0.0,
+        "Panel \u2022 fragment 20": 0.0,
+        "Panel \u2022 fragment 21": 0.0,
+        "Panel \u2022 fragment 22": 0.0,
+        "Panel \u2022 fragment 23": 0.0,
+        "Panel \u2022 fragment 24": 0.0,
+        "Panel \u2022 fragment 25": 0.0,
+        "Panel \u2022 fragment 26": 0.0,
+        "Panel \u2022 fragment 27": 0.0,
+        "Panel \u2022 fragment 28": 0.0,
+        "Panel \u2022 fragment 29": 0.0,
+        "Panel \u2022 fragment 30": 0.0
+      }
+    },
+    {
+      "name": "zoom_out_removes_display_helpers",
+      "passed": true,
+      "final_scales": {
+        "Display mode \u2022 expanding head": 0.0,
+        "Display mode \u2022 Eye \u2022 L": 0.0,
+        "Display mode \u2022 Eye \u2022 R": 0.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 full frame backing": 0.0,
+        "Display mode \u2022 mouth bar 01": 0.0,
+        "Display mode \u2022 mouth bar 02": 0.0,
+        "Display mode \u2022 mouth bar 03": 0.0,
+        "Display mode \u2022 mouth bar 04": 0.0,
+        "Display mode \u2022 mouth bar 05": 0.0,
+        "Display mode \u2022 mouth bar 06": 0.0,
+        "Display mode \u2022 mouth bar 07": 0.0
+      }
+    },
+    {
+      "name": "panel_idle_has_one_whole_card",
+      "passed": true
+    },
+    {
+      "name": "full_face_has_seven_visible_mouth_bars",
+      "passed": true,
+      "bar_count": 7
+    },
+    {
+      "name": "head_torso_and_rest_skeleton_preserved",
+      "passed": true,
+      "maximum_errors": {
+        "Head \u2022 integrated flush display": 0.0,
+        "Body \u2022 rounded tapered torso": 0.0,
+        "rest_skin_bind_matrices": 0.0
+      }
+    },
+    {
+      "name": "matte_cornflower_preserved",
+      "passed": true,
+      "color": [
+        0.052000001072883606,
+        0.1899999976158142,
+        0.5199999809265137
+      ],
+      "roughness": 0.7200000286102295
+    },
+    {
+      "name": "same_cyan_gradient_on_robot_eyes_and_full_face",
+      "passed": true,
+      "incorrect_objects": []
+    },
+    {
+      "name": "expanding_smile_preserves_robot_shader",
+      "passed": true
+    },
+    {
+      "name": "original_room_brightness_preserved",
+      "passed": true
+    },
+    {
+      "name": "interaction_glb_exists",
+      "passed": true
+    },
+    {
+      "name": "glb_nineteen_individual_clips",
+      "passed": true,
+      "missing": [],
+      "unexpected": []
+    },
+    {
+      "name": "glb_all_rig_morph_prop_channels_and_durations",
+      "passed": true,
+      "errors": [],
+      "durations_seconds": {
+        "Idle": 3.9583332538604736,
+        "Wave": 3.9583332538604736,
+        "Jump": 2.9583332538604736,
+        "WalkWhistle": 7.958333492279053,
+        "WallToss": 9.958333015441895,
+        "Nap": 7.958333492279053,
+        "ReadyIdle": 3.9583332538604736,
+        "ReadyToNap": 3.9583332538604736,
+        "NapToReady": 4.458333492279053,
+        "ReadyToWallToss": 3.9583332538604736,
+        "WallTossToReady": 4.458333492279053,
+        "ReadyToWalkWhistle": 3.9583332538604736,
+        "WalkWhistleToReady": 4.458333492279053,
+        "ReadyToPanel": 7.458333492279053,
+        "PanelIdle": 3.9583332538604736,
+        "PanelToReady": 5.958333492279053,
+        "ReadyToFace": 1.625,
+        "FullFaceIdle": 3.9583332538604736,
+        "FaceToReady": 1.4583333730697632
+      },
+      "channels": {
+        "Idle": 187,
+        "Wave": 187,
+        "Jump": 187,
+        "WalkWhistle": 187,
+        "WallToss": 187,
+        "Nap": 187,
+        "ReadyIdle": 187,
+        "ReadyToNap": 187,
+        "NapToReady": 187,
+        "ReadyToWallToss": 187,
+        "WallTossToReady": 187,
+        "ReadyToWalkWhistle": 187,
+        "WalkWhistleToReady": 187,
+        "ReadyToPanel": 187,
+        "PanelIdle": 187,
+        "PanelToReady": 187,
+        "ReadyToFace": 187,
+        "FullFaceIdle": 187,
+        "FaceToReady": 187
+      }
+    },
+    {
+      "name": "glb_resources_embedded",
+      "passed": true,
+      "external_uris": []
+    },
+    {
+      "name": "glb_five_route_endpoint_continuity",
+      "passed": true,
+      "maximum_error": 2.384185791015625e-07,
+      "errors": []
+    }
+  ],
+  "measurements": {
+    "route_endpoints": {
+      "NapToReady": {
+        "source": [
+          "Nap",
+          192.0
+        ],
+        "target": [
+          "ReadyIdle",
+          1.0
+        ]
+      },
+      "ReadyToPanel": {
+        "source": [
+          "ReadyIdle",
+          1.0
+        ],
+        "target": [
+          "PanelIdle",
+          1.0
+        ]
+      },
+      "PanelToReady": {
+        "source": [
+          "PanelIdle",
+          1.0
+        ],
+        "target": [
+          "ReadyIdle",
+          1.0
+        ]
+      },
+      "ReadyToFace": {
+        "source": [
+          "ReadyIdle",
+          1.0
+        ],
+        "target": [
+          "FullFaceIdle",
+          1.0
+        ]
+      },
+      "FaceToReady": {
+        "source": [
+          "FullFaceIdle",
+          1.0
+        ],
+        "target": [
+          "ReadyIdle",
+          1.0
+        ]
+      }
+    },
+    "robot_geometry": {
+      "ReadyToPanel": {
+        "frames_checked": 180,
+        "minimum_z": {
+          "z": 0.032999925315380096,
+          "object": "Foot L \u2022 graphite outsole",
+          "frame": 4
+        },
+        "x_extent": [
+          -2.6989998817443848,
+          4.4919843673706055
+        ]
+      },
+      "PanelIdle": {
+        "frames_checked": 96,
+        "minimum_z": {
+          "z": 0.03499993681907654,
+          "object": "Foot R \u2022 graphite outsole",
+          "frame": 1
+        },
+        "x_extent": [
+          -2.763873815536499,
+          -0.40099990367889404
+        ]
+      },
+      "PanelToReady": {
+        "frames_checked": 144,
+        "minimum_z": {
+          "z": 0.03299989551305771,
+          "object": "Foot R \u2022 graphite outsole",
+          "frame": 122
+        },
+        "x_extent": [
+          -2.717726230621338,
+          1.1733900308609009
+        ]
+      },
+      "ReadyToFace": {
+        "frames_checked": 40,
+        "minimum_z": {
+          "z": 0.03499993681907654,
+          "object": "Foot R \u2022 graphite outsole",
+          "frame": 1
+        },
+        "x_extent": [
+          -1.1490000486373901,
+          1.1490000486373901
+        ]
+      },
+      "FullFaceIdle": {
+        "frames_checked": 96,
+        "minimum_z": {
+          "z": 0.03499993681907654,
+          "object": "Foot R \u2022 graphite outsole",
+          "frame": 1
+        },
+        "x_extent": [
+          -1.1490000486373901,
+          1.1490000486373901
+        ]
+      },
+      "FaceToReady": {
+        "frames_checked": 36,
+        "minimum_z": {
+          "z": 0.03499993681907654,
+          "object": "Foot R \u2022 graphite outsole",
+          "frame": 1
+        },
+        "x_extent": [
+          -1.1490000486373901,
+          1.1490000486373901
+        ]
+      },
+      "NapToReady": {
+        "frames_checked": 108,
+        "minimum_z": {
+          "z": 0.03299926966428757,
+          "object": "Hand R \u2022 soft mitten",
+          "frame": 1
+        },
+        "x_extent": [
+          -2.0207810401916504,
+          1.6131471395492554
+        ]
+      }
+    },
+    "helper_endpoint_scales": {
+      "ReadyToPanel": {
+        "Panel \u2022 white card": 1.0,
+        "Panel \u2022 fragment 01": 0.0,
+        "Panel \u2022 fragment 02": 0.0,
+        "Panel \u2022 fragment 03": 0.0,
+        "Panel \u2022 fragment 04": 0.0,
+        "Panel \u2022 fragment 05": 0.0,
+        "Panel \u2022 fragment 06": 0.0,
+        "Panel \u2022 fragment 07": 0.0,
+        "Panel \u2022 fragment 08": 0.0,
+        "Panel \u2022 fragment 09": 0.0,
+        "Panel \u2022 fragment 10": 0.0,
+        "Panel \u2022 fragment 11": 0.0,
+        "Panel \u2022 fragment 12": 0.0,
+        "Panel \u2022 fragment 13": 0.0,
+        "Panel \u2022 fragment 14": 0.0,
+        "Panel \u2022 fragment 15": 0.0,
+        "Panel \u2022 fragment 16": 0.0,
+        "Panel \u2022 fragment 17": 0.0,
+        "Panel \u2022 fragment 18": 0.0,
+        "Panel \u2022 fragment 19": 0.0,
+        "Panel \u2022 fragment 20": 0.0,
+        "Panel \u2022 fragment 21": 0.0,
+        "Panel \u2022 fragment 22": 0.0,
+        "Panel \u2022 fragment 23": 0.0,
+        "Panel \u2022 fragment 24": 0.0,
+        "Panel \u2022 fragment 25": 0.0,
+        "Panel \u2022 fragment 26": 0.0,
+        "Panel \u2022 fragment 27": 0.0,
+        "Panel \u2022 fragment 28": 0.0,
+        "Panel \u2022 fragment 29": 0.0,
+        "Panel \u2022 fragment 30": 0.0,
+        "Display mode \u2022 expanding head": 0.0,
+        "Display mode \u2022 Eye \u2022 L": 0.0,
+        "Display mode \u2022 Eye \u2022 R": 0.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 full frame backing": 0.0,
+        "Display mode \u2022 mouth bar 01": 0.0,
+        "Display mode \u2022 mouth bar 02": 0.0,
+        "Display mode \u2022 mouth bar 03": 0.0,
+        "Display mode \u2022 mouth bar 04": 0.0,
+        "Display mode \u2022 mouth bar 05": 0.0,
+        "Display mode \u2022 mouth bar 06": 0.0,
+        "Display mode \u2022 mouth bar 07": 0.0
+      },
+      "PanelIdle": {
+        "Panel \u2022 white card": 1.0,
+        "Panel \u2022 fragment 01": 0.0,
+        "Panel \u2022 fragment 02": 0.0,
+        "Panel \u2022 fragment 03": 0.0,
+        "Panel \u2022 fragment 04": 0.0,
+        "Panel \u2022 fragment 05": 0.0,
+        "Panel \u2022 fragment 06": 0.0,
+        "Panel \u2022 fragment 07": 0.0,
+        "Panel \u2022 fragment 08": 0.0,
+        "Panel \u2022 fragment 09": 0.0,
+        "Panel \u2022 fragment 10": 0.0,
+        "Panel \u2022 fragment 11": 0.0,
+        "Panel \u2022 fragment 12": 0.0,
+        "Panel \u2022 fragment 13": 0.0,
+        "Panel \u2022 fragment 14": 0.0,
+        "Panel \u2022 fragment 15": 0.0,
+        "Panel \u2022 fragment 16": 0.0,
+        "Panel \u2022 fragment 17": 0.0,
+        "Panel \u2022 fragment 18": 0.0,
+        "Panel \u2022 fragment 19": 0.0,
+        "Panel \u2022 fragment 20": 0.0,
+        "Panel \u2022 fragment 21": 0.0,
+        "Panel \u2022 fragment 22": 0.0,
+        "Panel \u2022 fragment 23": 0.0,
+        "Panel \u2022 fragment 24": 0.0,
+        "Panel \u2022 fragment 25": 0.0,
+        "Panel \u2022 fragment 26": 0.0,
+        "Panel \u2022 fragment 27": 0.0,
+        "Panel \u2022 fragment 28": 0.0,
+        "Panel \u2022 fragment 29": 0.0,
+        "Panel \u2022 fragment 30": 0.0,
+        "Display mode \u2022 expanding head": 0.0,
+        "Display mode \u2022 Eye \u2022 L": 0.0,
+        "Display mode \u2022 Eye \u2022 R": 0.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 full frame backing": 0.0,
+        "Display mode \u2022 mouth bar 01": 0.0,
+        "Display mode \u2022 mouth bar 02": 0.0,
+        "Display mode \u2022 mouth bar 03": 0.0,
+        "Display mode \u2022 mouth bar 04": 0.0,
+        "Display mode \u2022 mouth bar 05": 0.0,
+        "Display mode \u2022 mouth bar 06": 0.0,
+        "Display mode \u2022 mouth bar 07": 0.0
+      },
+      "PanelToReady": {
+        "Panel \u2022 white card": 0.0,
+        "Panel \u2022 fragment 01": 0.0,
+        "Panel \u2022 fragment 02": 0.0,
+        "Panel \u2022 fragment 03": 0.0,
+        "Panel \u2022 fragment 04": 0.0,
+        "Panel \u2022 fragment 05": 0.0,
+        "Panel \u2022 fragment 06": 0.0,
+        "Panel \u2022 fragment 07": 0.0,
+        "Panel \u2022 fragment 08": 0.0,
+        "Panel \u2022 fragment 09": 0.0,
+        "Panel \u2022 fragment 10": 0.0,
+        "Panel \u2022 fragment 11": 0.0,
+        "Panel \u2022 fragment 12": 0.0,
+        "Panel \u2022 fragment 13": 0.0,
+        "Panel \u2022 fragment 14": 0.0,
+        "Panel \u2022 fragment 15": 0.0,
+        "Panel \u2022 fragment 16": 0.0,
+        "Panel \u2022 fragment 17": 0.0,
+        "Panel \u2022 fragment 18": 0.0,
+        "Panel \u2022 fragment 19": 0.0,
+        "Panel \u2022 fragment 20": 0.0,
+        "Panel \u2022 fragment 21": 0.0,
+        "Panel \u2022 fragment 22": 0.0,
+        "Panel \u2022 fragment 23": 0.0,
+        "Panel \u2022 fragment 24": 0.0,
+        "Panel \u2022 fragment 25": 0.0,
+        "Panel \u2022 fragment 26": 0.0,
+        "Panel \u2022 fragment 27": 0.0,
+        "Panel \u2022 fragment 28": 0.0,
+        "Panel \u2022 fragment 29": 0.0,
+        "Panel \u2022 fragment 30": 0.0,
+        "Display mode \u2022 expanding head": 0.0,
+        "Display mode \u2022 Eye \u2022 L": 0.0,
+        "Display mode \u2022 Eye \u2022 R": 0.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 full frame backing": 0.0,
+        "Display mode \u2022 mouth bar 01": 0.0,
+        "Display mode \u2022 mouth bar 02": 0.0,
+        "Display mode \u2022 mouth bar 03": 0.0,
+        "Display mode \u2022 mouth bar 04": 0.0,
+        "Display mode \u2022 mouth bar 05": 0.0,
+        "Display mode \u2022 mouth bar 06": 0.0,
+        "Display mode \u2022 mouth bar 07": 0.0
+      },
+      "ReadyToFace": {
+        "Panel \u2022 white card": 0.0,
+        "Panel \u2022 fragment 01": 0.0,
+        "Panel \u2022 fragment 02": 0.0,
+        "Panel \u2022 fragment 03": 0.0,
+        "Panel \u2022 fragment 04": 0.0,
+        "Panel \u2022 fragment 05": 0.0,
+        "Panel \u2022 fragment 06": 0.0,
+        "Panel \u2022 fragment 07": 0.0,
+        "Panel \u2022 fragment 08": 0.0,
+        "Panel \u2022 fragment 09": 0.0,
+        "Panel \u2022 fragment 10": 0.0,
+        "Panel \u2022 fragment 11": 0.0,
+        "Panel \u2022 fragment 12": 0.0,
+        "Panel \u2022 fragment 13": 0.0,
+        "Panel \u2022 fragment 14": 0.0,
+        "Panel \u2022 fragment 15": 0.0,
+        "Panel \u2022 fragment 16": 0.0,
+        "Panel \u2022 fragment 17": 0.0,
+        "Panel \u2022 fragment 18": 0.0,
+        "Panel \u2022 fragment 19": 0.0,
+        "Panel \u2022 fragment 20": 0.0,
+        "Panel \u2022 fragment 21": 0.0,
+        "Panel \u2022 fragment 22": 0.0,
+        "Panel \u2022 fragment 23": 0.0,
+        "Panel \u2022 fragment 24": 0.0,
+        "Panel \u2022 fragment 25": 0.0,
+        "Panel \u2022 fragment 26": 0.0,
+        "Panel \u2022 fragment 27": 0.0,
+        "Panel \u2022 fragment 28": 0.0,
+        "Panel \u2022 fragment 29": 0.0,
+        "Panel \u2022 fragment 30": 0.0,
+        "Display mode \u2022 expanding head": 1.0,
+        "Display mode \u2022 Eye \u2022 L": 1.0,
+        "Display mode \u2022 Eye \u2022 R": 1.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 full frame backing": 1.0,
+        "Display mode \u2022 mouth bar 01": 1.0,
+        "Display mode \u2022 mouth bar 02": 1.0,
+        "Display mode \u2022 mouth bar 03": 1.0,
+        "Display mode \u2022 mouth bar 04": 1.0,
+        "Display mode \u2022 mouth bar 05": 1.0,
+        "Display mode \u2022 mouth bar 06": 1.0,
+        "Display mode \u2022 mouth bar 07": 1.0
+      },
+      "FullFaceIdle": {
+        "Panel \u2022 white card": 0.0,
+        "Panel \u2022 fragment 01": 0.0,
+        "Panel \u2022 fragment 02": 0.0,
+        "Panel \u2022 fragment 03": 0.0,
+        "Panel \u2022 fragment 04": 0.0,
+        "Panel \u2022 fragment 05": 0.0,
+        "Panel \u2022 fragment 06": 0.0,
+        "Panel \u2022 fragment 07": 0.0,
+        "Panel \u2022 fragment 08": 0.0,
+        "Panel \u2022 fragment 09": 0.0,
+        "Panel \u2022 fragment 10": 0.0,
+        "Panel \u2022 fragment 11": 0.0,
+        "Panel \u2022 fragment 12": 0.0,
+        "Panel \u2022 fragment 13": 0.0,
+        "Panel \u2022 fragment 14": 0.0,
+        "Panel \u2022 fragment 15": 0.0,
+        "Panel \u2022 fragment 16": 0.0,
+        "Panel \u2022 fragment 17": 0.0,
+        "Panel \u2022 fragment 18": 0.0,
+        "Panel \u2022 fragment 19": 0.0,
+        "Panel \u2022 fragment 20": 0.0,
+        "Panel \u2022 fragment 21": 0.0,
+        "Panel \u2022 fragment 22": 0.0,
+        "Panel \u2022 fragment 23": 0.0,
+        "Panel \u2022 fragment 24": 0.0,
+        "Panel \u2022 fragment 25": 0.0,
+        "Panel \u2022 fragment 26": 0.0,
+        "Panel \u2022 fragment 27": 0.0,
+        "Panel \u2022 fragment 28": 0.0,
+        "Panel \u2022 fragment 29": 0.0,
+        "Panel \u2022 fragment 30": 0.0,
+        "Display mode \u2022 expanding head": 1.0,
+        "Display mode \u2022 Eye \u2022 L": 1.0,
+        "Display mode \u2022 Eye \u2022 R": 1.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 full frame backing": 1.0,
+        "Display mode \u2022 mouth bar 01": 1.0,
+        "Display mode \u2022 mouth bar 02": 1.0,
+        "Display mode \u2022 mouth bar 03": 1.0,
+        "Display mode \u2022 mouth bar 04": 1.0,
+        "Display mode \u2022 mouth bar 05": 1.0,
+        "Display mode \u2022 mouth bar 06": 1.0,
+        "Display mode \u2022 mouth bar 07": 1.0
+      },
+      "FaceToReady": {
+        "Panel \u2022 white card": 0.0,
+        "Panel \u2022 fragment 01": 0.0,
+        "Panel \u2022 fragment 02": 0.0,
+        "Panel \u2022 fragment 03": 0.0,
+        "Panel \u2022 fragment 04": 0.0,
+        "Panel \u2022 fragment 05": 0.0,
+        "Panel \u2022 fragment 06": 0.0,
+        "Panel \u2022 fragment 07": 0.0,
+        "Panel \u2022 fragment 08": 0.0,
+        "Panel \u2022 fragment 09": 0.0,
+        "Panel \u2022 fragment 10": 0.0,
+        "Panel \u2022 fragment 11": 0.0,
+        "Panel \u2022 fragment 12": 0.0,
+        "Panel \u2022 fragment 13": 0.0,
+        "Panel \u2022 fragment 14": 0.0,
+        "Panel \u2022 fragment 15": 0.0,
+        "Panel \u2022 fragment 16": 0.0,
+        "Panel \u2022 fragment 17": 0.0,
+        "Panel \u2022 fragment 18": 0.0,
+        "Panel \u2022 fragment 19": 0.0,
+        "Panel \u2022 fragment 20": 0.0,
+        "Panel \u2022 fragment 21": 0.0,
+        "Panel \u2022 fragment 22": 0.0,
+        "Panel \u2022 fragment 23": 0.0,
+        "Panel \u2022 fragment 24": 0.0,
+        "Panel \u2022 fragment 25": 0.0,
+        "Panel \u2022 fragment 26": 0.0,
+        "Panel \u2022 fragment 27": 0.0,
+        "Panel \u2022 fragment 28": 0.0,
+        "Panel \u2022 fragment 29": 0.0,
+        "Panel \u2022 fragment 30": 0.0,
+        "Display mode \u2022 expanding head": 0.0,
+        "Display mode \u2022 Eye \u2022 L": 0.0,
+        "Display mode \u2022 Eye \u2022 R": 0.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 full frame backing": 0.0,
+        "Display mode \u2022 mouth bar 01": 0.0,
+        "Display mode \u2022 mouth bar 02": 0.0,
+        "Display mode \u2022 mouth bar 03": 0.0,
+        "Display mode \u2022 mouth bar 04": 0.0,
+        "Display mode \u2022 mouth bar 05": 0.0,
+        "Display mode \u2022 mouth bar 06": 0.0,
+        "Display mode \u2022 mouth bar 07": 0.0
+      }
+    },
+    "glb": {
+      "bytes": 9997432,
+      "clips": 19,
+      "nodes": 109,
+      "meshes": 93
+    }
+  },
+  "tolerances": {
+    "matrix_and_channel": 3e-05,
+    "surface_units": 0.008,
+    "camera_fraction": 0.005
+  },
+  "limitations": [
+    "Numerical checks complement visual review of the rendered performances.",
+    "Checks cover authored integer frames and fixed route boundaries; arbitrary runtime blends are not proved.",
+    "No live application integration or real-time device-performance claim."
+  ],
+  "failed_checks": [],
+  "glb_sha256": "2eb19729da2e1681498dd556d69a7d57ecad1c95e1a6097709ecde8c0d04bc63",
+  "passed": true,
+  "completed_at_utc": "2026-10-26T23:32:48.020774+00:00"
+}

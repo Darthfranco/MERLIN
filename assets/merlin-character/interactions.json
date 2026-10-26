@@ -1,0 +1,292 @@
+{
+  "fps": 24,
+  "ready": "ReadyIdle",
+  "clips": {
+    "Idle": {
+      "frames": 96,
+      "source": null,
+      "source_frame": null,
+      "target": null,
+      "target_frame": null
+    },
+    "Wave": {
+      "frames": 96,
+      "source": null,
+      "source_frame": null,
+      "target": null,
+      "target_frame": null
+    },
+    "Jump": {
+      "frames": 72,
+      "source": null,
+      "source_frame": null,
+      "target": null,
+      "target_frame": null
+    },
+    "WalkWhistle": {
+      "frames": 192,
+      "source": null,
+      "source_frame": null,
+      "target": null,
+      "target_frame": null
+    },
+    "WallToss": {
+      "frames": 240,
+      "source": null,
+      "source_frame": null,
+      "target": null,
+      "target_frame": null
+    },
+    "Nap": {
+      "frames": 192,
+      "source": null,
+      "source_frame": null,
+      "target": null,
+      "target_frame": null
+    },
+    "ReadyIdle": {
+      "frames": 96,
+      "source": "Idle",
+      "source_frame": 1,
+      "target": "Idle",
+      "target_frame": 96
+    },
+    "ReadyToNap": {
+      "frames": 96,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "Nap",
+      "target_frame": 1
+    },
+    "NapToReady": {
+      "frames": 108,
+      "source": "Nap",
+      "source_frame": 192,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "ReadyToWallToss": {
+      "frames": 96,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "WallToss",
+      "target_frame": 1
+    },
+    "WallTossToReady": {
+      "frames": 108,
+      "source": "WallToss",
+      "source_frame": 240,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "ReadyToWalkWhistle": {
+      "frames": 96,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "WalkWhistle",
+      "target_frame": 1
+    },
+    "WalkWhistleToReady": {
+      "frames": 108,
+      "source": "WalkWhistle",
+      "source_frame": 192,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "ReadyToPanel": {
+      "frames": 180,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "PanelIdle",
+      "target_frame": 1
+    },
+    "PanelIdle": {
+      "frames": 96,
+      "source": "PanelIdle",
+      "source_frame": 1,
+      "target": "PanelIdle",
+      "target_frame": 1
+    },
+    "PanelToReady": {
+      "frames": 144,
+      "source": "PanelIdle",
+      "source_frame": 1,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "ReadyToFace": {
+      "frames": 40,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FullFaceIdle": {
+      "frames": 96,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToReady": {
+      "frames": 36,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    }
+  },
+  "routes": {
+    "Nap": {
+      "enter": "ReadyToNap",
+      "idle": "Nap",
+      "exit": "NapToReady"
+    },
+    "WallToss": {
+      "enter": "ReadyToWallToss",
+      "idle": "WallToss",
+      "exit": "WallTossToReady"
+    },
+    "WalkWhistle": {
+      "enter": "ReadyToWalkWhistle",
+      "idle": "WalkWhistle",
+      "exit": "WalkWhistleToReady"
+    },
+    "Panel": {
+      "enter": "ReadyToPanel",
+      "idle": "PanelIdle",
+      "exit": "PanelToReady"
+    },
+    "Face": {
+      "enter": "ReadyToFace",
+      "idle": "FullFaceIdle",
+      "exit": "FaceToReady"
+    }
+  },
+  "showcase": [
+    {
+      "clip": "Nap",
+      "start": 1,
+      "end": 12,
+      "source_start": 192,
+      "source_end": 192
+    },
+    {
+      "clip": "NapToReady",
+      "start": 13,
+      "end": 120,
+      "source_start": 1,
+      "source_end": 108
+    },
+    {
+      "clip": "ReadyIdle",
+      "start": 121,
+      "end": 132,
+      "source_start": 1,
+      "source_end": 1
+    },
+    {
+      "clip": "ReadyToPanel",
+      "start": 133,
+      "end": 312,
+      "source_start": 1,
+      "source_end": 180
+    },
+    {
+      "clip": "PanelIdle",
+      "start": 313,
+      "end": 408,
+      "source_start": 1,
+      "source_end": 96
+    },
+    {
+      "clip": "PanelToReady",
+      "start": 409,
+      "end": 552,
+      "source_start": 1,
+      "source_end": 144
+    },
+    {
+      "clip": "ReadyIdle",
+      "start": 553,
+      "end": 564,
+      "source_start": 1,
+      "source_end": 1
+    },
+    {
+      "clip": "ReadyToFace",
+      "start": 565,
+      "end": 604,
+      "source_start": 1,
+      "source_end": 40
+    },
+    {
+      "clip": "FullFaceIdle",
+      "start": 605,
+      "end": 700,
+      "source_start": 1,
+      "source_end": 96
+    },
+    {
+      "clip": "FaceToReady",
+      "start": 701,
+      "end": 736,
+      "source_start": 1,
+      "source_end": 36
+    },
+    {
+      "clip": "ReadyIdle",
+      "start": 737,
+      "end": 748,
+      "source_start": 1,
+      "source_end": 1
+    }
+  ],
+  "panel": {
+    "side": "right",
+    "width_fraction": 0.466,
+    "tap_shatter_frames": [
+      31,
+      53
+    ]
+  },
+  "display": {
+    "enter": "ReadyToFace",
+    "idle": "FullFaceIdle",
+    "exit": "FaceToReady",
+    "mouth": "seven rounded cyan bars",
+    "camera_required": "Camera \u2022 landscape tablet; preserve its transform and 4:3 orthographic framing"
+  },
+  "runtime_note": "Play synchronized tracks with room/camera/lighting. Application interaction triggers and panel content are not included.",
+  "camera": {
+    "type": "orthographic",
+    "matrix_world": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.30669379234313965,
+        -0.9518082141876221,
+        -18.0
+      ],
+      [
+        0.0,
+        0.9518082141876221,
+        0.30669379234313965,
+        8.300000190734863
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "orthographic_width": 10.199999809265137,
+    "aspect_ratio": 1.3333333333333333
+  }
+}

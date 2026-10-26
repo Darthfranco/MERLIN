@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-10-26T23:18:00.694671+00:00",
+  "blender_version": "4.0.2",
+  "blend_file": "merlin-interactions.blend",
+  "blend_sha256": "d26c58de38b08d1292b5b7a2a901f211677047f8ed1394db5e7bf36884faf1b7",
+  "clips": {
+    "Idle": {
+      "frames": 96,
+      "minimum_screen_clearance": 0.0009999979102657264,
+      "missing_channels": []
+    },
+    "Wave": {
+      "frames": 96,
+      "minimum_screen_clearance": 0.0009999995523645167,
+      "missing_channels": []
+    },
+    "Jump": {
+      "frames": 72,
+      "minimum_screen_clearance": 0.0009999981568034055,
+      "missing_channels": []
+    },
+    "WalkWhistle": {
+      "frames": 192,
+      "minimum_screen_clearance": 0.0009999977083593459,
+      "missing_channels": []
+    },
+    "WallToss": {
+      "frames": 240,
+      "minimum_screen_clearance": 0.0009999984353281643,
+      "missing_channels": []
+    },
+    "Nap": {
+      "frames": 192,
+      "minimum_screen_clearance": 0.0012184740584807452,
+      "missing_channels": []
+    },
+    "ReadyIdle": {
+      "frames": 96,
+      "minimum_screen_clearance": 0.0009999979102657264,
+      "missing_channels": []
+    },
+    "ReadyToNap": {
+      "frames": 96,
+      "minimum_screen_clearance": 0.0009999975297808605,
+      "missing_channels": []
+    },
+    "NapToReady": {
+      "frames": 108,
+      "minimum_screen_clearance": 0.0009999990912298307,
+      "missing_channels": []
+    },
+    "ReadyToWallToss": {
+      "frames": 96,
+      "minimum_screen_clearance": 0.0009999979102657264,
+      "missing_channels": []
+    },
+    "WallTossToReady": {
+      "frames": 108,
+      "minimum_screen_clearance": 0.0009999979892441058,
+      "missing_channels": []
+    },
+    "ReadyToWalkWhistle": {
+      "frames": 96,
+      "minimum_screen_clearance": 0.0009999979102657264,
+      "missing_channels": []
+    },
+    "WalkWhistleToReady": {
+      "frames": 108,
+      "minimum_screen_clearance": 0.0009999979892441058,
+      "missing_channels": []
+    },
+    "ReadyToPanel": {
+      "frames": 180,
+      "minimum_screen_clearance": 0.0009999980791576268,
+      "missing_channels": []
+    },
+    "PanelIdle": {
+      "frames": 96,
+      "minimum_screen_clearance": 0.0009999979102657264,
+      "missing_channels": []
+    },
+    "PanelToReady": {
+      "frames": 144,
+      "minimum_screen_clearance": 0.000999998645787481,
+      "missing_channels": []
+    },
+    "ReadyToFace": {
+      "frames": 40,
+      "minimum_screen_clearance": 0.0009999984565658426,
+      "missing_channels": []
+    },
+    "FullFaceIdle": {
+      "frames": 96,
+      "minimum_screen_clearance": 0.0009999984565658426,
+      "missing_channels": []
+    },
+    "FaceToReady": {
+      "frames": 36,
+      "minimum_screen_clearance": 0.0009999984565658426,
+      "missing_channels": []
+    }
+  },
+  "checks": [
+    {
+      "name": "Eye \u2022 L original_material_preserved",
+      "passed": true
+    },
+    {
+      "name": "Eye \u2022 R original_material_preserved",
+      "passed": true
+    },
+    {
+      "name": "Face \u2022 luminous smile original_material_preserved",
+      "passed": true
+    },
+    {
+      "name": "nineteen_clips_checked",
+      "passed": true
+    },
+    {
+      "name": "all_face_channels_explicit",
+      "passed": true
+    },
+    {
+      "name": "all_morph_weights_finite",
+      "passed": true
+    },
+    {
+      "name": "all_morph_weights_zero_to_one",
+      "passed": true
+    },
+    {
+      "name": "every_face_vertex_ahead_of_screen",
+      "passed": true
+    },
+    {
+      "name": "Eye \u2022 L panel_effort_and_gaze",
+      "passed": true
+    },
+    {
+      "name": "Eye \u2022 R panel_effort_and_gaze",
+      "passed": true
+    },
+    {
+      "name": "panel_concentration_mouth",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Tests evaluate authored integer frames, not every possible interpolated time or application blend.",
+    "Screen clearance uses the original analytic head surface in shared rigid head space; scene and export checks are separate."
+  ],
+  "measurements": {
+    "clip_count": 19,
+    "face_owner_frame_samples": 6564,
+    "face_vertex_frame_samples": 1702264,
+    "minimum_clearance": 0.0009999975297808605,
+    "minimum_at": {
+      "clip": "ReadyToNap",
+      "frame": 79,
+      "object": "Eye \u2022 L"
+    }
+  },
+  "passed": true,
+  "scope": "Original curved robot-eye and smile meshes across all 19 clips; full-frame overlay geometry is covered separately by scene validation."
+}

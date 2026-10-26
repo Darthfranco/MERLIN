@@ -2,6 +2,67 @@
 
 An original Blender model built from the owner's visual brief: a clean, cute robot with matte cornflower-blue surfaces, rounded head and body forms, a flush dark display, restrained cyan lighting, and a visible pool of light beneath its feet. Its matte/satin finish uses gentle diffuse shading and minimal reflections. The eyes grade from cyan-blue above to pale ice below. Two fine, muted-blue panel joins mark the rear head cap and curve around the chest. The proportions and simplified mitten hands are deliberately softer than the mechanical detail in the supplied references. This is a character asset; live assistant-state selection and application integration have not been implemented.
 
+## Latest: expressive acting, panel interaction, and full-frame face
+
+The new [merlin-interactions.blend](merlin-interactions.blend) and [merlin-interactions.glb](merlin-interactions.glb) extend the previous animation set with a more natural supported wake-up, purposeful eye glances and eyelid acting, a physical panel pull, clean tap dismissal, and coherent expansion into the same character's full-frame face. Original proportions, matte blue surfaces, cyan gradient, and room lighting are preserved. Earlier `.blend`, `.glb`, and preview files remain available as prior versions; this file is the latest animation study.
+
+The wake-up brings the hands down for support, leads with the head and torso, gathers the feet, and makes a small hop followed by a cushioned landing and the existing welcome wave. Expressions follow the action: groggy eyes wake before the body, glances anticipate travel, the panel pull shows focus and effort, and returns soften into a friendly smile. Every facial channel is baked; a tiny corrective morph keeps combined eye shapes on the curved display.
+
+| New clip | Frames at 24 fps | Behavior |
+| --- | --- | --- |
+| `ReadyToPanel` | 1–180 | Approach the right edge, grip, tug with effort, backstep while pulling the white panel into the right half of the scene, and settle beside it |
+| `PanelIdle` | 1–96 | Breathe quietly beside the panel and glance toward it; loops |
+| `PanelToReady` | 1–144 | Reach and tap at frame 30; small fragments recede and disappear during frames 31–53, then return to the central ready stance |
+| `ReadyToFace` | 1–40 | Expand the robot's face into the full-frame display |
+| `FullFaceIdle` | 1–96 | Expressive full-frame face, blue head-like border, and seven rounded cyan mouth bars; loops |
+| `FaceToReady` | 1–36 | Retract the display to the original robot and central ready stance |
+
+The GLB has **19 clips**: the prior 13 plus these six. [interactions.json](interactions.json) records their routes, exact connected endpoints, and presentation timeline. `ExperienceShowcase` is **748 frames at 24 fps** (31⅙ seconds): waking up, presenting the panel, tapping it away, expanding the face, and returning to the robot. Play it with **Space** over Blender's timeline. The four 1600 × 1200 Cycles stills are complete and visually reviewed: [supported wake-up](previews/merlin-natural-wakeup.png), [panel beside MERLIN](previews/merlin-panel.png), [tap dismissal](previews/merlin-panel-dismiss.png), and [full-frame face](previews/merlin-fullscreen-face.png). Final encoded-movie review is pending.
+
+All **63 scene/export checks** pass in [interactions-validation.json](previews/interactions-validation.json), covering fixed route continuity, the new loops, floor/wall/framing bounds, supported wake-up, panel/display visibility, and the preserved character/room setup. The 19 exported clips each retain 187 synchronized channels with correct durations and embedded resources. Five tested GLB route boundaries differ by at most 2.39 × 10⁻⁷ scene/channel units. Head/torso geometry and all 15 rest skeleton bind matrices match the prior asset exactly; original matte materials and room brightness are preserved. The [independent Blender re-import comparison](previews/interaction-roundtrip-validation.json) passes all 57 sampled poses across the 19 clips with no missing objects or tracks. All 15 bone positions differ by at most 1.34 × 10⁻⁶ scene units; face/display morph weights and display bounds match exactly, while prop matrix differences are below 3 × 10⁻⁷. A further mid-expansion vertex comparison is within 9.54 × 10⁻⁷ scene units. The robot and full-frame face share the same embedded gradient, whose imported pixels match exactly.
+
+The saved scene passes all **11 facial checks** in [expression-validation.json](previews/expression-validation.json). Across all 19 clips, 6,564 robot-face object/frame samples and 1,702,264 vertex/frame samples retain positive screen clearance (minimum approximately 0.001 scene units), finite bounded weights, and explicit morph channels. Panel effort, glances, and relief are active. The eye/mouth shader graphs and packed texture pixels match the prior asset exactly. These checks cover authored integer frames; they do not prove every possible runtime blend.
+
+Use the new helper to keep the body, face, ball, panel, fragments, and full-frame display synchronized:
+
+```python
+import bpy, sys
+from pathlib import Path
+sys.path.insert(0, str(Path(bpy.data.filepath).parent / 'scripts'))
+from interaction_support import apply_activity
+
+apply_activity(bpy.context.scene, 'ReadyToPanel')
+# Also: PanelIdle, PanelToReady, ReadyToFace, FullFaceIdle, FaceToReady.
+```
+
+Rebuild with Blender 4.0.2 from the repository root:
+
+```sh
+blender --background --factory-startup --python-exit-code 1 \
+  --python assets/merlin-character/scripts/build_interactions.py
+
+blender --background --factory-startup assets/merlin-character/merlin-interactions.blend \
+  --python-exit-code 1 --python assets/merlin-character/scripts/verify_interactions.py
+
+blender --background --factory-startup --python-exit-code 1 \
+  --python assets/merlin-character/scripts/verify_interaction_roundtrip.py
+
+blender --background --factory-startup assets/merlin-character/merlin-interactions.blend \
+  --python-exit-code 1 --python assets/merlin-character/scripts/render_interactions.py -- stills
+
+blender --background --factory-startup assets/merlin-character/merlin-interactions.blend \
+  --python-exit-code 1 --python assets/merlin-character/scripts/render_interactions.py -- motion
+
+blender --background --factory-startup --python-exit-code 1 \
+  --python assets/merlin-character/scripts/verify_interaction_video.py
+```
+
+The full-resolution stills use Cycles with compositor bloom. The motion preview uses Eevee's native bloom with the same scene lighting and exposure. It bypasses the otherwise pass-through compositor, retaining a soft cyan halo; a matching full-frame-face comparison produced identical pixels with the bypass enabled. The presentation preview is silent; the original walking whistle remains a separate asset for `WalkWhistle`.
+
+The panel and full-frame modes use their fixed entry/exit routes at the documented endpoints. The earlier `transition_support.build_return_from_activity` helper below is scoped to the prior casual/transition assets: it synchronizes the body, face, and ball only and does not author panel or full-frame returns.
+
+The full-frame presentation is authored for the saved landscape camera's transform and **4:3 orthographic composition**. The GLB contains animation assets, not a configured application camera or renderer; a runtime must reproduce that framing, lighting, and bloom. The white panel has no live content, and its dismissal is authored geometry animation. The mouth movement is authored animation, not audio analysis or speech synchronization. Application state selection and device performance remain unimplemented and unbenchmarked.
+
 ## Central ready pose and two-way transitions
 
 The separate [merlin-transitions.blend](merlin-transitions.blend) adds connected departures and returns while retaining the original character proportions, materials, room, and brightness. Open it and press **Space** over the timeline for `InteractionShowcase`: lie down and nap, spring up and wave; go to the wall and toss the ball, run back and wave; go to the left side and walk while whistling, then run back and wave. The continuous presentation has no scene cuts or exposure fades. Every return finishes standing in the middle, facing ahead with open eyes, ready to interact.

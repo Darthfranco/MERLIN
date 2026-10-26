@@ -1,0 +1,939 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-10-26T23:33:13.064172+00:00",
+  "blender_version": "4.0.2",
+  "source_blend": "merlin-interactions.blend",
+  "imported_glb": "merlin-interactions.glb",
+  "glb_sha256": "2eb19729da2e1681498dd556d69a7d57ecad1c95e1a6097709ecde8c0d04bc63",
+  "blend_sha256": "d26c58de38b08d1292b5b7a2a901f211677047f8ed1394db5e7bf36884faf1b7",
+  "expected_clips": [
+    "Idle",
+    "Wave",
+    "Jump",
+    "WalkWhistle",
+    "WallToss",
+    "Nap",
+    "ReadyIdle",
+    "ReadyToNap",
+    "NapToReady",
+    "ReadyToWallToss",
+    "WallTossToReady",
+    "ReadyToWalkWhistle",
+    "WalkWhistleToReady",
+    "ReadyToPanel",
+    "PanelIdle",
+    "PanelToReady",
+    "ReadyToFace",
+    "FullFaceIdle",
+    "FaceToReady"
+  ],
+  "samples": [
+    {
+      "clip": "Idle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "Idle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 3.626374460350858e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "Idle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "Wave",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "Wave",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 5.256224877970597e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "Wave",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "Jump",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "Jump",
+      "source_frame": 36,
+      "imported_frame": 35.0,
+      "errors": {
+        "bones": 5.105823128349661e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "Jump",
+      "source_frame": 72,
+      "imported_frame": 71.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "WalkWhistle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 6.419616707723741e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "WalkWhistle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.951133646320149e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "WalkWhistle",
+      "source_frame": 192,
+      "imported_frame": 191.0,
+      "errors": {
+        "bones": 7.90744969929552e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "WallToss",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.215700987241932e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "WallToss",
+      "source_frame": 120,
+      "imported_frame": 119.0,
+      "errors": {
+        "bones": 1.1325862804448523e-06,
+        "face": 0.0,
+        "objects": 1.1920928955078125e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "WallToss",
+      "source_frame": 240,
+      "imported_frame": 239.0,
+      "errors": {
+        "bones": 1.215700987241932e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "Nap",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.335463315392022e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "Nap",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 1.296315382178518e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "Nap",
+      "source_frame": 192,
+      "imported_frame": 191.0,
+      "errors": {
+        "bones": 1.335463315392022e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyIdle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyIdle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 4.0157177979385453e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyIdle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToNap",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToNap",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 7.348554137908192e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToNap",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 1.2976849709199214e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "NapToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.2976849709199214e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "NapToReady",
+      "source_frame": 54,
+      "imported_frame": 53.0,
+      "errors": {
+        "bones": 3.7527561961004223e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "NapToReady",
+      "source_frame": 108,
+      "imported_frame": 107.0,
+      "errors": {
+        "bones": 4.920636455222808e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToWallToss",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToWallToss",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 1.1980385328675377e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToWallToss",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 1.1561611140531793e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "WallTossToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.1561611140531793e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "WallTossToReady",
+      "source_frame": 54,
+      "imported_frame": 53.0,
+      "errors": {
+        "bones": 6.107658604359387e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "WallTossToReady",
+      "source_frame": 108,
+      "imported_frame": 107.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToWalkWhistle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToWalkWhistle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 6.529361695112778e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToWalkWhistle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 7.725644944200349e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "WalkWhistleToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.591411304263389e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "WalkWhistleToReady",
+      "source_frame": 54,
+      "imported_frame": 53.0,
+      "errors": {
+        "bones": 6.251387883246848e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "WalkWhistleToReady",
+      "source_frame": 108,
+      "imported_frame": 107.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToPanel",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToPanel",
+      "source_frame": 90,
+      "imported_frame": 89.0,
+      "errors": {
+        "bones": 6.70148559088717e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToPanel",
+      "source_frame": 180,
+      "imported_frame": 179.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "PanelIdle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "PanelIdle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 6.761536585780436e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "PanelIdle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "PanelToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "PanelToReady",
+      "source_frame": 72,
+      "imported_frame": 71.0,
+      "errors": {
+        "bones": 5.448611169690556e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "PanelToReady",
+      "source_frame": 144,
+      "imported_frame": 143.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToFace",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 2.9802322387695312e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "ReadyToFace",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "FullFaceIdle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "FullFaceIdle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "FullFaceIdle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "FaceToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "FaceToReady",
+      "source_frame": 18,
+      "imported_frame": 17.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    },
+    {
+      "clip": "FaceToReady",
+      "source_frame": 36,
+      "imported_frame": 35.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0
+      }
+    }
+  ],
+  "missing_objects": [],
+  "missing_tracks": [],
+  "max_errors": {
+    "bones": 1.335463315392022e-06,
+    "face": 0.0,
+    "objects": 2.980232238769531e-07,
+    "display_morphs": 0.0,
+    "display_geometry": 0.0
+  },
+  "tolerances": {
+    "bones": 0.0002,
+    "face": 2e-06,
+    "objects": 0.0002,
+    "display_morphs": 2e-06,
+    "display_geometry": 0.0002
+  },
+  "materials": {
+    "passed": true,
+    "shared_robot_and_fullscreen_gradient": true,
+    "gradient_records": [
+      {
+        "material": "08 \u2022 Display / cyan to ice gradient",
+        "embedded_png": true,
+        "bytes": 830,
+        "users": [
+          "Eye \u2022 L",
+          "Eye \u2022 R",
+          "Display mode \u2022 Eye \u2022 L",
+          "Display mode \u2022 Eye \u2022 R",
+          "Display mode \u2022 mouth bar 01",
+          "Display mode \u2022 mouth bar 02",
+          "Display mode \u2022 mouth bar 03",
+          "Display mode \u2022 mouth bar 04",
+          "Display mode \u2022 mouth bar 05",
+          "Display mode \u2022 mouth bar 06",
+          "Display mode \u2022 mouth bar 07"
+        ]
+      }
+    ],
+    "panel_white_material": true,
+    "blue_border_and_black_display_materials": true,
+    "imported_gradient_pixels": {
+      "passed": true,
+      "source_size": [
+        64,
+        256
+      ],
+      "imported_size": [
+        64,
+        256
+      ],
+      "maximum_channel_error": 0.0,
+      "tolerance": 0.00784313725490196
+    }
+  },
+  "scope": {
+    "bone_joints": [
+      "root",
+      "body",
+      "head",
+      "upper_arm.L",
+      "forearm.L",
+      "hand.L",
+      "upper_arm.R",
+      "forearm.R",
+      "hand.R",
+      "thigh.L",
+      "shin.L",
+      "foot.L",
+      "thigh.R",
+      "shin.R",
+      "foot.R"
+    ],
+    "face_objects": [
+      "Eye \u2022 L",
+      "Eye \u2022 R",
+      "Face \u2022 luminous smile"
+    ],
+    "panel_objects": [
+      "Panel \u2022 fragment 01",
+      "Panel \u2022 fragment 02",
+      "Panel \u2022 fragment 03",
+      "Panel \u2022 fragment 04",
+      "Panel \u2022 fragment 05",
+      "Panel \u2022 fragment 06",
+      "Panel \u2022 fragment 07",
+      "Panel \u2022 fragment 08",
+      "Panel \u2022 fragment 09",
+      "Panel \u2022 fragment 10",
+      "Panel \u2022 fragment 11",
+      "Panel \u2022 fragment 12",
+      "Panel \u2022 fragment 13",
+      "Panel \u2022 fragment 14",
+      "Panel \u2022 fragment 15",
+      "Panel \u2022 fragment 16",
+      "Panel \u2022 fragment 17",
+      "Panel \u2022 fragment 18",
+      "Panel \u2022 fragment 19",
+      "Panel \u2022 fragment 20",
+      "Panel \u2022 fragment 21",
+      "Panel \u2022 fragment 22",
+      "Panel \u2022 fragment 23",
+      "Panel \u2022 fragment 24",
+      "Panel \u2022 fragment 25",
+      "Panel \u2022 fragment 26",
+      "Panel \u2022 fragment 27",
+      "Panel \u2022 fragment 28",
+      "Panel \u2022 fragment 29",
+      "Panel \u2022 fragment 30",
+      "Panel \u2022 white card"
+    ],
+    "display_objects": [
+      "Display mode \u2022 Eye \u2022 L",
+      "Display mode \u2022 Eye \u2022 R",
+      "Display mode \u2022 Face \u2022 luminous smile",
+      "Display mode \u2022 expanding head",
+      "Display mode \u2022 full frame backing",
+      "Display mode \u2022 mouth bar 01",
+      "Display mode \u2022 mouth bar 02",
+      "Display mode \u2022 mouth bar 03",
+      "Display mode \u2022 mouth bar 04",
+      "Display mode \u2022 mouth bar 05",
+      "Display mode \u2022 mouth bar 06",
+      "Display mode \u2022 mouth bar 07"
+    ]
+  },
+  "limitations": [
+    "Representative frame sampling proves these exported poses, not every fractional runtime blend.",
+    "Material linkage and embedded texture are checked numerically; browser lighting and bloom remain runtime choices."
+  ],
+  "imported_clips": [
+    "FaceToReady",
+    "FullFaceIdle",
+    "Idle",
+    "Jump",
+    "Nap",
+    "NapToReady",
+    "PanelIdle",
+    "PanelToReady",
+    "ReadyIdle",
+    "ReadyToFace",
+    "ReadyToNap",
+    "ReadyToPanel",
+    "ReadyToWalkWhistle",
+    "ReadyToWallToss",
+    "WalkWhistle",
+    "WalkWhistleToReady",
+    "WallToss",
+    "WallTossToReady",
+    "Wave"
+  ],
+  "resolved_imported_objects": {
+    "Eye \u2022 L": "Eye \u2022 L.001",
+    "Eye \u2022 R": "Eye \u2022 R.001",
+    "Face \u2022 luminous smile": "Smile \u2022 screen pixels",
+    "Prop \u2022 cyan play ball": "Prop \u2022 cyan play ball",
+    "Panel \u2022 fragment 01": "Panel \u2022 fragment 01",
+    "Panel \u2022 fragment 02": "Panel \u2022 fragment 02",
+    "Panel \u2022 fragment 03": "Panel \u2022 fragment 03",
+    "Panel \u2022 fragment 04": "Panel \u2022 fragment 04",
+    "Panel \u2022 fragment 05": "Panel \u2022 fragment 05",
+    "Panel \u2022 fragment 06": "Panel \u2022 fragment 06",
+    "Panel \u2022 fragment 07": "Panel \u2022 fragment 07",
+    "Panel \u2022 fragment 08": "Panel \u2022 fragment 08",
+    "Panel \u2022 fragment 09": "Panel \u2022 fragment 09",
+    "Panel \u2022 fragment 10": "Panel \u2022 fragment 10",
+    "Panel \u2022 fragment 11": "Panel \u2022 fragment 11",
+    "Panel \u2022 fragment 12": "Panel \u2022 fragment 12",
+    "Panel \u2022 fragment 13": "Panel \u2022 fragment 13",
+    "Panel \u2022 fragment 14": "Panel \u2022 fragment 14",
+    "Panel \u2022 fragment 15": "Panel \u2022 fragment 15",
+    "Panel \u2022 fragment 16": "Panel \u2022 fragment 16",
+    "Panel \u2022 fragment 17": "Panel \u2022 fragment 17",
+    "Panel \u2022 fragment 18": "Panel \u2022 fragment 18",
+    "Panel \u2022 fragment 19": "Panel \u2022 fragment 19",
+    "Panel \u2022 fragment 20": "Panel \u2022 fragment 20",
+    "Panel \u2022 fragment 21": "Panel \u2022 fragment 21",
+    "Panel \u2022 fragment 22": "Panel \u2022 fragment 22",
+    "Panel \u2022 fragment 23": "Panel \u2022 fragment 23",
+    "Panel \u2022 fragment 24": "Panel \u2022 fragment 24",
+    "Panel \u2022 fragment 25": "Panel \u2022 fragment 25",
+    "Panel \u2022 fragment 26": "Panel \u2022 fragment 26",
+    "Panel \u2022 fragment 27": "Panel \u2022 fragment 27",
+    "Panel \u2022 fragment 28": "Panel \u2022 fragment 28",
+    "Panel \u2022 fragment 29": "Panel \u2022 fragment 29",
+    "Panel \u2022 fragment 30": "Panel \u2022 fragment 30",
+    "Panel \u2022 white card": "Panel \u2022 white card",
+    "Display mode \u2022 Eye \u2022 L": "Display mode \u2022 Eye \u2022 L",
+    "Display mode \u2022 Eye \u2022 R": "Display mode \u2022 Eye \u2022 R",
+    "Display mode \u2022 Face \u2022 luminous smile": "Display mode \u2022 Face \u2022 luminous smile",
+    "Display mode \u2022 expanding head": "Display mode \u2022 expanding head",
+    "Display mode \u2022 full frame backing": "Display mode \u2022 full frame backing",
+    "Display mode \u2022 mouth bar 01": "Display mode \u2022 mouth bar 01",
+    "Display mode \u2022 mouth bar 02": "Display mode \u2022 mouth bar 02",
+    "Display mode \u2022 mouth bar 03": "Display mode \u2022 mouth bar 03",
+    "Display mode \u2022 mouth bar 04": "Display mode \u2022 mouth bar 04",
+    "Display mode \u2022 mouth bar 05": "Display mode \u2022 mouth bar 05",
+    "Display mode \u2022 mouth bar 06": "Display mode \u2022 mouth bar 06",
+    "Display mode \u2022 mouth bar 07": "Display mode \u2022 mouth bar 07"
+  },
+  "intermediate_expansion": {
+    "clip": "ReadyToFace",
+    "source_frame": 23,
+    "imported_frame": 22.0,
+    "expand_weight": 0.862352192401886,
+    "world_vertex_errors": {
+      "Display mode \u2022 Eye \u2022 L": 0.0,
+      "Display mode \u2022 Eye \u2022 R": 0.0,
+      "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+      "Display mode \u2022 expanding head": 0.0,
+      "Display mode \u2022 full frame backing": 0.0,
+      "Display mode \u2022 mouth bar 01": 0.0,
+      "Display mode \u2022 mouth bar 02": 9.5367431640625e-07,
+      "Display mode \u2022 mouth bar 03": 0.0,
+      "Display mode \u2022 mouth bar 04": 0.0,
+      "Display mode \u2022 mouth bar 05": 0.0,
+      "Display mode \u2022 mouth bar 06": 9.5367431640625e-07,
+      "Display mode \u2022 mouth bar 07": 0.0
+    },
+    "passed": true
+  },
+  "sample_count": 57,
+  "passed": true
+}
