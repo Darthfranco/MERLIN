@@ -1,0 +1,68 @@
+{
+  "passed": true,
+  "video": "merlin-transitions.mp4",
+  "frames": 1002,
+  "fps": 24,
+  "dimensions": [
+    800,
+    600
+  ],
+  "duration_seconds": 41.75,
+  "audio_decoded_duration_seconds": 41.75066666666667,
+  "audio_channels": 2,
+  "audio_sample_rate": 48000,
+  "whistle_frames": [
+    679,
+    870
+  ],
+  "walk_audio_peak_dbfs": -21.853919873167396,
+  "walk_audio_rms_dbfs": -31.165774393975557,
+  "outside_walk_audio_rms": 0.0,
+  "decoded_review_frames": [
+    {
+      "frame": 1,
+      "clip": "ReadyIdle",
+      "clip_frame": 1
+    },
+    {
+      "frame": 64,
+      "clip": "ReadyToNap",
+      "clip_frame": 52
+    },
+    {
+      "frame": 205,
+      "clip": "PreviewNapReturn",
+      "clip_frame": 49
+    },
+    {
+      "frame": 236,
+      "clip": "PreviewNapReturn",
+      "clip_frame": 80
+    },
+    {
+      "frame": 318,
+      "clip": "ReadyToWallToss",
+      "clip_frame": 42
+    },
+    {
+      "frame": 497,
+      "clip": "PreviewWallReturn",
+      "clip_frame": 35
+    },
+    {
+      "frame": 624,
+      "clip": "ReadyToWalkWhistle",
+      "clip_frame": 42
+    },
+    {
+      "frame": 905,
+      "clip": "WalkWhistleToReady",
+      "clip_frame": 35
+    },
+    {
+      "frame": 978,
+      "clip": "WalkWhistleToReady",
+      "clip_frame": 108
+    }
+  ]
+}
