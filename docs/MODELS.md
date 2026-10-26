@@ -6,6 +6,7 @@ Last checked: **2026-10-26**. This records the founder's supplied catalog and in
 
 - **Selected direction:** build MERLIN around Meta AI capabilities for the Meta hackathon.
 - **Tentative preference:** Kokoro for MERLIN's spoken replies.
+- **Confirmed interaction:** wake-word activation and learning from direct conversations, with one shared household identity initially. Exact wake phrase, detection implementation, and Meta's role in the voice pipeline remain TBD.
 - **Candidates, not selections:** the individual models below and their proposed roles. The product does not need to use every listed model.
 - **Still open:** main reasoning model, hosting, device gateway, orchestration framework, voice deployment, storage, authentication, and hardware. No implementation or model benchmark has been completed.
 
@@ -38,7 +39,9 @@ Spark Open uses the Muse Model License; its infrastructure requirements need eva
 
 ## Voice and camera boundaries
 
-The proposed voice path is microphone → transcription → reasoning and permitted tools → response text → Kokoro speech. Muse Voice Transcribe handles speech input; it does not synthesize speech. [Meta voice overview](https://dev.meta.ai/docs/overview)
+The proposed voice path is wake-word activation → conversational audio → transcription → reasoning and permitted tools → response text → context-aware standing-instruction check → Kokoro speech. This is a conceptual pipeline, not a selected implementation. Wake-word detection does not authorize retaining, uploading, or learning from unrelated room conversations. Muse Voice Transcribe handles speech input; it does not synthesize speech. [Meta voice overview](https://dev.meta.ai/docs/overview)
+
+Keep background preference learning separate from explicit do/don't instructions. Apply the quick instruction check to every outgoing assistant response according to the instruction's wording and context; its implementation is TBD. Once established, scheduled automations run through ordinary execution logic without a fresh model call per execution.
 
 The founder linked the [official Kokoro demo Space](https://huggingface.co/spaces/hexgrad/Kokoro-TTS). The [Kokoro-82M model card](https://huggingface.co/hexgrad/Kokoro-82M) describes an open-weight, Apache-licensed text-to-speech model. Treat the Space as a reference/demo; a production endpoint, local deployment, voice, runtime, licensing obligations, and hosting cost have not been chosen or tested.
 

@@ -1,82 +1,116 @@
 # MERLIN project context
 
-Established from the owner's brief on **October 26, 2026**. This file preserves product intent for future contributors. The owner asked to document and understand the project first; application development follows in subsequent tasks.
+Updated **October 26, 2026** from the owner's initial brief, detailed ten-area outline, and follow-up clarifications. This is the shared product brief for every contributor. It describes intended features and confirmed product decisions; application implementation has not started.
 
 ## The objective
 
-Build **MERLIN**, an exceptionally useful and approachable AI home assistant inspired by Jarvis. It should combine conversation, memory, visual understanding, device control, and a compelling interface into one experience that saves effort around the home.
+**MERLIN is a voice-first home assistant that learns about its household, manages connected devices and services, and stays accessible through a companion app.** The owner's shorthand is “a Google Home on steroids”: everyday household assistance, natural interactions, and useful actions are the product focus. Meta models power the experience; model chat itself is not the central interface.
 
-The project is an entry in the **Meta Global AI Developer Hackathon**, hosted by Meta and Cerebral Valley. It will live in a **public GitHub repository**. Meta models must provide meaningful product functionality. [Hackathon requirements](HACKATHON.md) and [model options](MODELS.md) are documented separately.
+MERLIN is being built in a public GitHub repository for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Cerebral Valley. See [hackathon requirements](HACKATHON.md) and the [model reference](MODELS.md). The proposed primary theme is **Build for Your World**; physical-device coordination may also support **Push the Frontier**. Track and final submission theme remain undecided.
 
-Proposed theme fit: **Build for Your World**, centered on reducing everyday household effort. Coordinated physical-device control could also demonstrate **Push the Frontier**. A final submission theme and competition track have not been selected.
+The owner wants MERLIN to be accessible to as many people as possible. Exact home hardware, companion-app platforms, service providers, and device integrations are **TBD**. An iPad, Spotify, and Ring are examples or candidate integrations, not finalized platform commitments or claims of working support.
 
-## Confirmed owner requirements
+## Ten feature areas
 
-| Capability | Intended behavior |
-| --- | --- |
-| Memory and personalization | Remember preferences across interactions and build on them over time, instead of repeatedly asking for the same information. |
-| Voice | Accept spoken requests and provide spoken responses. Kokoro is the probable TTS choice; speech recognition and TTS are separate components. |
-| Jarvis-inspired UI | A polished, engaging, clear interface that shows what MERLIN heard, is doing, and has accomplished. |
-| Connected home devices | Connect to lights, an oven, speakers, and cameras around the home. Exact brands, access methods, and permitted controls remain unspecified. |
-| Everyday assistance | Play music, create/manage timers, look up information, and handle other useful household requests. |
-| Home cameras | Give the user authorized access to home-camera views and useful visual context. |
-| MERLIN's own camera | Use a dedicated or attached camera for requests such as “What is this?” Camera hardware is not selected. |
-| Image generation | Generate quick useful images, such as labels or illustrations for timers. |
-| Timers and schedules | Automate timing and schedules for lights, the oven, and other supported devices, with clear controls. |
-| Custom commands/routines | Support “Goodnight” and other user-defined commands that coordinate multiple actions. |
-| Companion app | Let the user send MERLIN information, manage preferences and routines, and set up schedules. App platform remains open. |
+### 1. Home device and companion app
 
-These are scope commitments, not claims that functionality already exists. Prioritization for the hackathon should preserve the larger vision while choosing a credible working demonstration.
+MERLIN runs continuously on a home device with a display, such as an iPad or similar device. The companion app lets users communicate with MERLIN, configure it, share information, create schedules, and access their home remotely. The specific device, app platforms, and local/cloud architecture remain open; choose them with broad accessibility in mind.
 
-## Proposed first demonstration
+Continuous availability does not authorize learning from ambient household conversations. The voice and privacy decisions below apply even while MERLIN is idle.
 
-The following sequence is an agent proposal for discussion, not an approved MVP or final architecture:
+### 2. Voice and interface
 
-1. The user gives a voice request; MERLIN displays the transcript and responds aloud.
-2. MERLIN remembers a preference, such as the user's preferred evening light brightness, and applies it in a later request.
-3. A custom “Goodnight” routine coordinates supported lights and music and shows actual outcomes.
-4. A timer or schedule appears in the app with a clear label, optionally generated artwork, and edit/cancel controls.
-5. A user-initiated camera request uses Meta visual understanding to answer a practical question in the same assistant session.
+**Wake-word activation is confirmed.** The exact wake phrase, detection implementation, and conversation-session behavior remain TBD. MERLIN should accept conversational voice commands, respond aloud, and require little or no touch for common tasks.
 
-Build a reliable interaction from voice to reasoning to device action and visible feedback before expanding the number of integrations. A working device integration is more convincing than a large list of simulated controls. Keep simulations available for development and clearly label them in the demo. Oven integration remains in the product scope; live heating should wait for the device's supported API and appropriate controls.
+Use Meta APIs in the voice/assistant experience; the exact role and model routing are still to be defined. Speech recognition and speech synthesis are separate responsibilities. **Kokoro remains the tentative speech-output choice.**
 
-## Proposed system responsibilities
+Provide a clean, Jarvis-inspired interface that displays relevant information when useful and makes listening, processing, speaking, and action outcomes understandable. A character, cute animations, and idle visuals are **optional ideas**. The owner's future visual examples will guide design; no character or visual design is selected.
 
-This is a conceptual outline, not a selected technology stack:
+### 3. Background memory and personalization
 
-- **Interface:** conversation, voice status, rooms/devices, camera views, timers, routines, schedules, and memory management.
-- **Voice:** capture and speech recognition, turn handling, and speech synthesis; assess latency and interruption behavior during implementation.
-- **Agent:** Meta-powered intent handling, tool selection, multi-step coordination, and explanation of outcomes.
-- **Memory:** durable, user-controlled preferences, separated from temporary conversation context.
-- **Device adapters:** explicit capabilities and observed state for each supported device or home hub.
-- **Scheduling:** persistent timers and routines with explicit time zones, cancellation, and recovery after restarts.
-- **Vision and images:** authorized camera input and generated UI imagery, using appropriate Meta models.
-- **Activity and permissions:** understandable action history, access control, and deliberate handling of physical-device risks.
+Use **one shared household identity/profile initially**. Separate household-member profiles and speaker-specific identity are not part of the confirmed initial design.
 
-The owner has not chosen Home Assistant, Matter, MQTT, a vendor API, a frontend framework, a database, or deployment infrastructure. These may be evaluated as options when the actual hardware and demo environment are known.
+Learn useful facts, preferences, communication style, and context in the background from **conversations directed at MERLIN**. Incorporate that information into an evolving household profile and use it in later interactions. Automatic learning is intended; requiring manual approval for every learned preference is not the requested experience.
 
-## Product quality and privacy defaults
+The owner's privacy boundary is explicit: MERLIN learns through conversation and must not act as a spy. Do not turn this into passive surveillance or learning from unrelated room conversations. Wake-word detection must be distinguished from recording, retaining, uploading, or analyzing unrelated audio. Retention, storage, and implementation details remain TBD; memory should remain inspectable, editable, and removable.
 
-MERLIN should be easy to understand and control. Show listening/thinking/speaking/action states, acknowledge requests promptly, expose failures, and keep common actions simple. A futuristic visual style should support everyday use.
+### 4. Explicit do and don't lists
 
-The home is private. Keep credentials and raw household data out of the public repository. Use synthetic public demos, visible camera/microphone controls, and editable/deletable memory. Explain which data goes to hosted models. Contributor variants that use data for training should not be silently selected for household audio, imagery, or preferences.
+Keep explicit standing instructions **separate from learned preferences**. Illustrative examples are “Always call me sir” in the do list and “Never say ‘cat’” in the don't list; these are product examples, not instructions already enabled for this household.
 
-Device execution should validate targets and parameters, enforce permissions, and verify results where possible. Oven heating requires deliberate handling of appliance limits and user confirmation; routines and schedules must preserve those controls. These are engineering defaults proposed for this physical-world product, not requirements attributed to the event organizers.
+Every outgoing assistant response should pass a quick check against applicable standing instructions before delivery. Interpret instructions in context: **“Never mention cats” is a topic restriction; “Never say ‘cat’” is a restriction on wording.** Do not collapse both into a universal substring filter or assume identical intent.
+
+Apply each instruction according to its wording, context, and intended output channel. The owner has not specified a universal spoken-only or all-screen-text rule. Clarify a materially ambiguous instruction instead of silently broadening it. The checker implementation and handling of conflicting instructions remain TBD.
+
+### 5. Everyday assistant tools
+
+- Play music through connected speakers and services, with Spotify as an example. Speaker brands and connection protocols remain TBD.
+- Connect to a calendar; provider and the supported calendar operations remain TBD.
+- Search the internet and summarize useful findings in response to requests.
+- Support multiple simultaneous timers with descriptive labels.
+- Generate quick images to help identify timers, such as a coffee image for a coffee timer.
+
+The user should be able to request these tasks naturally through voice or the app. Providers and account access have not been selected or tested.
+
+### 6. Home cameras and doorbell
+
+Access authorized connected camera feeds through requests such as “Show me the living room.” Display a doorbell popup and let users check who is at the door, including remotely through the companion app. Ring is a candidate/example doorbell integration; hardware, provider support, and access methods are TBD.
+
+### 7. The home device's own camera
+
+Use the home device's camera to answer questions about what the user deliberately shows MERLIN. The requested examples include object identification, estimating food calories, helping with math homework, and assessing whether clothes match.
+
+These remain incidental assistant features within the broader home product. The owner clarified that the hackathon's anti-project examples concern the overall project category and wants these examples retained in scope. Record that as the owner's interpretation, not a claim of organizer review. See the distinction in [HACKATHON.md](HACKATHON.md).
+
+Camera hardware and the use of general Meta vision versus optional SAM segmentation remain undecided. An image model's capabilities do not establish access to a physical camera.
+
+### 8. Schedules and home automation
+
+Users create schedules through conversation or the app. Examples include turning off lights at a specified time, preheating the oven, or switching on the AC at 2 a.m. MERLIN uses tools to establish the schedule.
+
+**Once established, automations execute through ordinary scheduling/event logic without another AI call for each run.** The saved schedule must preserve the requested actions, conditions, timing, and frequency. Persistent execution, time zones, cancellation, and duplicate-execution protection belong in implementation planning.
+
+**Authorization follows the user's actual request.** A one-time request authorizes that occurrence; it must not become a recurring rule. An explicit recurring request authorizes the specified future executions, without asking for the same permission every time. Do not infer blanket ongoing permission from a one-time command. Clarify genuinely ambiguous targets, frequency, or conditions.
+
+This applies to remote and location-triggered actions too. Device capabilities, physical limits, and supported safety controls still apply; the owner's recurrence decision does not authorize bypassing appliance controls. Do not impose a universal extra confirmation on every scheduled oven run solely because an earlier agent proposed one.
+
+### 9. Custom commands and routines
+
+Users define phrases that trigger multiple actions. **“Goodnight” is only an example phrase, with no fixed actions or required preset.** Do not assume it turns off lights, changes music, or adjusts appliances.
+
+The user's workout example is “I'm going to the gym”: retrieve today's instructions from an uploaded training schedule, turn on gym lights, start a workout playlist, and set the AC cold. Preserve this as an illustrative user-configured routine, not an installed default or a specified temperature.
+
+MERLIN should follow uploaded plans and schedules. If the user asks for workout advice, look up relevant information and respond to that request. Do not expand this into autonomous coaching, ongoing fitness-program generation, or personality analysis. Its focus remains practical household assistance.
+
+### 10. Information sharing and remote control
+
+Users can send documents, text, workout plans, and schedules through the companion app. MERLIN should use supplied information for relevant requests and routines.
+
+Away from home, users should be able to switch off forgotten lights, request oven preheating, and view authorized cameras. With location access, support requests such as **“Preheat my oven when I'm five minutes from home.”** This is an arrival-time condition, not a timer started five minutes after the request. Location permission, ETA calculation, and provider choice remain TBD.
+
+Preserve one-time versus recurring intent for arrival triggers as for other automations. A request for the current journey must not silently become a permanent rule for every return home. Remote authentication and device permissions are implementation decisions still to be made.
+
+## Product boundaries and engineering expectations
+
+The ten areas are **hackathon feature goals**, not a claim that all will ship or a finalized priority order. No MVP subset, demo sequence, technology stack, or delivery commitment has been approved. Ask before converting undecided choices or examples into requirements. Do not repeatedly reopen decisions the owner has already answered.
+
+Keep memory, explicit standing instructions, and executable routines distinct. Preferences do not grant device permissions. Explicit instructions should not be silently overwritten by inferred preferences. Clear tool results should tell the user whether an action succeeded, failed, or remains uncertain.
+
+Validate device targets and parameters and respect actual device capabilities. Keep microphone/camera activity visible and user-controlled. Keep private household data, audio, imagery, credentials, and location information out of the public repository; use synthetic public fixtures. Do not automatically choose Contributor model variants for private household data. These engineering expectations support the owner's stated privacy and control goals.
 
 ## Decisions still needed
 
-- Actual device inventory, brands, connection methods, and access to a home hub, if any.
-- Companion app target: browser, desktop, mobile, shared wall display, or a combination.
-- Local/cloud split, deployment location, and available compute for Kokoro or open-weight models.
-- Initial Meta model selection, account access, budget, and measured response latency.
-- Push-to-talk versus wake-word behavior; wake-word or always-on capture is not an existing requirement.
-- Household profiles, permissions, memory retention, and recording policies.
-- First demo scenarios and what will use real hardware versus clearly marked simulation.
-- Team members, representative, competition track, final theme, and accepted Official Rules.
-- Repository license and third-party attribution requirements.
+- Home display/hardware, companion-app platforms, actual device inventory, and service providers, including calendar, music, cameras, and doorbell.
+- App framework, device protocols/home hub, hosting, storage, authentication, and local/cloud split.
+- Exact wake phrase, detection implementation, conversation-session behavior, and voice pipeline/model selection.
+- Household permission management, memory retention/deletion behavior, and audio/image storage policies beyond the confirmed privacy boundary.
+- Standing-instruction conflict resolution and ambiguous wording/channel handling.
+- Location access, ETA source, remote-access implementation, and specific device-supported controls.
+- Initial demo priorities, real hardware versus labeled simulations, and optional visual character/animations.
+- Team, Representative, competition track, final theme, complete Official Rules/acceptance, license, and attribution.
 
-Decide these as they become relevant. Do not block documentation or unrelated work on answers that are not yet needed.
+**TBD means undecided.** Broad accessibility is the direction; it is not approval to choose a specific platform, claim universal integration support, or promise an untested device capability.
 
 ## Owner's development workflow
 
-**Commit and push code and other project changes to GitHub by default, unless the owner explicitly says not to.** This includes project documentation. Keep shared context current so a new agent can continue without the original conversation. [AGENTS.md](../AGENTS.md) defines the repository workflow; [STATUS.md](STATUS.md) records progress.
+**Commit and push code and other project changes to GitHub by default, unless the owner explicitly says not to.** Ask clarifying questions before making unresolved product assumptions; record confirmed answers here so future agents do not need the original conversation. [AGENTS.md](../AGENTS.md) defines the workflow; [STATUS.md](STATUS.md) tracks actual progress.

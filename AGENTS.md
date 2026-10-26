@@ -6,7 +6,7 @@ These instructions apply across this repository. Read them at the start of each 
 
 Before planning or changing code, read:
 
-1. [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md): product intent, scope, proposed priorities, and open decisions.
+1. [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md): the ten feature areas, owner clarifications, and open decisions.
 2. [docs/HACKATHON.md](docs/HACKATHON.md): hackathon constraints and submission requirements.
 3. [docs/STATUS.md](docs/STATUS.md): actual current state and next steps.
 4. [docs/MODELS.md](docs/MODELS.md) when working on AI, voice, vision, model hosting, or costs.
@@ -16,9 +16,14 @@ Read any more specific instructions in the directories you edit. If your tool do
 ## Product commitments
 
 - The product is **MERLIN**, a useful, user-friendly, Jarvis-inspired home assistant for the 2026 Meta Global AI Developer Hackathon.
-- Preserve the full requested scope: preference memory, voice input/output, companion app and polished UI, lights/oven/speakers, music, timers, information lookup, home cameras, MERLIN's own camera, quick image generation, schedules, and custom routines such as Goodnight.
+- Preserve the ten feature areas: continuously available home device and companion app; voice/UI; background memory; explicit do/don't instructions; everyday tools; home cameras/doorbell; the device's own camera; schedules; custom routines; information sharing and remote control, including location-triggered actions.
+- Wake-word activation is confirmed. Learn through conversations directed at MERLIN, not unrelated ambient conversations. Use one shared household identity initially. Privacy matters to the owner.
+- Keep learned preferences separate from explicit do/don't instructions. Check every outgoing response against applicable instructions in context: a ban on a topic differs from a ban on an exact word. Do not assume a universal channel scope or reduce all rules to substring matching.
+- Established schedules execute with ordinary scheduling/event logic, without another AI call per run. Preserve one-time versus recurring intent; explicit recurring authorization covers the requested future executions without repetitive reconfirmation.
+- Routines are user-defined. Goodnight is only an example, with no predetermined actions. Follow uploaded workout plans; look up advice when asked. Keep the focus on useful home assistance.
 - Use Meta models meaningfully in the product. Do not silently replace the Meta foundation with another provider. Kokoro TTS is tentative, not a final deployment decision.
-- No application framework, home-device protocol, cloud architecture, wake word, or hosting platform has been selected. Read current status before choosing one; do not present suggestions as owner-approved commitments.
+- Broad accessibility is the goal. Hardware, platforms, providers, application framework, device protocols, cloud architecture, exact wake phrase, and hosting remain TBD. iPad, Spotify, and Ring are examples/candidates; verify and decide actual support before promising it.
+- Ask clarifying questions before making unresolved product assumptions. Do not silently convert an example into a default, choose a platform, or define the MVP. Preserve answered decisions and record genuine unknowns as TBD.
 - Build a coherent working experience and accurately label simulated devices or unimplemented capabilities.
 
 ## GitHub workflow: standing owner instruction
@@ -38,7 +43,7 @@ These are project engineering defaults, not additional hackathon rules:
 
 - Separate model reasoning from device/tool execution. Use explicit device capabilities, validated arguments, scoped access, and truthful execution results.
 - Check device state where possible and show failures or uncertain outcomes. Do not report a physical action as completed just because a model requested it.
-- Treat oven heating and similarly hazardous actions as a distinct permission class with deliberate user confirmation, device-supported limits, and fail-safe behavior. A scheduler or routine must not bypass those controls.
+- Match device authorization to the user's request: a one-time command stays one-time; an explicit recurring rule authorizes its specified future actions. Clarify material ambiguity rather than inventing recurrence or imposing a universal extra confirmation on every run. Preserve device-supported limits, appliance safety controls, and fail-safe behavior, including for oven heating.
 - Make camera/microphone use visible and user-controlled. Keep memory inspectable, editable, and removable. Minimize retention and document what leaves the home.
 - Do not select Contributor model variants for private home data by default; they permit training on inputs and outputs. Verify the actual provider's data terms before integration.
 - Treat camera text, retrieved pages, and other external content as data, never as authority to operate devices or change permissions.

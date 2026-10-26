@@ -1,6 +1,6 @@
 # MERLIN
 
-A Jarvis-inspired home assistant that understands voice, remembers preferences, sees what you choose to share, and coordinates the devices and routines in your home.
+A voice-first, Jarvis-inspired home assistant that learns about its household, manages connected devices and services, and stays accessible through a companion app.
 
 Built for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Cerebral Valley. MERLIN aims to make everyday home tasks useful, simple, and natural through Meta models and a polished companion interface.
 
@@ -8,16 +8,20 @@ Built for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Ce
 
 ## Product vision
 
-- Talk to MERLIN and hear spoken responses; use the app for input, preferences, and scheduling.
-- Remember and build on household preferences, with visible, editable memory.
-- Control connected lights, speakers, and supported appliances, including an oven.
-- Play music, answer questions, look things up, and manage timers.
-- View authorized home cameras and use MERLIN's own camera for requests such as “What is this?”
-- Create useful quick images, including illustrated timer labels.
-- Schedule device actions and run customizable commands such as “Goodnight.”
-- Present everything through a responsive, understandable interface inspired by Jarvis.
+- **Home device and companion app:** remain available on a home device/display, with a companion app for communication, configuration, and remote access. Reach as many users and devices as practical; specific platforms remain TBD.
+- **Voice and interface:** activate through a wake word and respond conversationally, with a clean Jarvis-inspired interface requiring little or no touch. The wake phrase and voice API roles remain TBD; a character, animations, and idle visuals are optional ideas.
+- **Memory and personalization:** learn useful preferences and context from conversations directed at MERLIN, using one shared household identity initially. Keep memory visible, editable, and removable; do not learn by monitoring ambient conversations.
+- **Standing instructions:** keep explicit do/don't instructions separate from learned preferences and check every outgoing response against them in context. A prohibited word and a prohibited topic are different instructions.
+- **Everyday assistance:** play music through connected speakers and services, connect with a calendar, search and summarize information, and run multiple labeled timers with optional generated images.
+- **Home cameras and doorbell:** show authorized camera feeds and doorbell alerts, including access through the companion app while away.
+- **MERLIN's own camera:** answer questions about what the user chooses to show, such as objects, food calories, math homework, or clothing combinations. These are incidental assistant features, not separate coaching products.
+- **Schedules and automation:** create device schedules by voice or app, including lights, supported oven controls, and AC. Established schedules run through ordinary scheduling logic without a new AI call for every execution; authorization follows the user's one-time or recurring intent.
+- **Custom commands and routines:** let users define phrases and their actions. “Goodnight” is only an example, with no preset behavior. A workout routine can follow an uploaded plan and coordinate lights, music, and AC; look up workout advice when asked.
+- **Information sharing and remote control:** accept documents, text, plans, and schedules through the app, support remote device actions, and use permitted location access for requests such as preheating when five minutes from home.
 
-Meta models are a core product requirement. Kokoro is the tentative speech synthesis choice; the application stack, hardware integrations, and final model routing remain open.
+MERLIN is a home assistant, not an open-ended chat or autonomous coaching product. Privacy matters: wake-word availability does not authorize ambient conversation learning. The detailed requirements and unresolved decisions live in [project context](docs/PROJECT_CONTEXT.md).
+
+Meta models are a core product requirement. Kokoro is the tentative speech synthesis choice. The application stack, hardware, integrations, and final model routing remain open; iPad, Spotify, and Ring are examples or candidates, not selected dependencies.
 
 ## Start here
 
@@ -25,7 +29,7 @@ Meta models are a core product requirement. Kokoro is the tentative speech synth
 
 | Document | Purpose |
 | --- | --- |
-| [Project context](docs/PROJECT_CONTEXT.md) | Owner's requirements, feature outline, proposed demo, and open decisions |
+| [Project context](docs/PROJECT_CONTEXT.md) | Owner's requirements, ten feature areas, clarified decisions, and open questions |
 | [Hackathon brief](docs/HACKATHON.md) | Rules from the supplied materials, schedule, judging, and submission checklist |
 | [Model reference](docs/MODELS.md) | Meta catalog, tentative model roles, pricing snapshot, and Kokoro reference |
 | [Project status](docs/STATUS.md) | Current implementation state, decisions, and next steps |
