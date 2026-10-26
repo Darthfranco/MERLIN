@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>MERLIN · Text prototype</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header class="page-header">
+      <div>
+        <h1>MERLIN</h1>
+        <p>Text prototype · Web search and timers</p>
+      </div>
+      <p id="connection" class="connection" role="status">Connecting to the local server…</p>
+    </header>
+
+    <main>
+      <div id="setup-notice" class="notice" hidden>
+        <strong>Connect Meta to try the conversation.</strong>
+        <p>Add <code>META_API_KEY</code> to your local <code>.env</code> file, then restart the server. You can test timers directly below while you set it up.</p>
+      </div>
+      <p id="state-warning" class="error state-warning" role="alert" hidden></p>
+
+      <div class="workspace">
+        <section class="conversation" aria-labelledby="conversation-title">
+          <div class="section-heading">
+            <h2 id="conversation-title">Conversation</h2>
+            <button type="button" id="reset-chat" class="secondary">Clear conversation</button>
+          </div>
+          <p class="help">Type a request. Meta chooses a tool, MERLIN runs it, and the result appears here.</p>
+
+          <div class="chat-area">
+            <div id="chat-empty" class="empty-state">
+              <p>Start with a timer or a web search.</p>
+              <div class="examples">
+                <button type="button" class="example" data-prompt="Set a 30-second tea timer.">Set a 30-second tea timer</button>
+                <button type="button" class="example" data-prompt="Search the web for how to descale a kettle.">Search how to descale a kettle</button>
+              </div>
+            </div>
+            <div id="chat-log" role="log" aria-label="Conversation with MERLIN" aria-live="polite" aria-relevant="additions text"></div>
+          </div>
+
+          <form id="chat-form">
+            <label for="message">Message MERLIN</label>
+            <textarea id="message" name="message" rows="3" maxlength="4000" placeholder="What would you like me to do?" aria-describedby="message-help" required></textarea>
+            <p id="message-help" class="help">Enter to send · Shift + Enter for a new line</p>
+            <p id="chat-error" class="error" role="alert" hidden></p>
+            <p id="retry-notice" class="help" hidden></p>
+            <div class="composer-actions">
+              <p id="chat-status" class="help" role="status">Checking Meta configuration…</p>
+              <button type="submit" id="send-message" disabled>Send message</button>
+            </div>
+          </form>
+          <p class="privacy">Messages and relevant tool results are sent to Meta. Conversation context is held in server memory. Clear conversation to remove it; reloading starts a new conversation. No microphone or speech is used.</p>
+        </section>
+
+        <section class="timers" aria-labelledby="timers-title">
+          <div class="section-heading">
+            <h2 id="timers-title" tabindex="-1">Timers</h2>
+            <span id="timer-count" class="help">0 running</span>
+          </div>
+          <p class="help">Timers are saved locally. Keep this page open to see when they finish.</p>
+          <p id="time-zone" class="time-zone"></p>
+          <div id="timer-list"></div>
+          <p id="timers-empty" class="empty-state">No timers yet. Ask MERLIN to set one, or test a timer directly.</p>
+          <p id="timer-error" class="error" role="alert" hidden></p>
+          <p id="timer-announcement" class="visually-hidden" role="status" aria-live="polite"></p>
+
+          <details class="manual-timer">
+            <summary>Test a timer directly</summary>
+            <p class="help">This uses the timer engine directly and bypasses Meta.</p>
+            <form id="timer-form">
+              <label for="timer-label">Timer label</label>
+              <input id="timer-label" name="label" type="text" maxlength="80" placeholder="Tea" required>
+              <label for="timer-duration">Duration in seconds</label>
+              <input id="timer-duration" name="duration" type="number" min="1" max="604800" step="1" value="30" inputmode="numeric" aria-describedby="duration-help" required>
+              <p id="duration-help" class="help">From 1 second to 7 days (604,800 seconds).</p>
+              <p id="manual-retry-notice" class="help" hidden></p>
+              <button type="submit" id="create-timer">Start test timer</button>
+            </form>
+          </details>
+        </section>
+      </div>
+    </main>
+    <footer>Local test interface · Final app design and voice come later.</footer>
+  </body>
+</html>

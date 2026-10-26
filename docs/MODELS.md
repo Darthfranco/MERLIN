@@ -7,8 +7,9 @@ Last checked: **2026-10-26**. This records the founder's supplied catalog and in
 - **Selected direction:** build MERLIN around Meta AI capabilities for the Meta hackathon.
 - **Tentative preference:** Kokoro for MERLIN's spoken replies.
 - **Confirmed interaction:** wake-word activation and learning from direct conversations, with one shared household identity initially. Exact wake phrase, detection implementation, and Meta's role in the voice pipeline remain TBD.
-- **Candidates, not selections:** the individual models below and their proposed roles. The product does not need to use every listed model.
-- **Still open:** main reasoning model, hosting, device gateway, orchestration framework, voice deployment, storage, authentication, and hardware. No implementation or model benchmark has been completed.
+- **Catalog roles:** the models below are candidates apart from Spark 1.3 in the initial text prototype. The product does not need to use every listed model.
+- **Prototype implementation:** standard `muse-spark-1.3` on Meta Model API, using Responses with built-in `web_search` and local timer functions. Authenticated model-list access and live timer creation/cancellation/search were checked on October 26, 2026. This is a first-slice adapter choice, not final model routing or a performance benchmark. See [PROTOTYPE.md](PROTOTYPE.md).
+- **Still open:** final reasoning/model routing, hosting, device gateway, production orchestration, voice deployment, storage, authentication, and hardware.
 
 An SDK with another provider's name does not by itself determine the model provider. Meta documents compatible API clients and the base URL `https://api.meta.ai/v1`; credentials belong on the trusted server or local runtime, never in a public repository or shipped client. [Meta API overview](https://dev.meta.ai/docs/overview)
 
@@ -54,3 +55,9 @@ Contributor mode permits Meta to use submitted content and responses for model t
 **Never automatically route home audio, camera footage, preferences, schedules, or other household information through Contributor models.** Cost-based routing must preserve the chosen privacy mode. Use synthetic fixtures for public demos and development wherever possible; keep private recordings, credentials, and household data out of GitHub.
 
 Before committing an integration, verify available models using the account's model listing, inspect current terms and limits, and test a small representative flow. Measure response latency, speech interruption, transcription accuracy, tool reliability, and real cost. Record the result and the selected model here; keep catalog claims distinct from tested MERLIN behavior.
+
+## Text-prototype API contract
+
+The implementation calls `POST https://api.meta.ai/v1/responses`, with standard model IDs, `store:false`, encrypted reasoning replay, flat function definitions, and actual function-call outputs. Web search runs within Meta and returns execution events and URL annotations; timer creation/list/cancel runs in MERLIN after validation. See [Responses](https://dev.meta.ai/docs/protocols/responses), [tools](https://dev.meta.ai/docs/tool-calling), and [search](https://dev.meta.ai/docs/search-grounding), checked October 26, 2026.
+
+The API key stays in ignored server configuration. Standard mode does not use content for training; Meta terms still permit some retention. `store:false` is not ZDR, and separately enabled [ZDR disables web search](https://dev.meta.ai/help/policies-and-privacy/zero-data-retention). No Contributor model or alternate-provider fallback is enabled.

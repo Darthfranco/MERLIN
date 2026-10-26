@@ -1,6 +1,6 @@
 # MERLIN project context
 
-Updated **October 26, 2026** from the owner's initial brief, detailed ten-area outline, and follow-up clarifications. This is the shared product brief for every contributor. It describes intended features and confirmed product decisions; application implementation has not started.
+Updated **October 26, 2026** from the owner's initial brief, detailed ten-area outline, and follow-up clarifications. This is the shared product brief for every contributor. It describes intended features and confirmed product decisions; the first text-only assistant prototype has now been implemented.
 
 ## The objective
 
@@ -9,6 +9,10 @@ Updated **October 26, 2026** from the owner's initial brief, detailed ten-area o
 MERLIN is being built in a public GitHub repository for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Cerebral Valley. See [hackathon requirements](HACKATHON.md) and the [model reference](MODELS.md). The proposed primary theme is **Build for Your World**; physical-device coordination may also support **Push the Frontier**. Track and final submission theme remain undecided.
 
 The owner wants MERLIN to be accessible to as many people as possible. Exact home hardware, companion-app platforms, service providers, and device integrations are **TBD**. An iPad, Spotify, and Ring are examples or candidate integrations, not finalized platform commitments or claims of working support.
+
+## First application slice confirmed October 26, 2026
+
+The owner requested typed input → Meta understanding and tool selection → execution → text response, with **web search and timers only for this first build**. No voice input or voice output yet. The owner confirmed a **simple local browser UI with a small Node.js server** for testing; it need not be polished and does not choose MERLIN's final app platform or reduce the full feature scope. The owner confirmed Meta Model API access. The prototype uses standard `muse-spark-1.3`, Meta's built-in web search, and local timer functions; final model routing remains open. See [prototype implementation](PROTOTYPE.md) and [verification status](STATUS.md).
 
 ## Ten feature areas
 
@@ -96,7 +100,7 @@ Preserve one-time versus recurring intent for arrival triggers as for other auto
 
 ## Product boundaries and engineering expectations
 
-The ten areas are **hackathon feature goals**, not a claim that all will ship or a finalized priority order. No MVP subset, demo sequence, technology stack, or delivery commitment has been approved. Ask before converting undecided choices or examples into requirements. Do not repeatedly reopen decisions the owner has already answered.
+The ten areas are **hackathon feature goals**, not a claim that all will ship or a finalized priority order. The owner has approved the text/search/timer test slice and local browser/Node.js harness above. A final MVP, demonstration sequence, production technology stack, and delivery commitment remain undecided. Ask before converting undecided choices or examples into requirements. Do not repeatedly reopen decisions the owner has already answered.
 
 Keep memory, explicit standing instructions, and executable routines distinct. Preferences do not grant device permissions. Explicit instructions should not be silently overwritten by inferred preferences. Clear tool results should tell the user whether an action succeeded, failed, or remains uncertain.
 

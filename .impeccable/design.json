@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "title": "Design System: MERLIN text prototype",
+  "extensions": {
+    "breakpoints": [
+      {
+        "name": "stacked",
+        "value": "760px"
+      },
+      {
+        "name": "narrow",
+        "value": "380px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Send a message or start a timer, with visible busy and disabled states.",
+      "html": "<button class=\"ds-primary\">Send message</button>",
+      "css": ".ds-primary{font:600 1rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:44px;padding:9px 16px;border:1px solid transparent;border-radius:6px;background:var(--blue,#185c9e);color:white;cursor:pointer}.ds-primary:hover:not(:disabled){background:#104778}.ds-primary:focus-visible{outline:3px solid #1264ac;outline-offset:3px}.ds-primary:disabled{background:#e3e8ed;border-color:var(--border,#ccd5dd);color:#526373;cursor:not-allowed}"
+    },
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Clear conversation, cancel or dismiss a timer, or fill an example request.",
+      "html": "<button class=\"ds-secondary\">Cancel timer</button>",
+      "css": ".ds-secondary{font:600 1rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:44px;padding:9px 16px;border:1px solid var(--border,#ccd5dd);border-radius:6px;background:white;color:var(--blue,#185c9e);cursor:pointer}.ds-secondary:hover:not(:disabled){background:#eaf2f9;border-color:#8aa8c3}.ds-secondary:focus-visible{outline:3px solid #1264ac;outline-offset:3px}.ds-secondary:disabled{background:#e3e8ed;color:#526373;cursor:not-allowed}"
+    },
+    {
+      "name": "Labeled text field",
+      "kind": "input",
+      "refersTo": "text-field",
+      "description": "A visible label and standard text input for manual timer testing.",
+      "html": "<label class=\"ds-label\" for=\"ds-timer-label\">Timer label</label><input class=\"ds-input\" id=\"ds-timer-label\" placeholder=\"Tea\">",
+      "css": ".ds-label{display:block;margin:0 0 6px;font:600 .92rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#172a3b}.ds-input{font:1rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;width:100%;min-height:44px;padding:10px 12px;border:1px solid #8b9eae;border-radius:6px;background:white;color:#172a3b;caret-color:var(--blue,#185c9e)}.ds-input::placeholder{color:#596c7c;opacity:1}.ds-input:focus-visible{outline:3px solid #1264ac;outline-offset:3px}"
+    },
+    {
+      "name": "Main panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Flat, bordered conversation or timer region.",
+      "html": "<section class=\"ds-panel\"><h2>Timers</h2><p>Timers are saved locally.</p></section>",
+      "css": ".ds-panel{padding:22px;border:1px solid var(--border,#ccd5dd);border-radius:12px;background:white;color:#172a3b;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.ds-panel h2{margin:0 0 10px;font-size:1.15rem;line-height:1.2}.ds-panel p{margin:0;font-size:.86rem;line-height:1.5;color:var(--muted,#4e6070)}"
+    },
+    {
+      "name": "Timer row",
+      "kind": "custom",
+      "description": "A labeled countdown with a text status; values are illustrative in this component preview.",
+      "html": "<article class=\"ds-timer\"><div class=\"ds-timer-heading\"><h3>Example timer</h3><span>Running</span></div><p class=\"ds-countdown\">0:30</p><p class=\"ds-time\">End time and explicit time zone appear here.</p></article>",
+      "css": ".ds-timer{padding:20px 0;border-bottom:1px solid #e0e6ec;color:#172a3b;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.ds-timer-heading{display:flex;justify-content:space-between;align-items:baseline;gap:12px}.ds-timer h3{margin:0;font-size:1rem;line-height:1.2}.ds-timer-heading span{font-size:.78rem;font-weight:600;color:var(--muted,#4e6070)}.ds-countdown{margin:8px 0 5px;font-size:1.65rem;font-weight:600;font-variant-numeric:tabular-nums}.ds-time{margin:0;font-size:.77rem;color:var(--muted,#4e6070)}"
+    }
+  ],
+  "generatedAt": "2026-10-26T20:50:50.083Z"
+}

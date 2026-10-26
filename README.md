@@ -4,7 +4,7 @@ A voice-first, Jarvis-inspired home assistant that learns about its household, m
 
 Built for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Cerebral Valley. MERLIN aims to make everyday home tasks useful, simple, and natural through Meta models and a polished companion interface.
 
-**Status:** Initial Blender character and animation assets are available in [assets/merlin-character](assets/merlin-character/README.md). Application implementation has not started; features below describe the intended product, not working integrations.
+**Status:** Initial Blender character and animation assets are available in [assets/merlin-character](assets/merlin-character/README.md). The first text-only application prototype now implements Meta-driven web search and local timers. Other features below remain product goals, not working integrations.
 
 ## Product vision
 
@@ -37,6 +37,6 @@ Meta models are a core product requirement. Kokoro is the tentative speech synth
 
 Submission target: **November 4, 2026 at 9:00 PM America/New_York (EST)**. A public repository and a three-minute video demonstrating work built during the hackathon are required by the supplied participant guide.
 
-No application setup or test commands exist yet. Add reproducible instructions when implementation begins. An open-source license has not yet been selected.
+Run the text prototype with Node.js 22.16+: copy `.env.example` to `.env` if it does not exist, set `META_API_KEY` locally, then run `npm run check:meta` and `npm start`. Open [localhost:3000](http://127.0.0.1:3000). Run `npm test` for the offline test suite. See [prototype setup, architecture, and privacy](docs/PROTOTYPE.md). An open-source license has not yet been selected.
 
 The character's [Blender workflow](assets/merlin-character/README.md) includes rebuilding, rendering, animation playback, and asset validation instructions.
