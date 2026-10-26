@@ -4,12 +4,12 @@ A voice-first, Jarvis-inspired home assistant that learns about its household, m
 
 Built for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Cerebral Valley. MERLIN aims to make everyday home tasks useful, simple, and natural through Meta models and a polished companion interface.
 
-**Status:** Project definition and agent onboarding. Application implementation has not started; features below describe the intended product, not working integrations.
+**Status:** Initial Blender character and animation assets are available in [assets/merlin-character](assets/merlin-character/README.md). Application implementation has not started; features below describe the intended product, not working integrations.
 
 ## Product vision
 
 - **Home device and companion app:** remain available on a home device/display, with a companion app for communication, configuration, and remote access. Reach as many users and devices as practical; specific platforms remain TBD.
-- **Voice and interface:** activate through a wake word and respond conversationally, with a clean Jarvis-inspired interface requiring little or no touch. The wake phrase and voice API roles remain TBD; a character, animations, and idle visuals are optional ideas.
+- **Voice and interface:** activate through a wake word and respond conversationally, with a clean Jarvis-inspired interface requiring little or no touch. The owner has requested a simple, cute robot modeled in Blender, refined to a lighter blue with rounded head and body forms, matte/satin surfaces, minimal reflections, and premium refinement comparable to Meta or Apple products. Its screen sits flush within the head, with luminous cyan/blue face details grading toward pale white and a few subtle head and torso panel seams. Include bottom lighting for a dark room and waving/jumping animations. The wake phrase, voice API roles, and character integration remain TBD.
 - **Memory and personalization:** learn useful preferences and context from conversations directed at MERLIN, using one shared household identity initially. Keep memory visible, editable, and removable; do not learn by monitoring ambient conversations.
 - **Standing instructions:** keep explicit do/don't instructions separate from learned preferences and check every outgoing response against them in context. A prohibited word and a prohibited topic are different instructions.
 - **Everyday assistance:** play music through connected speakers and services, connect with a calendar, search and summarize information, and run multiple labeled timers with optional generated images.
@@ -38,3 +38,5 @@ Meta models are a core product requirement. Kokoro is the tentative speech synth
 Submission target: **November 4, 2026 at 9:00 PM America/New_York (EST)**. A public repository and a three-minute video demonstrating work built during the hackathon are required by the supplied participant guide.
 
 No application setup or test commands exist yet. Add reproducible instructions when implementation begins. An open-source license has not yet been selected.
+
+The character's [Blender workflow](assets/merlin-character/README.md) includes rebuilding, rendering, animation playback, and asset validation instructions.

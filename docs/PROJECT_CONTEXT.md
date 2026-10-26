@@ -24,7 +24,11 @@ Continuous availability does not authorize learning from ambient household conve
 
 Use Meta APIs in the voice/assistant experience; the exact role and model routing are still to be defined. Speech recognition and speech synthesis are separate responsibilities. **Kokoro remains the tentative speech-output choice.**
 
-Provide a clean, Jarvis-inspired interface that displays relevant information when useful and makes listening, processing, speaking, and action outcomes understandable. A character, cute animations, and idle visuals are **optional ideas**. The owner's future visual examples will guide design; no character or visual design is selected.
+Provide a clean, Jarvis-inspired interface that displays relevant information when useful and makes listening, processing, speaking, and action outcomes understandable.
+
+**Character direction confirmed October 26, 2026:** the owner requested a robot character modeled in Blender using supplied robot images as visual references. Keep it **clean, cute, and simple**, with **a lighter shade of blue and rounded head and body forms**, a premium, AAA level of refinement comparable to Meta or Apple products, visible bottom lighting in a dark room, and **waving and jumping animations**. The head and body should avoid a square appearance. The owner's **latest material direction supersedes the original glossy request**: use **matte/satin surfaces with very little reflection**, gently brightening where light falls through ordinary diffuse shading. Retain the luminous eyes and sole lighting.
+
+The screen must sit **flush within the head**, without a protruding face panel. **Cyan/blue face lighting should grade toward pale white**, retaining its color instead of washing out to pure white. Include **a small number of subtle panel seams on the head and torso**, following the references while keeping the design uncluttered. This authorizes the initial character design work; the resulting model still needs the owner's visual review. It does not select an application framework, establish a complete interface design, or define an MVP. Character integration and its listening, processing, speaking, and idle behavior remain TBD.
 
 ### 3. Background memory and personalization
 
@@ -106,7 +110,7 @@ Validate device targets and parameters and respect actual device capabilities. K
 - Household permission management, memory retention/deletion behavior, and audio/image storage policies beyond the confirmed privacy boundary.
 - Standing-instruction conflict resolution and ambiguous wording/channel handling.
 - Location access, ETA source, remote-access implementation, and specific device-supported controls.
-- Initial demo priorities, real hardware versus labeled simulations, and optional visual character/animations.
+- Initial demo priorities, real hardware versus labeled simulations, visual review of the first Blender character, and its integration and assistant-state behavior.
 - Team, Representative, competition track, final theme, complete Official Rules/acceptance, license, and attribution.
 
 **TBD means undecided.** Broad accessibility is the direction; it is not approval to choose a specific platform, claim universal integration support, or promise an untested device capability.

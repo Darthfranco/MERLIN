@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-10-26T19:47:53.660169+00:00",
+  "blender_version": "4.0.2",
+  "blend_file": "merlin.blend",
+  "glb_file": "merlin.glb",
+  "checks": [
+    {
+      "name": "rig_exists",
+      "passed": true
+    },
+    {
+      "name": "required_bones",
+      "passed": true,
+      "missing": [],
+      "actual": [
+        "body",
+        "foot.L",
+        "foot.R",
+        "forearm.L",
+        "forearm.R",
+        "hand.L",
+        "hand.R",
+        "head",
+        "root",
+        "shin.L",
+        "shin.R",
+        "thigh.L",
+        "thigh.R",
+        "upper_arm.L",
+        "upper_arm.R"
+      ]
+    },
+    {
+      "name": "required_blender_actions",
+      "passed": true,
+      "missing": [],
+      "actual": [
+        "Idle",
+        "Jump",
+        "Showcase",
+        "Wave"
+      ]
+    },
+    {
+      "name": "blend_meshes_nonempty",
+      "passed": true,
+      "empty_objects": []
+    },
+    {
+      "name": "material_images_absent_or_packed",
+      "passed": true,
+      "image_count": 1,
+      "unpacked_images": []
+    },
+    {
+      "name": "material_images_not_missing",
+      "passed": true,
+      "missing_images": []
+    },
+    {
+      "name": "no_external_blend_libraries",
+      "passed": true,
+      "libraries": []
+    },
+    {
+      "name": "other_external_assets_not_missing",
+      "passed": true,
+      "missing_assets": []
+    },
+    {
+      "name": "wave_moves_arm_bones",
+      "passed": true,
+      "maximum_rotation_degrees": 154.03110669019094
+    },
+    {
+      "name": "jump_root_rises",
+      "passed": true,
+      "rise_from_start": 0.6417989134788513,
+      "required_rise_greater_than": 0.4
+    },
+    {
+      "name": "jump_returns_to_baseline",
+      "passed": true,
+      "baseline_return_error": 0.0,
+      "tolerance": 0.02
+    },
+    {
+      "name": "glb_exists",
+      "passed": true
+    },
+    {
+      "name": "glb_structure",
+      "passed": true,
+      "bytes": 6250872
+    },
+    {
+      "name": "glb_contains_meshes_and_materials",
+      "passed": true
+    },
+    {
+      "name": "glb_meshes_nonempty_with_finite_bounds",
+      "passed": true,
+      "empty_meshes": [],
+      "errors": []
+    },
+    {
+      "name": "glb_accessor_bounds_finite",
+      "passed": true,
+      "invalid_accessors": []
+    },
+    {
+      "name": "glb_excludes_stage_cameras_and_lights",
+      "passed": true,
+      "stage_names": [],
+      "light_count": 0,
+      "light_nodes": [],
+      "camera_nodes": []
+    },
+    {
+      "name": "glb_has_no_external_assets",
+      "passed": true,
+      "external_uris": []
+    },
+    {
+      "name": "glb_required_animations",
+      "passed": true,
+      "actual": [
+        "Idle",
+        "Wave",
+        "Jump"
+      ],
+      "missing": []
+    },
+    {
+      "name": "glb_animation_times_finite_normalized_and_increasing",
+      "passed": true,
+      "errors": []
+    }
+  ],
+  "counts": {
+    "blend_mesh_objects": 50,
+    "blend_vertices": 117002,
+    "blend_polygons": 118759,
+    "blend_materials": 10,
+    "blend_actions": 4,
+    "glb_bytes": 6250872,
+    "glb_meshes": 49,
+    "glb_materials": 8,
+    "glb_nodes": 65,
+    "glb_animations": 3,
+    "glb_skins": 1
+  },
+  "animation_measurements": {
+    "Wave": {
+      "frame_range": [
+        1.0,
+        96.0
+      ],
+      "samples": 96,
+      "max_rotation_change_degrees": {
+        "upper_arm.L": 69.170207,
+        "forearm.L": 133.151724,
+        "hand.L": 154.031107,
+        "upper_arm.R": 1.645639,
+        "forearm.R": 5.128597,
+        "hand.R": 5.128444
+      },
+      "max_position_change": {
+        "upper_arm.L": 0.032469422391345044,
+        "forearm.L": 0.45117717433140514,
+        "hand.L": 1.000052725386647,
+        "upper_arm.R": 0.041632783957502424,
+        "forearm.R": 0.04111556179708179,
+        "hand.R": 0.04160609749048429
+      }
+    },
+    "Jump": {
+      "frame_range": [
+        1.0,
+        72.0
+      ],
+      "samples": 72,
+      "start_height": 0.0,
+      "minimum_height": -0.16262829303741455,
+      "maximum_height": 0.6417989134788513,
+      "end_height": 0.0,
+      "rise_from_start": 0.6417989134788513,
+      "baseline_return_error": 0.0
+    }
+  },
+  "exported_animations": [
+    {
+      "name": "Idle",
+      "channels": 45,
+      "samplers": 45,
+      "duration_seconds": 3.9583332538604736
+    },
+    {
+      "name": "Wave",
+      "channels": 45,
+      "samplers": 45,
+      "duration_seconds": 3.9583332538604736
+    },
+    {
+      "name": "Jump",
+      "channels": 45,
+      "samplers": 45,
+      "duration_seconds": 2.9583332538604736
+    }
+  ],
+  "passed": true,
+  "failed_checks": []
+}
