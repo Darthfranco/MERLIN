@@ -6,6 +6,11 @@ import { TimerStore } from './timers.js';
 import { MetaClient } from './meta.js';
 import { Assistant } from './assistant.js';
 import { RequestLedger } from './requests.js';
+import { MemoryStore } from './memory-store.js';
+import { MemoryService } from './memory.js';
+import { MemoryLearning } from './memory-learning.js';
+import { RoutinesStore, RoutineService } from './routines.js';
+import { normalizeRule, checkOutput, checkTool, findConflicts, safeClarification } from './memory-rules.js';
 import { AppError, objectArgs, timeZone, uuid } from './errors.js';
 import { MAX_MODEL_ROUNDS, MODEL_TIMEOUT_MS } from './limits.js';
 
@@ -13,16 +18,17 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_FILES = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
+  ['/memory.js', ['memory.js', 'text/javascript; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
 ]);
 
-async function bodyOf(request) {
+async function bodyOf(request, maxSize = 16_384) {
   if (!/^application\/json(?:;|$)/i.test(request.headers['content-type'] ?? '')) throw new AppError('Send JSON content.', 415);
   let size = 0;
   const chunks = [];
   for await (const chunk of request) {
     size += chunk.length;
-    if (size > 16_384) throw new AppError('Request is too large.', 413);
+    if (size > maxSize) throw new AppError('Request is too large.', 413);
     chunks.push(chunk);
   }
   try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); }
@@ -31,7 +37,9 @@ async function bodyOf(request) {
 
 function publicError(error) {
   if (error instanceof AppError) return { status: error.status, message: error.message };
-  if (error.code === 'INVALID_TIMER_ARGUMENT') return { status: 400, message: error.message };
+  if (['INVALID_TIMER_ARGUMENT', 'INVALID_MEMORY_ARGUMENT', 'INVALID_MEMORY_RULE', 'INVALID_ROUTINE_ARGUMENT'].includes(error.code)) return { status: 400, message: error.message };
+  if (error.code === 'MEMORY_NOT_FOUND') return { status: 404, message: error.message };
+  if (error.code === 'MEMORY_STALE_OPERATION') return { status: 409, message: 'Memory changed during this operation. Refresh and try again.' };
   if (error.code === 'TIMER_NOT_FOUND') return { status: 404, message: 'That timer was not found. Refresh the timer list.' };
   return { status: 500, message: 'Local storage or server operation failed. Check the server and current timers before trying again.' };
 }
@@ -39,10 +47,28 @@ function publicError(error) {
 export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaClient({
   apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY,
   model: process.env.META_MODEL || 'muse-spark-1.3',
-}), timers: suppliedTimers, ledger: suppliedLedger } = {}) {
+}), timers: suppliedTimers, ledger: suppliedLedger, memoryStore: suppliedMemory, learningDelayMs = 750 } = {}) {
   const timers = suppliedTimers || await new TimerStore({ filePath: join(dataDir, 'timers.json') }).init();
   const ledger = suppliedLedger || await new RequestLedger(join(dataDir, 'requests.jsonl')).init();
-  const assistant = new Assistant({ meta, timers });
+  const store = suppliedMemory || await new MemoryStore({ filePath: join(dataDir, 'memory.json') }).init();
+  const memory = new MemoryService(store);
+  const routineStore = await new RoutinesStore({ filePath: join(dataDir, 'routines.json') }).init();
+  const routines = new RoutineService({ store: routineStore, memoryStore: store });
+  const learning = await new MemoryLearning({ store, meta, filePath: join(dataDir, 'memory-learning.json'), delayMs: learningDelayMs }).init();
+  const assistant = new Assistant({ meta, timers, memory, routines });
+  const traces = new Map();
+  const inspect = sessionId => ({ ...memory.inspect(sessionId), ...routines.inspect(sessionId), learning: learning.status(), retention: 'Kept locally until you delete it. Clear all memory also removes transcripts, documents, routines, and learning jobs. Timers are separate.' });
+  const clearCaches = () => { traces.clear(); ledger.live.clear(); };
+  const checkedMessage = message => {
+    const rules = memory.rules();
+    const checked = checkOutput(rules, message);
+    return checked.violations.length || checked.conflicts.length ? safeClarification(rules, checked.conflicts) : checked.text;
+  };
+  const requireTool = (name, args) => {
+    const gate = checkTool(memory.rules(), { name, args });
+    if (!gate.ok) throw new AppError(gate.conflicts.length ? 'Resolve the flagged timer instructions in Memory lab before this action.' : gate.violations.map(item => item.message).join(' '));
+    return gate.args;
+  };
   const sessions = new Map();
   let schedulerFailure = false;
   let ticking = false;
@@ -74,7 +100,8 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       if (!hosts.includes(req.headers.host)) throw new AppError('Only local access is allowed.', 403);
       if (req.headers.origin && !hosts.map(host => `http://${host}`).includes(req.headers.origin)) throw new AppError('Cross-origin requests are not allowed.', 403);
       if (req.headers['sec-fetch-site'] === 'cross-site') throw new AppError('Cross-site requests are not allowed.', 403);
-      const path = new URL(req.url, 'http://localhost').pathname;
+      const url = new URL(req.url, 'http://localhost');
+      const path = url.pathname;
       if (req.method === 'GET' && PUBLIC_FILES.has(path)) {
         const [file, type] = PUBLIC_FILES.get(path);
         res.writeHead(200, { 'Content-Type': type });
@@ -90,14 +117,61 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         });
         return;
       }
+      if (req.method === 'GET' && path === '/api/memory') {
+        const sessionId = url.searchParams.get('session_id'); if (sessionId) uuid(sessionId);
+        json(200, inspect(sessionId)); return;
+      }
+      if (req.method === 'GET' && path === '/api/trace') {
+        const requestId = url.searchParams.get('request_id'); uuid(requestId);
+        json(200, traces.get(requestId) ?? { status: 'pending', events: [] }); return;
+      }
+      if (req.method === 'GET' && path.startsWith('/api/documents/')) {
+        const id = decodeURIComponent(path.slice('/api/documents/'.length));
+        const document = store.snapshot().documents.find(item => item.id === id);
+        if (!document) throw new AppError('Document not found.', 404);
+        json(200, document); return;
+      }
       if (req.method !== 'POST') throw new AppError('Not found.', 404);
-      const body = await bodyOf(req);
+      const body = await bodyOf(req, path === '/api/documents' ? 650_000 : path === '/api/routines' ? 90_000 : 16_384);
+      if (path.startsWith('/api/memory/') || path === '/api/documents' || path === '/api/routines' || path === '/api/routines/delete') {
+        if ([...sessions.values()].some(session => session.busy)) throw new AppError('Wait for the current reply before editing memory.', 409);
+        const beforeEpoch = store.epoch;
+        if (path === '/api/routines' || path === '/api/routines/delete') {
+          objectArgs(body, path === '/api/routines' ? ['id', 'name', 'aliases', 'prompt'] : ['id']);
+          const previous = routineStore.list().find(routine => routine.id === body.id);
+          if (path === '/api/routines/delete') await routineStore.remove(body.id);
+          else await routineStore.save({ ...body, source_id: 'manual', source_quote: '' });
+          if (previous) await store.invalidateReferences({ ids: [previous.id], source_ids: [previous.source_id] });
+        } else if (path === '/api/memory/fact') {
+          objectArgs(body, ['id', 'content', 'subject', 'kind']);
+          await store.putFact({ content: body.content, subject: body.subject || 'household', kind: body.kind || 'fact', source_id: 'manual', source_quote: '', reason: 'Edited directly in Memory lab.', ...(body.id ? { supersedes: body.id } : {}) });
+        } else if (path === '/api/memory/rule') {
+          objectArgs(body, ['kind', 'value', 'scope', 'original']);
+          const original = body.original || `${body.kind}: ${body.value}`;
+          await store.putRule(normalizeRule({ ...body, original, explanation: 'Configured directly in Memory lab with explicit scope.', source_id: 'manual', source_quote: '' }));
+        } else if (path === '/api/memory/delete') {
+          objectArgs(body, ['collection', 'id']); await store.remove(body); clearCaches();
+        } else if (path === '/api/memory/resolve') {
+          objectArgs(body, ['keep_id', 'remove_ids']);
+          if (!Array.isArray(body.remove_ids) || !findConflicts(memory.rules()).some(c => c.rule_ids.includes(body.keep_id) && body.remove_ids.every(id => id !== body.keep_id && c.rule_ids.includes(id)))) throw new AppError('Choose rules from an existing conflict.');
+          await store.resolveRules(body); clearCaches();
+        } else if (path === '/api/documents') {
+          objectArgs(body, ['id', 'title', 'description', 'content']); await store.putDocument(body); if (body.id) clearCaches();
+        } else if (path === '/api/memory/clear') {
+          objectArgs(body, []); await learning.clear(); await routineStore.clear(); await store.clearAll(); sessions.clear(); clearCaches();
+        } else if (path === '/api/memory/retry-learning') {
+          objectArgs(body, []); await learning.retry();
+        } else throw new AppError('Not found.', 404);
+        if (store.epoch !== beforeEpoch) { clearCaches(); await learning.clear(); }
+        json(200, { ok: true, ...inspect() }); return;
+      }
       if (path === '/api/timers') {
         objectArgs(body, ['label', 'duration_seconds', 'time_zone', 'request_id']);
         uuid(body.request_id);
         timeZone(body.time_zone);
         const result = await ledger.run(`timer:${body.request_id}`, body, async () => {
-          await timers.create({ label: body.label, duration_seconds: body.duration_seconds, time_zone: body.time_zone }, `manual:${body.request_id}`);
+          const args = requireTool('create_timer', { label: body.label, duration_seconds: body.duration_seconds });
+          await timers.create({ ...args, time_zone: body.time_zone }, `manual:${body.request_id}`);
           return true;
         });
         json(result ? 200 : 500, await state());
@@ -106,6 +180,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       const action = path.match(/^\/api\/timers\/([a-f0-9-]+)\/(cancel|dismiss)$/i);
       if (action) {
         objectArgs(body, []);
+        if (action[2] === 'cancel') requireTool('cancel_timer', { timer_id: action[1] });
         await timers[action[2]](action[1]);
         json(200, await state());
         return;
@@ -113,7 +188,10 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       if (path === '/api/session/reset') {
         objectArgs(body, ['session_id']); uuid(body.session_id);
         if (sessions.get(body.session_id)?.busy) throw new AppError('Wait for the current reply before clearing the conversation.', 409);
-        sessions.delete(body.session_id);
+        await store.clearConversation(body.session_id);
+        await routineStore.clearSession(body.session_id);
+        await learning.clear();
+        sessions.delete(body.session_id); clearCaches();
         json(200, { ok: true });
         return;
       }
@@ -132,23 +210,62 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
           if (session.busy) throw new AppError('A reply is already in progress for this conversation.', 409);
           session.busy = true;
           session.used = Date.now();
+          const requestEpoch = store.epoch;
+          let inheritedIds = [];
           try {
-            const response = await assistant.run({ ...body, history: session.turns.flat() });
-            session.turns.push(response.turn);
-            // Retain whole turns so function calls always keep their outputs.
-            while (session.turns.length > 12 || (session.turns.length > 1 && JSON.stringify(session.turns).length > 200_000)) session.turns.shift();
-            const { turn, ...visible } = response;
-            return { status: 200, data: visible };
+            const history = memory.history(body.session_id);
+            const prior = store.snapshot().conversations.filter(item => item.session_id === body.session_id);
+            inheritedIds = prior.flatMap(item => item.memory_ids ?? []);
+            const source = await store.recordMessage({ session_id: body.session_id, request_id: body.request_id, role: 'user', text: body.message });
+            await routineStore.beginRequest({ session_id: body.session_id, request_id: body.request_id, message: body.message });
+            const started = performance.now();
+            const trace = { status: 'running', events: [], model_calls: 0, context_chars: 0, usage: null };
+            traces.set(body.request_id, trace);
+            while (traces.size > 50) traces.delete(traces.keys().next().value);
+            const onTrace = (stage, detail, data) => {
+              trace.events.push({ stage, at_ms: Math.round(performance.now() - started), detail, ...(data === undefined ? {} : { data }) });
+              if (stage === 'model') trace.model_calls++;
+              if (stage === 'context') trace.context_chars = data.context_chars;
+              if (stage === 'usage' && data) {
+                trace.usage ??= { input_tokens: 0, output_tokens: 0, cached_tokens: 0 };
+                trace.usage.input_tokens += data.input_tokens || 0; trace.usage.output_tokens += data.output_tokens || 0;
+                trace.usage.cached_tokens += data.input_tokens_details?.cached_tokens || 0;
+              }
+            };
+            onTrace('received', 'Saved the exact user message locally.', { source_id: source.id });
+            let response;
+            try { response = await assistant.run({ ...body, source_id: source.id, history, onTrace }); }
+            catch (error) { trace.status = 'failed'; trace.total_ms = Math.round(performance.now() - started); error.trace = structuredClone(trace); throw error; }
+            if (store.epoch !== requestEpoch) {
+              clearCaches(); await learning.clear();
+              trace.events = []; onTrace('invalidated', 'Removed earlier trace and cached replies after memory changed.');
+              traces.set(body.request_id, trace);
+            }
+            const presentIds = new Set([...store.snapshot().facts, ...memory.rules(), ...store.snapshot().documents, ...routineStore.list()].map(item => item.id));
+            const memoryIds = [...new Set([...inheritedIds, ...(response.memory_ids || [])])].filter(id => presentIds.has(id));
+            await store.recordMessage({ session_id: body.session_id, request_id: body.request_id, role: 'assistant', text: response.reply, turn: response.turn, memory_ids: memoryIds });
+            trace.status = 'complete'; trace.total_ms = Math.round(performance.now() - started);
+            onTrace('delivered', 'Delivered the checked reply. Household learning runs in the background.');
+            try { if (!response.forget_completed) await learning.enqueue(source); }
+            catch { onTrace('learning_error', 'Could not queue background learning. The reply and completed actions are preserved.'); }
+            const { turn, memory_ids, forget_completed, ...visible } = response;
+            return { status: 200, data: { ...visible, trace: structuredClone(trace) } };
           } catch (error) {
+            if (store.epoch !== requestEpoch) {
+              clearCaches(); await learning.clear();
+              error.trace = undefined; error.sources = []; error.memory_ids = []; inheritedIds = [];
+            }
             const safe = publicError(error);
             const events = error.tool_events || [];
-            // Preserve factual outcomes without retaining an incomplete tool protocol.
-            session.turns.push([
-              { role: 'user', content: [{ type: 'input_text', text: body.message }] },
-              { role: 'assistant', content: [{ type: 'output_text', text: `Reply failed: ${safe.message}\nConfirmed tool outcomes: ${JSON.stringify(events)}` }] },
-            ]);
-            while (session.turns.length > 12) session.turns.shift();
-            return { status: safe.status, data: { error: safe.message, tool_events: events, sources: error.sources || [] } };
+            const rules = memory.rules();
+            const checked = checkOutput(rules, safe.message);
+            const visibleError = checked.violations.length || checked.conflicts.length ? safeClarification(rules, checked.conflicts) : checked.text;
+            const fallback = [
+              { role: 'user', content: [{ type: 'input_text', text: store.epoch !== requestEpoch ? 'A memory-changing request was processed; original context was discarded.' : body.message }] },
+              { role: 'assistant', content: [{ type: 'output_text', text: `Reply failed: ${visibleError}\nConfirmed tool outcomes: ${JSON.stringify(events)}` }] },
+            ];
+            await store.recordMessage({ session_id: body.session_id, request_id: body.request_id, role: 'assistant', text: visibleError, turn: fallback, memory_ids: [...new Set([...inheritedIds, ...(error.memory_ids ?? [])])] }).catch(() => {});
+            return { status: safe.status, data: { error: visibleError, tool_events: events, sources: error.sources || [], ...(error.trace ? { trace: error.trace } : {}) } };
           } finally { session.busy = false; }
         });
         json(result.status, { ...result.data, ...await state() });
@@ -157,12 +274,12 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       throw new AppError('Not found.', 404);
     } catch (error) {
       const safe = publicError(error);
-      if (!res.headersSent) json(safe.status, { error: safe.message });
+      if (!res.headersSent) json(safe.status, { error: req.url?.split('?')[0] === '/api/chat' ? checkedMessage(safe.message) : safe.message });
       else res.end();
     }
   });
-  server.on('close', () => clearInterval(interval));
-  return { server, timers, meta };
+  server.on('close', () => { clearInterval(interval); learning.close().catch(() => {}); });
+  return { server, timers, meta, store, memory, learning, routines, routineStore };
 }
 
 async function main() {

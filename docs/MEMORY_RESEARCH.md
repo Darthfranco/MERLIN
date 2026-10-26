@@ -1,5 +1,7 @@
 # MERLIN memory research and proposed design
 
+**Implementation update:** this research preceded the owner's subsequent decisions to keep hard rules deterministic, store irreducible semantics as guidance, defer conflict questions until relevant, retain data locally until deletion, and add intent-aware keyword routines. The local implementation and its limits are documented in [MEMORY.md](MEMORY.md); the research proposals below are historical recommendations, not all implemented behavior.
+
 Research checked **October 26, 2026**. This is a design assessment, not an implemented memory system or a measured performance claim. The owner requested research before implementation. All household examples below are synthetic product examples, not saved household preferences.
 
 ## Recommendation

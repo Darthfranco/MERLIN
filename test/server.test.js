@@ -166,7 +166,7 @@ test('HTTP retries deduplicate timer creation, reject changed input, and block r
 
 test('HTTP chat executes a timer, supplies factual output to Meta, and preserves whole follow-up turns', async (t) => {
   const meta = scriptedMeta([
-    [call('create_timer', { label: 'Tea', duration_seconds: 60 })],
+    [call('create_timer', { label: 'Tea', duration: 60, unit: 'seconds' })],
     (input) => {
       const result = JSON.parse(input.at(-1).output);
       assert.equal(result.ok, true);
@@ -195,7 +195,8 @@ test('HTTP chat executes a timer, supplies factual output to Meta, and preserves
   assert.ok(meta.calls[2].input.some((item) => item.type === 'function_call_output' && item.call_id === 'call-1'));
   assert.ok(meta.calls[2].input.some((item) => item.role === 'assistant' && item.content[0].text === created.body.reply));
   assert.match(meta.calls[0].instructions, /America\/New_York/);
-  assert.ok(meta.calls[0].tools.some((tool) => tool.type === 'web_search'));
+  assert.equal(meta.calls[0].tools.some((tool) => tool.type === 'web_search'), false);
+  assert.ok(meta.calls[0].tools.some((tool) => tool.name === 'prepare_web_search'));
 });
 
 test('HTTP concurrent retries share mixed searches and timers, and restart cannot replay them', async (t) => {
@@ -207,14 +208,18 @@ test('HTTP concurrent retries share mixed searches and timers, and restart canno
     async () => {
       entered();
       await blocked;
+      return [call('prepare_web_search', {}, 'prepare-search')];
+    },
+    (input) => {
+      assert.equal(JSON.parse(input.at(-1).output).ok, true);
       return [
         { type: 'web_search_call', id: 'ws_tea', status: 'completed' },
-        call('create_timer', { label: 'Tea', duration_seconds: 60 }, 'tea_timer'),
-        call('create_timer', { label: 'Pasta', duration_seconds: 120 }, 'pasta_timer'),
+        call('create_timer', { label: 'Tea', duration: 60, unit: 'seconds' }, 'tea_timer'),
+        call('create_timer', { label: 'Pasta', duration: 120, unit: 'seconds' }, 'pasta_timer'),
       ];
     },
     (input) => {
-      const results = input.filter((item) => item.type === 'function_call_output').map((item) => JSON.parse(item.output));
+      const results = input.filter((item) => item.type === 'function_call_output' && ['tea_timer', 'pasta_timer'].includes(item.call_id)).map((item) => JSON.parse(item.output));
       assert.deepEqual(results.map((result) => [result.ok, result.result.label]), [[true, 'Tea'], [true, 'Pasta']]);
       return [
         { type: 'web_search_call', id: 'ws_pasta', status: 'completed' },
@@ -236,18 +241,20 @@ test('HTTP concurrent retries share mixed searches and timers, and restart canno
   release();
   const results = await Promise.all([first, second]);
   assert.ok(results.every((result) => result.status === 200));
-  assert.equal(meta.calls.length, 2);
+  assert.equal(meta.calls.length, 3);
+  assert.equal(meta.calls[0].tools.some(tool => tool.type === 'web_search'), false);
+  assert.ok(meta.calls[1].tools.some(tool => tool.type === 'web_search'));
   const withoutResponseTime = ({ server_time, ...body }) => body;
   assert.deepEqual(withoutResponseTime(results[0].body), withoutResponseTime(results[1].body));
   assert.equal(results[0].body.timers.length, 2);
   assert.equal(new Set(results[0].body.timers.map((timer) => timer.id)).size, 2);
-  assert.deepEqual(results[0].body.tool_events.map((event) => event.tool), ['web_search', 'create_timer', 'create_timer', 'web_search']);
+  assert.deepEqual(results[0].body.tool_events.map((event) => event.tool), ['prepare_web_search', 'web_search', 'create_timer', 'create_timer', 'web_search']);
   assert.ok(results[0].body.tool_events.every((event) => event.status === 'completed'));
   assert.deepEqual(results[0].body.sources.map((source) => source.url), ['https://example.org/tea', 'https://example.org/pasta']);
   const retry = await app.post('/api/chat', body);
   assert.equal(retry.status, 200);
   assert.deepEqual(withoutResponseTime(retry.body), withoutResponseTime(results[0].body));
-  assert.equal(meta.calls.length, 2);
+  assert.equal(meta.calls.length, 3);
   assert.equal((await app.post('/api/chat', { ...body, message: 'Different message' })).status, 409);
   await closeServer(app.server);
   const restartMeta = scriptedMeta([]);
@@ -261,7 +268,7 @@ test('HTTP concurrent retries share mixed searches and timers, and restart canno
 
 test('HTTP retains actual tool outcomes and timer when Meta fails after successful execution', async (t) => {
   const meta = scriptedMeta([
-    [call('create_timer', { label: 'Tea', duration_seconds: 60 })],
+    [call('create_timer', { label: 'Tea', duration: 60, unit: 'seconds' })],
     new AppError('Meta is temporarily unavailable.', 502),
   ]);
   const app = await fixture(t, { meta });

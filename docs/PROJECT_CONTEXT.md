@@ -44,15 +44,15 @@ The character and room work does not select an application framework, establish 
 
 ### 3. Background memory and personalization
 
-**Memory design research requested October 26, 2026:** the owner outlined four categories: conversation memory with access to all conversational details; automatically learned overall household facts/preferences/context; explicit general and domain-specific do/don't instructions; and named documents with brief catalog context whose contents are loaded when relevant. The goals are personal, accurate recall with focused token use. This is the owner's design under evaluation, not an implemented memory system or a guarantee of perfect recall. See [memory research and proposed architecture](MEMORY_RESEARCH.md).
+**Memory design requested October 26, 2026:** the owner outlined four categories: conversation memory with access to all conversational details; automatically learned overall household facts/preferences/context; explicit general and domain-specific do/don't instructions; and named documents with brief catalog context whose contents are loaded when relevant. The goals are personal, accurate recall with focused token use. The local prototype now implements these categories; retaining the archive does not guarantee perfect model recall. See [memory research](MEMORY_RESEARCH.md) and [implementation](MEMORY.md).
 
-**Responsiveness and rule interpretation confirmed during the research:** MERLIN must feel very fast and responsive. Interpret the meaning of standing instructions when saving them and record that interpretation clearly, rather than repeatedly resolving the same prose on every request. The owner also accepts agent-generated code as an option if useful, suggesting a Muse coding interface. The specific API, validated rule format, execution mechanism, latency targets, and semantic checking implementation remain proposals/TBD. Clear saved meaning does not eliminate the need to apply it correctly to future outputs and actions.
+**Responsiveness and rule interpretation confirmed during the research:** MERLIN must feel very fast and responsive. Interpret the meaning of standing instructions when saving them and record that interpretation clearly, rather than repeatedly resolving the same prose on every request. The owner also accepts agent-generated code as an option if useful, suggesting a Muse coding interface. The local implementation uses typed rule data handled by trusted JavaScript, with interpretation by standard Meta Spark at save time. No arbitrary generated code is evaluated. Production latency targets and broader rule types remain open. Clear saved meaning does not eliminate the need to apply it correctly to future outputs and actions.
 
 Use **one shared household identity/profile initially**. Separate household-member profiles and speaker-specific identity are not part of the confirmed initial design.
 
 Learn useful facts, preferences, communication style, and context in the background from **conversations directed at MERLIN**. Incorporate that information into an evolving household profile and use it in later interactions. Automatic learning is intended; requiring manual approval for every learned preference is not the requested experience.
 
-The owner's privacy boundary is explicit: MERLIN learns through conversation and must not act as a spy. Do not turn this into passive surveillance or learning from unrelated room conversations. Wake-word detection must be distinguished from recording, retaining, uploading, or analyzing unrelated audio. Retention, storage, and implementation details remain TBD; memory should remain inspectable, editable, and removable.
+The owner's privacy boundary is explicit: MERLIN learns through conversation and must not act as a spy. Do not turn this into passive surveillance or learning from unrelated room conversations. Wake-word detection must be distinguished from recording, retaining, uploading, or analyzing unrelated audio. For this local testing build, the owner chose local retention until deletion, with a clear-all button. Memory is inspectable, editable, and removable. Production retention and storage architecture remain open.
 
 ### 4. Explicit do and don't lists
 
@@ -60,7 +60,7 @@ Keep explicit standing instructions **separate from learned preferences**. Illus
 
 Every outgoing assistant response should pass a quick check against applicable standing instructions before delivery. Interpret instructions in context: **“Never mention cats” is a topic restriction; “Never say ‘cat’” is a restriction on wording.** Do not collapse both into a universal substring filter or assume identical intent.
 
-Apply each instruction according to its wording, context, and intended output channel. The owner has not specified a universal spoken-only or all-screen-text rule. Clarify a materially ambiguous instruction instead of silently broadening it. The checker implementation and handling of conflicting instructions remain TBD.
+Apply each instruction according to its wording, context, and intended output channel. The owner has not specified a universal spoken-only or all-screen-text rule. Clarify a materially ambiguous instruction instead of silently broadening it. The owner subsequently chose deterministic compiled rules where meaning can be represented precisely; irreducibly semantic guidance belongs in general information and is visibly marked as model guidance, not guaranteed enforcement. Save conflicts without silently choosing a winner. The next request that needs a conflicting setting asks for clarification before the affected action; unrelated actions can proceed. Explicit units override conflicting timer defaults for that request only.
 
 ### 5. Everyday assistant tools
 
@@ -96,6 +96,8 @@ This applies to remote and location-triggered actions too. Device capabilities, 
 
 ### 9. Custom commands and routines
 
+**Keyword behavior confirmed October 26, 2026:** save a user-defined name/aliases and a replacement request. Starting a routine acts as that saved request, with normal capability and standing-rule checks. Context matters: “I'm going to workout” can activate a saved workout routine, but “What should I eat before I workout?” must not. “Merlin goodnight” can activate a saved goodnight routine; a question about a good night of sleep must not. A close paraphrase such as going to exercise at the gym asks whether the user meant to start the saved routine. The prototype combines model interpretation with conservative full-utterance activation guards and a confirmation valid only for the next user reply. There are no preset routine actions.
+
 Users define phrases that trigger multiple actions. **“Goodnight” is only an example phrase, with no fixed actions or required preset.** Do not assume it turns off lights, changes music, or adjusts appliances.
 
 The user's workout example is “I'm going to the gym”: retrieve today's instructions from an uploaded training schedule, turn on gym lights, start a workout playlist, and set the AC cold. Preserve this as an illustrative user-configured routine, not an installed default or a specified temperature.
@@ -123,8 +125,8 @@ Validate device targets and parameters and respect actual device capabilities. K
 - Home display/hardware, companion-app platforms, actual device inventory, and service providers, including calendar, music, cameras, and doorbell.
 - App framework, device protocols/home hub, hosting, storage, authentication, and local/cloud split.
 - Exact wake phrase, detection implementation, conversation-session behavior, and voice pipeline/model selection.
-- Household permission management, memory retention/deletion behavior, and audio/image storage policies beyond the confirmed privacy boundary.
-- Standing-instruction conflict resolution and ambiguous wording/channel handling.
+- Household permission management, production memory retention/storage, and audio/image policies beyond the confirmed local retention and privacy decisions.
+- Additional rule handlers and ambiguous wording/channel handling; deterministic compilation, semantic guidance, and deferred conflict clarification are confirmed.
 - Location access, ETA source, remote-access implementation, and specific device-supported controls.
 - Initial demo priorities, real hardware versus labeled simulations, visual review of the first Blender character, and its integration and assistant-state behavior.
 - Team, Representative, competition track, final theme, complete Official Rules/acceptance, license, and attribution.

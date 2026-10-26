@@ -24,7 +24,14 @@ let serverOffset = 0;
 let latestTimerSnapshot = 0;
 let timerStateLoaded = false;
 let timers = [];
-const sessionId = crypto.randomUUID();
+let sessionId;
+try { sessionId = localStorage.getItem("merlin-session-id"); } catch { /* Storage may be unavailable in a private browser. */ }
+if (!/^[a-zA-Z0-9-]{1,100}$/.test(sessionId || "")) sessionId = crypto.randomUUID();
+function persistSession() {
+  try { localStorage.setItem("merlin-session-id", sessionId); } catch { /* This conversation still works for the current page. */ }
+}
+persistSession();
+let memoryLab;
 
 elements["time-zone"].textContent = `Your time zone: ${timeZone}`;
 
@@ -291,13 +298,17 @@ elements["chat-form"].addEventListener("submit", async (event) => {
   showError("chat-error", "");
   updateChatControls();
   scrollChat();
+  memoryLab?.begin(attempt.requestId, attempt.entry);
+  let responseData;
   try {
     const data = await request("/api/chat", { message, time_zone: timeZone, session_id: sessionId, request_id: attempt.requestId }, chatTimeoutMs);
+    responseData = data;
     acceptState(data);
     if (data.error) throw Object.assign(new Error(data.error), { data });
     renderReply(attempt.entry, data);
     elements.message.value = "";
   } catch (error) {
+    responseData = error.data;
     retryChat = error.uncertain ? attempt : null;
     knownChatFailure = !error.uncertain;
     if (error.data) acceptState(error.data);
@@ -305,6 +316,7 @@ elements["chat-form"].addEventListener("submit", async (event) => {
     showError("chat-error", error.message);
   } finally {
     chatBusy = false;
+    memoryLab?.finish(attempt.entry, responseData);
     updateChatControls();
     elements.message.focus();
   }
@@ -326,25 +338,23 @@ for (const example of document.querySelectorAll("[data-prompt]")) {
   });
 }
 
-elements["reset-chat"].addEventListener("click", async () => {
+function clearChatView() {
+  elements["chat-log"].replaceChildren();
+  elements["chat-empty"].hidden = false;
+  elements.message.value = "";
+  retryChat = null;
+  knownChatFailure = false;
+}
+
+elements["reset-chat"].addEventListener("click", () => {
   if (chatBusy) return;
-  chatBusy = true;
+  sessionId = crypto.randomUUID();
+  persistSession();
+  clearChatView();
   updateChatControls();
   showError("chat-error", "");
-  try {
-    await request("/api/session/reset", { session_id: sessionId });
-    elements["chat-log"].replaceChildren();
-    elements["chat-empty"].hidden = false;
-    elements.message.value = "";
-    retryChat = null;
-    knownChatFailure = false;
-  } catch (error) {
-    showError("chat-error", `Could not clear the conversation. ${error.message}`);
-  } finally {
-    chatBusy = false;
-    updateChatControls();
-    elements.message.focus();
-  }
+  memoryLab?.newConversation();
+  elements.message.focus();
 });
 
 elements["timer-form"].addEventListener("submit", async (event) => {
@@ -401,4 +411,24 @@ function updateManualRetry() {
 elements["timer-label"].addEventListener("input", updateManualRetry);
 elements["timer-duration"].addEventListener("input", updateManualRetry);
 setInterval(updateCountdowns, 1000);
+memoryLab = window.createMemoryLab({
+  request,
+  getSessionId: () => sessionId,
+  isChatBusy: () => chatBusy,
+  restoreConversation(messages) {
+    if (chatBusy) return;
+    const draft = elements.message.value;
+    clearChatView();
+    elements.message.value = draft;
+    for (const message of messages) addChatEntry(message.role, message.text || message.content || "");
+    updateChatControls();
+    scrollChat();
+  },
+  async deleteConversation() {
+    if (chatBusy) throw new Error("Wait for the current request to finish before deleting this conversation.");
+    await request("/api/session/reset", { session_id: sessionId });
+    clearChatView();
+    updateChatControls();
+  },
+});
 pollState();

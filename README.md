@@ -4,7 +4,7 @@ A voice-first, Jarvis-inspired home assistant that learns about its household, m
 
 Built for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Cerebral Valley. MERLIN aims to make everyday home tasks useful, simple, and natural through Meta models and a polished companion interface.
 
-**Status:** Blender character and landscape room assets are available in [assets/merlin-character](assets/merlin-character/README.md), retaining the original proportions and lighting. The latest extension adds a central ready pose and six routes into and out of napping, ball tossing, and walking/whistling, with a wave on return. Its 13-clip GLB, three reviewed transition stills, and [continuous 41.75-second movie](assets/merlin-character/previews/merlin-transitions.mp4) are complete and verified. The earlier portrait and casual-room assets, including the [26-second casual movie](assets/merlin-character/previews/merlin-casual.mp4), remain available. The text-only application prototype implements Meta-driven web search and local timers. Other features below remain product goals, not working integrations.
+**Status:** Blender character and landscape room assets are available in [assets/merlin-character](assets/merlin-character/README.md), retaining the original proportions and lighting. The latest extension adds a central ready pose and six routes into and out of napping, ball tossing, and walking/whistling, with a wave on return. Its 13-clip GLB, three reviewed transition stills, and [continuous 41.75-second movie](assets/merlin-character/previews/merlin-transitions.mp4) are complete and verified. The earlier portrait and casual-room assets, including the [26-second casual movie](assets/merlin-character/previews/merlin-casual.mp4), remain available. The text-only application prototype implements Meta-driven web search, local timers, persistent inspectable memory, compiled standing instructions, named documents, and user-defined keyword routines. Other features below remain product goals, not working integrations.
 
 ## Product vision
 
@@ -33,6 +33,7 @@ Meta models are a core product requirement. Kokoro is the tentative speech synth
 | [Hackathon brief](docs/HACKATHON.md) | Rules from the supplied materials, schedule, judging, and submission checklist |
 | [Model reference](docs/MODELS.md) | Meta catalog, tentative model roles, pricing snapshot, and Kokoro reference |
 | [Project status](docs/STATUS.md) | Current implementation state, decisions, and next steps |
+| [Memory and routines](docs/MEMORY.md) | Memory lab, rule scopes, retention, routine activation, and testing |
 | [Original event overview](docs/sources/event-overview.txt) and [participant guide](docs/sources/participant-guide.txt) | User-supplied source snapshots |
 
 Submission target: **November 4, 2026 at 9:00 PM America/New_York (EST)**. A public repository and a three-minute video demonstrating work built during the hackathon are required by the supplied participant guide.

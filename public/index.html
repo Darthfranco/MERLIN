@@ -4,15 +4,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
-    <title>MERLIN · Text prototype</title>
+    <title>MERLIN · Memory lab</title>
     <link rel="stylesheet" href="/styles.css">
+    <script src="/memory.js" defer></script>
     <script src="/app.js" defer></script>
   </head>
   <body>
     <header class="page-header">
       <div>
         <h1>MERLIN</h1>
-        <p>Text prototype · Web search and timers</p>
+        <p>Text prototype · Memory, web search, and timers</p>
       </div>
       <p id="connection" class="connection" role="status">Connecting to the local server…</p>
     </header>
@@ -25,12 +26,13 @@
       <p id="state-warning" class="error state-warning" role="alert" hidden></p>
 
       <div class="workspace">
+        <div class="interaction-column">
         <section class="conversation" aria-labelledby="conversation-title">
           <div class="section-heading">
             <h2 id="conversation-title">Conversation</h2>
-            <button type="button" id="reset-chat" class="secondary">Clear conversation</button>
+            <button type="button" id="reset-chat" class="secondary">New conversation</button>
           </div>
-          <p class="help">Type a request. Meta chooses a tool, MERLIN runs it, and the result appears here.</p>
+          <p class="help">Chat normally, then inspect what MERLIN recalled, saved, and checked in the memory lab.</p>
 
           <div class="chat-area">
             <div id="chat-empty" class="empty-state">
@@ -38,6 +40,7 @@
               <div class="examples">
                 <button type="button" class="example" data-prompt="Set a 30-second tea timer.">Set a 30-second tea timer</button>
                 <button type="button" class="example" data-prompt="Search the web for how to descale a kettle.">Search how to descale a kettle</button>
+                <button type="button" class="example" data-prompt="Always use seconds for timers unless I specify another unit.">Remember my timer default</button>
               </div>
             </div>
             <div id="chat-log" role="log" aria-label="Conversation with MERLIN" aria-live="polite" aria-relevant="additions text"></div>
@@ -54,7 +57,7 @@
               <button type="submit" id="send-message" disabled>Send message</button>
             </div>
           </form>
-          <p class="privacy">Messages and relevant tool results are sent to Meta. Conversation context is held in server memory. Clear conversation to remove it; reloading starts a new conversation. No microphone or speech is used.</p>
+          <p class="privacy">Messages, selected memories, and relevant tool results are sent to Meta. Memory is saved on this computer until deleted. Reloading restores this conversation; a new conversation keeps saved household memory. No microphone or speech is used.</p>
         </section>
 
         <section class="timers" aria-labelledby="timers-title">
@@ -83,6 +86,116 @@
             </form>
           </details>
         </section>
+        </div>
+
+        <details id="memory-lab" class="memory-lab" open>
+          <summary><span>Memory lab</span><span class="help">Inspect and test</span></summary>
+          <div class="memory-content">
+            <div class="memory-toolbar">
+              <p id="memory-status" class="help" role="status">Loading saved memory…</p>
+              <button type="button" id="refresh-memory" class="secondary">Refresh</button>
+            </div>
+            <p class="help memory-intro">See the source, interpretation, and enforcement behind each memory. Technical details here are for testing.</p>
+            <p id="memory-error" class="error" role="alert" hidden></p>
+            <button type="button" id="retry-learning" class="secondary" hidden>Retry background learning</button>
+            <p id="memory-feedback" class="help" role="status"></p>
+            <div id="routine-pending" class="routine-pending" hidden></div>
+
+            <div class="memory-tabs" role="tablist" aria-label="Memory categories">
+              <button type="button" role="tab" id="tab-conversation" aria-controls="panel-conversation" aria-selected="false" tabindex="-1">Conversation <span id="count-conversation">0</span></button>
+              <button type="button" role="tab" id="tab-facts" aria-controls="panel-facts" aria-selected="true">Overall <span id="count-facts">0</span></button>
+              <button type="button" role="tab" id="tab-rules" aria-controls="panel-rules" aria-selected="false" tabindex="-1">Do / don't <span id="count-rules">0</span></button>
+              <button type="button" role="tab" id="tab-documents" aria-controls="panel-documents" aria-selected="false" tabindex="-1">Documents <span id="count-documents">0</span></button>
+              <button type="button" role="tab" id="tab-routines" aria-controls="panel-routines" aria-selected="false" tabindex="-1">Routines <span id="count-routines">0</span></button>
+            </div>
+
+            <section id="panel-conversation" class="memory-panel" role="tabpanel" aria-labelledby="tab-conversation" tabindex="0" hidden>
+              <h2>Conversation history</h2>
+              <p class="help">Exact saved messages from this conversation. Recent exchanges and relevant older messages can be selected for a request; the entire archive is not sent every time.</p>
+              <div id="memory-conversation-list" class="memory-list"></div>
+              <button type="button" id="delete-conversation" class="secondary danger">Delete this conversation</button>
+            </section>
+
+            <section id="panel-facts" class="memory-panel" role="tabpanel" aria-labelledby="tab-facts" tabindex="0">
+              <h2>Overall household memory</h2>
+              <p class="help">Facts, preferences, and guidance learned from your messages. Guidance shapes responses but is not a code-enforced rule.</p>
+              <div id="memory-facts-list" class="memory-list"></div>
+              <details id="fact-editor" class="memory-editor">
+                <summary>Add or edit a memory</summary>
+                <form id="memory-fact-form">
+                  <input type="hidden" id="fact-id">
+                  <label for="fact-content">What should MERLIN remember?</label>
+                  <textarea id="fact-content" rows="3" maxlength="2000" required></textarea>
+                  <div class="form-pair">
+                    <div><label for="fact-subject">About</label><input id="fact-subject" value="household" maxlength="120" required></div>
+                    <div><label for="fact-kind">Kind</label><select id="fact-kind"><option value="fact">Fact</option><option value="preference">Preference</option><option value="guidance">Guidance</option></select></div>
+                  </div>
+                  <div class="form-actions"><button type="submit">Save memory</button><button type="button" class="secondary" id="cancel-fact-edit">Reset form</button></div>
+                </form>
+              </details>
+            </section>
+
+            <section id="panel-rules" class="memory-panel" role="tabpanel" aria-labelledby="tab-rules" tabindex="0" hidden>
+              <h2>Do / don't instructions</h2>
+              <p class="help">Explicit instructions compiled into supported, deterministic checks. Broad meaning-based preferences belong in Overall memory as guidance.</p>
+              <div id="memory-conflicts" class="memory-conflicts" hidden></div>
+              <div id="memory-rules-list" class="memory-list"></div>
+              <details class="memory-editor">
+                <summary>Add a precise rule</summary>
+                <form id="memory-rule-form">
+                  <label for="rule-kind">Rule type</label>
+                  <select id="rule-kind">
+                    <option value="timer_default_unit">Default timer unit</option><option value="address_as">Form of address</option><option value="avoid_word">Avoid an exact word</option><option value="avoid_phrase">Avoid an exact phrase</option><option value="response_prefix">Start responses with</option><option value="response_suffix">End responses with</option><option value="tool_deny">Block a tool</option><option value="timer_max_seconds">Maximum timer seconds</option>
+                  </select>
+                  <label for="rule-value">Value</label><input id="rule-value" maxlength="200" required aria-describedby="rule-value-help">
+                  <p id="rule-value-help" class="help"></p>
+                  <label for="rule-scope">Applies to <span class="help">(set by rule type)</span></label><select id="rule-scope" disabled><option value="assistant_reply">Assistant responses</option><option value="timers">Timer actions</option><option value="tools">Tool actions</option></select>
+                  <label for="rule-original">Original instruction <span class="help">(optional)</span></label><input id="rule-original" maxlength="2000">
+                  <div class="form-actions"><button type="submit">Save rule</button></div>
+                </form>
+              </details>
+            </section>
+
+            <section id="panel-documents" class="memory-panel" role="tabpanel" aria-labelledby="tab-documents" tabindex="0" hidden>
+              <h2>Documents and information</h2>
+              <p class="help">The catalog helps MERLIN find a document. Its contents are loaded when needed. Upload plain text or Markdown, or paste your text below.</p>
+              <div id="memory-documents-list" class="memory-list"></div>
+              <details id="document-editor" class="memory-editor">
+                <summary>Add or edit a document</summary>
+                <form id="memory-document-form">
+                  <input type="hidden" id="document-id">
+                  <label for="document-file">Read a .txt or .md file <span class="help">(optional)</span></label><input id="document-file" type="file" accept=".txt,.md,text/plain,text/markdown" aria-describedby="document-size-help">
+                  <p id="document-size-help" class="help">Up to 100,000 characters. Check the text before saving.</p>
+                  <label for="document-title">Document name</label><input id="document-title" maxlength="160" placeholder="Joe’s workout routine" required>
+                  <label for="document-description">When is this useful?</label><input id="document-description" maxlength="1000" placeholder="Exercises and sets for Joe’s weekday workouts">
+                  <label for="document-content">Document text</label><textarea id="document-content" rows="8" maxlength="100000" required></textarea>
+                  <div class="form-actions"><button type="submit">Save document</button><button type="button" class="secondary" id="cancel-document-edit">Reset form</button></div>
+                </form>
+              </details>
+            </section>
+
+            <section id="panel-routines" class="memory-panel" role="tabpanel" aria-labelledby="tab-routines" tabindex="0" hidden>
+              <h2>Routines and trigger phrases</h2>
+              <p class="help">Save a name or phrase that stands for a longer request. An intentional command runs that saved request once, using the available tools and current rules. A question about a trigger does not start its routine; a close match asks for confirmation.</p>
+              <div id="memory-routines-list" class="memory-list"></div>
+              <details id="routine-editor" class="memory-editor">
+                <summary>Add or edit a routine</summary>
+                <form id="memory-routine-form">
+                  <input type="hidden" id="routine-id">
+                  <label for="routine-name">Routine name</label><input id="routine-name" maxlength="80" placeholder="Tea break" required>
+                  <label for="routine-aliases">Other trigger phrases <span class="help">(optional)</span></label><textarea id="routine-aliases" rows="2" maxlength="1500" placeholder="Time for tea" aria-describedby="routine-aliases-help"></textarea>
+                  <p id="routine-aliases-help" class="help">One phrase per line, up to 12 phrases of 120 characters each. The name itself is also a trigger.</p>
+                  <label for="routine-prompt">Request to run</label><textarea id="routine-prompt" rows="5" maxlength="12000" placeholder="Set a 3-minute tea timer and search for the weather forecast." aria-describedby="routine-prompt-help" required></textarea>
+                  <p id="routine-prompt-help" class="help">Write the exact request the phrase should stand for. Saving does not run it or create a recurring schedule. Device and music integrations remain unavailable in this prototype.</p>
+                  <div class="form-actions"><button type="submit">Save routine</button><button type="button" class="secondary" id="cancel-routine-edit">Reset form</button></div>
+                </form>
+              </details>
+            </section>
+
+            <details class="memory-activity"><summary>Memory activity</summary><p class="help">Recorded operations and their reasons, including background learning. This is execution evidence, not private model reasoning.</p><ol id="memory-events"></ol></details>
+            <div class="memory-footer"><p id="memory-retention" class="privacy">Local test memory is retained until deleted. Final retention policy is undecided.</p><button type="button" id="clear-memory" class="secondary danger">Delete all memory</button></div>
+          </div>
+        </details>
       </div>
     </main>
     <footer>Local test interface · Final app design and voice come later.</footer>
