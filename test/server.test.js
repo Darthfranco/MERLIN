@@ -198,7 +198,7 @@ test('HTTP chat executes a timer, supplies factual output to Meta, and preserves
   assert.ok(meta.calls[0].tools.some((tool) => tool.type === 'web_search'));
 });
 
-test('HTTP concurrent retries share one chat execution and restart cannot replay it', async (t) => {
+test('HTTP concurrent retries share mixed searches and timers, and restart cannot replay them', async (t) => {
   let release;
   let entered;
   const started = new Promise((resolve) => { entered = resolve; });
@@ -207,12 +207,29 @@ test('HTTP concurrent retries share one chat execution and restart cannot replay
     async () => {
       entered();
       await blocked;
-      return [call('create_timer', { label: 'Tea', duration_seconds: 60 })];
+      return [
+        { type: 'web_search_call', id: 'ws_tea', status: 'completed' },
+        call('create_timer', { label: 'Tea', duration_seconds: 60 }, 'tea_timer'),
+        call('create_timer', { label: 'Pasta', duration_seconds: 120 }, 'pasta_timer'),
+      ];
     },
-    [reply('Tea timer started.')],
+    (input) => {
+      const results = input.filter((item) => item.type === 'function_call_output').map((item) => JSON.parse(item.output));
+      assert.deepEqual(results.map((result) => [result.ok, result.result.label]), [[true, 'Tea'], [true, 'Pasta']]);
+      return [
+        { type: 'web_search_call', id: 'ws_pasta', status: 'completed' },
+        {
+          ...reply('Tea and pasta timers started. Here are both search results.'),
+          content: [{ type: 'output_text', text: 'Tea and pasta timers started. Here are both search results.', annotations: [
+            { type: 'url_citation', url: 'https://example.org/tea', title: 'Tea reference' },
+            { type: 'url_citation', url: 'https://example.org/pasta', title: 'Pasta reference' },
+          ] }],
+        },
+      ];
+    },
   ]);
   const app = await fixture(t, { meta });
-  const body = chatBody();
+  const body = chatBody({ message: 'Set a one-minute tea timer and a two-minute pasta timer, and search for tea brewing and pasta cooking tips.' });
   const first = app.post('/api/chat', body);
   await started;
   const second = app.post('/api/chat', body);
@@ -220,14 +237,26 @@ test('HTTP concurrent retries share one chat execution and restart cannot replay
   const results = await Promise.all([first, second]);
   assert.ok(results.every((result) => result.status === 200));
   assert.equal(meta.calls.length, 2);
-  assert.equal(results[0].body.timers[0].id, results[1].body.timers[0].id);
+  const withoutResponseTime = ({ server_time, ...body }) => body;
+  assert.deepEqual(withoutResponseTime(results[0].body), withoutResponseTime(results[1].body));
+  assert.equal(results[0].body.timers.length, 2);
+  assert.equal(new Set(results[0].body.timers.map((timer) => timer.id)).size, 2);
+  assert.deepEqual(results[0].body.tool_events.map((event) => event.tool), ['web_search', 'create_timer', 'create_timer', 'web_search']);
+  assert.ok(results[0].body.tool_events.every((event) => event.status === 'completed'));
+  assert.deepEqual(results[0].body.sources.map((source) => source.url), ['https://example.org/tea', 'https://example.org/pasta']);
+  const retry = await app.post('/api/chat', body);
+  assert.equal(retry.status, 200);
+  assert.deepEqual(withoutResponseTime(retry.body), withoutResponseTime(results[0].body));
+  assert.equal(meta.calls.length, 2);
   assert.equal((await app.post('/api/chat', { ...body, message: 'Different message' })).status, 409);
   await closeServer(app.server);
   const restartMeta = scriptedMeta([]);
   const restarted = await app.start(restartMeta);
   assert.equal((await restarted.post('/api/chat', body)).status, 409);
   assert.equal(restartMeta.calls.length, 0);
-  assert.equal((await restarted.request('/api/state')).body.timers.length, 1);
+  const persisted = (await restarted.request('/api/state')).body.timers;
+  assert.equal(persisted.length, 2);
+  assert.deepEqual(persisted.map((timer) => timer.id).sort(), results[0].body.timers.map((timer) => timer.id).sort());
 });
 
 test('HTTP retains actual tool outcomes and timer when Meta fails after successful execution', async (t) => {

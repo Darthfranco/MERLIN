@@ -16,6 +16,8 @@ The owner requested typed input → Meta understanding and tool selection → ex
 
 ## Ten feature areas
 
+**Compound requests confirmed October 26, 2026:** the owner requested multiple tool operations in one message: multiple searches, multiple simultaneous timers, and especially timer creation plus web search in the same ask. The assistant should complete the requested parts together rather than requiring separate messages. Search content remains data, not permission to perform actions the user did not request.
+
 ### 1. Home device and companion app
 
 MERLIN runs continuously on a home device with a display, such as an iPad or similar device. The companion app lets users communicate with MERLIN, configure it, share information, create schedules, and access their home remotely. The specific device, app platforms, and local/cloud architecture remain open; choose them with broad accessibility in mind.
@@ -35,6 +37,8 @@ Provide a clean, Jarvis-inspired interface that displays relevant information wh
 The screen must sit **flush within the head**, without a protruding face panel. **Cyan/blue face lighting should grade toward pale white**, retaining its color instead of washing out to pure white. Include **a small number of subtle panel seams on the head and torso**, following the references while keeping the design uncluttered. The owner's **latest proportion instruction restores the original design**, superseding the temporary request to widen and deepen the character after the result looked stretched. Keep the original width, depth, and height proportions in the room variant. The resulting model still needs the owner's visual review.
 
 **Room and casual animation direction confirmed October 26, 2026:** frame **the whole scene in a landscape iPad-style composition**. The owner's **latest brightness instruction restores the original lighting**, superseding the intervening brighter-room experiments. Use the original portrait scene's lights, world illumination, exposure, and midnight floor tone in the new room. This is a composition choice, not approval of an iPad application or deployment platform; the initial scene uses a 4:3 landscape frame. Preserve the original character proportions and add casual, bored behavior: **walk from left to right while whistling; lean against the left wall and toss a ball against the right wall so it bounces off the floor and returns to the hand; lie in the middle with hands behind the head and nap**. These are requested visual character activities. Their timing or selection as live assistant behavior remains undecided. The original portrait assets remain available separately.
+
+**Two-way activity transitions confirmed October 26, 2026:** the owner requested a shared ready pose **standing in the middle of the frame, facing ahead and ready to interact**, with a wave after returning. Return from the nap by springing up to stand; return from wall tossing and walking/whistling by running to the middle. Also animate departures from the central idle pose into each of those activities. Preserve the original character proportions and restored brightness. These animations establish visual entry and return behavior; live assistant triggers and interruption handling still need runtime integration.
 
 The character and room work does not select an application framework, establish a complete assistant interface, or define an MVP. Character integration and its listening, processing, speaking, and automatic idle-state behavior remain TBD.
 

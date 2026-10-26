@@ -13,6 +13,8 @@ const timerActions = new Set();
 let configured = false;
 let online = false;
 let chatBusy = false;
+// Updated from the server so longer compound requests aren't abandoned early.
+let chatTimeoutMs = 510000;
 let timerBusy = false;
 let retryChat = null;
 let retryTimer = null;
@@ -106,6 +108,9 @@ async function pollState() {
     const state = await request("/api/state", undefined, 8000);
     online = true;
     configured = state.configured === true;
+    if (Number.isSafeInteger(state.chat_timeout_ms) && state.chat_timeout_ms > 0) {
+      chatTimeoutMs = state.chat_timeout_ms;
+    }
     showError("state-warning", state.warning);
     elements["setup-notice"].hidden = configured;
     elements.connection.dataset.state = "online";
@@ -287,7 +292,7 @@ elements["chat-form"].addEventListener("submit", async (event) => {
   updateChatControls();
   scrollChat();
   try {
-    const data = await request("/api/chat", { message, time_zone: timeZone, session_id: sessionId, request_id: attempt.requestId });
+    const data = await request("/api/chat", { message, time_zone: timeZone, session_id: sessionId, request_id: attempt.requestId }, chatTimeoutMs);
     acceptState(data);
     if (data.error) throw Object.assign(new Error(data.error), { data });
     renderReply(attempt.entry, data);

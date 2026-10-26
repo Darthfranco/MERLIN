@@ -7,6 +7,7 @@ import { MetaClient } from './meta.js';
 import { Assistant } from './assistant.js';
 import { RequestLedger } from './requests.js';
 import { AppError, objectArgs, timeZone, uuid } from './errors.js';
+import { MAX_MODEL_ROUNDS, MODEL_TIMEOUT_MS } from './limits.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_FILES = new Map([
@@ -82,7 +83,11 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       }
       if (req.method === 'GET' && path === '/api/state') {
         await tick();
-        json(200, { configured: meta.configured, model: meta.model, ...await state() });
+        json(200, {
+          configured: meta.configured, model: meta.model,
+          chat_timeout_ms: MAX_MODEL_ROUNDS * MODEL_TIMEOUT_MS + 30_000,
+          ...await state(),
+        });
         return;
       }
       if (req.method !== 'POST') throw new AppError('Not found.', 404);

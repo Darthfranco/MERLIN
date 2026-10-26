@@ -1,4 +1,5 @@
 import { AppError } from './errors.js';
+import { MAX_SEARCH_CALLS, MODEL_TIMEOUT_MS } from './limits.js';
 
 export class MetaClient {
   constructor({ apiKey = '', model = 'muse-spark-1.3', fetchImpl = fetch } = {}) {
@@ -20,7 +21,7 @@ export class MetaClient {
         method: body ? 'POST' : 'GET',
         headers: { Authorization: `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' },
         ...(body ? { body: JSON.stringify(body) } : {}),
-        signal: AbortSignal.timeout(60_000),
+        signal: AbortSignal.timeout(MODEL_TIMEOUT_MS),
         redirect: 'error',
       });
     } catch {
@@ -38,15 +39,15 @@ export class MetaClient {
     catch { throw new AppError('Meta returned an unreadable response.', 502); }
   }
 
-  async respond(input, tools, instructions) {
+  async respond(input, tools, instructions, { maxSearchCalls = MAX_SEARCH_CALLS } = {}) {
     const response = await this.request('responses', {
       model: this.model, input, instructions, tools,
       store: false,
       include: ['reasoning.encrypted_content', 'web_search_call.results'],
       tool_choice: 'auto',
-      parallel_tool_calls: false,
-      max_tool_calls: 3,
-      max_output_tokens: 4096,
+      parallel_tool_calls: true,
+      max_tool_calls: maxSearchCalls,
+      max_output_tokens: 8192,
     });
     if (response.status !== 'completed' || !Array.isArray(response.output)) {
       throw new AppError('Meta did not finish its response. No partial function calls were executed.', 502);

@@ -6,6 +6,7 @@ import test from 'node:test';
 import { Assistant, TOOLS } from '../src/assistant.js';
 import { MetaClient } from '../src/meta.js';
 import { TimerStore } from '../src/timers.js';
+import { MAX_FUNCTION_CALLS, MAX_MODEL_ROUNDS, MAX_SEARCH_CALLS } from '../src/limits.js';
 
 const request = {
   message: 'Set a one-minute tea timer.',
@@ -21,12 +22,20 @@ function answer(text = 'Your tea timer is running.', annotations = []) {
   return { type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'output_text', text, annotations }] };
 }
 
+function search(id = 'ws_test') {
+  return { type: 'web_search_call', id, status: 'completed' };
+}
+
+function citation(url, title = 'Synthetic source') {
+  return { type: 'url_citation', url, title, start_index: 0, end_index: 4 };
+}
+
 function script(...steps) {
   const requests = [];
   return {
     requests,
-    async respond(input, tools, instructions) {
-      requests.push(structuredClone({ input, tools, instructions }));
+    async respond(input, tools, instructions, options) {
+      requests.push(structuredClone({ input, tools, instructions, options }));
       assert.ok(steps.length, 'Assistant made an unexpected extra model request');
       const step = steps.shift();
       if (step instanceof Error) throw step;
@@ -68,11 +77,20 @@ test('Meta sends a stateless request to the fixed Meta endpoint with standard-mo
   assert.equal(body.store, false);
   assert.deepEqual(body.include, ['reasoning.encrypted_content', 'web_search_call.results']);
   assert.equal(body.tool_choice, 'auto');
-  assert.equal(body.parallel_tool_calls, false);
+  assert.equal(body.parallel_tool_calls, true);
+  assert.equal(body.max_tool_calls, MAX_SEARCH_CALLS);
+  assert.equal(body.max_output_tokens, 8192);
   assert.equal('previous_response_id' in body, false);
   assert.deepEqual(body.input, input);
   assert.deepEqual(body.tools, TOOLS);
   assert.equal(body.instructions, 'Be useful.');
+});
+
+test('Meta passes the remaining search budget to the provider', async () => {
+  const captured = [];
+  const meta = new MetaClient({ apiKey: 'synthetic-key', fetchImpl: fakeFetch({ status: 'completed', output: [answer()] }, captured) });
+  await meta.respond([], TOOLS, 'Finish the requested work.', { maxSearchCalls: 2 });
+  assert.equal(JSON.parse(captured[0].options.body).max_tool_calls, 2);
 });
 
 test('Contributor and unrelated models cannot be selected and missing credentials never call fetch', async () => {
@@ -182,24 +200,23 @@ test('list and cancel tools use the real timer identifier and cancellation resul
 
 test('the assistant bounds both model rounds and function calls per run', async (t) => {
   const timers = await fixture(t);
-  const meta = script(...Array.from({ length: 5 }, (_, index) => [call('list_timers', {}, `list_${index}`)]));
+  const meta = script(...Array.from({ length: MAX_MODEL_ROUNDS }, (_, index) => [call('list_timers', {}, `list_${index}`)]));
   await assert.rejects(new Assistant({ meta, timers }).run(request), (error) => {
     assert.match(error.message, /tool-loop limit/);
-    assert.equal(error.tool_events.length, 5);
+    assert.equal(error.tool_events.length, MAX_MODEL_ROUNDS);
     return true;
   });
-  assert.equal(meta.requests.length, 5);
-  const manyCalls = script(Array.from({ length: 9 }, (_, index) => call('list_timers', {}, `many_${index}`)));
+  assert.equal(meta.requests.length, MAX_MODEL_ROUNDS);
+  const manyCalls = script(Array.from({ length: MAX_FUNCTION_CALLS + 1 }, (_, index) => call('list_timers', {}, `many_${index}`)));
   await assert.rejects(new Assistant({ meta: manyCalls, timers }).run(request), (error) => {
-    assert.match(error.message, /eight tool calls/);
-    assert.equal(error.tool_events.length, 8);
+    assert.match(error.message, new RegExp(`${MAX_FUNCTION_CALLS} local tool calls`));
+    assert.equal(error.tool_events.length, MAX_FUNCTION_CALLS);
     return true;
   });
 });
 
 test('an explicit search reports confirmed execution and only safe HTTP citations', async (t) => {
   const timers = await fixture(t);
-  const citation = (url, title = 'Synthetic source') => ({ type: 'url_citation', url, title, start_index: 0, end_index: 4 });
   const meta = script([
     { type: 'web_search_call', id: 'ws_test', status: 'completed', results: [{ type: 'text_result', url: 'https://example.org/raw', title: 'Unused result', snippet: 'Synthetic text.' }] },
     answer('Here are the current findings.', [
@@ -216,16 +233,121 @@ test('an explicit search reports confirmed execution and only safe HTTP citation
   assert.deepEqual(await timers.list(), []);
 });
 
-test('retrieved content cannot authorize timer creation within the same run', async (t) => {
+test('one request fills all fifty timer slots and returns every persisted result to Meta', async (t) => {
+  const timers = await fixture(t);
+  const timerCalls = Array.from({ length: 50 }, (_, index) => call('create_timer', {
+    label: `Timer ${index + 1}`, duration_seconds: 60 + index,
+  }, `timer_${index}`));
+  const meta = script(timerCalls, ({ input }) => {
+    const results = input.filter((item) => item.type === 'function_call_output');
+    assert.equal(results.length, 50);
+    assert.equal(new Set(results.map((item) => JSON.parse(item.output).result.id)).size, 50);
+    results.forEach((item, index) => {
+      const result = JSON.parse(item.output);
+      assert.equal(item.call_id, timerCalls[index].call_id);
+      assert.equal(result.ok, true);
+      assert.equal(result.result.label, `Timer ${index + 1}`);
+      assert.equal(result.result.duration_seconds, 60 + index);
+      assert.equal(result.result.status, 'running');
+      assert.equal(result.result.time_zone, request.time_zone);
+    });
+    return [answer('All fifty timers are running.')];
+  });
+  const result = await new Assistant({ meta, timers }).run({ ...request, message: 'Start fifty timers, labeled Timer 1 through Timer 50, for 60 through 109 seconds respectively.' });
+  assert.equal((await timers.list()).length, 50);
+  assert.equal(result.tool_events.length, 50);
+  assert.ok(result.tool_events.every((event) => event.tool === 'create_timer' && event.status === 'completed'));
+  assert.equal(meta.requests.length, 2);
+});
+
+test('requested search and timer operations work in either order within one ask', async (t) => {
+  const cases = [
+    ['search before timer in one response', [[search(), call()], [answer()]]],
+    ['timer before search in one response', [[call(), search()], [answer()]]],
+    ['search after timer in a later response', [[call()], [search(), answer()]]],
+    ['timer after search in a later response', [[search(), call('list_timers', {}, 'list_1')], [call()], [answer()]]],
+  ];
+  for (const [name, steps] of cases) {
+    await t.test(name, async (subtest) => {
+      const timers = await fixture(subtest);
+      const meta = script(...steps);
+      const result = await new Assistant({ meta, timers }).run({ ...request, message: 'Set a one-minute tea timer and search for tea brewing information.' });
+      const stored = await timers.list();
+      assert.equal(stored.length, 1);
+      assert.equal(stored[0].status, 'running');
+      assert.equal(stored[0].label, 'Tea');
+      assert.equal(result.tool_events.filter((event) => event.tool === 'web_search' && event.status === 'completed').length, 1);
+      assert.equal(result.tool_events.filter((event) => event.tool === 'create_timer' && event.status === 'completed').length, 1);
+      assert.ok(result.tool_events.every((event) => event.status === 'completed'));
+    });
+  }
+});
+
+test('multiple searches and timers retain all outcomes, citations, and tool results across model rounds', async (t) => {
+  const timers = await fixture(t);
+  const firstCitation = citation('https://example.org/tea', 'Tea reference');
+  const secondCitation = citation('https://example.org/pasta', 'Pasta reference');
+  const meta = script([
+    search('ws_tea'),
+    { ...answer('I found the tea reference.', [firstCitation]), phase: 'commentary' },
+    call(),
+    call('create_timer', { label: 'Pasta', duration_seconds: 600 }, 'call_2'),
+  ], ({ input, options }) => {
+    assert.equal(options.maxSearchCalls, MAX_SEARCH_CALLS - 1);
+    const results = input.filter((item) => item.type === 'function_call_output').map((item) => JSON.parse(item.output));
+    assert.deepEqual(results.map((result) => [result.ok, result.result.label]), [[true, 'Tea'], [true, 'Pasta']]);
+    assert.ok(input.some((item) => item.type === 'web_search_call' && item.id === 'ws_tea'));
+    return [search('ws_pasta'), answer('Both timers are running. Here are the tea and pasta findings.', [firstCitation, secondCitation])];
+  });
+  const result = await new Assistant({ meta, timers }).run({ ...request, message: 'Set a one-minute tea timer and a ten-minute pasta timer, and search for both tea brewing and pasta cooking information.' });
+  assert.equal((await timers.list()).length, 2);
+  assert.deepEqual(result.tool_events.map((event) => event.tool), ['web_search', 'create_timer', 'create_timer', 'web_search']);
+  assert.ok(result.tool_events.every((event) => event.status === 'completed'));
+  assert.deepEqual(result.sources, [
+    { url: 'https://example.org/tea', title: 'Tea reference' },
+    { url: 'https://example.org/pasta', title: 'Pasta reference' },
+  ]);
+  assert.match(result.reply, /Both timers are running/);
+  assert.equal(result.turn.filter((item) => item.type === 'function_call_output').length, 2);
+});
+
+test('one invalid tool in a mixed batch does not prevent other timers or searches from completing', async (t) => {
   const timers = await fixture(t);
   const meta = script([
-    { type: 'web_search_call', status: 'completed' },
-    call('create_timer', { label: 'From untrusted search', duration_seconds: 60 }),
-  ], [answer('Please request that timer separately.')]);
-  const result = await new Assistant({ meta, timers }).run({ ...request, message: 'Search for tea instructions.' });
-  assert.deepEqual(await timers.list(), []);
-  assert.equal(result.tool_events[1].status, 'failed');
-  assert.match(result.tool_events[1].message, /after web retrieval/);
+    search(),
+    call('create_timer', { label: 'Invalid', duration_seconds: -1 }, 'bad_timer'),
+    call('create_timer', { label: 'Tea', duration_seconds: 60 }, 'tea_timer'),
+    call('create_timer', { label: 'Pasta', duration_seconds: 120 }, 'pasta_timer'),
+  ], ({ input }) => {
+    const results = input.filter((item) => item.type === 'function_call_output').map((item) => JSON.parse(item.output));
+    assert.deepEqual(results.map((result) => result.ok), [false, true, true]);
+    return [answer('The invalid timer failed. Tea and pasta timers are running; the web search completed.')];
+  });
+  const result = await new Assistant({ meta, timers }).run({ ...request, message: 'Search for tea, set a negative one-second timer, a one-minute tea timer, and a two-minute pasta timer.' });
+  assert.deepEqual((await timers.list()).map((timer) => timer.label), ['Tea', 'Pasta']);
+  assert.deepEqual(result.tool_events.map((event) => event.status), ['completed', 'failed', 'completed', 'completed']);
+});
+
+test('the total search budget is shared across rounds while timer functions remain available', async (t) => {
+  const timers = await fixture(t);
+  const searches = Array.from({ length: MAX_SEARCH_CALLS }, (_, index) => search(`ws_${index}`));
+  const meta = script([
+    ...searches.slice(0, 2), call('list_timers', {}, 'list_1'),
+  ], ({ tools, options }) => {
+    assert.ok(tools.some((tool) => tool.type === 'web_search'));
+    assert.equal(options.maxSearchCalls, MAX_SEARCH_CALLS - 2);
+    return [...searches.slice(2), call()];
+  }, ({ input, tools, options }) => {
+    assert.equal(tools.some((tool) => tool.type === 'web_search'), false);
+    assert.ok(tools.some((tool) => tool.name === 'create_timer'));
+    assert.equal(options.maxSearchCalls, 1, 'The provider requires a positive limit even when search is omitted');
+    assert.equal(JSON.parse(input.at(-1).output).result.status, 'running');
+    return [answer('The searches are complete, and your tea timer is running.')];
+  });
+  const result = await new Assistant({ meta, timers }).run({ ...request, message: 'Search for several requested topics and set a one-minute tea timer.' });
+  assert.equal(meta.requests[0].options.maxSearchCalls, MAX_SEARCH_CALLS);
+  assert.equal(result.tool_events.filter((event) => event.tool === 'web_search').length, MAX_SEARCH_CALLS);
+  assert.equal((await timers.list()).length, 1);
 });
 
 test('partial or failed API envelopes never execute their function calls', async (t) => {
