@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "video": "merlin-casual.mp4",
+  "frames": 624,
+  "fps": 24,
+  "dimensions": [
+    800,
+    600
+  ],
+  "duration_seconds": 26,
+  "audio_decoded_duration_seconds": 26.016,
+  "audio_channels": 2,
+  "audio_sample_rate": 48000,
+  "walk_audio_peak_dbfs": -21.8440812204582,
+  "walk_audio_rms_dbfs": -31.165842077976077,
+  "post_walk_audio_rms": 0.0,
+  "decoded_review_frames": [
+    72,
+    250,
+    262,
+    278,
+    504
+  ]
+}

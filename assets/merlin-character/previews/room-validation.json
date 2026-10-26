@@ -1,0 +1,1871 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-10-26T20:34:02.092914+00:00",
+  "blender_version": "4.0.2",
+  "blend_file": "merlin-room.blend",
+  "glb_file": "merlin-room.glb",
+  "checks": [
+    {
+      "name": "landscape_four_by_three",
+      "passed": true,
+      "resolution": [
+        1600,
+        1200
+      ],
+      "pixel_aspect": [
+        1.0,
+        1.0
+      ],
+      "display_aspect": 1.3333333333333333
+    },
+    {
+      "name": "camera_exists",
+      "passed": true
+    },
+    {
+      "name": "room_bounds_metadata",
+      "passed": true,
+      "actual": {
+        "left": -4.5,
+        "right": 4.5,
+        "floor": 0.024,
+        "back": 4.2
+      }
+    },
+    {
+      "name": "room_floor_anchors_visible",
+      "passed": true,
+      "projected_anchors": [
+        [
+          0.05882352218031883,
+          0.19193768501281738,
+          19.670743942260742
+        ],
+        [
+          0.05882352218031883,
+          0.3603185713291168,
+          23.668336868286133
+        ],
+        [
+          0.9411764740943909,
+          0.19193768501281738,
+          19.670743942260742
+        ],
+        [
+          0.9411764740943909,
+          0.3603185713291168,
+          23.668336868286133
+        ]
+      ]
+    },
+    {
+      "name": "twenty_four_fps",
+      "passed": true
+    },
+    {
+      "name": "original_lighting_settings_restored",
+      "passed": true,
+      "world_color": [
+        0.02199999988079071,
+        0.03099999949336052,
+        0.057999998331069946
+      ],
+      "world_strength": 0.18000000715255737,
+      "exposure": 0.3499999940395355,
+      "lights": [
+        "Key \u2022 long silk",
+        "Fill \u2022 cool card",
+        "Rim \u2022 pearl",
+        "Top \u2022 highlight",
+        "Sole L \u2022 floor bounce",
+        "Sole R \u2022 floor bounce"
+      ]
+    },
+    {
+      "name": "original_rig_retained",
+      "passed": true
+    },
+    {
+      "name": "original_bones_retained",
+      "passed": true,
+      "bone_count": 15
+    },
+    {
+      "name": "original_rig_proportions_restored",
+      "passed": true,
+      "rig_scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "original_and_casual_actions_present",
+      "passed": true,
+      "missing": []
+    },
+    {
+      "name": "casual_action_ranges",
+      "passed": true,
+      "unexpected_ranges": {},
+      "expected_lengths": {
+        "WalkWhistle": 192,
+        "WallToss": 240,
+        "Nap": 192,
+        "CasualShowcase": 624
+      }
+    },
+    {
+      "name": "rigged_character_geometry_present",
+      "passed": true
+    },
+    {
+      "name": "play_ball_present",
+      "passed": true
+    },
+    {
+      "name": "original_merlin_blend_retained",
+      "passed": true
+    },
+    {
+      "name": "original_merlin_glb_retained",
+      "passed": true
+    },
+    {
+      "name": "material_images_packed_or_generated",
+      "passed": true,
+      "images": 1,
+      "unpacked": []
+    },
+    {
+      "name": "no_external_blend_libraries",
+      "passed": true,
+      "count": 0
+    },
+    {
+      "name": "other_assets_resolve",
+      "passed": true,
+      "missing": []
+    },
+    {
+      "name": "whistle_audio_present",
+      "passed": true
+    },
+    {
+      "name": "whistle_audio_eight_seconds",
+      "passed": true,
+      "duration_seconds": 8.0,
+      "channels": 1,
+      "sample_rate": 48000
+    },
+    {
+      "name": "face_expression_shapes_present",
+      "passed": true,
+      "errors": [],
+      "maximum_vertex_displacement": {
+        "Eye \u2022 R: Blink": 0.1865713807006162,
+        "Eye \u2022 R: Sleep": 0.23257258070070763,
+        "Eye \u2022 R: Sleepy": 0.14987572116524878,
+        "Eye \u2022 L: Blink": 0.1865713807006162,
+        "Eye \u2022 L: Sleep": 0.23257258070070763,
+        "Eye \u2022 L: Sleepy": 0.14987572116524878,
+        "Face \u2022 luminous smile: Whistle": 0.237110201490115
+      }
+    },
+    {
+      "name": "WalkWhistle_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03499961644411087,
+      "object": "Foot R \u2022 graphite outsole",
+      "frame": 189,
+      "floor_z": 0.024
+    },
+    {
+      "name": "WalkWhistle_within_side_walls",
+      "passed": true,
+      "extent": [
+        -3.991844654083252,
+        4.105586051940918
+      ]
+    },
+    {
+      "name": "WalkWhistle_inside_camera",
+      "passed": true,
+      "violating_frames": [],
+      "projected_extent": [
+        0.10864267498254776,
+        0.1660027951002121,
+        0.9025084376335144,
+        0.6749999523162842
+      ]
+    },
+    {
+      "name": "WallToss_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.024057604372501373,
+      "object": "Prop \u2022 cyan play ball",
+      "frame": 178,
+      "floor_z": 0.024
+    },
+    {
+      "name": "WallToss_within_side_walls",
+      "passed": true,
+      "extent": [
+        -4.475000381469727,
+        4.499894142150879
+      ]
+    },
+    {
+      "name": "WallToss_inside_camera",
+      "passed": true,
+      "violating_frames": [],
+      "projected_extent": [
+        0.061274465173482895,
+        0.16386765241622925,
+        0.9502924084663391,
+        0.6796678900718689
+      ]
+    },
+    {
+      "name": "Nap_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03299979493021965,
+      "object": "Hand R \u2022 soft mitten",
+      "frame": 166,
+      "floor_z": 0.024
+    },
+    {
+      "name": "Nap_within_side_walls",
+      "passed": true,
+      "extent": [
+        -1.9480397701263428,
+        1.600888967514038
+      ]
+    },
+    {
+      "name": "Nap_inside_camera",
+      "passed": true,
+      "violating_frames": [],
+      "projected_extent": [
+        0.309015691280365,
+        0.15592040121555328,
+        0.6569498777389526,
+        0.4682801067829132
+      ]
+    },
+    {
+      "name": "CasualShowcase_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.024057604372501373,
+      "object": "Prop \u2022 cyan play ball",
+      "frame": 370,
+      "floor_z": 0.024
+    },
+    {
+      "name": "CasualShowcase_within_side_walls",
+      "passed": true,
+      "extent": [
+        -4.475000381469727,
+        4.499894142150879
+      ]
+    },
+    {
+      "name": "CasualShowcase_inside_camera",
+      "passed": true,
+      "violating_frames": [],
+      "projected_extent": [
+        0.061274465173482895,
+        0.15592040121555328,
+        0.9502924084663391,
+        0.6796466112136841
+      ]
+    },
+    {
+      "name": "walk_travels_left_to_right",
+      "passed": true,
+      "distance": 6.199999809265137
+    },
+    {
+      "name": "walk_leg_swing",
+      "passed": true,
+      "maximum_degrees": 33.81888937337442
+    },
+    {
+      "name": "walk_whistle_expression_active",
+      "passed": true
+    },
+    {
+      "name": "nap_closed_or_sleepy_eyes",
+      "passed": true
+    },
+    {
+      "name": "wall_lean_at_left_side",
+      "passed": true,
+      "closest_left_wall_gap": 0.024999618530273438
+    },
+    {
+      "name": "nap_body_reclines",
+      "passed": true,
+      "body_up_world": [
+        -0.9848490357398987,
+        -0.0001912838197313249,
+        0.17341409623622894
+      ]
+    },
+    {
+      "name": "nap_hands_behind_head",
+      "passed": true,
+      "palm_centers_in_head_rest_space": {
+        "L": [
+          0.8532467484474182,
+          0.6098695993423462,
+          2.31032133102417
+        ],
+        "R": [
+          -0.8524874448776245,
+          0.6102421283721924,
+          2.311119794845581
+        ]
+      }
+    },
+    {
+      "name": "ball_wall_floor_catch_sequence",
+      "passed": true,
+      "failing_sequences": []
+    },
+    {
+      "name": "room_glb_exists",
+      "passed": true
+    },
+    {
+      "name": "room_glb_casual_clips",
+      "passed": true,
+      "actual": [
+        "Idle",
+        "Wave",
+        "Jump",
+        "WalkWhistle",
+        "WallToss",
+        "Nap"
+      ]
+    },
+    {
+      "name": "room_glb_geometry_and_materials",
+      "passed": true
+    },
+    {
+      "name": "room_glb_self_contained",
+      "passed": true,
+      "external_uris": []
+    },
+    {
+      "name": "room_glb_finite_bounds",
+      "passed": true,
+      "invalid_accessors": []
+    },
+    {
+      "name": "WalkWhistle_exports_active_expression_weights",
+      "passed": true
+    },
+    {
+      "name": "WallToss_exports_active_expression_weights",
+      "passed": true
+    },
+    {
+      "name": "Nap_exports_active_expression_weights",
+      "passed": true
+    },
+    {
+      "name": "room_glb_animation_times",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "WalkWhistle_exports_expression_channels",
+      "passed": true
+    },
+    {
+      "name": "WallToss_exports_expression_channels",
+      "passed": true
+    },
+    {
+      "name": "Nap_exports_expression_channels",
+      "passed": true
+    },
+    {
+      "name": "original_mesh_names_retained_in_room_glb",
+      "passed": true,
+      "missing": []
+    },
+    {
+      "name": "original_mesh_position_counts_retained",
+      "passed": true,
+      "changes": []
+    },
+    {
+      "name": "glb_ball_visibility_per_clip",
+      "passed": true,
+      "errors": [],
+      "clips": {
+        "WalkWhistle": {
+          "source": "animation scale channel",
+          "baseline_scale": [
+            0,
+            0,
+            0
+          ],
+          "sample_count": 192,
+          "expected_scale": 0,
+          "effective_minimum": 0.0,
+          "effective_maximum": 0.0
+        },
+        "WallToss": {
+          "source": "animation scale channel",
+          "baseline_scale": [
+            0,
+            0,
+            0
+          ],
+          "sample_count": 240,
+          "expected_scale": 1,
+          "effective_minimum": 0.9999999403953552,
+          "effective_maximum": 1.0
+        },
+        "Nap": {
+          "source": "animation scale channel",
+          "baseline_scale": [
+            0,
+            0,
+            0
+          ],
+          "sample_count": 192,
+          "expected_scale": 0,
+          "effective_minimum": 0.0,
+          "effective_maximum": 0.0
+        }
+      }
+    },
+    {
+      "name": "glb_nap_preserves_constant_sleep_expressions",
+      "passed": true,
+      "errors": [],
+      "expressions": {
+        "Eye \u2022 L: Sleep": {
+          "sample_count": 192,
+          "minimum": 1.0,
+          "maximum": 1.0
+        },
+        "Eye \u2022 R: Sleep": {
+          "sample_count": 192,
+          "minimum": 1.0,
+          "maximum": 1.0
+        },
+        "Face \u2022 luminous smile: SleepSmile": {
+          "sample_count": 192,
+          "minimum": 1.0,
+          "maximum": 1.0
+        }
+      }
+    }
+  ],
+  "counts": {
+    "character_mesh_objects": 49,
+    "character_vertices": 116998,
+    "room_glb_bytes": 6994472,
+    "room_glb_meshes": 50,
+    "room_glb_materials": 10,
+    "room_glb_animations": 6
+  },
+  "measurements": {
+    "activities": {
+      "WalkWhistle": {
+        "sampled_frames": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141,
+          142,
+          143,
+          144,
+          145,
+          146,
+          147,
+          148,
+          149,
+          150,
+          151,
+          152,
+          153,
+          154,
+          155,
+          156,
+          157,
+          158,
+          159,
+          160,
+          161,
+          162,
+          163,
+          164,
+          165,
+          166,
+          167,
+          168,
+          169,
+          170,
+          171,
+          172,
+          173,
+          174,
+          175,
+          176,
+          177,
+          178,
+          179,
+          180,
+          181,
+          182,
+          183,
+          184,
+          185,
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192
+        ],
+        "minimum_surface_z": 0.03499961644411087,
+        "minimum_surface_object": "Foot R \u2022 graphite outsole",
+        "minimum_surface_frame": 189,
+        "x_extent": [
+          -3.991844654083252,
+          4.105586051940918
+        ],
+        "camera_extent": [
+          0.10864267498254776,
+          0.1660027951002121,
+          0.9025084376335144,
+          0.6749999523162842
+        ],
+        "camera_violations": [],
+        "expression_ranges": {
+          "Eye \u2022 R: Blink": [
+            0.0,
+            1.0
+          ],
+          "Eye \u2022 R: Sleep": [
+            0.0,
+            0.0
+          ],
+          "Eye \u2022 R: Sleepy": [
+            0.0,
+            0.11999999731779099
+          ],
+          "Eye \u2022 L: Blink": [
+            0.0,
+            1.0
+          ],
+          "Eye \u2022 L: Sleep": [
+            0.0,
+            0.0
+          ],
+          "Eye \u2022 L: Sleepy": [
+            0.0,
+            0.11999999731779099
+          ],
+          "Face \u2022 luminous smile: Whistle": [
+            0.0,
+            1.0
+          ],
+          "Face \u2022 luminous smile: SleepSmile": [
+            0.0,
+            0.0
+          ]
+        },
+        "root_start": [
+          -3.0999999046325684,
+          0.0,
+          -0.08500000089406967
+        ],
+        "root_end": [
+          3.0999999046325684,
+          0.0,
+          -0.08500000089406967
+        ],
+        "maximum_thigh_rotation_degrees": 33.81888937337442
+      },
+      "WallToss": {
+        "sampled_frames": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141,
+          142,
+          143,
+          144,
+          145,
+          146,
+          147,
+          148,
+          149,
+          150,
+          151,
+          152,
+          153,
+          154,
+          155,
+          156,
+          157,
+          158,
+          159,
+          160,
+          161,
+          162,
+          163,
+          164,
+          165,
+          166,
+          167,
+          168,
+          169,
+          170,
+          171,
+          172,
+          173,
+          174,
+          175,
+          176,
+          177,
+          178,
+          179,
+          180,
+          181,
+          182,
+          183,
+          184,
+          185,
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192,
+          193,
+          194,
+          195,
+          196,
+          197,
+          198,
+          199,
+          200,
+          201,
+          202,
+          203,
+          204,
+          205,
+          206,
+          207,
+          208,
+          209,
+          210,
+          211,
+          212,
+          213,
+          214,
+          215,
+          216,
+          217,
+          218,
+          219,
+          220,
+          221,
+          222,
+          223,
+          224,
+          225,
+          226,
+          227,
+          228,
+          229,
+          230,
+          231,
+          232,
+          233,
+          234,
+          235,
+          236,
+          237,
+          238,
+          239,
+          240
+        ],
+        "minimum_surface_z": 0.024057604372501373,
+        "minimum_surface_object": "Prop \u2022 cyan play ball",
+        "minimum_surface_frame": 178,
+        "x_extent": [
+          -4.475000381469727,
+          4.499894142150879
+        ],
+        "camera_extent": [
+          0.061274465173482895,
+          0.16386765241622925,
+          0.9502924084663391,
+          0.6796678900718689
+        ],
+        "camera_violations": [],
+        "expression_ranges": {
+          "Eye \u2022 R: Blink": [
+            0.0,
+            1.0
+          ],
+          "Eye \u2022 R: Sleep": [
+            0.0,
+            0.0
+          ],
+          "Eye \u2022 R: Sleepy": [
+            0.0,
+            0.5
+          ],
+          "Eye \u2022 L: Blink": [
+            0.0,
+            1.0
+          ],
+          "Eye \u2022 L: Sleep": [
+            0.0,
+            0.0
+          ],
+          "Eye \u2022 L: Sleepy": [
+            0.0,
+            0.5
+          ],
+          "Face \u2022 luminous smile: Whistle": [
+            0.0,
+            0.0
+          ],
+          "Face \u2022 luminous smile: SleepSmile": [
+            0.10000000149011612,
+            0.10000000149011612
+          ]
+        },
+        "root_start": [
+          -3.0638699531555176,
+          0.0,
+          -0.03999999910593033
+        ],
+        "root_end": [
+          -3.0638699531555176,
+          0.0,
+          -0.03999999910593033
+        ],
+        "maximum_thigh_rotation_degrees": 0.0
+      },
+      "Nap": {
+        "sampled_frames": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141,
+          142,
+          143,
+          144,
+          145,
+          146,
+          147,
+          148,
+          149,
+          150,
+          151,
+          152,
+          153,
+          154,
+          155,
+          156,
+          157,
+          158,
+          159,
+          160,
+          161,
+          162,
+          163,
+          164,
+          165,
+          166,
+          167,
+          168,
+          169,
+          170,
+          171,
+          172,
+          173,
+          174,
+          175,
+          176,
+          177,
+          178,
+          179,
+          180,
+          181,
+          182,
+          183,
+          184,
+          185,
+          186,
+          187,
+          188,
+          189,
+          190,
+          191,
+          192
+        ],
+        "minimum_surface_z": 0.03299979493021965,
+        "minimum_surface_object": "Hand R \u2022 soft mitten",
+        "minimum_surface_frame": 166,
+        "x_extent": [
+          -1.9480397701263428,
+          1.600888967514038
+        ],
+        "camera_extent": [
+          0.309015691280365,
+          0.15592040121555328,
+          0.6569498777389526,
+          0.4682801067829132
+        ],
+        "camera_violations": [],
+        "expression_ranges": {
+          "Eye \u2022 R: Blink": [
+            0.0,
+            0.0
+          ],
+          "Eye \u2022 R: Sleep": [
+            1.0,
+            1.0
+          ],
+          "Eye \u2022 R: Sleepy": [
+            0.0,
+            0.0
+          ],
+          "Eye \u2022 L: Blink": [
+            0.0,
+            0.0
+          ],
+          "Eye \u2022 L: Sleep": [
+            1.0,
+            1.0
+          ],
+          "Eye \u2022 L: Sleepy": [
+            0.0,
+            0.0
+          ],
+          "Face \u2022 luminous smile: Whistle": [
+            0.0,
+            0.0
+          ],
+          "Face \u2022 luminous smile: SleepSmile": [
+            1.0,
+            1.0
+          ]
+        },
+        "root_start": [
+          1.600000023841858,
+          0.0,
+          0.38087543845176697
+        ],
+        "root_end": [
+          1.600000023841858,
+          0.0,
+          0.38087543845176697
+        ],
+        "maximum_thigh_rotation_degrees": 0.0
+      },
+      "CasualShowcase": {
+        "sampled_frames": [
+          1,
+          9,
+          17,
+          25,
+          33,
+          41,
+          49,
+          57,
+          65,
+          73,
+          81,
+          89,
+          97,
+          105,
+          113,
+          121,
+          129,
+          137,
+          145,
+          153,
+          161,
+          169,
+          177,
+          185,
+          192,
+          193,
+          201,
+          209,
+          217,
+          225,
+          232,
+          233,
+          241,
+          249,
+          250,
+          257,
+          262,
+          265,
+          273,
+          278,
+          281,
+          289,
+          297,
+          305,
+          313,
+          321,
+          329,
+          337,
+          340,
+          345,
+          353,
+          358,
+          361,
+          369,
+          370,
+          377,
+          385,
+          386,
+          393,
+          401,
+          409,
+          417,
+          425,
+          432,
+          433,
+          441,
+          449,
+          457,
+          465,
+          473,
+          481,
+          489,
+          497,
+          505,
+          513,
+          521,
+          529,
+          537,
+          545,
+          553,
+          561,
+          569,
+          577,
+          585,
+          593,
+          601,
+          609,
+          617,
+          624
+        ],
+        "minimum_surface_z": 0.024057604372501373,
+        "minimum_surface_object": "Prop \u2022 cyan play ball",
+        "minimum_surface_frame": 370,
+        "x_extent": [
+          -4.475000381469727,
+          4.499894142150879
+        ],
+        "camera_extent": [
+          0.061274465173482895,
+          0.15592040121555328,
+          0.9502924084663391,
+          0.6796466112136841
+        ],
+        "camera_violations": [],
+        "expression_ranges": {
+          "Eye \u2022 R: Blink": [
+            0.0,
+            1.0
+          ],
+          "Eye \u2022 R: Sleep": [
+            0.0,
+            1.0
+          ],
+          "Eye \u2022 R: Sleepy": [
+            0.0,
+            0.5
+          ],
+          "Eye \u2022 L: Blink": [
+            0.0,
+            1.0
+          ],
+          "Eye \u2022 L: Sleep": [
+            0.0,
+            1.0
+          ],
+          "Eye \u2022 L: Sleepy": [
+            0.0,
+            0.5
+          ],
+          "Face \u2022 luminous smile: Whistle": [
+            0.0,
+            1.0
+          ],
+          "Face \u2022 luminous smile: SleepSmile": [
+            0.0,
+            1.0
+          ]
+        },
+        "root_start": [
+          -3.0999999046325684,
+          0.0,
+          -0.08500000089406967
+        ],
+        "root_end": [
+          1.600000023841858,
+          0.0,
+          0.38087543845176697
+        ],
+        "maximum_thigh_rotation_degrees": 60.84167222069444
+      }
+    },
+    "representative_bone_positions": {
+      "WalkWhistle:1": {
+        "root": [
+          -3.0999999046325684,
+          0.0,
+          -0.08500000089406967
+        ],
+        "head": [
+          -3.059809923171997,
+          -0.023203641176223755,
+          2.163865804672241
+        ],
+        "hand.L": [
+          -2.5078816413879395,
+          0.8173623085021973,
+          1.3152060508728027
+        ],
+        "hand.R": [
+          -3.5117974281311035,
+          -0.9214704036712646,
+          1.3152060508728027
+        ]
+      },
+      "WalkWhistle:96": {
+        "root": [
+          -0.01791907474398613,
+          -0.007321259472519159,
+          -0.07697043567895889
+        ],
+        "head": [
+          0.02675708755850792,
+          -0.042496953159570694,
+          2.171326160430908
+        ],
+        "hand.L": [
+          0.6335030198097229,
+          0.7729020714759827,
+          1.3385719060897827
+        ],
+        "hand.R": [
+          -0.4889710545539856,
+          -0.8947172164916992,
+          1.3106658458709717
+        ]
+      },
+      "WalkWhistle:192": {
+        "root": [
+          3.0999999046325684,
+          0.0,
+          -0.08500000089406967
+        ],
+        "head": [
+          3.1401898860931396,
+          -0.023203641176223755,
+          2.163865804672241
+        ],
+        "hand.L": [
+          3.6921181678771973,
+          0.8173623085021973,
+          1.3152060508728027
+        ],
+        "hand.R": [
+          2.688202381134033,
+          -0.9214704036712646,
+          1.3152060508728027
+        ]
+      },
+      "WallToss:1": {
+        "root": [
+          -3.0638699531555176,
+          0.0,
+          -0.03999999910593033
+        ],
+        "head": [
+          -3.205765962600708,
+          -0.04711110144853592,
+          2.1981611251831055
+        ],
+        "hand.L": [
+          -2.063340187072754,
+          -0.1605142205953598,
+          1.7861887216567993
+        ],
+        "hand.R": [
+          -4.027827262878418,
+          -0.421063095331192,
+          1.2512534856796265
+        ]
+      },
+      "WallToss:96": {
+        "root": [
+          -3.068730592727661,
+          0.0,
+          -0.03999999910593033
+        ],
+        "head": [
+          -3.2072594165802,
+          -0.04639542102813721,
+          2.198699712753296
+        ],
+        "hand.L": [
+          -2.0658345222473145,
+          -0.16821587085723877,
+          1.8026729822158813
+        ],
+        "hand.R": [
+          -4.032712459564209,
+          -0.42106831073760986,
+          1.255033254623413
+        ]
+      },
+      "WallToss:240": {
+        "root": [
+          -3.0638699531555176,
+          0.0,
+          -0.03999999910593033
+        ],
+        "head": [
+          -3.205765962600708,
+          -0.04711110144853592,
+          2.1981611251831055
+        ],
+        "hand.L": [
+          -2.063340187072754,
+          -0.1605142205953598,
+          1.7861887216567993
+        ],
+        "hand.R": [
+          -4.027827262878418,
+          -0.421063095331192,
+          1.2512534856796265
+        ]
+      },
+      "Nap:1": {
+        "root": [
+          1.600000023841858,
+          0.0,
+          0.38087543845176697
+        ],
+        "head": [
+          -0.6158173084259033,
+          -9.68564535241967e-08,
+          0.7715839147567749
+        ],
+        "hand.L": [
+          -0.885699450969696,
+          0.8868494629859924,
+          0.5655228495597839
+        ],
+        "hand.R": [
+          -0.9357545375823975,
+          -0.7479313611984253,
+          0.28164613246917725
+        ]
+      },
+      "Nap:96": {
+        "root": [
+          1.600000023841858,
+          0.0,
+          0.3808755576610565
+        ],
+        "head": [
+          -0.6158564686775208,
+          -0.00018177558376919478,
+          0.7713615894317627
+        ],
+        "hand.L": [
+          -0.8856996297836304,
+          0.8868494629859924,
+          0.5655229091644287
+        ],
+        "hand.R": [
+          -0.9357545971870422,
+          -0.7479313611984253,
+          0.28164613246917725
+        ]
+      },
+      "Nap:192": {
+        "root": [
+          1.600000023841858,
+          0.0,
+          0.38087543845176697
+        ],
+        "head": [
+          -0.6158173084259033,
+          -9.68564535241967e-08,
+          0.7715839147567749
+        ],
+        "hand.L": [
+          -0.885699450969696,
+          0.8868494629859924,
+          0.5655228495597839
+        ],
+        "hand.R": [
+          -0.9357545375823975,
+          -0.7479313611984253,
+          0.28164613246917725
+        ]
+      },
+      "CasualShowcase:1": {
+        "root": [
+          -3.0999999046325684,
+          0.0,
+          -0.08500000089406967
+        ],
+        "head": [
+          -3.059809923171997,
+          -0.023203641176223755,
+          2.163865804672241
+        ],
+        "hand.L": [
+          -2.5078816413879395,
+          0.8173623085021973,
+          1.3152060508728027
+        ],
+        "hand.R": [
+          -3.5117974281311035,
+          -0.9214704036712646,
+          1.3152060508728027
+        ]
+      },
+      "CasualShowcase:624": {
+        "root": [
+          1.600000023841858,
+          0.0,
+          0.38087543845176697
+        ],
+        "head": [
+          -0.6158173084259033,
+          -9.68564535241967e-08,
+          0.7715839147567749
+        ],
+        "hand.L": [
+          -0.885699450969696,
+          0.8868494629859924,
+          0.5655228495597839
+        ],
+        "hand.R": [
+          -0.9357545375823975,
+          -0.7479313611984253,
+          0.28164613246917725
+        ]
+      }
+    },
+    "ball_tosses": [
+      {
+        "frames": {
+          "release": 40,
+          "wall": 58,
+          "floor": 70,
+          "catch": 86
+        },
+        "wall_surface_error": 1.1444091807533141e-07,
+        "floor_surface_error": 8.344650317959612e-10,
+        "catch_center_error": 0.0,
+        "wall_rebound": true,
+        "floor_rebound": true,
+        "sampled_centers": {
+          "40": [
+            -1.9813363552093506,
+            -0.4261944890022278,
+            2.2759952545166016
+          ],
+          "57": [
+            4.017148017883301,
+            -0.42067697644233704,
+            2.8689239025115967
+          ],
+          "58": [
+            4.369999885559082,
+            -0.42035242915153503,
+            2.75757098197937
+          ],
+          "59": [
+            4.14117956161499,
+            -0.42002785205841064,
+            2.629970073699951
+          ],
+          "69": [
+            1.8529757261276245,
+            -0.4167822599411011,
+            0.460327684879303
+          ],
+          "70": [
+            1.6241554021835327,
+            -0.4164577126502991,
+            0.15399999916553497
+          ],
+          "71": [
+            1.3953349590301514,
+            -0.4161331355571747,
+            0.39114832878112793
+          ],
+          "86": [
+            -2.036970853805542,
+            -0.4112647473812103,
+            1.9986255168914795
+          ]
+        }
+      },
+      {
+        "frames": {
+          "release": 148,
+          "wall": 166,
+          "floor": 178,
+          "catch": 194
+        },
+        "wall_surface_error": 1.1444091807533141e-07,
+        "floor_surface_error": 8.344650317959612e-10,
+        "catch_center_error": 0.0,
+        "wall_rebound": true,
+        "floor_rebound": true,
+        "sampled_centers": {
+          "148": [
+            -1.9788331985473633,
+            -0.42848148941993713,
+            2.284862518310547
+          ],
+          "165": [
+            4.017287254333496,
+            -0.4227200448513031,
+            2.883988618850708
+          ],
+          "166": [
+            4.369999885559082,
+            -0.42238113284111023,
+            2.7720861434936523
+          ],
+          "167": [
+            4.141401290893555,
+            -0.42204222083091736,
+            2.643834352493286
+          ],
+          "177": [
+            1.8554162979125977,
+            -0.41865313053131104,
+            0.46209585666656494
+          ],
+          "178": [
+            1.6268177032470703,
+            -0.41831421852111816,
+            0.15399999916553497
+          ],
+          "179": [
+            1.3982192277908325,
+            -0.4179753065109253,
+            0.3925163149833679
+          ],
+          "194": [
+            -2.0307586193084717,
+            -0.412891685962677,
+            2.008326530456543
+          ]
+        }
+      }
+    ]
+  },
+  "tolerances": {
+    "surface_units": 0.008,
+    "contact_units": 0.035,
+    "frame_fraction": 0.005
+  },
+  "original_artifacts": {
+    "merlin.blend": {
+      "bytes": 2670947,
+      "sha256": "c27b7fa223a19b500b3e300ea706b56bfd882225000aa2d6477ead58c4a8e2c9"
+    },
+    "merlin.glb": {
+      "bytes": 6250872,
+      "sha256": "0a859adc979ed356ef401b07f124050e421f1dead1b07993d8778d86419416ad"
+    }
+  },
+  "exported_animations": [
+    {
+      "name": "Idle",
+      "duration_seconds": 3.9583332538604736,
+      "channels": 48,
+      "morph_channels": 0
+    },
+    {
+      "name": "Wave",
+      "duration_seconds": 3.9583332538604736,
+      "channels": 48,
+      "morph_channels": 0
+    },
+    {
+      "name": "Jump",
+      "duration_seconds": 2.9583332538604736,
+      "channels": 48,
+      "morph_channels": 0
+    },
+    {
+      "name": "WalkWhistle",
+      "duration_seconds": 7.958333492279053,
+      "channels": 54,
+      "morph_channels": 3,
+      "morph_weight_range": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "WallToss",
+      "duration_seconds": 9.958333015441895,
+      "channels": 54,
+      "morph_channels": 3,
+      "morph_weight_range": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "Nap",
+      "duration_seconds": 7.958333492279053,
+      "channels": 54,
+      "morph_channels": 3,
+      "morph_weight_range": [
+        0.0,
+        1.0
+      ]
+    }
+  ],
+  "passed": true,
+  "failed_checks": []
+}
