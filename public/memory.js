@@ -66,7 +66,7 @@ window.createMemoryLab = function createMemoryLab({ request, getSessionId, isCha
 
   function sourceDetail(item) {
     const evidence = {};
-    for (const field of ["id", "subject", "kind", "status", "source_id", "source_quote", "source", "original", "explanation", "reason", "created_at", "updated_at", "supersedes"]) {
+    for (const field of ["id", "subject", "kind", "status", "source_id", "source_quote", "definition_sources", "source", "original", "explanation", "reason", "created_at", "updated_at", "supersedes"]) {
       if (item[field] !== undefined) evidence[field] = item[field];
     }
     return detail("Source and interpretation · raw testing record", evidence, `${item.id}-source`);

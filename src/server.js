@@ -141,7 +141,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
           const previous = routineStore.list().find(routine => routine.id === body.id);
           if (path === '/api/routines/delete') await routineStore.remove(body.id);
           else await routineStore.save({ ...body, source_id: 'manual', source_quote: '' });
-          if (previous) await store.invalidateReferences({ ids: [previous.id], source_ids: [previous.source_id] });
+          if (previous) await store.invalidateReferences({ ids: [previous.id], source_ids: [previous.source_id, ...(previous.definition_sources ?? []).map(source => source.source_id)] });
         } else if (path === '/api/memory/fact') {
           objectArgs(body, ['id', 'content', 'subject', 'kind']);
           await store.putFact({ content: body.content, subject: body.subject || 'household', kind: body.kind || 'fact', source_id: 'manual', source_quote: '', reason: 'Edited directly in Memory lab.', ...(body.id ? { supersedes: body.id } : {}) });

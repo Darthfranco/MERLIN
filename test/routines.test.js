@@ -170,7 +170,7 @@ test('routine service exports narrow tools, validates direct source and returns 
   assert.equal(decision.started, true); assert.ok(decision.reason); assert.equal(decision.matched_alias, 'workout');
   assert.equal(service.context('s').routines[0].prompt, undefined);
   assert.equal(service.inspect('s').routines[0].prompt, saved.routine.prompt);
-  assert.deepEqual(ROUTINE_TOOLS.map(tool => tool.name), ['routine_save', 'routine_use', 'routine_delete']);
+  assert.deepEqual(ROUTINE_TOOLS.map(tool => tool.name), ['routine_save', 'routine_read', 'routine_use', 'routine_delete']);
   await assert.rejects(service.execute('routine_delete', { id: saved.routine.id, source_quote: 'invented' }, context), /exact quotation/);
 });
 
@@ -179,4 +179,118 @@ test('corrupt or tampered files are not overwritten', async t => {
   await writeFile(filePath, '{broken');
   await assert.rejects(new RoutinesStore({ filePath }).init(), /corrupted/);
   assert.equal(await readFile(filePath, 'utf8'), '{broken');
+});
+
+test('routine authoring can save an earlier direct user definition with current authorization and persistent provenance', async t => {
+  const { store, filePath, clock } = await fixture(t);
+  const earlier = { id: 'definition', session_id: 's', role: 'user', text: 'Call the routine tea break, with alias brew time. Start a one-minute tea timer.' };
+  const current = { id: 'authorization', session_id: 's', role: 'user', text: 'Save what we said.' };
+  const messages = [earlier, { id: 'reply', session_id: 's', role: 'assistant', text: 'I can save that when you ask.' }, current];
+  const service = new RoutineService({ store, memoryStore: { snapshot: () => ({ conversations: messages }) } });
+  const context = { source_id: current.id, session_id: 's', request_id: 'save-request', message: current.text };
+  assert.deepEqual(service.authoringSources('s', current.id), [earlier, current].map(({ id, text }) => ({ id, text })));
+  const input = { id: '', name: 'tea break', aliases: ['brew time'], prompt: 'Start a one-minute tea timer.', source_quote: current.text };
+  const saved = await service.execute('routine_save', input, context, 'save-request:save');
+  assert.equal(saved.activated, false);
+  assert.equal(saved.routine.source_id, current.id);
+  assert.equal(saved.routine.source_quote, current.text);
+  assert.deepEqual(saved.routine.definition_sources, [{ source_id: earlier.id, source_quote: earlier.text }]);
+  assert.deepEqual(await service.execute('routine_save', input, context, 'save-request:save'), saved);
+  assert.deepEqual((await new RoutinesStore({ filePath, now: clock }).init()).list(), [saved.routine]);
+});
+
+test('multi-turn routine prompts preserve exact supported fragments and cannot synthesize new wording', async t => {
+  const { store } = await fixture(t);
+  const messages = [
+    { id: 'name', session_id: 's', role: 'user', text: 'The name is study break and the alias is reset.' },
+    { id: 'first', session_id: 's', role: 'user', text: 'Start a two-minute stretch timer.' },
+    { id: 'second', session_id: 's', role: 'user', text: 'Search for the local weather.' },
+    { id: 'save', session_id: 's', role: 'user', text: 'Save those two steps as my routine.' },
+  ];
+  const service = new RoutineService({ store, memoryStore: { snapshot: () => ({ conversations: messages }) } });
+  const current = messages.at(-1);
+  const context = { source_id: current.id, session_id: 's', request_id: 'r', message: current.text };
+  const input = { id: '', name: 'study break', aliases: ['reset'], prompt: `${messages[1].text}\n${messages[2].text}`, source_quote: current.text };
+  const saved = await service.execute('routine_save', input, context);
+  assert.equal(saved.routine.prompt, input.prompt);
+  assert.deepEqual(saved.routine.definition_sources.map(item => item.source_id), ['name', 'first', 'second']);
+  await assert.rejects(service.execute('routine_save', { ...input, prompt: 'Start a two-minute stretch timer. Then search for the local weather.' }, context), /exact requested/);
+  await assert.rejects(service.execute('routine_save', { ...input, prompt: `${input.prompt}\nTurn on the oven.` }, context), /exact requested/);
+  await assert.rejects(service.execute('routine_save', { ...input, aliases: ['invented trigger'] }, context), /explicitly present/);
+});
+
+test('routine authoring rejects assistant, external, other-session, future and missing source evidence', async t => {
+  const { store } = await fixture(t);
+  const definition = 'Start a three-minute coffee timer.';
+  const current = { id: 'authorization', session_id: 's', role: 'user', text: 'Save coffee break from what we discussed.' };
+  const messages = [
+    { id: 'other-user', session_id: 'other', role: 'user', text: definition },
+    { id: 'assistant', session_id: 's', role: 'assistant', text: definition },
+    { id: 'page', session_id: 's', role: 'tool', text: definition },
+    current,
+    { id: 'future-user', session_id: 's', role: 'user', text: definition },
+  ];
+  const service = new RoutineService({ store, memoryStore: { snapshot: () => ({ conversations: messages }) } });
+  const context = { source_id: current.id, session_id: 's', request_id: 'r', message: current.text };
+  const input = { id: '', name: 'coffee break', aliases: [], prompt: definition, source_quote: current.text };
+  assert.deepEqual(service.authoringSources('s', current.id), [{ id: current.id, text: current.text }]);
+  await assert.rejects(service.execute('routine_save', input, context), /exact requested/);
+  await assert.rejects(service.execute('routine_save', { ...input, source_quote: definition }, context), /exact quotation/);
+  await assert.rejects(service.execute('routine_save', { ...input, definition_sources: [{ source_id: 'other-user', source_quote: definition }] }, context), /unexpected fields/);
+  await assert.rejects(service.execute('routine_save', input, { ...context, session_id: 'other' }), /exact quotation/);
+  messages.splice(messages.indexOf(current), 1);
+  await assert.rejects(service.execute('routine_save', input, context), /exact quotation/);
+  assert.equal(store.list().length, 0);
+});
+
+test('authoring evidence is bounded to twenty recent direct messages and 24000 characters', async t => {
+  const { store } = await fixture(t);
+  const current = { id: 'current', session_id: 's', role: 'user', text: 'Save the old routine.' };
+  const messages = Array.from({ length: 25 }, (_, index) => ({ id: `source-${index}`, session_id: 's', role: 'user', text: `Direct message ${index}.` }));
+  messages.push(current);
+  const service = new RoutineService({ store, memoryStore: { snapshot: () => ({ conversations: messages }) } });
+  assert.equal(service.authoringSources('s', current.id).length, 20);
+  assert.equal(service.authoringSources('s', current.id)[0].id, 'source-6');
+  messages.splice(0, messages.length - 1, ...Array.from({ length: 10 }, (_, index) => ({ id: `large-${index}`, session_id: 's', role: 'user', text: `${index}${'x'.repeat(3999)}` })));
+  const bounded = service.authoringSources('s', current.id);
+  assert.ok(bounded.reduce((total, item) => total + item.text.length, 0) <= 24000);
+  assert.deepEqual(bounded.map(item => item.id), ['large-5', 'large-6', 'large-7', 'large-8', 'large-9', 'current']);
+  assert.ok(bounded.every(item => item.text === messages.find(source => source.id === item.id).text), 'Evidence is never silently truncated');
+});
+
+test('reading a saved routine returns its real definition without changing activation or pending state', async t => {
+  const { store, save } = await fixture(t);
+  const routine = await save('workout');
+  await store.suggest({ session_id: 's', request_id: 'suggest', routine_id: routine.id });
+  const pending = store.getPending('s');
+  const service = new RoutineService({ store, memoryStore: { snapshot: () => ({ conversations: [] }) } });
+  const result = await service.execute('routine_read', { id: routine.id }, { session_id: 's', message: 'What is my workout?' });
+  assert.deepEqual(result, { routine, read: true, activated: false });
+  assert.deepEqual(store.getPending('s'), pending);
+  assert.equal(service.context('s').routines[0].prompt, undefined);
+  await assert.rejects(service.execute('routine_read', { id: 'missing' }, {}), /not found/);
+  await assert.rejects(service.execute('routine_read', { id: routine.id, mode: 'start' }, {}), /unexpected fields/);
+});
+
+test('tampered definition provenance is rejected on restart without overwriting its file', async t => {
+  const { store, filePath } = await fixture(t);
+  const source = { id: 'current', session_id: 's', role: 'user', text: 'Save tea break: Start a one-minute timer.' };
+  const input = { name: 'tea break', aliases: [], prompt: 'Start a one-minute timer.', source_id: source.id, source_quote: source.text };
+  await store.save(input, source, 'save', [source]);
+  const stored = JSON.parse(await readFile(filePath, 'utf8'));
+  stored.routines[0].definition_sources[0].source_quote = 'Unrelated evidence.';
+  const changed = JSON.stringify(stored);
+  await writeFile(filePath, changed);
+  await assert.rejects(new RoutinesStore({ filePath }).init(), /corrupted/);
+  assert.equal(await readFile(filePath, 'utf8'), changed);
+});
+
+test('model aliases repeating the primary name add no new trigger or failed save', async t => {
+  const { store } = await fixture(t);
+  const source = { id: 'current', session_id: 's', role: 'user', text: 'Save tea break with alias brew time: Start a one-minute timer.' };
+  const service = new RoutineService({ store, memoryStore: { snapshot: () => ({ conversations: [source] }) } });
+  const result = await service.execute('routine_save', { id: '', name: 'tea break', aliases: ['Tea break', 'brew time', 'BREW TIME'], prompt: 'Start a one-minute timer.', source_quote: source.text }, { source_id: source.id, session_id: 's', message: source.text }, 'save');
+  assert.equal(result.saved, true);
+  assert.deepEqual(result.routine.aliases.map(alias => alias.toLowerCase()), ['brew time']);
+  assert.equal(store.list().length, 1);
 });

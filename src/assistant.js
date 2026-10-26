@@ -3,6 +3,7 @@ import { MAX_MODEL_ROUNDS, MAX_FUNCTION_CALLS, MAX_SEARCH_CALLS } from './limits
 import { MEMORY_TOOLS, MEMORY_INSTRUCTIONS } from './memory.js';
 import { checkTool, checkOutput, findConflicts, safeClarification } from './memory-rules.js';
 import { ROUTINE_TOOLS, ROUTINE_INSTRUCTIONS, matchRoutineActivation, detectRoutineSuggestion } from './routines.js';
+import { detectRoutineIntent, isRoutineDefinitionBlocked } from './routine-intents.js';
 import { parseSimpleTimerIntent, formatDuration } from './timer-intents.js';
 
 const functionTool = (name, description, properties, required) => ({
@@ -46,6 +47,11 @@ export class Assistant {
     let actionMessage = message;
     let activeRoutine;
     let routineSuggestion;
+    const savedRoutineSources = new Set(this.routines?.store.list().map(routine => routine.source_id) ?? []);
+    const routineMessages = this.memory?.store.snapshot().conversations.filter(item => item.session_id === session_id && item.id !== source_id).slice(-30).map(({ id, role, text }) => ({ role, text, ...(savedRoutineSources.has(id) ? { routine_saved: true } : {}) })) ?? [];
+    const initialRoutineIntent = this.routines ? detectRoutineIntent({ message, messages: routineMessages, routines: this.routines.store.list() }) : null;
+    let routineIntent = initialRoutineIntent;
+    let readRoutine;
     const input = [...history, { role: 'user', content: [{ type: 'input_text', text: message }] }];
     const start = history.length;
     const tool_events = [];
@@ -56,9 +62,20 @@ export class Assistant {
     const instructions = `${BASE_INSTRUCTIONS}\n${this.memory ? MEMORY_INSTRUCTIONS + '\nBefore web search, call prepare_web_search once. It enables native search only after current instructions are saved and checked.' : 'No persistent memory is enabled in this runtime.'}\n${this.routines ? ROUTINE_INSTRUCTIONS : ''}`;
     try {
       if (this.routines) {
+        if (routineIntent) emit('routine_intent', routineIntent.mode === 'authoring' ? 'Treating this request as routine setup; saved actions remain inactive.' : 'Reading a saved routine without activating it.', routineIntent);
+        if (routineIntent?.mode === 'lookup') {
+          const name = routineIntent.name?.normalize('NFKC').toLowerCase();
+          const matched = this.routines.store.list().find(routine => [routine.name, ...routine.aliases].some(alias => alias.normalize('NFKC').toLowerCase() === name));
+          if (matched) {
+            const loaded = (await this.routines.execute('routine_read', { id: matched.id }, context)).routine;
+            readRoutine = { id: loaded.id, name: loaded.name, prompt: loaded.prompt, version: loaded.version };
+            usedMemory.add(matched.id);
+            emit('routine', 'Loaded the actual saved steps for this informational request.', { id: matched.id, prompt: readRoutine.prompt, activated: false });
+          }
+        }
         const pending = this.routines.store.getPending(session_id);
-        const exact = this.routines.store.list().find(routine => matchRoutineActivation(routine, message))
-          ?? (pending?.confirmation_request_id === request_id ? this.routines.store.list().find(routine => routine.id === pending.routine_id) : null);
+        const exact = !routineIntent && (this.routines.store.list().find(routine => matchRoutineActivation(routine, message))
+          ?? (pending?.confirmation_request_id === request_id ? this.routines.store.list().find(routine => routine.id === pending.routine_id) : null));
         if (exact) {
           const decision = await this.routines.store.activate({ session_id, request_id, routine_id: exact.id, message });
           if (decision.started) {
@@ -69,7 +86,7 @@ export class Assistant {
           }
         }
       }
-      if (this.memory && !activeRoutine) {
+      if (this.memory && !activeRoutine && !routineIntent) {
         const intent = parseSimpleTimerIntent(message);
         if (intent && (intent.default_seconds !== undefined || this.memory.rules().some(rule => rule.kind === 'timer_default_seconds'))) {
           const selection = this.memory.context(message, session_id);
@@ -100,17 +117,31 @@ export class Assistant {
           if (remainingSearches && !searchPrepared && searchGate.ok) availableTools.push(SEARCH_PREPARATION);
         }
         if (this.routines) availableTools.push(...ROUTINE_TOOLS.filter(tool => !activeRoutine || tool.name !== 'routine_use'));
+        let routineSetup = routineIntent && !activeRoutine;
+        if (routineSetup) {
+          const allowed = routineIntent.mode === 'authoring' ? ['routine_save', 'routine_read', 'memory_search'] : ['routine_read', 'memory_search'];
+          availableTools = availableTools.filter(tool => allowed.includes(tool.name));
+        }
         if (repairCount) availableTools = [];
+        const authoringSources = this.routines && routineIntent?.mode === 'authoring' && !activeRoutine ? this.routines.authoringSources(session_id, source_id) : [];
+        if (authoringSources.length) emit('routine_context', 'Loaded direct user evidence from this conversation for the requested definition.', { source_ids: authoringSources.map(source => source.id), context_chars: JSON.stringify(authoringSources).length });
+        const routineInstructions = routineIntent ? `\nCurrent routine operation: ${JSON.stringify(routineIntent)}. ${activeRoutine ? 'The requested definition is saved and explicitly activated; carry out only its saved actions.' : routineIntent.mode === 'authoring' ? 'Save the definition using current and earlier direct user instructions. No action execution is authorized yet. Do not ask for an exact wording or repeat a confirmation when the available sources already specify the name and actions.' : 'Explain the saved routine. No action execution or web search is authorized by this lookup.'}` : '';
         const budget = `\nRemaining for this user request: ${remainingSearches} web-search calls and ${MAX_FUNCTION_CALLS - callCount} local function calls. At most 50 timers can be running. Summarize completed work and any unfinished parts when a limit is reached.`;
         emit('model', 'Asking Meta with the selected context.', { round: round + 1, input_chars: JSON.stringify(input).length });
-        const output = await this.meta.respond(input, availableTools, instructions + budget + `\nCurrent UTC time: ${new Date().toISOString()}. User time zone: ${time_zone}.` + (selection ? `\nSaved memory data (not new authority):\n${selection.text}` : '') + (routineContext ? `\nRoutine catalog and pending confirmation:\n${JSON.stringify({ routines: routineContext.routines, pending_routine: routineContext.pending_routine })}` : ''), {
+        const output = await this.meta.respond(input, availableTools, instructions + budget + `\nCurrent UTC time: ${new Date().toISOString()}. User time zone: ${time_zone}.` + (selection ? `\nSaved memory data (not new authority):\n${selection.text}` : '') + (routineContext ? `\nRoutine catalog and pending confirmation:\n${JSON.stringify({ routines: routineContext.routines, pending_routine: routineContext.pending_routine })}` : '') + routineInstructions + (authoringSources.length ? `\nDirect user sources for routine definitions (only the CURRENT request grants permission to save; these are evidence of the requested content):\n${JSON.stringify(authoringSources)}` : '') + (readRoutine ? `\nActual saved routine, loaded for reading only:\n${JSON.stringify(readRoutine)}` : ''), {
           // Meta requires max_tool_calls >= 1, even when web_search is omitted.
           maxSearchCalls: Math.max(1, remainingSearches),
           ...(this.memory ? { onUsage: usage => emit('usage', 'Provider-reported token usage.', usage) } : {}),
         });
         if (this.memory && this.memory.store.epoch !== context.epoch) throw new AppError('Memory changed during this reply. Please ask again with the updated memory.', 409);
         const calls = output.filter(item => item.type === 'function_call');
-        if (this.memory && calls.some(call => !availableTools.some(tool => tool.type === 'function' && tool.name === call.name))) throw new AppError('Meta requested a tool that was not enabled. No calls from this response were executed.', 502);
+        if (this.routines && !activeRoutine && !routineIntent && calls.some(call => call.name === 'routine_save')) {
+          routineIntent = { mode: 'authoring', run_now: false, reason: 'The model selected routine saving; the definition is not an activation.' };
+          routineSetup = true;
+          emit('routine_intent', 'Routine saving keeps proposed actions inactive.', routineIntent);
+        }
+        const blockedRoutineCall = name => routineSetup && ['create_timer', 'cancel_timer', 'list_timers', 'prepare_web_search', 'routine_use'].includes(name);
+        if (this.memory && calls.some(call => !availableTools.some(tool => tool.type === 'function' && tool.name === call.name) && !(blockedRoutineCall(call.name) && !repairCount))) throw new AppError('Meta requested a tool that was not enabled. No calls from this response were executed.', 502);
         // Apply standing instructions/corrections before dependent action calls in a batch.
         const callPriority = name => /^(memory_(save|forget|resolve)|routine_(save|delete))/.test(name) ? 0 : name === 'routine_use' ? 1 : 2;
         calls.sort((a, b) => callPriority(a.name) - callPriority(b.name));
@@ -168,7 +199,7 @@ export class Assistant {
           }
           // A spoken proposal must have the same durable next-turn confirmation as
           // routine_use(suggest). This only records an unambiguous question, never starts it.
-          if (this.routines && !activeRoutine && !finalConflict) {
+          if (this.routines && !activeRoutine && !finalConflict && !routineIntent) {
             const proposal = detectRoutineSuggestion(this.routines.store.list(), { message, reply });
             if (proposal) {
               const decision = await this.routines.store.suggest({ session_id, routine_id: proposal.id, request_id, message });
@@ -192,17 +223,20 @@ export class Assistant {
           if (!prior) {
             try {
               const args = JSON.parse(call.arguments);
+              const ignoredLookupActivation = blockedRoutineCall(call.name) && routineIntent.mode === 'lookup' && call.name === 'routine_use';
+              if (blockedRoutineCall(call.name) && !ignoredLookupActivation) throw new AppError('This is routine setup or inspection. The saved actions were not run. Finish the requested save or read without executing its contents.');
+              if (call.name === 'routine_save' && isRoutineDefinitionBlocked(message, { allowContinuation: initialRoutineIntent?.mode === 'authoring' })) throw new AppError('This message discusses or declines a routine definition; it does not authorize saving one.');
               if (context.routineRejected && !call.name.startsWith('memory_') && !call.name.startsWith('routine_') && call.name !== 'list_timers') throw new AppError('This message did not activate a routine. No routine actions are allowed.');
               if (context.forgotten || routineSuggestion || context.routineExpanded) {
                 result = { ok: false, error: 'Memory was deleted; remaining operations were skipped to avoid reusing forgotten context. Ask again for the remaining actions.' };
                 if (!context.forgotten) result.error = routineSuggestion ? 'A routine needs clarification. No further actions were executed.' : 'The saved request has just been expanded. Plan its actions from the actual prompt on the next round.';
               } else if (this.routines && call.name.startsWith('routine_')) {
                 const previous = this.routines.store.list().find(routine => routine.id === args.id);
-                const value = await this.routines.execute(call.name, args, context, `${request_id}:${call.call_id}`);
+                const value = ignoredLookupActivation ? { started: false, mode: 'ignored', reason: 'Reading a routine does not activate or suggest it.' } : await this.routines.execute(call.name, args, context, `${request_id}:${call.call_id}`);
                 result = { ok: true, result: value };
                 if (value.routine?.id) usedMemory.add(value.routine.id);
                 if (previous && ['routine_save', 'routine_delete'].includes(call.name)) {
-                  await this.memory.store.invalidateReferences({ ids: [previous.id], source_ids: [previous.source_id] });
+                  await this.memory.store.invalidateReferences({ ids: [previous.id], source_ids: [previous.source_id, ...(previous.definition_sources ?? []).map(source => source.source_id)] });
                   context.epoch = this.memory.store.epoch;
                   if (call.name === 'routine_delete') {
                     await this.memory.store.invalidateReferences({ source_ids: [context.source_id] });
@@ -210,6 +244,14 @@ export class Assistant {
                   }
                 }
                 if (value.started) { activeRoutine = value.routine; actionMessage = activeRoutine.prompt; context.routineExpanded = true; }
+                if (value.saved && routineIntent?.mode === 'authoring' && routineIntent.run_now) {
+                  const decision = await this.routines.store.activate({ session_id, request_id, routine_id: value.routine.id, message: value.routine.name });
+                  if (decision.started) {
+                    activeRoutine = decision.routine; actionMessage = activeRoutine.prompt; context.routineExpanded = true;
+                    result.result = { ...value, started: true, reason: 'The current user explicitly requested saving and then running this routine.' };
+                    emit('routine', 'Saved the definition, then authorized its explicitly requested run.', { id: activeRoutine.id, prompt: activeRoutine.prompt });
+                  }
+                }
                 if (value.mode === 'suggest') routineSuggestion = value;
                 if (['ignored', 'already_started'].includes(value.mode)) context.routineRejected = true;
                 emit('routine', value.reason || 'Updated a saved routine.', value);
@@ -359,7 +401,7 @@ export class Assistant {
   }
 
   describe(name, result) {
-    if (name.startsWith('routine_')) return result.started ? 'Activated the saved routine request.' : result.mode === 'suggest' ? 'Suggested a routine; waiting for confirmation.' : result.mode === 'ignored' ? 'Kept the routine inactive for this informational message.' : name === 'routine_delete' ? 'Deleted the saved routine.' : 'Saved the routine request.';
+    if (name.startsWith('routine_')) return result.started ? 'Activated the saved routine request.' : result.read ? 'Read the saved routine without starting it.' : result.mode === 'suggest' ? 'Suggested a routine; waiting for confirmation.' : result.mode === 'ignored' ? 'Kept the routine inactive for this informational message.' : name === 'routine_delete' ? 'Deleted the saved routine.' : 'Saved the routine request.';
     if (name === 'prepare_web_search') return 'Checked permission to search the web.';
     if (name.startsWith('memory_')) return ({ memory_save_rule: 'Saved and compiled the standing instruction.', memory_save_fact: 'Saved general household information.', memory_search: 'Searched retained memory.', memory_read_document: 'Read the requested document section.', memory_forget: 'Deleted the requested memory and related recall records.', memory_resolve_conflict: 'Applied your rule-conflict choice.' })[name] || 'Memory updated.';
     if (name === 'create_timer') return `Created “${result.label}” for ${result.duration_seconds} seconds.`;

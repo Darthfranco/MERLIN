@@ -3,6 +3,8 @@ import { mkdir, open, readFile, rename, rm, chmod } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 
 const PENDING_MS = 10 * 60 * 1000;
+const AUTHORING_SOURCE_LIMIT = 20;
+const AUTHORING_SOURCE_CHARS = 24000;
 const CONFIRMATIONS = new Set(['yes', 'yes please', 'ok', 'okay', 'do it', 'confirm']);
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const clone = value => structuredClone(value);
@@ -19,8 +21,19 @@ function text(value, name, maximum, empty = false) {
 function keys(value, allowed) {
   if (!object(value) || Object.keys(value).some(key => !allowed.includes(key))) throw invalid('Routine arguments contain unexpected fields.');
 }
-function args(value) {
-  keys(value, ['id', 'name', 'aliases', 'prompt', 'source_id', 'source_quote']);
+function definitionSources(value) {
+  if (!Array.isArray(value) || !value.length || value.length > AUTHORING_SOURCE_LIMIT) throw invalid('Invalid routine definition sources.');
+  const ids = new Set(); let chars = 0;
+  return value.map(item => {
+    keys(item, ['source_id', 'source_quote']);
+    const source_id = text(item.source_id, 'Definition source ID', 200);
+    const source_quote = text(item.source_quote, 'Definition source quotation', AUTHORING_SOURCE_CHARS);
+    if (ids.has(source_id) || (chars += source_quote.length) > AUTHORING_SOURCE_CHARS) throw invalid('Invalid or oversized routine definition sources.');
+    ids.add(source_id); return { source_id, source_quote };
+  });
+}
+function args(value, stored = false) {
+  keys(value, ['id', 'name', 'aliases', 'prompt', 'source_id', 'source_quote', ...(stored ? ['definition_sources'] : [])]);
   const name = text(value.name, 'Routine name', 80);
   const prompt = text(value.prompt, 'Routine prompt', 12000);
   const aliases = value.aliases ?? [];
@@ -31,18 +44,55 @@ function args(value) {
     throw invalid('Routine names and aliases must be distinct and cannot be generic confirmations.');
   }
   return { ...(value.id === undefined ? {} : { id: text(value.id, 'Routine ID', 200) }), name, aliases: cleaned, prompt,
-    source_id: text(value.source_id, 'Source ID', 200), source_quote: text(value.source_quote, 'Source quotation', 16000, value.source_id === 'manual') };
+    source_id: text(value.source_id, 'Source ID', 200), source_quote: text(value.source_quote, 'Source quotation', 16000, value.source_id === 'manual'),
+    ...(value.definition_sources === undefined ? {} : { definition_sources: definitionSources(value.definition_sources) }) };
 }
-function evidence(value, source) {
+function evidence(value, source, allowedSources) {
   if (value.source_id === 'manual') return;
   if (!source || source.role !== 'user' || source.id !== value.source_id || typeof source.text !== 'string'
-    || !source.text.includes(value.source_quote) || !value.source_quote.includes(value.prompt)) {
+    || !source.text.includes(value.source_quote)) {
     throw invalid('Save the exact requested routine prompt with an exact quote from the current direct user message.');
   }
-  const quote = normalize(value.source_quote);
-  if (![value.name, ...value.aliases].every(trigger => quote.includes(normalize(trigger)))) {
-    throw invalid('Routine names and aliases must be explicitly present in the supporting user quote.');
+  // The existing direct-save contract remains strict. A trusted service may
+  // additionally supply bounded direct-user evidence from this conversation.
+  if (allowedSources === undefined) {
+    if (!value.source_quote.includes(value.prompt)) throw invalid('Save the exact requested routine prompt with an exact quote from the current direct user message.');
+    if (![value.name, ...value.aliases].every(trigger => normalize(value.source_quote).includes(normalize(trigger)))) {
+      throw invalid('Routine names and aliases must be explicitly present in the supporting user quote.');
+    }
+    return;
   }
+  if (!Array.isArray(allowedSources) || !allowedSources.length || allowedSources.length > AUTHORING_SOURCE_LIMIT) throw invalid('Invalid routine authoring source pool.');
+  const ids = new Set(); let chars = 0;
+  const candidates = allowedSources.map(item => {
+    if (!item || item.role !== 'user' || typeof item.text !== 'string'
+      || (source.session_id === undefined ? item.id !== source.id : item.session_id !== source.session_id)) {
+      throw invalid('Routine definitions need direct user messages from the same conversation.');
+    }
+    text(item.id, 'Definition source ID', 200); text(item.text, 'Definition source text', AUTHORING_SOURCE_CHARS);
+    if (ids.has(item.id) || (chars += item.text.length) > AUTHORING_SOURCE_CHARS) throw invalid('Invalid or oversized routine authoring source pool.');
+    ids.add(item.id); return item;
+  }).reverse();
+  const used = new Set();
+  const complete = candidates.find(item => item.text.includes(value.prompt));
+  if (complete) used.add(complete.id);
+  else {
+    const fragments = value.prompt.split('\n');
+    if (fragments.length < 2 || fragments.some(fragment => !fragment.trim())) throw invalid('Save the exact requested routine prompt from the supporting direct user messages; invent no actions.');
+    for (const fragment of fragments) {
+      const match = candidates.find(item => item.text.includes(fragment));
+      if (!match) throw invalid('Save the exact requested routine prompt from the supporting direct user messages; invent no actions.');
+      used.add(match.id);
+    }
+  }
+  for (const trigger of [value.name, ...value.aliases]) {
+    const match = candidates.find(item => normalize(item.text).includes(normalize(trigger)));
+    if (!match) {
+      throw invalid('Routine names and aliases must be explicitly present in the supporting user quote.');
+    }
+    used.add(match.id);
+  }
+  return definitionSources(allowedSources.filter(item => used.has(item.id)).map(item => ({ source_id: item.id, source_quote: item.text })));
 }
 function date(value) { return typeof value === 'string' && Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value; }
 function initial() { return { version: 1, routines: [], pending: [], activations: [] }; }
@@ -105,8 +155,13 @@ function validate(state) {
     || !Array.isArray(state.activations) || state.routines.length > 100 || state.pending.length > 100 || state.activations.length > 1000) throw invalid('Invalid routine file.');
   const ids = new Set(); const triggers = new Set();
   for (const routine of state.routines) {
-    keys(routine, ['id', 'name', 'aliases', 'prompt', 'source_id', 'source_quote', 'created_at', 'updated_at', 'version', 'operation_id']);
-    args(Object.fromEntries(['id', 'name', 'aliases', 'prompt', 'source_id', 'source_quote'].map(key => [key, routine[key]])));
+    keys(routine, ['id', 'name', 'aliases', 'prompt', 'source_id', 'source_quote', 'definition_sources', 'created_at', 'updated_at', 'version', 'operation_id']);
+    const input = args(Object.fromEntries(['id', 'name', 'aliases', 'prompt', 'source_id', 'source_quote', 'definition_sources'].filter(key => key in routine).map(key => [key, routine[key]])), true);
+    if (input.definition_sources) {
+      if (input.source_id === 'manual') throw invalid('Manual routines cannot claim conversational definition sources.');
+      evidence(input, { id: input.source_id, role: 'user', text: input.source_quote, session_id: 'stored' },
+        input.definition_sources.map(item => ({ id: item.source_id, role: 'user', text: item.source_quote, session_id: 'stored' })));
+    }
     if (ids.has(routine.id) || !Number.isSafeInteger(routine.version) || routine.version < 1 || !date(routine.created_at) || !date(routine.updated_at)) throw invalid('Invalid or duplicate routine record.');
     ids.add(routine.id);
     if (routine.operation_id !== undefined) text(routine.operation_id, 'Operation ID', 256);
@@ -193,8 +248,10 @@ export class RoutinesStore {
     const pending = this.#state.pending.find(item => item.session_id === sessionId && Date.parse(item.expires_at) > this.#timestamp());
     return pending ? clone(pending) : null;
   }
-  async save(value, source, operationId) {
-    const input = args(value); evidence(input, source);
+  async save(value, source, operationId, allowedSources) {
+    const input = args(value);
+    const definitions = evidence(input, source, allowedSources);
+    if (definitions) input.definition_sources = definitions;
     if (operationId !== undefined) text(operationId, 'Operation ID', 256);
     return this.#mutate(state => {
       const duplicate = operationId && state.routines.find(item => item.operation_id === operationId);
@@ -297,11 +354,14 @@ const stringProperty = description => ({ type: 'string', description });
 const functionTool = (name, description, properties) => ({ type: 'function', name, description,
   parameters: { type: 'object', properties, required: Object.keys(properties), additionalProperties: false } });
 export const ROUTINE_TOOLS = [
-  functionTool('routine_save', 'Save a named replacement request only when the current user explicitly asks. Copy the executable prompt exactly from their message; invent no actions. Saved aliases must be explicitly named by the user.', {
+  functionTool('routine_save', 'Save or edit a named routine as soon as the user has supplied its name and actions. The current message authorizes saving; its content can refer to earlier direct user messages in this conversation. Copy the requested actions from those messages, without inventing actions. Do not ask for repetition or an extra confirmation when the reference is clear. Saving alone never runs it.', {
     id: stringProperty('Existing routine ID when editing; empty string creates a routine.'),
-    name: stringProperty('Explicit routine name.'), aliases: { type: 'array', items: { type: 'string' }, maxItems: 12 },
-    prompt: stringProperty('Exact text of the request to run, copied from the user message.'),
-    source_quote: stringProperty('Exact quote supporting the name, aliases, and complete routine prompt.'),
+    name: stringProperty('Explicit routine name.'), aliases: { type: 'array', items: { type: 'string' }, maxItems: 12, description: 'Only additional trigger phrases explicitly requested by the user; use [] unless given. Do not repeat the primary name.' },
+    prompt: stringProperty('Copy an EXACT action excerpt from the supplied direct user sources, preserving even typos and punctuation. Do not reword or correct it; present a clean summary in your reply instead. Multiple exact excerpts may be joined with newlines. Preserve conditions; omit surrounding setup or run-now instructions.'),
+    source_quote: stringProperty('Exact quote from the CURRENT user message authorizing this save or edit, including references such as what we already said. The name and actions may come from earlier user sources.'),
+  }),
+  functionTool('routine_read', 'Read the actual saved request for a routine when the user asks what it does or asks to look it up. This reads local routine information, never activates it and never requires web search.', {
+    id: stringProperty('Exact saved routine ID from the catalog.'),
   }),
   functionTool('routine_use', 'Use a saved routine only for explicit activation intent. Use start for the exact name or direct activation; the application checks the complete user message. Use suggest for similar intent such as going to exercise. Information questions about workouts or good sleep do not activate routines. A pending suggestion requires a separate yes before running.', {
     id: stringProperty('Exact saved routine ID.'), mode: { type: 'string', enum: ['start', 'suggest'] },
@@ -310,7 +370,11 @@ export const ROUTINE_TOOLS = [
     id: stringProperty('Exact saved routine ID.'), source_quote: stringProperty('Exact quote of the user request to delete this routine.'),
   }),
 ];
-export const ROUTINE_INSTRUCTIONS = `Named routines are saved replacement requests, not arbitrary executable code. Their names and explicit aliases form a small catalog. Before answering each new user message, compare the CURRENT message's intent with the saved routine names and aliases as part of this same response. Do not require the user to say the word routine.
+export const ROUTINE_INSTRUCTIONS = `Named routines are saved replacement requests, not arbitrary executable code. Distinguish DEFINING/EDITING, READING, and STARTING a routine before choosing actions. Do not require formal syntax or the word routine: "bedtime should set a timer and look up the weather" defines a named routine. Tolerate ordinary typos.
+When the user defines or asks to save a routine, call routine_save as soon as the name and requested actions are clear. Use the current conversation and supplied direct-user authoring sources to resolve "that", "what we already said", or a quoted answer to your setup question. Do not ask them to repeat information already available, supply an exact sentence, or confirm an already clear save request. Ask ONE concise question only for an actually missing or genuinely ambiguous detail. A prior assistant suggestion alone is not evidence of user-requested actions; use the user's actual instructions.
+During routine setup, the action text describes what to SAVE, not what to EXECUTE. A quoted prompt supplied during setup completes the definition; it does not start timers or searches. Never execute the body or call routine_use just because its keyword appears in the definition. Run after saving only if the current user separately and explicitly asks to run it now. Otherwise confirm the completed save briefly and let a later intentional activation run it. Never claim saved without a successful routine_save result. Use an existing ID for a clearly requested edit; do not create a duplicate of the same routine.
+When asked "what is my bedtime routine" or "look up bedtime", read the matching saved routine with routine_read (or use its already loaded saved definition). Explain the actual saved steps; do not search the web for a dictionary definition or claim it is absent merely because the small catalog omits its full prompt. A read is never an activation.
+Before answering each new user message, compare the CURRENT message's intent with the saved routine names and aliases as part of this same response.
 Use routine_use(start) for an explicit whole-request activation such as a standalone name, "Merlin goodnight", or "I'm going to workout". Information questions such as "what should I eat before I workout" or "how do I get a goodnight of sleep" do not activate or suggest routines.
 When the CURRENT message clearly announces an intention to begin an activity that strongly matches one saved routine, but is not an exact activation phrase, you MUST propose that routine by calling routine_use with mode suggest. For example, if Workout exists and the user says "I'm going to exercise in the gym", call routine_use(suggest) for Workout; do not merely acknowledge the plan, offer generic advice, or wait for the user to ask for timers. Suggestion asks permission; it does not start any actions. If the intent is unrelated, informational, ambiguous between routines, or the CURRENT message explicitly says not to start or suggest it, do not propose it.
 A prior turn's one-time "do not start it" instruction applied to that earlier request. Do not silently turn it into an ongoing ban on suggestions in later turns. Only an explicitly saved applicable standing instruction or an opt-out in the CURRENT message persists as a reason to withhold a relevant suggestion.
@@ -323,9 +387,29 @@ export class RoutineService {
     return { routines: this.store.list().map(({ id, name, aliases, version }) => ({ id, name, aliases, version })),
       pending_routine: sessionId ? this.store.getPending(sessionId) : null, instructions: ROUTINE_INSTRUCTIONS };
   }
+  #authoringPool(sessionId, sourceId) {
+    const messages = this.memoryStore.snapshot().conversations;
+    const current = messages.findIndex(item => item.id === sourceId && item.role === 'user'
+      && (item.session_id === sessionId || item.session_id === undefined));
+    if (current < 0) throw invalid('Routine authoring needs the current direct user message.');
+    const selected = [];
+    let chars = 0;
+    for (let index = current; index >= 0 && selected.length < AUTHORING_SOURCE_LIMIT; index--) {
+      const item = messages[index];
+      if (item.role !== 'user' || (item.session_id !== sessionId && item.id !== sourceId)) continue;
+      if (typeof item.text !== 'string' || !item.text.trim()) continue;
+      if (chars + item.text.length > AUTHORING_SOURCE_CHARS) break;
+      selected.push(item); chars += item.text.length;
+    }
+    return selected.reverse();
+  }
+  authoringSources(sessionId, sourceId) {
+    return this.#authoringPool(sessionId, sourceId).map(({ id, text }) => ({ id, text }));
+  }
   #source(context, quote) {
     const source = this.memoryStore.snapshot().conversations.find(item => item.id === context.source_id && item.role === 'user');
-    if (!source || typeof quote !== 'string' || !quote.trim() || !source.text.includes(quote) || source.text !== context.message) {
+    if (!source || (source.session_id !== undefined && source.session_id !== context.session_id)
+      || typeof quote !== 'string' || !quote.trim() || !source.text.includes(quote) || source.text !== context.message) {
       throw invalid('Routine changes need an exact quotation from the current direct user message.');
     }
     return source;
@@ -334,8 +418,19 @@ export class RoutineService {
     if (name === 'routine_save') {
       keys(value, ['id', 'name', 'aliases', 'prompt', 'source_quote']);
       const source = this.#source(context, value.source_quote);
-      const routine = await this.store.save({ ...value, ...(value.id ? { id: value.id } : { id: undefined }), source_id: source.id }, source, operationId);
+      const allowedSources = this.#authoringPool(context.session_id, source.id);
+      // Repeating the name in aliases adds no meaning. Remove this common model
+      // formatting mistake without adding or inferring an activation phrase.
+      const aliases = typeof value.name === 'string' && Array.isArray(value.aliases) && value.aliases.every(alias => typeof alias === 'string')
+        ? [...new Map(value.aliases.map(alias => [activationText(alias), alias])).values()].filter(alias => activationText(alias) !== activationText(value.name)) : value.aliases;
+      const routine = await this.store.save({ ...value, aliases, ...(value.id ? { id: value.id } : { id: undefined }), source_id: source.id }, source, operationId, allowedSources);
       return { routine, saved: true, activated: false };
+    }
+    if (name === 'routine_read') {
+      keys(value, ['id']); text(value.id, 'Routine ID', 200);
+      const routine = this.store.list().find(item => item.id === value.id);
+      if (!routine) throw invalid('Routine not found.');
+      return { routine, read: true, activated: false };
     }
     if (name === 'routine_delete') {
       keys(value, ['id', 'source_quote']); this.#source(context, value.source_quote); return this.store.remove(value.id);
