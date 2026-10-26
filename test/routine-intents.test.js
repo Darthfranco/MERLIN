@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { detectRoutineIntent, isRoutineDefinitionBlocked } from '../src/routine-intents.js';
+import { detectRoutineIntent, isRoutineDefinitionBlocked, parseRoutineTriggerDefinition } from '../src/routine-intents.js';
 
 const user = text => ({ role: 'user', text });
 const assistant = text => ({ role: 'assistant', text });
@@ -84,7 +84,7 @@ test('negations, examples, third-person reports, ordinary commands and semantic 
   for (const message of [
     'Do not save Tea as a routine.', 'Never create a routine named Tea.',
     'For example, Tea should start a timer.', 'Suppose Tea should start a timer.',
-    'If I say Tea, start a timer.', 'What if Bedtime should start a timer?',
+    'If I said Tea, would you start a timer?', 'What if Bedtime should start a timer?',
     'He said Tea should start a timer.', 'Alice asked to save Tea as a routine.',
     'My friend should start a timer.', 'I should start a timer.', 'We should look up weather.',
     'Someone should set a timer.', 'She really should set a timer.', 'They should look up the weather.',
@@ -126,5 +126,91 @@ test('definition blocking rejects non-authorizing prose and requires genuine aut
   for (const message of ['What we already said.', '"Start a timer, then look up the weather."', '"Tea should set a 20-second timer."', 'yes', 'yes please', 'save it', 'use that']) {
     assert.equal(isRoutineDefinitionBlocked(message), true, message);
     assert.equal(isRoutineDefinitionBlocked(message, { allowContinuation: true }), false, message);
+  }
+});
+
+test('first-person conditional trigger definitions preserve exact name, actions, conditions and original evidence', () => {
+  const reported = 'ok if i say eggs start and egg timer and say a rONDOME TYPE OF EGG TO MAKE';
+  const cases = [
+    [reported, 'eggs', 'start and egg timer and say a rONDOME TYPE OF EGG TO MAKE'],
+    ['If I say Tea, start a tea timer and say a random type of tea to make.', 'Tea', 'start a tea timer and say a random type of tea to make.'],
+    ['When I say "Tea break", then set a 5 minute timer.', 'Tea break', 'set a 5 minute timer.'],
+    ['Whenever I say “Tea break”: look up the weather.', 'Tea break', 'look up the weather.'],
+    ["Every time I say 'salt and pepper', say a cooking suggestion.", 'salt and pepper', 'say a cooking suggestion.'],
+    ['When you hear me say Tea start a timer only if I have not already started one.', 'Tea', 'start a timer only if I have not already started one.'],
+    ['Every time you hear me say “Tea break”, set a timer unless one is already running.', 'Tea break', 'set a timer unless one is already running.'],
+    ['If you hear me say Tea, say “What should I make?”', 'Tea', 'say “What should I make?”'],
+    ['  Merlin, please if I say Tea,  set   a tea timer.  ', 'Tea', 'set   a tea timer.'],
+  ];
+  for (const [message, name, prompt] of cases) {
+    const parsed = parseRoutineTriggerDefinition(message);
+    assert.deepEqual(parsed, { name, prompt, source_quote: message.trim(), run_now: false }, message);
+    assert.ok(message.includes(parsed.name));
+    assert.ok(message.includes(parsed.prompt));
+    assert.equal(detect(message)?.mode, 'authoring', message);
+    assert.equal(isRoutineDefinitionBlocked(message), false, message);
+  }
+});
+
+test('only direct complete trigger declarations qualify for local saving', () => {
+  for (const message of [
+    'If I say Tea, start a timer?',
+    'If I said Tea, start a timer.',
+    'If I were to say Tea, start a timer.',
+    'If I say Tea, would you start a timer?',
+    'What if I say Tea, start a timer?',
+    'For example, if I say Tea, start a timer.',
+    'If I say Tea, start a timer as an example.',
+    'Imagine if I say Tea, start a timer.',
+    'Do not save this: if I say Tea, start a timer.',
+    'If I say Tea, start a timer, but do not save this.',
+    'He said if I say Tea, start a timer.',
+    'If someone says Tea, start a timer.',
+    'If the weather is sunny, start a timer.',
+    '"If I say Tea, start a timer."',
+    'If I say Tea', 'If I say Tea start.',
+    'If I say Tea or brew time, start a timer.',
+    'If I say "Tea" or "brew time", start a timer.',
+    'If I say Tea, start a timer and call it brew time.',
+    'If I say Tea, start a timer and add brew time as an alias.',
+    'If I say Tea start a timer and if I say Coffee say hello.',
+    'If I say Tea, start a timer. Also tell me the weather.',
+    'If I say Tea, start a timer and then tell me the weather now.',
+    'If I say Tea, start a timer and also run it now.',
+    'If I say Tea, say "unfinished quotation.',
+  ]) assert.equal(parseRoutineTriggerDefinition(message), null, message);
+  const compound = 'If I say Tea, start a timer. Also run it now.';
+  assert.equal(parseRoutineTriggerDefinition(compound), null);
+  assert.equal(detect(compound)?.mode, 'authoring');
+  assert.equal(detect(compound)?.run_now, true);
+  assert.equal(isRoutineDefinitionBlocked(compound), false);
+});
+
+test('clear trigger aliases and missing details fall back to model authoring instead of being blocked', () => {
+  for (const message of [
+    'If I say Tea or brew time, start a timer.',
+    'When I say "Tea" or "brew time", start a timer.',
+    'If I say Tea start a timer and add brew time as an alias.',
+    'If I say Tea',
+    'Whenever you hear me say "Tea break",',
+    'If I say Tea, start.',
+  ]) {
+    assert.equal(parseRoutineTriggerDefinition(message), null, message);
+    assert.equal(detect(message)?.mode, 'authoring', message);
+    assert.equal(detect(message)?.run_now, false, message);
+    assert.equal(isRoutineDefinitionBlocked(message), false, message);
+  }
+  for (const message of [
+    'If the weather is sunny, start a timer.',
+    'If I said Tea or brew time, would you start a timer?',
+    'If I say Tea, would you start a timer?',
+    'If I say Tea, I wonder what happens.',
+    'For example, if I say Tea or brew time, start a timer.',
+    'If I say Tea or brew time, start a timer as an example.',
+    'If I say Tea, do not save this.',
+    'If I say Tea, start a timer but don’t save this.',
+  ]) {
+    assert.equal(detect(message), null, message);
+    assert.equal(isRoutineDefinitionBlocked(message), true, message);
   }
 });

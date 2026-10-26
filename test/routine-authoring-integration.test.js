@@ -77,6 +77,204 @@ async function assertNoActions(app, response, meta) {
   assert.ok(meta.calls.every(item => !item.tools.some(tool => tool.type === 'web_search')), 'Native search must remain unavailable');
 }
 
+test('a complete natural trigger definition saves its exact typo-bearing body without a model call or save confirmation', async t => {
+  const prompt = 'start and tea timer and say a rONDOME TYPE OF TEA TO MAKE';
+  const message = `ok if i say tea ${prompt}`;
+  const meta = scriptedMeta([]);
+  const app = await fixture(t, meta);
+  const response = await app.post('/api/chat', chat(message));
+  assert.equal(response.status, 200, JSON.stringify(response.body));
+  assert.equal(meta.calls.length, 0, 'A complete literal trigger definition needs no foreground interpretation call');
+  assert.equal(response.body.trace.model_calls, 0);
+  assert.ok(response.body.reply.trim());
+  assert.doesNotMatch(response.body.reply, /\?/, 'The explicit definition already authorizes saving');
+  assert.ok(response.body.tool_events.some(event => event.tool === 'routine_save' && event.status === 'completed'));
+  const disk = JSON.parse(await readFile(join(app.directory, 'routines.json'), 'utf8'));
+  assert.equal(disk.routines.length, 1);
+  assert.equal(disk.routines[0].name, 'tea');
+  assert.equal(disk.routines[0].prompt, prompt, 'Preserve the literal body rather than rewriting its typos or inventing a duration');
+  assert.equal(disk.routines[0].source_quote, message);
+  await assertNoActions(app, response, meta);
+});
+
+test('an explicit natural trigger with an alias uses model authoring and saves both phrases without executing', async t => {
+  const prompt = 'start a 20-second timer';
+  const message = `if I say Tea or brew time, ${prompt}`;
+  const meta = scriptedMeta([
+    (_input, { tools }) => {
+      assert.ok(!tools.some(tool => ['create_timer', 'cancel_timer', 'prepare_web_search'].includes(tool.name)));
+      return [call('routine_save', { id: '', name: 'Tea', aliases: ['brew time'], prompt, source_quote: message })];
+    },
+    input => {
+      assert.equal(outputs(input).at(-1).ok, true);
+      return [reply('Got it. I’ll remember those phrases.')];
+    },
+  ]);
+  const app = await fixture(t, meta);
+  const response = await app.post('/api/chat', chat(message));
+  assert.equal(response.status, 200, JSON.stringify(response.body));
+  assert.equal(meta.calls.length, 2, 'The alias definition must retain the model authoring path');
+  assert.equal(response.body.trace.model_calls, 2);
+  assert.doesNotMatch(response.body.reply, /\?/);
+  const routines = (await app.request('/api/memory')).body.routines;
+  assert.equal(routines.length, 1);
+  assert.equal(routines[0].name, 'Tea');
+  assert.deepEqual(routines[0].aliases, ['brew time']);
+  assert.equal(routines[0].prompt, prompt);
+  assert.equal(routines[0].source_quote, message);
+  assert.ok(response.body.tool_events.some(event => event.tool === 'routine_save' && event.status === 'completed'));
+  await assertNoActions(app, response, meta);
+});
+
+test('natural trigger retries are idempotent and a clear redefinition updates the same routine before a later lookup', async t => {
+  const initialPrompt = 'set a 20-second tea timer.';
+  const replacementPrompt = 'set a 40-second tea timer and say green tea.';
+  const session = randomUUID();
+  const meta = scriptedMeta([
+    (_input, { tools, instructions }) => {
+      assert.ok(instructions.includes(replacementPrompt), 'Lookup must load the current saved body');
+      assert.ok(!tools.some(tool => ['create_timer', 'cancel_timer', 'prepare_web_search'].includes(tool.name)));
+      return [reply(`Your tea routine is: ${replacementPrompt}`)];
+    },
+  ]);
+  const app = await fixture(t, meta);
+  const request = chat(`if I say Tea, ${initialPrompt}`, session);
+  const first = await app.post('/api/chat', request);
+  assert.equal(first.status, 200, JSON.stringify(first.body));
+  const original = (await app.request('/api/memory')).body.routines[0];
+  assert.ok(original);
+  const repeated = await app.post('/api/chat', request);
+  assert.equal(repeated.status, 200, JSON.stringify(repeated.body));
+  const afterRetry = (await app.request('/api/memory')).body;
+  assert.equal(afterRetry.routines.length, 1);
+  assert.equal(afterRetry.routines[0].id, original.id);
+  assert.equal(afterRetry.routines[0].version, original.version);
+  assert.equal(afterRetry.conversations.filter(item => item.request_id === request.request_id && item.role === 'user').length, 1);
+  assert.equal(meta.calls.length, 0);
+
+  const revised = await app.post('/api/chat', chat(`ok if I say tea ${replacementPrompt}`, session));
+  assert.equal(revised.status, 200, JSON.stringify(revised.body));
+  const current = (await app.request('/api/memory')).body.routines;
+  assert.equal(current.length, 1);
+  assert.equal(current[0].id, original.id, 'An explicit redefinition of the same trigger edits its existing record');
+  assert.equal(current[0].version, original.version + 1);
+  assert.equal(current[0].prompt, replacementPrompt);
+  assert.equal(meta.calls.length, 0);
+  await assertNoActions(app, revised, meta);
+
+  const lookup = await app.post('/api/chat', chat('Show me my saved tea routine.', session));
+  assert.equal(lookup.status, 200, JSON.stringify(lookup.body));
+  assert.ok(lookup.body.reply.includes(replacementPrompt));
+  assert.equal(meta.calls.length, 1, 'The ordinary lookup response uses the loaded saved body');
+  await assertNoActions(app, lookup, meta);
+});
+
+test('the local trigger-save acknowledgment passes the same outgoing wording checks', async t => {
+  const meta = scriptedMeta([]);
+  const app = await fixture(t, meta);
+  const ruleResponse = await app.post('/api/memory/rule', { kind: 'avoid_word', value: 'tea', scope: 'assistant_reply', original: 'Never say the exact word tea.' });
+  assert.equal(ruleResponse.status, 200);
+  const rule = ruleResponse.body.rules.find(item => item.kind === 'avoid_word');
+  assert.ok(rule);
+  const response = await app.post('/api/chat', chat('if I say tea, set a 20-second tea timer.'));
+  assert.equal(response.status, 200, JSON.stringify(response.body));
+  assert.equal((await app.request('/api/memory')).body.routines.length, 1);
+  assert.doesNotMatch(response.body.reply, /\btea\b/iu);
+  assert.equal(meta.calls.length, 0);
+  assert.ok(response.body.trace.events.some(event => event.stage === 'output_check' && event.data?.applied_rule_ids?.includes(rule.id)));
+  await assertNoActions(app, response, meta);
+});
+
+test('activating a natural trigger supplies relevant household guidance and preserves the separate general timer default', async t => {
+  const guidance = 'Tea timers are always 3 minutes.';
+  const meta = scriptedMeta([
+    (_input, { instructions }) => {
+      assert.ok(instructions.includes(guidance), 'The activation needs the relevant household guidance to choose its duration');
+      return [call('create_timer', { label: 'Synthetic tea', duration: 3, unit: 'minutes' })];
+    },
+    [reply('Your tea timer is set for three minutes.')],
+  ]);
+  const app = await fixture(t, meta);
+  const factResponse = await app.post('/api/memory/fact', { content: guidance, subject: 'household', kind: 'guidance' });
+  assert.equal(factResponse.status, 200);
+  const fact = factResponse.body.facts.find(item => item.content === guidance);
+  assert.ok(fact);
+  const ruleResponse = await app.post('/api/memory/rule', { kind: 'timer_default_seconds', value: 300, scope: 'timers', original: 'My default timer is five minutes.' });
+  assert.equal(ruleResponse.status, 200);
+  const generalDefault = ruleResponse.body.rules.find(item => item.kind === 'timer_default_seconds');
+  const session = randomUUID();
+  const definition = await app.post('/api/chat', chat('if I say tea, start a tea timer.', session));
+  assert.equal(definition.status, 200, JSON.stringify(definition.body));
+  assert.equal(meta.calls.length, 0);
+  assert.equal(definition.body.timers.length, 0);
+
+  const activation = await app.post('/api/chat', chat('tea', session));
+  assert.equal(activation.status, 200, JSON.stringify(activation.body));
+  assert.equal(meta.calls.length, 2);
+  assert.equal(activation.body.timers.length, 1);
+  assert.equal(activation.body.timers[0].duration_seconds, 180, 'The model-resolved specific duration goes through normal timer execution');
+  assert.ok(activation.body.trace.events.some(event => event.stage === 'context' && event.data?.fact_ids?.includes(fact.id)));
+  const storedDefault = (await app.request('/api/memory')).body.rules.find(item => item.id === generalDefault.id);
+  assert.equal(storedDefault.value, 300, 'Using specific household guidance must not rewrite the general default');
+});
+
+for (const channel of ['chat', 'inspector']) {
+  for (const operation of ['edit', 'delete']) {
+    test(`${channel} ${operation} of a locally saved trigger clears old references without a post-save error`, async t => {
+      const prompt = 'set a 40-second tea timer.';
+      const message = operation === 'edit' ? `Set Tea as a routine: ${prompt}` : 'Delete my Tea routine.';
+      let original;
+      const meta = scriptedMeta(channel === 'chat' ? [
+        () => [operation === 'edit'
+          ? call('routine_save', { id: original.id, name: 'Tea', aliases: [], prompt, source_quote: message })
+          : call('routine_delete', { id: original.id, source_quote: message })],
+        ...(operation === 'edit' ? [[reply('Your Tea routine is updated.')]] : []),
+      ] : []);
+      const app = await fixture(t, meta);
+      const session = randomUUID();
+      const definitionRequest = chat('if I say Tea, set a 20-second tea timer.', session);
+      const definition = await app.post('/api/chat', definitionRequest);
+      assert.equal(definition.status, 200, JSON.stringify(definition.body));
+      original = (await app.request('/api/memory')).body.routines[0];
+      assert.ok(original.definition_sources.some(source => source.source_id === original.source_id), 'Exercise shared primary and definition provenance');
+      assert.ok((await app.request(`/api/trace?request_id=${definitionRequest.request_id}`)).body.events.length);
+
+      const response = channel === 'chat'
+        ? await app.post('/api/chat', chat(message, session))
+        : await app.post(operation === 'edit' ? '/api/routines' : '/api/routines/delete', operation === 'edit'
+          ? { id: original.id, name: 'Tea', aliases: [], prompt } : { id: original.id });
+      assert.equal(response.status, 200, JSON.stringify(response.body));
+      const snapshot = (await app.request(`/api/memory?session_id=${session}`)).body;
+      if (operation === 'edit') {
+        assert.equal(snapshot.routines.length, 1);
+        assert.equal(snapshot.routines[0].id, original.id);
+        assert.equal(snapshot.routines[0].version, original.version + 1);
+        assert.equal(snapshot.routines[0].prompt, prompt);
+      } else assert.equal(snapshot.routines.length, 0);
+      assert.ok(!snapshot.conversations.some(item => item.id === original.source_id || item.request_id === definitionRequest.request_id));
+      assert.deepEqual((await app.request(`/api/trace?request_id=${definitionRequest.request_id}`)).body.events, []);
+      await assertNoActions(app, response, meta);
+    });
+  }
+}
+
+for (const [kind, message] of [
+  ['hypothesis', 'Hypothetically, if I say tea start a 20-second timer.'],
+  ['example', 'For example, if I say tea start a 20-second timer.'],
+  ['meaning question', 'What does “if I say tea start a 20-second timer” mean?'],
+  ['conditional question', 'If I say tea, would that start a 20-second timer?'],
+]) {
+  test(`a natural-trigger ${kind} does not automatically save or run a routine`, async t => {
+    const meta = scriptedMeta([[reply('That describes a possible trigger; no routine has been saved or started.')]]);
+    const app = await fixture(t, meta);
+    const response = await app.post('/api/chat', chat(message));
+    assert.equal(response.status, 200, JSON.stringify(response.body));
+    assert.equal((await app.request('/api/memory')).body.routines.length, 0);
+    assert.equal(meta.calls.length, 1, 'An informational request should retain its ordinary response path');
+    await assertNoActions(app, response, meta);
+  });
+}
+
 for (const wording of ['should', 'shoudl']) {
   test(`a named routine definition using “${wording}” saves its exact body without running the timer or search`, async t => {
     const prompt = 'set a 45-second tea timer and search for the latest public astronomy news.';

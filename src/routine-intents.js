@@ -5,7 +5,9 @@ const folded = value => normalize(value).toLowerCase();
 const terminal = value => value.replace(/[.!?]+$/u, '').trim();
 const ACTION_SOURCE = '(?:please\\s+)?(?:make|set|start|create|look\\s+up|search|find|say|tell|read|show|check|list|cancel|play|turn|open|close|give|remind|wait|ask|reply|summarize)\\b';
 const ACTION = new RegExp(`^${ACTION_SOURCE}`, 'iu');
-const WHEN_SAID = new RegExp(`^(?:when(?:ever)?|every time)\\s+i\\s+say\\s+(.+?)(?:\\s*[,;:]\\s*|\\s+)(?:then\\s+)?(${ACTION_SOURCE}[\\s\\S]*)$`, 'iu');
+const TRIGGER_HEAD = /^(?:if|when(?:ever)?|every\s+time)\s+(?:i\s+say|you\s+hear\s+me\s+say)\s+([\s\S]+)$/iu;
+const TRIGGER_BODY = new RegExp(`^(?<name>[\\p{L}\\p{N}][\\p{L}\\p{N}\\p{M}\\s'’_-]{0,79}?)(?:\\s*[,;:]\\s*|\\s+)(?:then\\s+)?(?<prompt>${ACTION_SOURCE}[\\s\\S]*)$`, 'iu');
+const QUOTED_TRIGGER_BODY = new RegExp(`^(?:"(?<double>[^"\\n]+)"|'(?<single>[^'\\n]+)'|“(?<curlyDouble>[^”\\n]+)”|‘(?<curlySingle>[^’\\n]+)’)(?:\\s*[,;:]\\s*|\\s+)(?:then\\s+)?(?<prompt>${ACTION_SOURCE}[\\s\\S]*)$`, 'iu');
 const REFERENCE = /^(?:(?:use|save|do)\s+)?(?:what (?:we|i) (?:already |just )?(?:said|discussed)(?: before| earlier)?|what (?:we|i) said (?:already|above)|(?:the )?same (?:thing|steps|actions|request|prompt)(?: as (?:before|above))?|(?:the )?(?:above|previous) (?:steps|actions|request|prompt)|that(?: one)?|it|as (?:we|i) discussed)$/iu;
 const YES = /^(?:yes|yes please|yeah|yep|ok|okay|sure|please do|do it|confirm)$/iu;
 const SHORT_SAVE = /^(?:save|use)\s+(?:it|that|this)(?:\s+(?:then|please))?$/iu;
@@ -41,14 +43,75 @@ function nameFromTail(tail) {
 // An execution clause inside a quoted recipe is recipe text, not permission to run now.
 function outsideQuotes(value, end) {
   let quote = null;
+  const closing = { "'": "'", '"': '"', '`': '`', '“': '”', '‘': '’' };
   for (let index = 0; index < end; index++) {
     const character = value[index];
-    if (!["'", '"', '`'].includes(character)) continue;
+    if (quote) { if (character === quote) quote = null; continue; }
+    if (!Object.hasOwn(closing, character)) continue;
     if (character === "'" && /[\p{L}\p{N}]/u.test(value[index - 1] ?? '') && /[\p{L}\p{N}]/u.test(value[index + 1] ?? '')) continue;
-    if (quote === character) quote = null;
-    else if (!quote) quote = character;
+    quote = closing[character];
   }
   return !quote;
+}
+
+function unquotedMatch(value, expression) {
+  return [...value.matchAll(expression)].some(match => outsideQuotes(value, match.index));
+}
+
+function triggerDefinition(message, allowRunNow = false) {
+  if (typeof message !== 'string' || !message.trim() || message.length > 4000 || /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/u.test(message)) return null;
+  // Work on the original string: the resulting name/body remain exact evidence.
+  const original = message.trim();
+  const value = courteous(original);
+  if (quotedBody(original) || unquotedMatch(value, /\?/gu)) return null;
+  const execution = executionClause(value);
+  if (execution.run_now && !allowRunNow) return null;
+  const head = TRIGGER_HEAD.exec(execution.text);
+  if (!head) return null;
+  const quoted = QUOTED_TRIGGER_BODY.exec(head[1]);
+  const matched = quoted ?? TRIGGER_BODY.exec(head[1]);
+  if (!matched) return null;
+  const name = (quoted ? matched.groups.double ?? matched.groups.single ?? matched.groups.curlyDouble ?? matched.groups.curlySingle : matched.groups.name).trim();
+  const prompt = matched.groups.prompt.trim();
+  const action = ACTION.exec(prompt);
+  if (!name || name.length > 80 || /[\n\r]/u.test(name) || name.split(/\s+/u).length > 8 || !prompt || !outsideQuotes(prompt, prompt.length)
+    || !action || !prompt.slice(action[0].length).replace(/[.!\s]/gu, '')
+    || (!quoted && /\b(?:or|and|also|alias|aliases|called|named)\b/iu.test(name))) return null;
+  // A complete trigger declaration is a definition. Broader mixed requests and
+  // commentary around a definition need interpretation, not silent truncation.
+  if (unquotedMatch(prompt, /\b(?:if|when(?:ever)?|every\s+time)\s+(?:i\s+say|you\s+hear\s+me\s+say)\b/giu)
+    || unquotedMatch(prompt, /\b(?:for example|as an? example|hypothetically|suppose|imagine|would that|would this|is that|is this)\b/giu)
+    || unquotedMatch(prompt, /\b(?:do not|don['’]t|never)\s+(?:save|create|store|remember)\b/giu)
+    || unquotedMatch(prompt, /(?:[.;]\s*(?:also|and|now|please|can you|could you)\b|\b(?:also|and)\s+(?:call|name|alias)\s+(?:it|this|that)\b|\b(?:also|and)\s+(?:use|add)\b[^.;]{0,80}\balias(?:es)?\b)/giu)
+    || unquotedMatch(prompt, /\b(?:also|and then)\b[^.;]{0,120}\bnow\b/giu)) return null;
+  return { name, prompt, source_quote: original, run_now: execution.run_now };
+}
+
+/** Exact complete first-person trigger declarations; no invented actions or aliases. */
+export function parseRoutineTriggerDefinition(message) { return triggerDefinition(message); }
+
+// A definition may be clear even when local extraction cannot safely finish it.
+// Alias lists and missing details belong in setup, with no action permission.
+function triggerAuthoring(message) {
+  const precise = triggerDefinition(message, true);
+  if (precise) return precise;
+  if (typeof message !== 'string' || !message.trim() || message.length > 4000 || quotedBody(message)) return null;
+  const value = courteous(message.trim());
+  if (unquotedMatch(value, /\?/gu)
+    || unquotedMatch(value, /\b(?:for example|as an? example|hypothetically|suppose|imagine|would that|would this|is that|is this)\b/giu)
+    || unquotedMatch(value, /\b(?:do not|don['’]t|never)\s+(?:save|create|store|remember)\b/giu)) return null;
+  const execution = executionClause(value);
+  const head = TRIGGER_HEAD.exec(execution.text);
+  if (!head) return null;
+  const recipe = new RegExp(`^(.+?)(?:\\s*[,;:]\\s*|\\s+)(?:then\\s+)?(${ACTION_SOURCE}[\\s\\S]*)$`, 'iu').exec(head[1]);
+  const label = (recipe ? recipe[1] : head[1]).trim().replace(/[,:;.!]+$/u, '').trim();
+  // Do not mistake indirect questions or descriptions of a hypothetical name for
+  // a declaration. A missing action is allowed only after a bounded name/list.
+  if (!label || label.length > 240 || /[\n\r:?!]/u.test(label) || label.split(/\s+/u).length > 16
+    || unquotedMatch(label, /\b(?:would|could|should|might|maybe|wonder|happens?|means?)\b/giu)
+    || (!recipe && !/^(?:[\p{L}\p{N}\p{M}'’"“”‘ _-]|,)+$/u.test(label))) return null;
+  const name = !/\b(?:or|and|also|alias|aliases|called|named)\b/iu.test(label) ? nameOf(label) : undefined;
+  return { ...(name ? { name } : {}), run_now: execution.run_now };
 }
 
 function executionClause(value) {
@@ -64,8 +127,11 @@ function executionClause(value) {
 
 function authoring(message) {
   if (typeof message !== 'string' || !message.trim() || message.length > 4000) return null;
+  const trigger = triggerAuthoring(message);
+  if (trigger) return { mode: 'authoring', ...(trigger.name ? { name: trigger.name } : {}), run_now: trigger.run_now,
+    reason: 'The user directly defined what a first-person trigger phrase should do; save it without requesting another confirmation.' };
   const value = courteous(normalize(message));
-  if (quotedBody(message) || excluded(value) || (QUESTION_PREFIX.test(value) && !WHEN_SAID.test(terminal(value)))) return null;
+  if (quotedBody(message) || excluded(value) || QUESTION_PREFIX.test(value)) return null;
   const execution = executionClause(value);
   const text = terminal(execution.text);
   let match;
@@ -79,8 +145,6 @@ function authoring(message) {
   } else if ((match = /^(?:a )?routine\s+(?:named|called)\s+(.+)$/iu.exec(text))) {
     name = nameFromTail(match[1]);
     if (!/[,:]|\b(?:should|shoudl|will|does|to|that)\b/iu.test(match[1])) return null;
-  } else if ((match = WHEN_SAID.exec(text))) {
-    name = nameOf(match[1]);
   } else if ((match = /^(.+?)\s+(?:should|shoudl)\s+(.+)$/iu.exec(text)) && ACTION.test(match[2])) {
     name = nameOf(match[1]);
     if (!name) return null;
@@ -129,6 +193,7 @@ function continuation(message, precedingAssistant) {
 /** Obvious non-authorizing prose must never gain save permission from a tool call. */
 export function isRoutineDefinitionBlocked(message, { allowContinuation = false } = {}) {
   if (typeof message !== 'string' || !message.trim() || message.length > 4000) return true;
+  if (triggerAuthoring(message)) return false;
   const value = courteous(normalize(message));
   if (excluded(value)) return true;
   if (quotedBody(message) || REFERENCE.test(terminal(value)) || YES.test(terminal(value)) || SHORT_SAVE.test(terminal(value))) return !allowContinuation;
