@@ -8,8 +8,9 @@ Last updated: **October 26, 2026**.
 - Shared instructions are available in root `AGENTS.md`, with entry points for common coding assistants.
 - Hackathon overview and participant guide are preserved as user-supplied source snapshots.
 - Meta model reference and tentative Kokoro TTS choice are documented.
+- The public [Darthfranco/MERLIN repository](https://github.com/Darthfranco/MERLIN) is initialized on `main`; the initial documentation commit was pushed and verified against the remote.
 - No application code, installed application dependencies, device integrations, API credentials, or working demo exist yet.
-- No build or test commands exist yet. Initial checks cover documentation links, source-copy integrity, Git diff hygiene, and GitHub delivery.
+- No build or test commands exist yet. Initial verification passed: 26 local documentation links resolve, both source snapshots match byte-for-byte, authored files pass Git whitespace checks, basic credential-pattern checks pass, and private runtime paths are ignored. Source snapshots intentionally preserve whitespace from the supplied originals.
 
 ## Confirmed decisions
 
