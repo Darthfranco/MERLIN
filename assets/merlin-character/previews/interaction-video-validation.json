@@ -1,0 +1,84 @@
+{
+  "passed": true,
+  "video": "merlin-interactions.mp4",
+  "frames": 748,
+  "fps": 24.0,
+  "dimensions": [
+    800,
+    600
+  ],
+  "duration_seconds": 31.166666666666668,
+  "encoded_timing": {
+    "frames": 748,
+    "fps": 24.0,
+    "duration_seconds": 31.166666666666668,
+    "media_timescale": 12288,
+    "frame_duration_units": 512,
+    "container_duration_seconds": 31.167,
+    "container_timescale": 1000,
+    "audio_tracks": 0
+  },
+  "audio": "Silent performance preview; no speech or soundtrack authored.",
+  "decoded_review_frames": [
+    {
+      "frame": 40,
+      "clip": "NapToReady",
+      "clip_frame": 28
+    },
+    {
+      "frame": 67,
+      "clip": "NapToReady",
+      "clip_frame": 55
+    },
+    {
+      "frame": 202,
+      "clip": "ReadyToPanel",
+      "clip_frame": 70
+    },
+    {
+      "frame": 242,
+      "clip": "ReadyToPanel",
+      "clip_frame": 110
+    },
+    {
+      "frame": 313,
+      "clip": "PanelIdle",
+      "clip_frame": 1
+    },
+    {
+      "frame": 450,
+      "clip": "PanelToReady",
+      "clip_frame": 42
+    },
+    {
+      "frame": 552,
+      "clip": "PanelToReady",
+      "clip_frame": 144
+    },
+    {
+      "frame": 576,
+      "clip": "ReadyToFace",
+      "clip_frame": 12
+    },
+    {
+      "frame": 587,
+      "clip": "ReadyToFace",
+      "clip_frame": 23
+    },
+    {
+      "frame": 653,
+      "clip": "FullFaceIdle",
+      "clip_frame": 49
+    },
+    {
+      "frame": 723,
+      "clip": "FaceToReady",
+      "clip_frame": 23
+    },
+    {
+      "frame": 736,
+      "clip": "FaceToReady",
+      "clip_frame": 36
+    }
+  ]
+}
