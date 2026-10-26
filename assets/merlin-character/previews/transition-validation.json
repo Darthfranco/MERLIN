@@ -1,0 +1,2843 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-10-26T21:16:33.378839+00:00",
+  "blender_version": "4.0.2",
+  "blend_file": "merlin-transitions.blend",
+  "glb_file": "merlin-transitions.glb",
+  "checks": [
+    {
+      "name": "original_and_interaction_actions_present",
+      "passed": true,
+      "missing": []
+    },
+    {
+      "name": "original_fifteen_bone_rig",
+      "passed": true
+    },
+    {
+      "name": "original_proportions",
+      "passed": true,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "landscape_four_by_three",
+      "passed": true,
+      "aspect": 1.3333333333333333
+    },
+    {
+      "name": "twenty_four_fps",
+      "passed": true
+    },
+    {
+      "name": "original_brightness",
+      "passed": true
+    },
+    {
+      "name": "synchronized_face_and_prop_actions",
+      "passed": true,
+      "missing": []
+    },
+    {
+      "name": "original_room_files_retained",
+      "passed": true
+    },
+    {
+      "name": "ReadyIdle_seamless_loop",
+      "passed": true,
+      "maximum_bone_matrix_error": 2.334053880079653e-18,
+      "worst_bone": "upper_arm.R",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "ReadyToNap_source_continuity",
+      "passed": true,
+      "source": [
+        "ReadyIdle",
+        1.0
+      ],
+      "maximum_bone_matrix_error": 0.0,
+      "worst_bone": "root",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "ReadyToNap_target_continuity",
+      "passed": true,
+      "target": [
+        "Nap",
+        1.0
+      ],
+      "maximum_bone_matrix_error": 5.960464477539062e-07,
+      "worst_bone": "hand.R",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "NapToReady_source_continuity",
+      "passed": true,
+      "source": [
+        "Nap",
+        192.0
+      ],
+      "maximum_bone_matrix_error": 5.960464477539062e-07,
+      "worst_bone": "hand.R",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "NapToReady_target_continuity",
+      "passed": true,
+      "target": [
+        "ReadyIdle",
+        1.0
+      ],
+      "maximum_bone_matrix_error": 2.980232238769531e-07,
+      "worst_bone": "shin.R",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "ReadyToWallToss_source_continuity",
+      "passed": true,
+      "source": [
+        "ReadyIdle",
+        1.0
+      ],
+      "maximum_bone_matrix_error": 0.0,
+      "worst_bone": "root",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "ReadyToWallToss_target_continuity",
+      "passed": true,
+      "target": [
+        "WallToss",
+        1.0
+      ],
+      "maximum_bone_matrix_error": 2.384185791015625e-07,
+      "worst_bone": "hand.L",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0.0
+    },
+    {
+      "name": "WallTossToReady_source_continuity",
+      "passed": true,
+      "source": [
+        "WallToss",
+        240.0
+      ],
+      "maximum_bone_matrix_error": 2.384185791015625e-07,
+      "worst_bone": "hand.L",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0.0
+    },
+    {
+      "name": "WallTossToReady_target_continuity",
+      "passed": true,
+      "target": [
+        "ReadyIdle",
+        1.0
+      ],
+      "maximum_bone_matrix_error": 2.384185791015625e-07,
+      "worst_bone": "thigh.L",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "ReadyToWalkWhistle_source_continuity",
+      "passed": true,
+      "source": [
+        "ReadyIdle",
+        1.0
+      ],
+      "maximum_bone_matrix_error": 0.0,
+      "worst_bone": "root",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "ReadyToWalkWhistle_target_continuity",
+      "passed": true,
+      "target": [
+        "WalkWhistle",
+        1.0
+      ],
+      "maximum_bone_matrix_error": 3.5762786865234375e-07,
+      "worst_bone": "foot.L",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "WalkWhistleToReady_source_continuity",
+      "passed": true,
+      "source": [
+        "WalkWhistle",
+        192.0
+      ],
+      "maximum_bone_matrix_error": 3.5762786865234375e-07,
+      "worst_bone": "foot.L",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "WalkWhistleToReady_target_continuity",
+      "passed": true,
+      "target": [
+        "ReadyIdle",
+        1.0
+      ],
+      "maximum_bone_matrix_error": 1.1920928955078125e-07,
+      "worst_bone": "shin.R",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "ReadyIdle_centered_and_facing_forward",
+      "passed": true,
+      "root": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "forward_vectors": {
+        "body": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "head": [
+          0.0,
+          -1.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "name": "ReadyIdle_alert_open_eyes",
+      "passed": true,
+      "values": {
+        "Eye \u2022 R: Blink": 0.0,
+        "Eye \u2022 R: Sleep": 0.0,
+        "Eye \u2022 R: Sleepy": 0.0,
+        "Eye \u2022 L: Blink": 0.0,
+        "Eye \u2022 L: Sleep": 0.0,
+        "Eye \u2022 L: Sleepy": 0.0,
+        "Face \u2022 luminous smile: Whistle": 0.0,
+        "Face \u2022 luminous smile: SleepSmile": 0.0
+      }
+    },
+    {
+      "name": "ReadyIdle_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03499993681907654,
+      "frame": 1,
+      "object": "Foot R \u2022 graphite outsole"
+    },
+    {
+      "name": "ReadyIdle_within_side_walls",
+      "passed": true,
+      "x_extent": [
+        -1.1835200786590576,
+        1.1645101308822632
+      ]
+    },
+    {
+      "name": "ReadyIdle_camera_coverage",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "ReadyIdle_no_bone_stretch",
+      "passed": true,
+      "maximum_bone_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "ReadyToNap_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03203311190009117,
+      "frame": 89,
+      "object": "Hand R \u2022 soft mitten"
+    },
+    {
+      "name": "ReadyToNap_within_side_walls",
+      "passed": true,
+      "x_extent": [
+        -2.0877552032470703,
+        1.6008893251419067
+      ]
+    },
+    {
+      "name": "ReadyToNap_camera_coverage",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "ReadyToNap_no_bone_stretch",
+      "passed": true,
+      "maximum_bone_scale_error": 3.5762786865234375e-07
+    },
+    {
+      "name": "NapToReady_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03299926966428757,
+      "frame": 1,
+      "object": "Hand R \u2022 soft mitten"
+    },
+    {
+      "name": "NapToReady_within_side_walls",
+      "passed": true,
+      "x_extent": [
+        -2.0866496562957764,
+        1.6131471395492554
+      ]
+    },
+    {
+      "name": "NapToReady_camera_coverage",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "NapToReady_no_bone_stretch",
+      "passed": true,
+      "maximum_bone_scale_error": 3.5762786865234375e-07
+    },
+    {
+      "name": "ReadyToWallToss_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03299989551305771,
+      "frame": 10,
+      "object": "Foot L \u2022 graphite outsole"
+    },
+    {
+      "name": "ReadyToWallToss_within_side_walls",
+      "passed": true,
+      "x_extent": [
+        -4.474999904632568,
+        1.1709321737289429
+      ]
+    },
+    {
+      "name": "ReadyToWallToss_camera_coverage",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "ReadyToWallToss_no_bone_stretch",
+      "passed": true,
+      "maximum_bone_scale_error": 3.5762786865234375e-07
+    },
+    {
+      "name": "WallTossToReady_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03299989551305771,
+      "frame": 54,
+      "object": "Foot R \u2022 graphite outsole"
+    },
+    {
+      "name": "WallTossToReady_within_side_walls",
+      "passed": true,
+      "x_extent": [
+        -4.474999904632568,
+        1.6131471395492554
+      ]
+    },
+    {
+      "name": "WallTossToReady_camera_coverage",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "WallTossToReady_no_bone_stretch",
+      "passed": true,
+      "maximum_bone_scale_error": 3.5762786865234375e-07
+    },
+    {
+      "name": "ReadyToWalkWhistle_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03299989551305771,
+      "frame": 10,
+      "object": "Foot L \u2022 graphite outsole"
+    },
+    {
+      "name": "ReadyToWalkWhistle_within_side_walls",
+      "passed": true,
+      "x_extent": [
+        -4.327657222747803,
+        1.1709321737289429
+      ]
+    },
+    {
+      "name": "ReadyToWalkWhistle_camera_coverage",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "ReadyToWalkWhistle_no_bone_stretch",
+      "passed": true,
+      "maximum_bone_scale_error": 4.172325134277344e-07
+    },
+    {
+      "name": "WalkWhistleToReady_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03299989551305771,
+      "frame": 54,
+      "object": "Foot L \u2022 graphite outsole"
+    },
+    {
+      "name": "WalkWhistleToReady_within_side_walls",
+      "passed": true,
+      "x_extent": [
+        -1.185737133026123,
+        4.3135552406311035
+      ]
+    },
+    {
+      "name": "WalkWhistleToReady_camera_coverage",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "WalkWhistleToReady_no_bone_stretch",
+      "passed": true,
+      "maximum_bone_scale_error": 2.980232238769531e-07
+    },
+    {
+      "name": "NapToReady_waves_at_center",
+      "passed": true,
+      "sampled_wave_frames": [
+        60,
+        108
+      ],
+      "maximum_center_error": 0.0,
+      "hand_height_above_ready": 0.9834456443786621,
+      "wrist_rotation_range_degrees": 153.25239682291777
+    },
+    {
+      "name": "WallTossToReady_waves_at_center",
+      "passed": true,
+      "sampled_wave_frames": [
+        60,
+        108
+      ],
+      "maximum_center_error": 0.0,
+      "hand_height_above_ready": 0.9834456443786621,
+      "wrist_rotation_range_degrees": 153.25239682291777
+    },
+    {
+      "name": "WalkWhistleToReady_waves_at_center",
+      "passed": true,
+      "sampled_wave_frames": [
+        60,
+        108
+      ],
+      "maximum_center_error": 0.0,
+      "hand_height_above_ready": 0.9834456443786621,
+      "wrist_rotation_range_degrees": 153.25239682291777
+    },
+    {
+      "name": "NapToReady_has_airborne_hop",
+      "passed": true,
+      "maximum_floor_clearance": 0.2403452286720276
+    },
+    {
+      "name": "WallTossToReady_travels_with_leg_motion",
+      "passed": true,
+      "lateral_travel": 3.0638699531555176,
+      "thigh_rotation_degrees": 94.58128358837251
+    },
+    {
+      "name": "WalkWhistleToReady_travels_with_leg_motion",
+      "passed": true,
+      "lateral_travel": 3.0999999046325684,
+      "thigh_rotation_degrees": 135.8139266642564
+    },
+    {
+      "name": "ReadyToWallToss_continuous_interior_travel",
+      "passed": true,
+      "interior_frame": 40,
+      "progress_fraction": 0.5,
+      "maximum_lateral_step": 0.11954402923583984,
+      "maximum_root_step": 0.1235083100395574
+    },
+    {
+      "name": "ReadyToWalkWhistle_continuous_interior_travel",
+      "passed": true,
+      "interior_frame": 40,
+      "progress_fraction": 0.5,
+      "maximum_lateral_step": 0.12095367908477783,
+      "maximum_root_step": 0.12487321529644071
+    },
+    {
+      "name": "WallTossToReady_continuous_interior_travel",
+      "passed": true,
+      "interior_frame": 30,
+      "progress_fraction": 0.5,
+      "maximum_lateral_step": 0.1592484712600708,
+      "maximum_root_step": 0.1596099082366885
+    },
+    {
+      "name": "WalkWhistleToReady_continuous_interior_travel",
+      "passed": true,
+      "interior_frame": 30,
+      "progress_fraction": 0.5,
+      "maximum_lateral_step": 0.16112637519836426,
+      "maximum_root_step": 0.16148360699427222
+    },
+    {
+      "name": "Nap_interrupt_source_continuity",
+      "passed": true,
+      "source_frame": 96,
+      "maximum_bone_matrix_error": 5.960464477539062e-07,
+      "worst_bone": "hand.R",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "Nap_interrupt_ready_continuity",
+      "passed": true,
+      "maximum_bone_matrix_error": 2.980232238769531e-07,
+      "worst_bone": "hand.L",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "Nap_interrupt_sample_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03299926966428757,
+      "frame": 1,
+      "object": "Hand R \u2022 soft mitten"
+    },
+    {
+      "name": "Nap_interrupt_sample_within_side_walls",
+      "passed": true,
+      "x_extent": [
+        -2.0816490650177,
+        1.601996660232544
+      ]
+    },
+    {
+      "name": "Nap_interrupt_sample_camera_coverage",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "Nap_interrupt_sample_no_bone_stretch",
+      "passed": true,
+      "maximum_bone_scale_error": 3.5762786865234375e-07
+    },
+    {
+      "name": "Nap_interrupt_waves_at_center",
+      "passed": true,
+      "sampled_wave_frames": [
+        60,
+        108
+      ],
+      "maximum_center_error": 0.0,
+      "hand_height_above_ready": 0.9834456443786621,
+      "wrist_rotation_range_degrees": 153.25239682291777
+    },
+    {
+      "name": "WallToss_interrupt_source_continuity",
+      "passed": true,
+      "source_frame": 58,
+      "maximum_bone_matrix_error": 0.0,
+      "worst_bone": "root",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0.0
+    },
+    {
+      "name": "WallToss_interrupt_ready_continuity",
+      "passed": true,
+      "maximum_bone_matrix_error": 2.384185791015625e-07,
+      "worst_bone": "thigh.L",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "WallToss_interrupt_sample_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.024252157658338547,
+      "frame": 13,
+      "object": "Prop \u2022 cyan play ball"
+    },
+    {
+      "name": "WallToss_interrupt_sample_within_side_walls",
+      "passed": true,
+      "x_extent": [
+        -4.475000381469727,
+        4.499836444854736
+      ]
+    },
+    {
+      "name": "WallToss_interrupt_sample_camera_coverage",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "WallToss_interrupt_sample_no_bone_stretch",
+      "passed": true,
+      "maximum_bone_scale_error": 2.980232238769531e-07
+    },
+    {
+      "name": "WallToss_interrupt_waves_at_center",
+      "passed": true,
+      "sampled_wave_frames": [
+        88,
+        136
+      ],
+      "maximum_center_error": 0.0,
+      "hand_height_above_ready": 0.9834456443786621,
+      "wrist_rotation_range_degrees": 153.25239682291777
+    },
+    {
+      "name": "WallToss_interrupt_preserves_flight_until_catch",
+      "passed": true,
+      "source_frame": 58,
+      "catch_frame": 86,
+      "failing_source_frames": [],
+      "maximum_state_error": 0
+    },
+    {
+      "name": "WalkWhistle_interrupt_source_continuity",
+      "passed": true,
+      "source_frame": 96,
+      "maximum_bone_matrix_error": 1.4901161193847656e-07,
+      "worst_bone": "shin.R",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "WalkWhistle_interrupt_ready_continuity",
+      "passed": true,
+      "maximum_bone_matrix_error": 2.980232238769531e-07,
+      "worst_bone": "shin.R",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "WalkWhistle_interrupt_sample_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03299994021654129,
+      "frame": 25,
+      "object": "Foot L \u2022 graphite outsole"
+    },
+    {
+      "name": "WalkWhistle_interrupt_sample_within_side_walls",
+      "passed": true,
+      "x_extent": [
+        -1.1855528354644775,
+        1.6019965410232544
+      ]
+    },
+    {
+      "name": "WalkWhistle_interrupt_sample_camera_coverage",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "WalkWhistle_interrupt_sample_no_bone_stretch",
+      "passed": true,
+      "maximum_bone_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "WalkWhistle_interrupt_waves_at_center",
+      "passed": true,
+      "sampled_wave_frames": [
+        60,
+        108
+      ],
+      "maximum_center_error": 0.0,
+      "hand_height_above_ready": 0.9834456443786621,
+      "wrist_rotation_range_degrees": 153.25239682291777
+    },
+    {
+      "name": "Idle_interrupt_source_continuity",
+      "passed": true,
+      "source_frame": 25,
+      "maximum_bone_matrix_error": 7.450580596923828e-09,
+      "worst_bone": "upper_arm.L",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "Idle_interrupt_ready_continuity",
+      "passed": true,
+      "maximum_bone_matrix_error": 0.0,
+      "worst_bone": "root",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "Idle_interrupt_sample_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03499993681907654,
+      "frame": 1,
+      "object": "Foot R \u2022 graphite outsole"
+    },
+    {
+      "name": "Idle_interrupt_sample_within_side_walls",
+      "passed": true,
+      "x_extent": [
+        -1.1855528354644775,
+        1.6019965410232544
+      ]
+    },
+    {
+      "name": "Idle_interrupt_sample_camera_coverage",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "Idle_interrupt_sample_no_bone_stretch",
+      "passed": true,
+      "maximum_bone_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "Idle_interrupt_waves_at_center",
+      "passed": true,
+      "sampled_wave_frames": [
+        60,
+        108
+      ],
+      "maximum_center_error": 0.0,
+      "hand_height_above_ready": 0.9834456443786621,
+      "wrist_rotation_range_degrees": 153.25239682291777
+    },
+    {
+      "name": "Wave_interrupt_source_continuity",
+      "passed": true,
+      "source_frame": 42,
+      "maximum_bone_matrix_error": 1.1920928955078125e-07,
+      "worst_bone": "upper_arm.L",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "Wave_interrupt_ready_continuity",
+      "passed": true,
+      "maximum_bone_matrix_error": 0.0,
+      "worst_bone": "root",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "Wave_interrupt_sample_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03499993681907654,
+      "frame": 1,
+      "object": "Foot R \u2022 graphite outsole"
+    },
+    {
+      "name": "Wave_interrupt_sample_within_side_walls",
+      "passed": true,
+      "x_extent": [
+        -1.1855528354644775,
+        1.6026432514190674
+      ]
+    },
+    {
+      "name": "Wave_interrupt_sample_camera_coverage",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "Wave_interrupt_sample_no_bone_stretch",
+      "passed": true,
+      "maximum_bone_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "Wave_interrupt_waves_at_center",
+      "passed": true,
+      "sampled_wave_frames": [
+        60,
+        108
+      ],
+      "maximum_center_error": 0.0,
+      "hand_height_above_ready": 0.9834456443786621,
+      "wrist_rotation_range_degrees": 153.25239682291777
+    },
+    {
+      "name": "Jump_interrupt_source_continuity",
+      "passed": true,
+      "source_frame": 38,
+      "maximum_bone_matrix_error": 3.2782554626464844e-07,
+      "worst_bone": "foot.R",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "Jump_interrupt_ready_continuity",
+      "passed": true,
+      "maximum_bone_matrix_error": 0.0,
+      "worst_bone": "root",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "Jump_interrupt_sample_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03499993681907654,
+      "frame": 61,
+      "object": "Foot R \u2022 graphite outsole"
+    },
+    {
+      "name": "Jump_interrupt_sample_within_side_walls",
+      "passed": true,
+      "x_extent": [
+        -1.5973179340362549,
+        1.6019965410232544
+      ]
+    },
+    {
+      "name": "Jump_interrupt_sample_camera_coverage",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "Jump_interrupt_sample_no_bone_stretch",
+      "passed": true,
+      "maximum_bone_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "Jump_interrupt_waves_at_center",
+      "passed": true,
+      "sampled_wave_frames": [
+        60,
+        108
+      ],
+      "maximum_center_error": 0.0,
+      "hand_height_above_ready": 0.9834456443786621,
+      "wrist_rotation_range_degrees": 153.25239682291777
+    },
+    {
+      "name": "Showcase_interrupt_source_continuity",
+      "passed": true,
+      "source_frame": 158,
+      "maximum_bone_matrix_error": 3.2782554626464844e-07,
+      "worst_bone": "foot.R",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "Showcase_interrupt_ready_continuity",
+      "passed": true,
+      "maximum_bone_matrix_error": 0.0,
+      "worst_bone": "root",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    },
+    {
+      "name": "Showcase_interrupt_sample_floor_clearance",
+      "passed": true,
+      "minimum_z": 0.03499993681907654,
+      "frame": 61,
+      "object": "Foot R \u2022 graphite outsole"
+    },
+    {
+      "name": "Showcase_interrupt_sample_within_side_walls",
+      "passed": true,
+      "x_extent": [
+        -1.5970211029052734,
+        1.6019965410232544
+      ]
+    },
+    {
+      "name": "Showcase_interrupt_sample_camera_coverage",
+      "passed": true,
+      "violating_frames": []
+    },
+    {
+      "name": "Showcase_interrupt_sample_no_bone_stretch",
+      "passed": true,
+      "maximum_bone_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "Showcase_interrupt_waves_at_center",
+      "passed": true,
+      "sampled_wave_frames": [
+        60,
+        108
+      ],
+      "maximum_center_error": 0.0,
+      "hand_height_above_ready": 0.9834456443786621,
+      "wrist_rotation_range_degrees": 153.25239682291777
+    },
+    {
+      "name": "transition_glb_exists",
+      "passed": true
+    },
+    {
+      "name": "glb_thirteen_individual_clips",
+      "passed": true,
+      "missing": [],
+      "unexpected": []
+    },
+    {
+      "name": "glb_embedded_resources",
+      "passed": true,
+      "external_uris": []
+    },
+    {
+      "name": "glb_animation_channels_and_durations",
+      "passed": true,
+      "errors": [],
+      "durations_seconds": {
+        "Idle": 3.9583332538604736,
+        "Wave": 3.9583332538604736,
+        "Jump": 2.9583332538604736,
+        "WalkWhistle": 7.958333492279053,
+        "WallToss": 9.958333015441895,
+        "Nap": 7.958333492279053,
+        "ReadyIdle": 3.9583332538604736,
+        "ReadyToNap": 3.9583332538604736,
+        "NapToReady": 4.458333492279053,
+        "ReadyToWallToss": 3.9583332538604736,
+        "WallTossToReady": 4.458333492279053,
+        "ReadyToWalkWhistle": 3.9583332538604736,
+        "WalkWhistleToReady": 4.458333492279053
+      },
+      "channels": {
+        "Idle": 54,
+        "Wave": 54,
+        "Jump": 54,
+        "WalkWhistle": 54,
+        "WallToss": 54,
+        "Nap": 54,
+        "ReadyIdle": 54,
+        "ReadyToNap": 54,
+        "NapToReady": 54,
+        "ReadyToWallToss": 54,
+        "WallTossToReady": 54,
+        "ReadyToWalkWhistle": 54,
+        "WalkWhistleToReady": 54
+      }
+    },
+    {
+      "name": "glb_all_fifteen_bones_have_transform_channels",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "glb_endpoint_continuity",
+      "passed": true,
+      "maximum_channel_error": 4.861503839492798e-07,
+      "errors": []
+    },
+    {
+      "name": "repeated_return_preserves_live_source_state",
+      "passed": true,
+      "maximum_bone_matrix_error": 2.384185791015625e-07,
+      "worst_bone": "hand.L",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0.0
+    },
+    {
+      "name": "repeated_return_finishes_ready",
+      "passed": true,
+      "maximum_bone_matrix_error": 1.1920928955078125e-07,
+      "worst_bone": "thigh.L",
+      "maximum_face_error": 0.0,
+      "ball_scale_error": 0.0,
+      "visible_ball_position_error": 0
+    }
+  ],
+  "measurements": {
+    "transition_endpoints": {
+      "ReadyToNap": {
+        "source": [
+          "ReadyIdle",
+          1.0
+        ],
+        "target": [
+          "Nap",
+          1.0
+        ]
+      },
+      "NapToReady": {
+        "source": [
+          "Nap",
+          192.0
+        ],
+        "target": [
+          "ReadyIdle",
+          1.0
+        ]
+      },
+      "ReadyToWallToss": {
+        "source": [
+          "ReadyIdle",
+          1.0
+        ],
+        "target": [
+          "WallToss",
+          1.0
+        ]
+      },
+      "WallTossToReady": {
+        "source": [
+          "WallToss",
+          240.0
+        ],
+        "target": [
+          "ReadyIdle",
+          1.0
+        ]
+      },
+      "ReadyToWalkWhistle": {
+        "source": [
+          "ReadyIdle",
+          1.0
+        ],
+        "target": [
+          "WalkWhistle",
+          1.0
+        ]
+      },
+      "WalkWhistleToReady": {
+        "source": [
+          "WalkWhistle",
+          192.0
+        ],
+        "target": [
+          "ReadyIdle",
+          1.0
+        ]
+      }
+    },
+    "delivered_clips": {
+      "ReadyIdle": {
+        "sampled_frames": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96
+        ],
+        "minimum_z": 0.03499993681907654,
+        "minimum_frame": 1,
+        "minimum_object": "Foot R \u2022 graphite outsole",
+        "maximum_floor_clearance": 0.010999936819076538,
+        "x_extent": [
+          -1.1835200786590576,
+          1.1645101308822632
+        ],
+        "camera_violations": [],
+        "root_x_extent": [
+          0.0,
+          0.0
+        ],
+        "maximum_root_step": 0,
+        "maximum_lateral_step": 0,
+        "root_samples": {
+          "1": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "16": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "30": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "40": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "48": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "60": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "64": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "96": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "maximum_thigh_rotation_degrees": 0,
+        "maximum_bone_scale_error": 2.384185791015625e-07
+      },
+      "ReadyToNap": {
+        "sampled_frames": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96
+        ],
+        "minimum_z": 0.03203311190009117,
+        "minimum_frame": 89,
+        "minimum_object": "Hand R \u2022 soft mitten",
+        "maximum_floor_clearance": 0.014700036704540252,
+        "x_extent": [
+          -2.0877552032470703,
+          1.6008893251419067
+        ],
+        "camera_violations": [],
+        "root_x_extent": [
+          0.0,
+          1.600000023841858
+        ],
+        "maximum_root_step": 0.07167307179373636,
+        "maximum_lateral_step": 0.06242769956588745,
+        "root_samples": {
+          "1": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "16": [
+            0.0,
+            0.0,
+            -0.03237658739089966
+          ],
+          "30": [
+            0.0,
+            0.0,
+            -0.4300000071525574
+          ],
+          "40": [
+            0.10323228687047958,
+            0.0,
+            -0.3776821792125702
+          ],
+          "48": [
+            0.4403320252895355,
+            0.0,
+            -0.1987941861152649
+          ],
+          "60": [
+            1.15966796875,
+            0.0,
+            0.1978158950805664
+          ],
+          "64": [
+            1.3564296960830688,
+            0.0,
+            0.2879725694656372
+          ],
+          "96": [
+            1.600000023841858,
+            0.0,
+            0.38087543845176697
+          ]
+        },
+        "maximum_thigh_rotation_degrees": 113.74545568235098,
+        "maximum_bone_scale_error": 3.5762786865234375e-07
+      },
+      "NapToReady": {
+        "sampled_frames": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108
+        ],
+        "minimum_z": 0.03299926966428757,
+        "minimum_frame": 1,
+        "minimum_object": "Hand R \u2022 soft mitten",
+        "maximum_floor_clearance": 0.2403452286720276,
+        "x_extent": [
+          -2.0866496562957764,
+          1.6131471395492554
+        ],
+        "camera_violations": [],
+        "root_x_extent": [
+          0.0,
+          1.600000023841858
+        ],
+        "maximum_root_step": 0.15587207269214184,
+        "maximum_lateral_step": 0.13561421632766724,
+        "root_samples": {
+          "1": [
+            1.600000023841858,
+            0.0,
+            0.38087543845176697
+          ],
+          "16": [
+            1.5281519889831543,
+            0.0,
+            0.3537633717060089
+          ],
+          "30": [
+            0.07184801250696182,
+            0.0,
+            -0.3935876190662384
+          ],
+          "40": [
+            0.0,
+            0.0,
+            -0.4300000071525574
+          ],
+          "48": [
+            0.0,
+            0.0,
+            0.0855879932641983
+          ],
+          "60": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "64": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "108": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "maximum_thigh_rotation_degrees": 113.74542153140513,
+        "maximum_bone_scale_error": 3.5762786865234375e-07
+      },
+      "ReadyToWallToss": {
+        "sampled_frames": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96
+        ],
+        "minimum_z": 0.03299989551305771,
+        "minimum_frame": 10,
+        "minimum_object": "Foot L \u2022 graphite outsole",
+        "maximum_floor_clearance": 0.0278186055123806,
+        "x_extent": [
+          -4.474999904632568,
+          1.1709321737289429
+        ],
+        "camera_violations": [],
+        "root_x_extent": [
+          -3.0638699531555176,
+          0.0
+        ],
+        "maximum_root_step": 0.1235083100395574,
+        "maximum_lateral_step": 0.11954402923583984,
+        "root_samples": {
+          "1": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "16": [
+            0.0,
+            0.0,
+            -0.10000000149011612
+          ],
+          "30": [
+            -0.46641743183135986,
+            0.0,
+            -0.023238390684127808
+          ],
+          "40": [
+            -1.5319349765777588,
+            0.0,
+            -0.03099999949336052
+          ],
+          "48": [
+            -2.420835494995117,
+            0.0,
+            -0.01873834617435932
+          ],
+          "60": [
+            -3.048281669616699,
+            0.0,
+            -0.09552967548370361
+          ],
+          "64": [
+            -3.0638699531555176,
+            0.0,
+            -0.10000000149011612
+          ],
+          "96": [
+            -3.0638699531555176,
+            0.0,
+            -0.03999999910593033
+          ]
+        },
+        "maximum_thigh_rotation_degrees": 91.06247941100867,
+        "maximum_bone_scale_error": 3.5762786865234375e-07
+      },
+      "WallTossToReady": {
+        "sampled_frames": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108
+        ],
+        "minimum_z": 0.03299989551305771,
+        "minimum_frame": 54,
+        "minimum_object": "Foot R \u2022 graphite outsole",
+        "maximum_floor_clearance": 0.0865274111032486,
+        "x_extent": [
+          -4.474999904632568,
+          1.6131471395492554
+        ],
+        "camera_violations": [],
+        "root_x_extent": [
+          -3.0638699531555176,
+          0.0
+        ],
+        "maximum_root_step": 0.1596099082366885,
+        "maximum_lateral_step": 0.1592484712600708,
+        "root_samples": {
+          "1": [
+            -3.0638699531555176,
+            0.0,
+            -0.03999999910593033
+          ],
+          "16": [
+            -3.0285348892211914,
+            0.0,
+            -0.05557531490921974
+          ],
+          "30": [
+            -1.5319349765777588,
+            0.0,
+            -0.10000000149011612
+          ],
+          "40": [
+            -0.23411372303962708,
+            0.0,
+            -0.09192513674497604
+          ],
+          "48": [
+            0.0,
+            0.0,
+            -0.10000000149011612
+          ],
+          "60": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "64": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "108": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "maximum_thigh_rotation_degrees": 94.58128358837251,
+        "maximum_bone_scale_error": 3.5762786865234375e-07
+      },
+      "ReadyToWalkWhistle": {
+        "sampled_frames": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96
+        ],
+        "minimum_z": 0.03299989551305771,
+        "minimum_frame": 10,
+        "minimum_object": "Foot L \u2022 graphite outsole",
+        "maximum_floor_clearance": 0.030781023412942886,
+        "x_extent": [
+          -4.327657222747803,
+          1.1709321737289429
+        ],
+        "camera_violations": [],
+        "root_x_extent": [
+          -3.0999999046325684,
+          0.0
+        ],
+        "maximum_root_step": 0.12487321529644071,
+        "maximum_lateral_step": 0.12095367908477783,
+        "root_samples": {
+          "1": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "16": [
+            0.0,
+            0.0,
+            -0.10000000149011612
+          ],
+          "30": [
+            -0.4719175696372986,
+            0.0,
+            -0.023238390684127808
+          ],
+          "40": [
+            -1.5499999523162842,
+            0.0,
+            -0.03099999949336052
+          ],
+          "48": [
+            -2.4493825435638428,
+            0.0,
+            -0.01873834617435932
+          ],
+          "60": [
+            -3.0842278003692627,
+            0.0,
+            -0.09552967548370361
+          ],
+          "64": [
+            -3.0999999046325684,
+            0.0,
+            -0.10000000149011612
+          ],
+          "96": [
+            -3.0999999046325684,
+            0.0,
+            -0.08500000089406967
+          ]
+        },
+        "maximum_thigh_rotation_degrees": 91.05013042898929,
+        "maximum_bone_scale_error": 4.172325134277344e-07
+      },
+      "WalkWhistleToReady": {
+        "sampled_frames": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108
+        ],
+        "minimum_z": 0.03299989551305771,
+        "minimum_frame": 54,
+        "minimum_object": "Foot L \u2022 graphite outsole",
+        "maximum_floor_clearance": 0.09972466921806336,
+        "x_extent": [
+          -1.185737133026123,
+          4.3135552406311035
+        ],
+        "camera_violations": [],
+        "root_x_extent": [
+          0.0,
+          3.0999999046325684
+        ],
+        "maximum_root_step": 0.16148360699427222,
+        "maximum_lateral_step": 0.16112637519836426,
+        "root_samples": {
+          "1": [
+            3.0999999046325684,
+            0.0,
+            -0.08500000089406967
+          ],
+          "16": [
+            3.0642483234405518,
+            0.0,
+            -0.05557531490921974
+          ],
+          "30": [
+            1.5499999523162842,
+            0.0,
+            -0.10000000149011612
+          ],
+          "40": [
+            0.23687444627285004,
+            0.0,
+            -0.09192513674497604
+          ],
+          "48": [
+            0.0,
+            0.0,
+            -0.10000000149011612
+          ],
+          "60": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "64": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "108": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "maximum_thigh_rotation_degrees": 135.8139266642564,
+        "maximum_bone_scale_error": 2.980232238769531e-07
+      }
+    },
+    "glb": {
+      "bytes": 7609340,
+      "meshes": 50,
+      "materials": 10,
+      "animations": 13
+    },
+    "generated_interruptions": {
+      "Nap": {
+        "source_frame": 96,
+        "generated_frames": 108,
+        "sampled_frames": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73,
+          76,
+          79,
+          82,
+          85,
+          88,
+          91,
+          94,
+          97,
+          100,
+          103,
+          106,
+          108
+        ],
+        "minimum_z": 0.03299926966428757,
+        "minimum_frame": 1,
+        "minimum_object": "Hand R \u2022 soft mitten",
+        "maximum_floor_clearance": 0.23499499654769898,
+        "x_extent": [
+          -2.0816490650177,
+          1.601996660232544
+        ],
+        "camera_violations": [],
+        "root_x_extent": [
+          0.0,
+          1.600000023841858
+        ],
+        "maximum_root_step": 0.46197200516572734,
+        "maximum_lateral_step": 0.40239059925079346,
+        "root_samples": {
+          "1": [
+            1.600000023841858,
+            0.0,
+            0.3808755576610565
+          ],
+          "16": [
+            1.5281519889831543,
+            0.0,
+            0.35376349091529846
+          ],
+          "40": [
+            0.0,
+            0.0,
+            -0.4300000071525574
+          ],
+          "64": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "108": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "maximum_thigh_rotation_degrees": 113.74540787102679,
+        "maximum_bone_scale_error": 3.5762786865234375e-07
+      },
+      "WallToss": {
+        "source_frame": 58,
+        "generated_frames": 136,
+        "sampled_frames": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73,
+          76,
+          79,
+          82,
+          85,
+          88,
+          91,
+          94,
+          97,
+          100,
+          103,
+          106,
+          109,
+          112,
+          115,
+          118,
+          121,
+          124,
+          127,
+          130,
+          133,
+          136
+        ],
+        "minimum_z": 0.024252157658338547,
+        "minimum_frame": 13,
+        "minimum_object": "Prop \u2022 cyan play ball",
+        "maximum_floor_clearance": 0.06750838106870652,
+        "x_extent": [
+          -4.475000381469727,
+          4.499836444854736
+        ],
+        "camera_violations": [],
+        "root_x_extent": [
+          -3.172553300857544,
+          0.0
+        ],
+        "maximum_root_step": 0.47578288676617714,
+        "maximum_lateral_step": 0.47097575664520264,
+        "root_samples": {
+          "1": [
+            -3.172553300857544,
+            0.0,
+            -0.03999999910593033
+          ],
+          "16": [
+            -3.169602394104004,
+            0.0,
+            -0.03999999910593033
+          ],
+          "40": [
+            -3.070634603500366,
+            0.0,
+            -0.10000000149011612
+          ],
+          "64": [
+            -0.6444541811943054,
+            0.0,
+            -0.037158869206905365
+          ],
+          "136": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "maximum_thigh_rotation_degrees": 90.28397444941062,
+        "maximum_bone_scale_error": 2.980232238769531e-07
+      },
+      "WalkWhistle": {
+        "source_frame": 96,
+        "generated_frames": 108,
+        "sampled_frames": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73,
+          76,
+          79,
+          82,
+          85,
+          88,
+          91,
+          94,
+          97,
+          100,
+          103,
+          106,
+          108
+        ],
+        "minimum_z": 0.03299994021654129,
+        "minimum_frame": 25,
+        "minimum_object": "Foot L \u2022 graphite outsole",
+        "maximum_floor_clearance": 0.01100012308359146,
+        "x_extent": [
+          -1.1855528354644775,
+          1.6019965410232544
+        ],
+        "camera_violations": [],
+        "root_x_extent": [
+          -0.01791907474398613,
+          0.0
+        ],
+        "maximum_root_step": 0.020715961303843157,
+        "maximum_lateral_step": 0.002574304584413767,
+        "root_samples": {
+          "1": [
+            -0.01791907474398613,
+            -0.007321259472519159,
+            -0.07697043567895889
+          ],
+          "16": [
+            -0.012700824066996574,
+            -0.005189220421016216,
+            -0.019792556762695312
+          ],
+          "40": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "64": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "108": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "maximum_thigh_rotation_degrees": 60.965168871077445,
+        "maximum_bone_scale_error": 2.384185791015625e-07
+      },
+      "Idle": {
+        "source_frame": 25,
+        "generated_frames": 108,
+        "sampled_frames": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73,
+          76,
+          79,
+          82,
+          85,
+          88,
+          91,
+          94,
+          97,
+          100,
+          103,
+          106,
+          108
+        ],
+        "minimum_z": 0.03499993681907654,
+        "minimum_frame": 1,
+        "minimum_object": "Foot R \u2022 graphite outsole",
+        "maximum_floor_clearance": 0.010999996423721313,
+        "x_extent": [
+          -1.1855528354644775,
+          1.6019965410232544
+        ],
+        "camera_violations": [],
+        "root_x_extent": [
+          0.0,
+          0.0
+        ],
+        "maximum_root_step": 0,
+        "maximum_lateral_step": 0,
+        "root_samples": {
+          "1": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "16": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "40": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "64": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "108": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "maximum_thigh_rotation_degrees": 0,
+        "maximum_bone_scale_error": 2.384185791015625e-07
+      },
+      "Wave": {
+        "source_frame": 42,
+        "generated_frames": 108,
+        "sampled_frames": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73,
+          76,
+          79,
+          82,
+          85,
+          88,
+          91,
+          94,
+          97,
+          100,
+          103,
+          106,
+          108
+        ],
+        "minimum_z": 0.03499993681907654,
+        "minimum_frame": 1,
+        "minimum_object": "Foot R \u2022 graphite outsole",
+        "maximum_floor_clearance": 0.010999996423721313,
+        "x_extent": [
+          -1.1855528354644775,
+          1.6026432514190674
+        ],
+        "camera_violations": [],
+        "root_x_extent": [
+          0.0,
+          0.0
+        ],
+        "maximum_root_step": 0,
+        "maximum_lateral_step": 0,
+        "root_samples": {
+          "1": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "16": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "40": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "64": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "108": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "maximum_thigh_rotation_degrees": 0,
+        "maximum_bone_scale_error": 2.384185791015625e-07
+      },
+      "Jump": {
+        "source_frame": 38,
+        "generated_frames": 108,
+        "sampled_frames": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73,
+          76,
+          79,
+          82,
+          85,
+          88,
+          91,
+          94,
+          97,
+          100,
+          103,
+          106,
+          108
+        ],
+        "minimum_z": 0.03499993681907654,
+        "minimum_frame": 61,
+        "minimum_object": "Foot R \u2022 graphite outsole",
+        "maximum_floor_clearance": 0.6909999141693115,
+        "x_extent": [
+          -1.5973179340362549,
+          1.6019965410232544
+        ],
+        "camera_violations": [],
+        "root_x_extent": [
+          0.0,
+          0.0
+        ],
+        "maximum_root_step": 0.09171253245820928,
+        "maximum_lateral_step": 0,
+        "root_samples": {
+          "1": [
+            0.0,
+            0.0,
+            0.6383875608444214
+          ],
+          "16": [
+            0.0,
+            0.0,
+            0.45248138904571533
+          ],
+          "40": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "64": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "108": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "maximum_thigh_rotation_degrees": 26.412754746884094,
+        "maximum_bone_scale_error": 2.384185791015625e-07
+      },
+      "Showcase": {
+        "source_frame": 158,
+        "generated_frames": 108,
+        "sampled_frames": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73,
+          76,
+          79,
+          82,
+          85,
+          88,
+          91,
+          94,
+          97,
+          100,
+          103,
+          106,
+          108
+        ],
+        "minimum_z": 0.03499993681907654,
+        "minimum_frame": 61,
+        "minimum_object": "Foot R \u2022 graphite outsole",
+        "maximum_floor_clearance": 0.6909999141693115,
+        "x_extent": [
+          -1.5970211029052734,
+          1.6019965410232544
+        ],
+        "camera_violations": [],
+        "root_x_extent": [
+          0.0,
+          0.0
+        ],
+        "maximum_root_step": 0.09171253245820928,
+        "maximum_lateral_step": 0,
+        "root_samples": {
+          "1": [
+            0.0,
+            0.0,
+            0.6383875608444214
+          ],
+          "16": [
+            0.0,
+            0.0,
+            0.45248138904571533
+          ],
+          "40": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "64": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "108": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "maximum_thigh_rotation_degrees": 26.412754746884094,
+        "maximum_bone_scale_error": 2.384185791015625e-07
+      }
+    },
+    "repeated_return": {
+      "initial_activity": "WallToss",
+      "initial_frame": 30,
+      "interrupted_return_frame": 10,
+      "visible_ball_scale_at_interruption": [
+        0.5847588777542114,
+        0.5847588777542114,
+        0.5847588777542114
+      ]
+    }
+  },
+  "tolerances": {
+    "matrix_element": 3e-05,
+    "expression_and_scale": 3e-05,
+    "surface_units": 0.008,
+    "camera_fraction": 0.005
+  },
+  "limitations": [
+    "Numerical checks complement, rather than replace, visual review.",
+    "Interruptions are sampled cases, not an exhaustive proof for every source time.",
+    "No live application integration or device-performance benchmark is claimed."
+  ],
+  "passed": true,
+  "failed_checks": [],
+  "followup_checked_at_utc": "2026-10-26T21:20:42.844176+00:00"
+}

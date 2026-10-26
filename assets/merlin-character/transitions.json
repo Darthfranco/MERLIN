@@ -1,0 +1,241 @@
+{
+  "fps": 24,
+  "ready": "ReadyIdle",
+  "ready_frame": 1,
+  "clips": {
+    "Idle": {
+      "frames": 96,
+      "source": null,
+      "source_frame": null,
+      "target": null,
+      "target_frame": null,
+      "wave_start": null,
+      "wave_end": null
+    },
+    "Wave": {
+      "frames": 96,
+      "source": null,
+      "source_frame": null,
+      "target": null,
+      "target_frame": null,
+      "wave_start": null,
+      "wave_end": null
+    },
+    "Jump": {
+      "frames": 72,
+      "source": null,
+      "source_frame": null,
+      "target": null,
+      "target_frame": null,
+      "wave_start": null,
+      "wave_end": null
+    },
+    "WalkWhistle": {
+      "frames": 192,
+      "source": null,
+      "source_frame": null,
+      "target": null,
+      "target_frame": null,
+      "wave_start": null,
+      "wave_end": null
+    },
+    "WallToss": {
+      "frames": 240,
+      "source": null,
+      "source_frame": null,
+      "target": null,
+      "target_frame": null,
+      "wave_start": null,
+      "wave_end": null
+    },
+    "Nap": {
+      "frames": 192,
+      "source": null,
+      "source_frame": null,
+      "target": null,
+      "target_frame": null,
+      "wave_start": null,
+      "wave_end": null
+    },
+    "ReadyIdle": {
+      "frames": 96,
+      "source": "Idle",
+      "source_frame": 1,
+      "target": "Idle",
+      "target_frame": 96,
+      "wave_start": null,
+      "wave_end": null
+    },
+    "ReadyToNap": {
+      "frames": 96,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "Nap",
+      "target_frame": 1,
+      "wave_start": null,
+      "wave_end": null
+    },
+    "NapToReady": {
+      "frames": 108,
+      "source": "Nap",
+      "source_frame": 192,
+      "target": "ReadyIdle",
+      "target_frame": 1,
+      "wave_start": 60,
+      "wave_end": 108
+    },
+    "ReadyToWallToss": {
+      "frames": 96,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "WallToss",
+      "target_frame": 1,
+      "wave_start": null,
+      "wave_end": null
+    },
+    "WallTossToReady": {
+      "frames": 108,
+      "source": "WallToss",
+      "source_frame": 240,
+      "target": "ReadyIdle",
+      "target_frame": 1,
+      "wave_start": 60,
+      "wave_end": 108
+    },
+    "ReadyToWalkWhistle": {
+      "frames": 96,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "WalkWhistle",
+      "target_frame": 1,
+      "wave_start": null,
+      "wave_end": null
+    },
+    "WalkWhistleToReady": {
+      "frames": 108,
+      "source": "WalkWhistle",
+      "source_frame": 192,
+      "target": "ReadyIdle",
+      "target_frame": 1,
+      "wave_start": 60,
+      "wave_end": 108
+    }
+  },
+  "routes": {
+    "Nap": {
+      "enter": "ReadyToNap",
+      "activity": "Nap",
+      "exit": "NapToReady"
+    },
+    "WallToss": {
+      "enter": "ReadyToWallToss",
+      "activity": "WallToss",
+      "exit": "WallTossToReady"
+    },
+    "WalkWhistle": {
+      "enter": "ReadyToWalkWhistle",
+      "activity": "WalkWhistle",
+      "exit": "WalkWhistleToReady"
+    }
+  },
+  "arbitrary_pose_authoring": "transition_support.build_return_from_activity(activity, frame)",
+  "ball_interrupt_policy": "Finish an in-flight throw through catch, then return.",
+  "audio": {
+    "file": "audio/merlin-whistle.wav",
+    "clip": "WalkWhistle",
+    "start_frame": 1
+  },
+  "showcase": [
+    {
+      "clip": "ReadyIdle",
+      "start": 1,
+      "end": 12,
+      "source_start": 1,
+      "source_end": 1
+    },
+    {
+      "clip": "ReadyToNap",
+      "start": 13,
+      "end": 108,
+      "source_start": 1,
+      "source_end": 96
+    },
+    {
+      "clip": "Nap",
+      "start": 109,
+      "end": 156,
+      "source_start": 1,
+      "source_end": 48
+    },
+    {
+      "clip": "PreviewNapReturn",
+      "start": 157,
+      "end": 264,
+      "source_start": 1,
+      "source_end": 108
+    },
+    {
+      "clip": "ReadyIdle",
+      "start": 265,
+      "end": 276,
+      "source_start": 1,
+      "source_end": 1
+    },
+    {
+      "clip": "ReadyToWallToss",
+      "start": 277,
+      "end": 372,
+      "source_start": 1,
+      "source_end": 96
+    },
+    {
+      "clip": "WallToss",
+      "start": 373,
+      "end": 462,
+      "source_start": 1,
+      "source_end": 90
+    },
+    {
+      "clip": "PreviewWallReturn",
+      "start": 463,
+      "end": 570,
+      "source_start": 1,
+      "source_end": 108
+    },
+    {
+      "clip": "ReadyIdle",
+      "start": 571,
+      "end": 582,
+      "source_start": 1,
+      "source_end": 1
+    },
+    {
+      "clip": "ReadyToWalkWhistle",
+      "start": 583,
+      "end": 678,
+      "source_start": 1,
+      "source_end": 96
+    },
+    {
+      "clip": "WalkWhistle",
+      "start": 679,
+      "end": 870,
+      "source_start": 1,
+      "source_end": 192
+    },
+    {
+      "clip": "WalkWhistleToReady",
+      "start": 871,
+      "end": 978,
+      "source_start": 1,
+      "source_end": 108
+    },
+    {
+      "clip": "ReadyIdle",
+      "start": 979,
+      "end": 1002,
+      "source_start": 1,
+      "source_end": 1
+    }
+  ]
+}
