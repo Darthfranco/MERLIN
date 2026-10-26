@@ -4,6 +4,7 @@ Last updated: **October 26, 2026**.
 
 ## Current state
 
+- [Memory research](MEMORY_RESEARCH.md) assesses the owner's four categories against primary research and official Muse documentation. It records the added priorities of very fast responses, interpreting standing rules when saved, and optional Muse-generated rule code. Recommendations cover source-backed recall, precise updates/deletion, domain/action enforcement, on-demand documents, background maintenance, latency measurements, and synthetic evaluations. This is research only: no persistent memory, checker, generated-code runtime, or speed improvement has been implemented or benchmarked.
 - The owner's ten-area product outline and follow-up clarifications are documented in `PROJECT_CONTEXT.md` and summarized in the README and shared agent instructions.
 - Shared instructions are available in root `AGENTS.md`, with entry points for common coding assistants.
 - Hackathon overview and participant guide are preserved as user-supplied source snapshots.
@@ -69,6 +70,7 @@ Full Official Rules and participant acceptance have not been verified. The suppl
 
 ## Contribution record
 
+- **October 26, 2026 — memory research:** inspected the actual prototype and reviewed primary memory benchmarks plus official Muse memory/API documentation. Recorded the owner's design and follow-up requirements separately from implementation proposals. Independent source/scope reviews, balanced Markdown fences, 18 local link targets, and `git diff --check` passed. No private inference requests or runtime changes were made; application tests and performance benchmarks were not run for this documentation-only task.
 - **October 26, 2026 — compound tool requests:** enabled batched Meta function generation and mixed search/timer execution, increased bounded per-request capacity, shared search budgets across model rounds, aligned browser timeouts, and added multi-tool regression coverage. Full suite: 55 tests passing; live ten-timer/two-search flow passed.
 
 - **October 26, 2026 — text/tool prototype:** first application UI, Meta Responses adapter, search-event/citation display, validated timer tools, persistent local timer engine, request receipts, loopback HTTP server, and 46 automated tests. Node.js/browser standard APIs only; Meta Model API is the external inference/search service. No voice, memory manager, physical device integration, or public deployment is claimed. Actual work date is recorded without resolving the hackathon build-start ambiguity.

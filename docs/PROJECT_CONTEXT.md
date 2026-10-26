@@ -42,6 +42,10 @@ The character and room work does not select an application framework, establish 
 
 ### 3. Background memory and personalization
 
+**Memory design research requested October 26, 2026:** the owner outlined four categories: conversation memory with access to all conversational details; automatically learned overall household facts/preferences/context; explicit general and domain-specific do/don't instructions; and named documents with brief catalog context whose contents are loaded when relevant. The goals are personal, accurate recall with focused token use. This is the owner's design under evaluation, not an implemented memory system or a guarantee of perfect recall. See [memory research and proposed architecture](MEMORY_RESEARCH.md).
+
+**Responsiveness and rule interpretation confirmed during the research:** MERLIN must feel very fast and responsive. Interpret the meaning of standing instructions when saving them and record that interpretation clearly, rather than repeatedly resolving the same prose on every request. The owner also accepts agent-generated code as an option if useful, suggesting a Muse coding interface. The specific API, validated rule format, execution mechanism, latency targets, and semantic checking implementation remain proposals/TBD. Clear saved meaning does not eliminate the need to apply it correctly to future outputs and actions.
+
 Use **one shared household identity/profile initially**. Separate household-member profiles and speaker-specific identity are not part of the confirmed initial design.
 
 Learn useful facts, preferences, communication style, and context in the background from **conversations directed at MERLIN**. Incorporate that information into an evolving household profile and use it in later interactions. Automatic learning is intended; requiring manual approval for every learned preference is not the requested experience.
