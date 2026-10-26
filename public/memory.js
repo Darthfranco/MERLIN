@@ -342,6 +342,7 @@ window.createMemoryLab = function createMemoryLab({ request, getSessionId, isCha
     const kind = $("rule-kind").value;
     const help = {
       timer_default_unit: "Use seconds, minutes, or hours. An explicit unit in a request takes priority.",
+      timer_default_seconds: "Use a whole number from 1 to 604,800 seconds when a timer request leaves out its length. For example, 300 means five minutes. A stated length takes priority.",
       address_as: "The exact name or title to use, for example Sir.",
       avoid_word: "One exact word. This is a wording restriction, not a ban on a topic.",
       avoid_phrase: "The exact phrase to exclude. This does not block paraphrases or related ideas.",
@@ -352,8 +353,10 @@ window.createMemoryLab = function createMemoryLab({ request, getSessionId, isCha
     };
     $("rule-value-help").textContent = help[kind];
     $("rule-scope").value = kind.startsWith("timer_") ? "timers" : kind === "tool_deny" ? "tools" : "assistant_reply";
-    $("rule-value").type = kind === "timer_max_seconds" ? "number" : "text";
+    const numeric = ["timer_max_seconds", "timer_default_seconds"].includes(kind);
+    $("rule-value").type = numeric ? "number" : "text";
     $("rule-value").min = "1";
+    $("rule-value").max = "604800";
     $("rule-value").step = "1";
   }
   $("rule-kind").addEventListener("change", updateRuleFields);
@@ -361,7 +364,7 @@ window.createMemoryLab = function createMemoryLab({ request, getSessionId, isCha
   $("memory-rule-form").addEventListener("submit", (event) => {
     event.preventDefault();
     const kind = $("rule-kind").value;
-    submit(event.currentTarget, "/api/memory/rule", { kind, value: kind === "timer_max_seconds" ? Number($("rule-value").value) : $("rule-value").value.trim(), scope: $("rule-scope").value, original: $("rule-original").value.trim() || undefined }, "Rule saved. Any conflicting rules are flagged above.", () => { $("memory-rule-form").reset(); updateRuleFields(); });
+    submit(event.currentTarget, "/api/memory/rule", { kind, value: ["timer_max_seconds", "timer_default_seconds"].includes(kind) ? Number($("rule-value").value) : $("rule-value").value.trim(), scope: $("rule-scope").value, original: $("rule-original").value.trim() || undefined }, "Rule saved. Any conflicting rules are flagged above.", () => { $("memory-rule-form").reset(); updateRuleFields(); });
   });
   $("memory-document-form").addEventListener("submit", (event) => {
     event.preventDefault();
@@ -418,10 +421,11 @@ window.createMemoryLab = function createMemoryLab({ request, getSessionId, isCha
     const summaryParts = [];
     if (Number.isFinite(trace?.total_ms)) summaryParts.push(`${(trace.total_ms / 1000).toFixed(2)} s`);
     if (Number.isFinite(trace?.model_calls)) summaryParts.push(`${trace.model_calls} model ${trace.model_calls === 1 ? "call" : "calls"}`);
-    panel.querySelector("summary").textContent = `Behind this response${pending ? " · live" : ""}${summaryParts.length ? " · " + summaryParts.join(" · ") : ""}`;
+    panel.querySelector("summary").textContent = `Behind this response${pending ? " · live" : ""}`;
     const content = panel.querySelector(".trace-content");
     const open = new Set([...content.querySelectorAll("details[open][data-detail]")].map((node) => node.dataset.detail));
     content.replaceChildren(make("p", "help", "Execution stages and raw testing records. These show selected memory, checks, actions, and timings—not private model reasoning."));
+    if (summaryParts.length) content.append(make("p", "trace-measure", summaryParts.join(" · ")));
     if (Number.isFinite(trace?.context_chars)) content.append(make("p", "trace-measure", `${trace.context_chars.toLocaleString()} context characters selected (characters are not tokens).`));
     if (!events.length) content.append(make("p", "help", pending ? "Waiting for the first recorded stage…" : "No execution stages were returned."));
     const timeline = make("ol", "trace-timeline");
@@ -434,6 +438,18 @@ window.createMemoryLab = function createMemoryLab({ request, getSessionId, isCha
       timeline.append(row);
     });
     content.append(timeline);
+    if (Array.isArray(trace?.tool_events) && trace.tool_events.length) {
+      content.append(make("p", "sources-label", "Recorded tool outcomes"));
+      const outcomes = make("ul", "tool-results diagnostic-tool-results");
+      outcomes.setAttribute("aria-label", "Recorded tool outcomes");
+      for (const event of trace.tool_events) {
+        const row = make("li", "");
+        row.append(make("strong", "", `${event.tool || "Tool"} · ${event.status || "Result"}`));
+        if (event.message) row.append(document.createTextNode(` — ${event.message}`));
+        outcomes.append(row);
+      }
+      content.append(outcomes);
+    }
     if (trace?.usage) content.append(detail("Reported model usage", trace.usage, "usage"));
     for (const item of content.querySelectorAll("details[data-detail]")) item.open = open.has(item.dataset.detail);
   }
@@ -445,8 +461,6 @@ window.createMemoryLab = function createMemoryLab({ request, getSessionId, isCha
       const trace = await request(`/api/trace?request_id=${encodeURIComponent(active.requestId)}`, undefined, 6000);
       if (activeTrace !== active) return;
       renderTrace(active.entry, trace, trace.status === "running" || trace.status === "pending");
-      const last = trace.events?.at(-1);
-      if (last && isChatBusy()) $("chat-status").textContent = last.detail || last.stage;
     } catch { /* Chat delivery remains independent of the optional inspection endpoint. */ }
     if (activeTrace === active) traceTimer = setTimeout(pollTrace, 1000);
   }
@@ -467,8 +481,13 @@ window.createMemoryLab = function createMemoryLab({ request, getSessionId, isCha
       const requestId = activeTrace?.requestId;
       activeTrace = null;
       clearTimeout(traceTimer);
-      if (data?.trace) renderTrace(entry, data.trace);
-      else if (requestId) request(`/api/trace?request_id=${encodeURIComponent(requestId)}`, undefined, 6000).then((trace) => renderTrace(entry, trace)).catch(() => {});
+      const tool_events = Array.isArray(data?.tool_events) ? data.tool_events : [];
+      if (data?.trace) renderTrace(entry, { ...data.trace, tool_events });
+      else {
+        // Preserve diagnostic outcomes even if the optional trace endpoint fails.
+        renderTrace(entry, { tool_events });
+        if (requestId) request(`/api/trace?request_id=${encodeURIComponent(requestId)}`, undefined, 6000).then((trace) => renderTrace(entry, { ...trace, tool_events })).catch(() => {});
+      }
       refresh();
     },
     newConversation() { restoring = true; refresh(); },

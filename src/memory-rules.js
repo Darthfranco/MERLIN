@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 /** The compiler accepts data for these trusted handlers, never executable code. */
 export const RULE_KINDS = Object.freeze({
   timer_default_unit: Object.freeze({ scope: 'timers', value_type: 'unit', description: 'Use seconds, minutes, or hours only when a timer has no explicit unit.' }),
+  timer_default_seconds: Object.freeze({ scope: 'timers', value_type: 'integer', description: 'Use this complete duration in seconds only when the user omits the timer duration entirely. A supplied amount uses its own explicit or default unit.' }),
   timer_max_seconds: Object.freeze({ scope: 'timers', value_type: 'integer', description: 'Reject timers longer than this number of seconds.' }),
   address_as: Object.freeze({ scope: 'assistant_reply', value_type: 'text', description: 'Begin replies with this form of address unless it is already present.' }),
   avoid_word: Object.freeze({ scope: 'assistant_reply', value_type: 'word', description: 'Block this literal word, case-insensitively with Unicode word boundaries; this is not a topic ban.' }),
@@ -14,7 +15,7 @@ export const RULE_KINDS = Object.freeze({
 
 const UNITS = Object.freeze({ seconds: 1, minutes: 60, hours: 3600 });
 const DENIABLE_TOOLS = new Set(['create_timer', 'cancel_timer', 'web_search']);
-const SINGLETONS = new Set(['timer_default_unit', 'timer_max_seconds', 'address_as', 'response_prefix', 'response_suffix']);
+const SINGLETONS = new Set(['timer_default_unit', 'timer_default_seconds', 'timer_max_seconds', 'address_as', 'response_prefix', 'response_suffix']);
 const AFFIXES = new Set(['address_as', 'response_prefix', 'response_suffix']);
 const LEXICAL = new Set(['avoid_word', 'avoid_phrase']);
 const WORD_CHARACTER = /[\p{L}\p{N}\p{M}_]/u;
@@ -46,7 +47,7 @@ export function normalizeRule(input) {
   if (input.scope !== descriptor.scope) throw invalid(`Rule ${input.kind} requires the explicit ${descriptor.scope} scope.`);
   let value = input.value;
   if (descriptor.value_type === 'integer') {
-    if (!Number.isSafeInteger(value) || value < 1 || value > MAX_TIMER_SECONDS) throw invalid('timer_max_seconds must be an integer from 1 to 604800.');
+    if (!Number.isSafeInteger(value) || value < 1 || value > MAX_TIMER_SECONDS) throw invalid(`${input.kind} must be an integer from 1 to 604800.`);
   } else {
     value = string(value, 'Rule value', input.kind === 'avoid_word' ? 80 : 240);
     if (descriptor.value_type === 'unit' && !Object.hasOwn(UNITS, value)) throw invalid('Timer default unit must be seconds, minutes, or hours.');
@@ -105,6 +106,11 @@ export function findConflicts(rules) {
       conflicts.push(conflict(kind, group, 'Several active instructions require different values for the same setting; no value wins automatically.', group[0].scope));
     }
   }
+  for (const duration of active.filter(rule => rule.kind === 'timer_default_seconds')) {
+    for (const limit of active.filter(rule => rule.kind === 'timer_max_seconds')) {
+      if (duration.value > limit.value) conflicts.push(conflict('timer_default_seconds_limit', [duration, limit], 'The saved default timer duration exceeds the saved maximum duration.', 'timers'));
+    }
+  }
   for (const required of active.filter(rule => AFFIXES.has(rule.kind))) {
     for (const banned of active.filter(rule => LEXICAL.has(rule.kind))) {
       if (containsLiteral(required.value, banned)) {
@@ -130,6 +136,13 @@ function toolDetails(tool) { return typeof tool === 'string' ? { name: tool, arg
 function hasExplicitTimerUnit(args = {}) {
   return Object.hasOwn(args, 'duration_seconds') || Object.hasOwn(UNITS, args.unit);
 }
+function usesWholeTimerDefault(args = {}) {
+  return args.duration === null && args.unit === 'default' && !Object.hasOwn(args, 'duration_seconds') && !Object.hasOwn(args, 'amount');
+}
+function usesTimerUnitDefault(args = {}) {
+  const duration = Object.hasOwn(args, 'duration') ? args.duration : args.amount;
+  return typeof duration === 'number' && !hasExplicitTimerUnit(args);
+}
 function messageNeedsTimerDefault(message) {
   if (typeof message !== 'string') return false;
   // This is only an early conservative shortcut. The authoritative check uses tool arguments.
@@ -142,8 +155,12 @@ export function relevantConflicts(rules, { message, tool, reply } = {}) {
   return findConflicts(rules).filter(entry => {
     if (entry.scope === 'assistant_reply') return reply !== undefined || !tool;
     if (entry.key === 'timer_default_unit') {
-      if (details.name) return details.name === 'create_timer' && !hasExplicitTimerUnit(details.args);
+      if (details.name) return details.name === 'create_timer' && usesTimerUnitDefault(details.args);
       return messageNeedsTimerDefault(message);
+    }
+    if (entry.key === 'timer_default_seconds' || entry.key === 'timer_default_seconds_limit') {
+      if (details.name) return details.name === 'create_timer' && usesWholeTimerDefault(details.args);
+      return messageNeedsTimerDefault(message) && !/\p{N}/u.test(message);
     }
     if (entry.scope === 'timers') return details.name === 'create_timer'
       || (!details.name && typeof message === 'string' && /\btimers?\b/iu.test(message));
@@ -181,20 +198,29 @@ export function checkTool(rules, { name, args = {}, message } = {}) {
     result.violations.push(violation(null, 'AMBIGUOUS_TIMER_DURATION', 'Provide one duration representation, with an explicit unit or default.'));
   } else if (hasLegacy) {
     seconds = args.duration_seconds;
+  } else if (usesWholeTimerDefault(args)) {
+    const defaults = active.filter(rule => rule.kind === 'timer_default_seconds');
+    seconds = defaults[0]?.value;
+    result.applied_rule_ids.push(...defaults.map(rule => rule.id));
+    if (seconds === undefined) result.violations.push(violation(null, 'TIMER_DURATION_REQUIRED', 'How long should I set the timer for?'));
   } else {
     const duration = hasDuration ? args.duration : args.amount;
     let unit = args.unit;
-    if (unit === undefined || unit === 'default') {
+    if (duration === null) {
+      result.violations.push(violation(null, 'INVALID_TIMER_DURATION', 'An omitted timer duration needs duration set to null and unit set to default.'));
+    } else if (duration === undefined) {
+      result.violations.push(violation(null, 'TIMER_DURATION_REQUIRED', 'How long should I set the timer for?'));
+    } else if (typeof duration !== 'number' || !Number.isFinite(duration) || duration <= 0) {
+      result.violations.push(violation(null, 'INVALID_TIMER_DURATION', 'Timer duration must be a finite positive number.'));
+    } else if (unit === undefined || unit === 'default') {
       const defaults = active.filter(rule => rule.kind === 'timer_default_unit');
       unit = defaults[0]?.value;
       result.applied_rule_ids.push(...defaults.map(rule => rule.id));
-      if (!unit) result.violations.push(violation(null, 'TIMER_UNIT_REQUIRED', 'The timer has no explicit unit and no saved default. Ask for a unit.'));
+      if (!unit) result.violations.push(violation(null, 'TIMER_UNIT_REQUIRED', 'Should that be seconds, minutes, or hours?'));
     } else if (!Object.hasOwn(UNITS, unit)) {
       result.violations.push(violation(null, 'INVALID_TIMER_UNIT', 'The timer unit must be seconds, minutes, hours, or default.'));
     }
-    if (typeof duration !== 'number' || !Number.isFinite(duration) || duration <= 0) {
-      result.violations.push(violation(null, 'INVALID_TIMER_DURATION', 'Timer duration must be a finite positive number.'));
-    } else if (Object.hasOwn(UNITS, unit)) seconds = duration * UNITS[unit];
+    if (typeof duration === 'number' && Number.isFinite(duration) && duration > 0 && Object.hasOwn(UNITS, unit)) seconds = duration * UNITS[unit];
   }
   if ((hasLegacy || seconds !== undefined) && (!Number.isSafeInteger(seconds) || seconds < 1 || seconds > MAX_TIMER_SECONDS)) {
     result.violations.push(violation(null, 'INVALID_TIMER_DURATION', 'Timer duration must resolve to a whole number of seconds from 1 to 604800.'));
@@ -268,16 +294,23 @@ export function checkOutput(rules, text) {
 export function safeClarification(rules, conflicts = findConflicts(rules)) {
   const ids = new Set(conflicts.flatMap(entry => entry.rule_ids));
   const compatible = activeRules(rules).filter(rule => !(ids.has(rule.id) && AFFIXES.has(rule.kind)));
+  const keys = new Set(conflicts.map(entry => entry.key));
+  const specific = keys.has('timer_default_seconds') ? 'You gave me different default timer lengths. Which should I use?'
+    : keys.has('timer_default_seconds_limit') ? 'Your usual timer is longer than your timer limit. Which should I change?'
+      : keys.has('timer_default_unit') ? 'You gave me different default timer units. Which should I use?'
+        : keys.has('timer_max_seconds') ? 'You gave me different timer limits. Which should I follow?'
+          : keys.has('address_as') ? 'How would you like me to address you?'
+            : keys.has('response_prefix') ? 'How should I start my replies?'
+              : keys.has('response_suffix') ? 'How should I end my replies?' : null;
   const candidates = conflicts.length ? [
-    'Some saved instructions conflict. Please choose which should apply in the memory panel before I continue with the affected part.',
-    'Please resolve the flagged instructions in memory so I can continue.',
-    'Which saved instruction should take priority? Review the memory panel.',
-    'Please clarify your preferences in the memory panel.',
-    'Please review the flagged settings.',
-  ] : [
-    'I could not produce a reply that satisfies the saved wording rules. Please review them in the memory panel. Check the tool results for any completed actions.',
-    'Please review the wording rules and tool results in the memory panel.',
-    'Please review the saved wording settings.',
+    specific,
+    'Your instructions disagree. Which should I follow?',
+    'Could you clarify which instruction to follow?',
+    'Please clarify what you would like me to do.',
+  ].filter(Boolean) : [
+    'I could not phrase that while following your instructions. How would you like me to respond?',
+    'Could you clarify how you would like me to respond?',
+    'Please clarify your request.',
   ];
   for (const candidate of candidates) {
     const checked = checkOutput(compatible, candidate);

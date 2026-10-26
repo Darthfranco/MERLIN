@@ -13,6 +13,7 @@ test('compiler accepts only known kinds, matching scopes, and bounded data', () 
   assert.throws(() => rule('tool_deny', 'play_song'), /not available/);
   assert.throws(() => rule('timer_default_unit', 'milliseconds'), /seconds, minutes, or hours/);
   assert.throws(() => rule('timer_max_seconds', 1.5), /integer/);
+  for (const value of [0, -1, 300.5, 604801, null, '300']) assert.throws(() => rule('timer_default_seconds', value), /integer/);
   assert.throws(() => rule('address_as', 'A\u0000B'), /control characters/);
   assert.equal(rule('avoid_word', 'cafe\u0301').value, 'cafe\u0301');
 });
@@ -110,6 +111,85 @@ test('timer defaults are applied locally and explicit units override them', () =
   assert.equal(explicit.args.duration_seconds, 30);
   assert.deepEqual(explicit.applied_rule_ids, []);
   assert.equal(checkTool([], { name: 'create_timer', args: { label: 'Tea', duration: 5 } }).ok, false);
+});
+
+test('a complete five-minute default applies only when duration is explicitly omitted', () => {
+  const rules = [rule('timer_default_seconds', 300, 'five-minutes'), rule('timer_default_unit', 'seconds', 'unit-seconds')];
+  const omitted = checkTool(rules, { name: 'create_timer', args: { label: 'Tea', duration: null, unit: 'default' } });
+  assert.equal(omitted.ok, true);
+  assert.deepEqual(omitted.args, { label: 'Tea', duration_seconds: 300 });
+  assert.deepEqual(omitted.applied_rule_ids, ['five-minutes']);
+  const numbered = checkTool(rules, { name: 'create_timer', args: { label: 'Tea', duration: 5, unit: 'default' } });
+  assert.equal(numbered.ok, true); assert.equal(numbered.args.duration_seconds, 5);
+  assert.deepEqual(numbered.applied_rule_ids, ['unit-seconds']);
+  const explicit = checkTool(rules, { name: 'create_timer', args: { label: 'Tea', duration: 2, unit: 'minutes' } });
+  assert.equal(explicit.args.duration_seconds, 120); assert.deepEqual(explicit.applied_rule_ids, []);
+  const legacy = checkTool(rules, { name: 'create_timer', args: { label: 'Tea', duration_seconds: 45 } });
+  assert.equal(legacy.args.duration_seconds, 45); assert.deepEqual(legacy.applied_rule_ids, []);
+});
+
+test('duration defaults never imply a unit and unit defaults never invent a duration', () => {
+  const full = [rule('timer_default_seconds', 300)];
+  const number = checkTool(full, { name: 'create_timer', args: { label: 'Tea', duration: 5, unit: 'default' } });
+  assert.equal(number.ok, false); assert.equal(number.violations[0].code, 'TIMER_UNIT_REQUIRED');
+  for (const rules of [[], [rule('timer_default_unit', 'minutes')]]) {
+    const result = checkTool(rules, { name: 'create_timer', args: { label: 'Tea', duration: null, unit: 'default' } });
+    assert.equal(result.ok, false); assert.deepEqual(result.applied_rule_ids, []);
+    assert.equal(result.violations.length, 1); assert.equal(result.violations[0].code, 'TIMER_DURATION_REQUIRED');
+    assert.equal(result.violations[0].message, 'How long should I set the timer for?');
+  }
+});
+
+test('conflicting complete durations block only omitted duration and do not choose a winner', () => {
+  const defaults = [rule('timer_default_seconds', 300, 'five'), rule('timer_default_seconds', 600, 'ten')];
+  const conflicts = findConflicts(defaults);
+  assert.equal(conflicts.length, 1); assert.equal(conflicts[0].key, 'timer_default_seconds');
+  assert.deepEqual(conflicts, findConflicts([...defaults].reverse()));
+  const missing = checkTool(defaults, { name: 'create_timer', args: { label: 'Tea', duration: null, unit: 'default' } });
+  assert.equal(missing.ok, false); assert.deepEqual(missing.conflicts, conflicts); assert.deepEqual(missing.applied_rule_ids, []);
+  for (const args of [{ duration: 1, unit: 'minutes' }, { duration_seconds: 30 }]) {
+    assert.equal(checkTool(defaults, { name: 'create_timer', args: { label: 'Tea', ...args } }).ok, true);
+  }
+  assert.equal(checkTool([...defaults, rule('timer_default_unit', 'seconds')], { name: 'create_timer', args: { label: 'Tea', duration: 5, unit: 'default' } }).ok, true);
+  assert.equal(checkTool(defaults, { name: 'cancel_timer', args: { timer_id: 'synthetic' } }).ok, true);
+  assert.equal(checkOutput(defaults, 'Hello.').conflicts.length, 0);
+  assert.match(safeClarification(defaults, conflicts), /Which should I use\?/);
+  assert.doesNotMatch(safeClarification(defaults, conflicts), /memory panel|code|rule_ids/i);
+});
+
+test('unit conflicts do not affect a complete saved duration', () => {
+  const rules = [rule('timer_default_seconds', 300), rule('timer_default_unit', 'seconds'), rule('timer_default_unit', 'minutes')];
+  const omitted = checkTool(rules, { name: 'create_timer', args: { label: 'Tea', duration: null, unit: 'default' } });
+  assert.equal(omitted.ok, true); assert.equal(omitted.args.duration_seconds, 300); assert.deepEqual(omitted.conflicts, []);
+  assert.equal(checkTool(rules, { name: 'create_timer', args: { label: 'Tea', duration: 5, unit: 'default' } }).ok, false);
+});
+
+test('complete duration defaults remain subject to saved timer limits and tool denials', () => {
+  const rules = [rule('timer_default_seconds', 300, 'default'), rule('timer_max_seconds', 60, 'limit')];
+  const conflicts = findConflicts(rules);
+  assert.equal(conflicts.length, 1); assert.equal(conflicts[0].key, 'timer_default_seconds_limit');
+  assert.equal(checkTool(rules, { name: 'create_timer', args: { label: 'Tea', duration: null, unit: 'default' } }).ok, false);
+  assert.equal(checkTool(rules, { name: 'create_timer', args: { label: 'Tea', duration: 30, unit: 'seconds' } }).ok, true);
+  const tooLong = checkTool(rules, { name: 'create_timer', args: { label: 'Tea', duration: 120, unit: 'seconds' } });
+  assert.equal(tooLong.ok, false); assert.equal(tooLong.violations[0].code, 'TIMER_LIMIT_EXCEEDED');
+  const allowed = checkTool([rules[0], rule('timer_max_seconds', 300)], { name: 'create_timer', args: { label: 'Tea', duration: null, unit: 'default' } });
+  assert.equal(allowed.ok, true); assert.equal(allowed.args.duration_seconds, 300);
+  const denied = checkTool([rules[0], rule('tool_deny', 'create_timer')], { name: 'create_timer', args: { label: 'Tea', duration: null, unit: 'default' } });
+  assert.equal(denied.ok, false); assert.equal(denied.violations[0].code, 'TOOL_DENIED');
+});
+
+test('malformed null duration forms never inherit a complete saved default', () => {
+  const rules = [rule('timer_default_seconds', 300), rule('timer_default_unit', 'minutes')];
+  for (const args of [
+    { duration: null, unit: 'seconds' }, { duration: null, unit: 'minutes' }, { duration: null },
+    { duration: null, unit: null }, { amount: null, unit: 'default' }, { duration_seconds: null },
+    { duration: null, amount: 5, unit: 'default' }, { duration: null, duration_seconds: 30, unit: 'default' },
+    { duration: undefined, unit: 'default' }, { unit: 'default' },
+  ]) {
+    const result = checkTool(rules, { name: 'create_timer', args: { label: 'Tea', ...args } });
+    assert.equal(result.ok, false, JSON.stringify(args));
+    assert.ok(!result.applied_rule_ids.includes('timer_default_seconds-300'), JSON.stringify(args));
+  }
 });
 
 test('timer constraints apply to explicit, default, and legacy durations', () => {

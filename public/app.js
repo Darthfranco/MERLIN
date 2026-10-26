@@ -84,7 +84,7 @@ function updateChatControls() {
   elements["reset-chat"].disabled = chatBusy || !online;
   elements["chat-form"].setAttribute("aria-busy", String(chatBusy));
   elements["chat-status"].textContent = chatBusy
-    ? "Meta is working on your request…"
+    ? "Working on your request…"
     : !online ? "Waiting for the local server."
       : configured ? "Ready for your request." : "Add your Meta API key to enable chat.";
   elements["retry-notice"].hidden = !retryChat && !knownChatFailure;
@@ -93,7 +93,7 @@ function updateChatControls() {
       ? "Retry keeps the same request ID to help prevent duplicate actions. Your message is saved here for correction."
       : "Editing the message starts a new request. The previous request may already have acted; check the timers first.";
   } else if (knownChatFailure) {
-    elements["retry-notice"].textContent = "Check the tool results and timers before sending again; successful actions will not be undone. Sending again starts a new request.";
+    elements["retry-notice"].textContent = "Check the action results and timers before sending again; successful actions will not be undone. Sending again starts a new request.";
   }
 }
 
@@ -243,16 +243,28 @@ function addChatEntry(role, content) {
 function renderReply(entry, data, error = "") {
   entry.dataset.state = error ? "error" : "complete";
   const body = entry.querySelector(".message-body");
-  body.textContent = error || data.reply || "The request finished without a text response. Check the tool results below.";
-  for (const existing of entry.querySelectorAll(".tool-results, .sources, .sources-label")) existing.remove();
-  if (Array.isArray(data.tool_events) && data.tool_events.length) {
+  body.textContent = error || data.reply || "I couldn’t complete the reply. Check any action results below before trying again.";
+  for (const existing of entry.querySelectorAll(":scope > .tool-results, :scope > .sources, :scope > .sources-label")) existing.remove();
+  const actionNames = { create_timer: "Timer", cancel_timer: "Timer cancellation", list_timers: "Timer list", web_search: "Web search" };
+  const actionFailures = {
+    create_timer: "The timer could not be started.",
+    cancel_timer: "The timer cancellation could not be completed.",
+    list_timers: "I couldn’t check the timers.",
+    web_search: "I couldn’t finish the web search.",
+  };
+  const actionResults = (Array.isArray(data.tool_events) ? data.tool_events : []).filter((event) =>
+    Object.hasOwn(actionNames, event.tool) && (error || !data.reply || event.status !== "completed"));
+  // Successful replies already explain outcomes. Keep real action failures and
+  // partial successes visible when reply delivery fails; diagnostics live below.
+  if (actionResults.length) {
     const list = document.createElement("ul");
     list.className = "tool-results";
-    list.setAttribute("aria-label", "Tool results");
-    for (const event of data.tool_events) {
+    list.setAttribute("aria-label", "Action results");
+    for (const event of actionResults) {
       const item = document.createElement("li");
-      item.append(textElement("strong", "", `${event.tool || "Tool"} · ${event.status || "Result"}`));
-      if (event.message) item.append(document.createTextNode(` — ${event.message}`));
+      item.append(textElement("strong", "", `${actionNames[event.tool]} · ${event.status === "completed" ? "Completed" : "Not completed"}`));
+      const message = event.status === "completed" ? event.message : actionFailures[event.tool];
+      if (message) item.append(document.createTextNode(` — ${message}`));
       list.append(item);
     }
     entry.append(list);

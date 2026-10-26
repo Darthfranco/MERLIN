@@ -4,6 +4,8 @@ This guide describes the local text prototype's memory system. Product decisions
 
 MERLIN separates conversation history, overall household memory, explicit do/don't instructions, and named documents. Named routines also let an intentional trigger stand for a longer saved request. The **Memory lab** makes the records, evidence, interpretation, conflicts, retrieval, and execution checks visible while testing.
 
+The conversation stays focused on household assistance. MERLIN gives concise practical outcomes, applies saved preferences quietly, and asks the concrete choice needed to proceed. A successful timer should receive a reply such as “Your timer is set for five minutes.” Memory categories, enforcement details, and model-call counts belong in the inspector unless the user explicitly asks how the system works. This separation does not hide an unavailable action or a failed save; those require a truthful explanation of what did not happen.
+
 ## What each category does
 
 | Category | Stored information | What a request loads |
@@ -32,11 +34,12 @@ Each background batch is bounded to a few messages and a limited current-fact co
 
 ## Supported do/don't rules
 
-The model interprets the request once and supplies structured values. Trusted local handlers apply those values; generated JavaScript, shell commands, and arbitrary regular expressions are not executed.
+On the model path, the model interprets the request once and supplies structured values. A narrow local parser also handles supported complete timer-default declarations, as described below. Trusted local handlers apply the saved values; generated JavaScript, shell commands, and arbitrary regular expressions are not executed.
 
 | Rule kind | Scope | Meaning |
 | --- | --- | --- |
-| `timer_default_unit` | `timers` | Use seconds, minutes, or hours only when a timer request omits its unit |
+| `timer_default_seconds` | `timers` | Use the saved whole duration only when a timer request omits its entire duration; integer from 1 to 604800 seconds |
+| `timer_default_unit` | `timers` | Use seconds, minutes, or hours when a timer request supplies a number but omits its unit |
 | `timer_max_seconds` | `timers` | Reject a duration exceeding the saved limit |
 | `address_as` | `assistant_reply` | Add the saved form of address to replies if needed |
 | `avoid_word` | `assistant_reply` | Block a literal word with case-insensitive, Unicode-aware matching |
@@ -47,19 +50,27 @@ The model interprets the request once and supplies structured values. Trusted lo
 
 The UI displays the scope and interpreted meaning. These scopes describe the current text prototype. An assistant-reply wording rule does not erase original quotations or technical records from the inspector; the inspector must still let the owner see and edit them. Voice, device displays, and future integrations need explicit supported scopes before claiming equivalent coverage.
 
-“Do not mention upsetting animal stories” is a meaning-based preference. If its meaning cannot be represented faithfully by a supported handler, save it in Overall as **guidance**, with the reason it is not code-enforced. Do not silently turn a topic restriction into a list of banned spellings. Unsupported music or device actions also must not be described as implemented enforcement.
+“Do not mention upsetting animal stories” is a meaning-based preference. If its meaning cannot be represented faithfully by a supported handler, save it in Overall as **guidance**, with the reason it is not code-enforced visible in the inspector. The conversational acknowledgment should stay useful and brief without promising infallibility. Do not silently turn a topic restriction into a list of banned spellings. Unsupported music or device actions also must not be described as implemented enforcement. A whole timer duration is supported: “My default timer is five minutes” saves `timer_default_seconds: 300`, not guidance.
 
 ### Conflicts and action checks
 
 Conflicting instructions remain present and flagged; the latest one does not silently win. Saving a conflicting value does not force an immediate clarification. A later action that needs the conflicting setting is blocked while MERLIN asks which instruction should apply. The owner can resolve the conflict in conversation or choose a retained rule in Memory lab.
 
-For example, conflicting default units of seconds and minutes block “start a timer for 5.” “Start a timer for 5 minutes” is explicit and does not need either default. A separate maximum-duration restriction still applies. A conflict involving text required in every reply affects the next reply.
+For example, conflicting whole-duration defaults of five and ten minutes block “set me a timer,” with a practical question such as “Should I use five minutes or ten minutes for this timer?” Conflicting default units of seconds and minutes block “start a timer for 5.” “Start a timer for 5 minutes” is explicit and does not need either kind of default. A whole-duration default does not supply a unit for a different stated number, and a unit default does not invent a missing amount. A separate maximum-duration restriction still applies. A conflict involving text required in every reply affects the next reply.
 
-Within a batch, memory writes run before dependent actions. Memory-enabled model timer calls must provide the requested amount and a unit; legacy preconverted `duration_seconds` calls cannot bypass the default-unit check. The manual timer test form also passes the applicable local action checks.
+Within a batch, memory writes run before dependent actions. Memory-enabled model timer calls use `duration:null, unit:default` when the entire duration is missing; a positive number with `unit:default` requests the saved unit; a stated amount and unit are passed explicitly. Zero is invalid and cannot mean “use the default.” Legacy preconverted `duration_seconds` model calls cannot bypass these checks. Without a usable default, MERLIN asks for the missing duration or unit. The manual timer test form also passes the applicable local action checks.
+
+The provider boundary narrowly normalizes two serialization forms observed in live model calls before strict validation. For integer-valued rules only, a bounded decimal string representing an exact whole number, such as `"420.0"`, becomes numeric `420` and still must pass the compiler's range checks. For `create_timer`, the exact string `"null"` becomes JSON `null` only with `unit:default`. Numeric timer strings, zero placeholders, arbitrary coercions, and other malformed values remain invalid. The rule compiler and manual API still require the strict typed forms.
 
 Native web search executes at the provider. To apply new rules before that external action, the model first calls local `prepare_web_search`. Only a successful preparation enables native search on a later model round in the same request. A web-search ban saved in the preparation batch is checked first. This adds a model round to search requests.
 
-Every final assistant reply passes the local output checker. A prohibited draft receives at most one rewrite attempt, with all tools disabled. Tool calls proposed during that repair cannot execute. Rejected drafts are removed from replay history. If a valid reply still cannot be produced, the application uses checked fallback wording and preserves actual action outcomes; it does not claim success merely because the model proposed an action.
+Every final assistant reply passes the local output checker. A prohibited model draft receives at most one rewrite attempt, with all tools disabled. Tool calls proposed during that repair cannot execute. Rejected drafts are removed from replay history. If a valid reply still cannot be produced, the application uses checked fallback wording and preserves actual action outcomes; it does not claim success merely because the model proposed an action. The simple local timer route uses checked local fallback wording without adding a model call.
+
+### Simple timer requests without a foreground model call
+
+A local parser recognizes complete simple declarations such as “default timer is five minutes” and the same declaration followed by “set me a timer.” It also recognizes a bare “set me a timer” when a whole-duration default already exists. Before choosing this route, MERLIN performs the same memory-context selection as the model path. Any selected household fact, preference, or guidance sends the request to Meta for interpretation. When none are selected, the local route saves exact source evidence, applies current rules, persists the result, and produces checked concise replies with **zero foreground model calls**. Saving alone does not start a timer. A conflict still blocks a dependent start; an applicable timer limit or tool ban still applies.
+
+This route deliberately covers a small command grammar, including the observed “defualt” typo. Questions, quoted examples, negation, extra qualifiers, and unrelated compound work do not grant actions through a substring match. Broader wording goes through the normal Meta/tool loop; a bare start without a whole-duration default also falls back to that loop. Active routine requests use their existing model path. The inspector records the selected route and model-call count, while the ordinary reply states the useful outcome. Background learning may still process the user turn later, so zero foreground calls does not mean no later provider traffic.
 
 ## Documents and routines
 
@@ -90,6 +101,10 @@ Useful manual scenarios:
 
 | Scenario | Expected observation |
 | --- | --- |
+| “Default timer is five minutes,” then “set me a timer” | Whole-duration rule stores 300 seconds; each request reports zero foreground model calls when no household facts/preferences/guidance are selected; the second creates a five-minute timer with a concise acknowledgment |
+| “Defualt timer is five minutes, set me a timer” | The sourced default is saved before the timer starts; the same context-selection condition governs use of the local route |
+| Save relevant household guidance, then send a simple timer request | The trace shows the selected record IDs and a model route so the guidance can be interpreted |
+| Save a second whole-duration default of ten minutes, then “set me a timer” | Both durations remain flagged; the start asks which duration to use and creates no timer |
 | “Always use seconds when I omit timer units. Start a tea timer for 5.” | A sourced rule is saved before the timer action; the timer is five seconds |
 | Then save “Always use minutes when I omit timer units.” | Both defaults remain visible with a conflict flag |
 | “Start a timer for 5.” | No affected timer is created; MERLIN asks which default should apply |
@@ -102,7 +117,7 @@ Useful manual scenarios:
 | Delete a remembered fact after recalling it | The fact, related source/recall records, stale traces, cached replies, and obsolete learning work stop being usable |
 | Delete all memory | Conversations, household records, rules, documents, routines, and learning work are cleared; existing timers remain separate |
 
-Run `npm test` for the complete automated suite. Memory-specific tests live in `test/memory-store.test.js`, `test/memory-rules.test.js`, `test/memory-learning.test.js`, `test/memory-integration.test.js`, and `test/meta-memory.test.js`; routine tests cover their separate matcher and store. The tests use temporary files, synthetic data, and scripted provider responses. They do not establish live model interpretation quality or real response latency. Record live checks and performance measurements separately in [STATUS.md](STATUS.md).
+Run `npm test` for the complete automated suite. Memory-specific tests live in `test/memory-store.test.js`, `test/memory-rules.test.js`, `test/memory-learning.test.js`, `test/memory-integration.test.js`, and `test/meta-memory.test.js`. `test/timer-default-integration.test.js` covers parser boundaries, the two-turn default-duration flow, zero-call handling, persistence, conflicts, explicit overrides, and governed execution. Routine tests cover the separate matcher/store and HTTP flow. The tests use temporary files, synthetic data, and scripted provider responses. They do not establish live model interpretation quality or real response latency. Record live checks and performance measurements separately in [STATUS.md](STATUS.md).
 
 ## Retention, deletion, and privacy
 
@@ -110,7 +125,7 @@ This local prototype retains records until they are deleted. This is the visible
 
 Deleting a fact removes its supersession chain and related source request pairs. Assistant records carry memory dependencies, so related answers in other sessions can also be removed while unrelated conversations remain. Affected protocol history and cached traces/results are invalidated. Corrections exclude superseded facts from active recall while retaining their revision records until deletion. Document replacement similarly invalidates references to old content. Deleting a conversation removes its transcript; already established household records are kept unless separately deleted. “Delete all memory” is the broader reset and does not cancel timers.
 
-Storage is local; inference is not. Selected history, current rules, relevant household evidence, document excerpts when read, routine requests when activated, and background batches of direct user messages are sent to Meta. The configured model is standard `muse-spark-1.3`; Contributor variants are disabled. Requests use `store:false`, which is not a claim of zero provider retention. See [MODELS.md](MODELS.md) for the provider/privacy distinction. No extra external memory service or vector database is involved.
+Storage is local; inference is not. Model-handled requests send selected history, current rules, relevant household evidence, document excerpts when read, and routine requests when activated to Meta. Background batches of direct user messages also go to Meta, including eligible turns whose immediate reply used the local timer route. The configured model is standard `muse-spark-1.3`; Contributor variants are disabled. Requests use `store:false`, which is not a claim of zero provider retention. See [MODELS.md](MODELS.md) for the provider/privacy distinction. No extra external memory service or vector database is involved.
 
 Keep public fixtures synthetic. Do not commit `data/`, API credentials, private household information, device addresses, or recorded home audio/video. Deleting local application records does not claim to remove independent backups, browser screenshots, or data already handled under the provider's terms.
 
@@ -118,4 +133,4 @@ Keep public fixtures synthetic. Do not commit `data/`, API credentials, private 
 
 The store is a single-process JSON implementation. Each committed mutation rewrites the complete file; archive growth increases local I/O, parsing, and retrieval work. A database/index and an explicit retention policy should be evaluated before claiming indefinite scale. Saved rule lists also grow the active prompt; the trace exposes context size so this cost can be measured.
 
-Fast local rule checks and delayed household learning avoid an extra extraction call on the ordinary reply path. Explicit saves, document reads, tool execution, search preparation, and occasional output repair can still require extra model rounds. Replies are not streamed yet because final wording is checked before delivery. Provider/model latency, retrieval quality, and end-to-end timing require measurement; this implementation does not promise a response-time target or perfect personal recall.
+Fast local rule checks and delayed household learning avoid an extra extraction call on the ordinary reply path. The narrow simple-timer route also avoids foreground inference and model restatement of a completed local result. Broader explicit saves, document reads, tool execution, search preparation, and occasional output repair can still require extra model rounds. Replies are not streamed yet because final wording is checked before delivery. Provider/model latency, retrieval quality, and end-to-end timing require measurement; this implementation does not promise a response-time target or perfect personal recall.
