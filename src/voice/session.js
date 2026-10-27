@@ -3,8 +3,8 @@ import { AppError } from '../errors.js';
 import { validateSpeechDelivery } from './prosody.js';
 
 export const VOICE_SESSION_LIMITS = Object.freeze({
-  sampleRate: 16000, idleBufferSeconds: 4, followupMs: 20_000,
-  extendedFollowupMs: 30_000, longPauseMs: 8000, onsetGraceMs: 400,
+  sampleRate: 16000, idleBufferSeconds: 4, followupMs: 10_000,
+  extendedFollowupMs: 15_000, longPauseMs: 8000, onsetGraceMs: 400,
   maxConversationMs: 180_000, maxUtteranceSeconds: 60, maxTurns: 12,
 });
 const RATE = VOICE_SESSION_LIMITS.sampleRate;
@@ -44,6 +44,12 @@ export class VoiceSession {
 
   emit(type, value = {}) { if (!this.closed) this.send({ type, revision: this.revision, ...value }); }
   setState(state, message) { this.state = state; this.emit('state', { state, message }); }
+
+  #quietDeadline(waitMs = this.followupWaitMs) {
+    // The onset allowance fits inside the advertised quiet window, including
+    // the owner's 15-second maximum, rather than extending it.
+    return this.now() + Math.max(0, waitMs - this.limits.onsetGraceMs);
+  }
 
   async start(options = {}) {
     if (this.state !== 'off' || this.closed) throw new AppError('Voice session is already started.');
@@ -143,7 +149,7 @@ export class VoiceSession {
         this.firstUtterance = true;
         this.wakeEnd = event.endSample ?? event.sample;
         this.#startCapture(event.startSample ?? event.sample);
-        this.deadline = result.speech ? null : this.now() + this.limits.followupMs;
+        this.deadline = result.speech ? null : this.#quietDeadline();
         this.setState('listening', 'MERLIN heard. Listening…');
       } else if (event.type === 'speech_start' && this.state !== 'wake') this.#beginSpeech(event);
       else if (event.type === 'speech_end' && this.state === 'listening' && this.capture) this.#endSpeech(event);
@@ -171,7 +177,7 @@ export class VoiceSession {
         this.followupWaitMs = this.quietBeforeSpeech.waitMs;
         this.quietBeforeSpeech = null;
         this.setState('followup', 'Still here. Take your time.');
-      } else this.deadline = this.now() + this.followupWaitMs;
+      } else this.deadline = this.#quietDeadline();
       return;
     }
     this.quietBeforeSpeech = null;
@@ -223,7 +229,7 @@ export class VoiceSession {
   #followup(message = 'Still here. Speak when you’re ready; a longer quiet pause ends the conversation.') {
     if (this.turns >= this.limits.maxTurns) { this.sleep('Conversation limit reached. Say MERLIN to continue.'); return; }
     this.quietSince = this.now();
-    this.deadline = this.quietSince + this.followupWaitMs;
+    this.deadline = this.#quietDeadline();
     this.setState('followup', message);
   }
 

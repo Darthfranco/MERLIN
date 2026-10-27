@@ -105,7 +105,7 @@ test('standby noise and unrelated speech use only the bounded local detector, wi
   assert.equal(h.sent.some(event => event.type === 'transcript'), false);
 });
 
-test('an intentional wake-only utterance may be transcribed once but produces no TTS and returns to standby after silence', async t => {
+test('an intentional wake-only utterance may be transcribed once but produces no TTS and returns to standby after 10 seconds of silence', async t => {
   const h = harness(t);
   h.transcripts.push('Merlin.');
   await h.session.start();
@@ -118,7 +118,7 @@ test('an intentional wake-only utterance may be transcribed once but produces no
   assert.equal(h.synthesis.length, 0);
   assert.equal(h.audio.length, 0);
   assert.equal(h.sent.some(event => event.type === 'transcript'), false);
-  const expiry = VOICE_SESSION_LIMITS.followupMs + VOICE_SESSION_LIMITS.onsetGraceMs;
+  const expiry = 10_000;
   h.now(expiry - 1); h.session.tick();
   assert.equal(h.session.state, 'followup');
   h.now(expiry); h.session.tick();
@@ -211,7 +211,7 @@ test('follow-up speech needs no repeated wake word, and a full quiet window retu
   assert.equal(h.synthesis[1].text, 'Second sentence.');
   assert.equal(h.uploads.length, 2);
   h.finishPlayback();
-  const expiry = resumedAt + VOICE_SESSION_LIMITS.followupMs + VOICE_SESSION_LIMITS.onsetGraceMs;
+  const expiry = resumedAt + 10_000;
   h.now(expiry - 1); h.session.tick(); assert.equal(h.session.state, 'followup');
   h.now(expiry); h.session.tick(); assert.equal(h.session.state, 'wake');
   await h.speech();
@@ -294,7 +294,7 @@ test('goodbye, thanks, and former end phrases echo normally without ending a con
     assert.equal(h.session.pendingPcm, null);
     h.finishPlayback();
     assert.equal(h.session.state, 'followup');
-    assert.equal(h.session.deadline, VOICE_SESSION_LIMITS.followupMs);
+    assert.equal(h.session.deadline, VOICE_SESSION_LIMITS.followupMs - VOICE_SESSION_LIMITS.onsetGraceMs);
   }
 });
 
@@ -312,24 +312,24 @@ test('a late follow-up earns extra thinking time, then an ordinary turn restores
   h.finishPlayback();
   h.now(VOICE_SESSION_LIMITS.longPauseMs);
   await h.speech(); await h.session.work; h.finishPlayback();
-  const extendedDeadline = VOICE_SESSION_LIMITS.longPauseMs + VOICE_SESSION_LIMITS.extendedFollowupMs;
+  const extendedDeadline = VOICE_SESSION_LIMITS.longPauseMs + VOICE_SESSION_LIMITS.extendedFollowupMs - VOICE_SESSION_LIMITS.onsetGraceMs;
   assert.equal(h.session.deadline, extendedDeadline);
   h.now(VOICE_SESSION_LIMITS.longPauseMs + 1000);
   await h.speech(); await h.session.work; h.finishPlayback();
-  assert.equal(h.session.deadline, VOICE_SESSION_LIMITS.longPauseMs + 1000 + VOICE_SESSION_LIMITS.followupMs);
+  assert.equal(h.session.deadline, VOICE_SESSION_LIMITS.longPauseMs + 1000 + VOICE_SESSION_LIMITS.followupMs - VOICE_SESSION_LIMITS.onsetGraceMs);
   assert.equal(h.uploads.length, 3);
 });
 
-test('interrupting playback extends the next quiet window without changing provider call counts', async t => {
+test('interrupting playback extends the next quiet window to at most 15 seconds without changing provider call counts', async t => {
   const h = harness(t);
   await h.session.start(); await h.wakeAndSpeak(); await h.session.work;
   h.now(1000);
   await h.speech(); await h.session.work; h.finishPlayback();
-  assert.equal(h.session.deadline, 1000 + VOICE_SESSION_LIMITS.extendedFollowupMs);
-  h.now(1000 + VOICE_SESSION_LIMITS.followupMs + VOICE_SESSION_LIMITS.onsetGraceMs);
+  assert.equal(h.session.deadline, 1000 + VOICE_SESSION_LIMITS.extendedFollowupMs - VOICE_SESSION_LIMITS.onsetGraceMs);
+  h.now(1000 + 15_000 - 1);
   h.session.tick();
   assert.equal(h.session.state, 'followup');
-  h.now(1000 + VOICE_SESSION_LIMITS.extendedFollowupMs + VOICE_SESSION_LIMITS.onsetGraceMs);
+  h.now(1000 + 15_000);
   h.session.tick();
   assert.equal(h.session.state, 'wake');
   assert.equal(h.uploads.length, 2);
@@ -349,7 +349,7 @@ test('continuing during transcription or generation earns extra quiet time after
     pending.resolve(phase === 'transcribing' ? { text: 'Cancelled old text.' } : Buffer.alloc(48044));
     await oldWork;
     h.finishPlayback();
-    assert.equal(h.session.deadline, 1000 + VOICE_SESSION_LIMITS.extendedFollowupMs);
+    assert.equal(h.session.deadline, 1000 + VOICE_SESSION_LIMITS.extendedFollowupMs - VOICE_SESSION_LIMITS.onsetGraceMs);
     assert.equal(h.audio.length, 1);
     assert.equal(h.uploads.length, 2);
   }
@@ -359,11 +359,11 @@ test('sleep and a new wake discard timing context from the previous conversation
   const h = harness(t);
   await h.session.start(); await h.wakeAndSpeak(); await h.session.work;
   await h.speech(); await h.session.work; h.finishPlayback();
-  assert.equal(h.session.deadline, VOICE_SESSION_LIMITS.extendedFollowupMs);
+  assert.equal(h.session.deadline, VOICE_SESSION_LIMITS.extendedFollowupMs - VOICE_SESSION_LIMITS.onsetGraceMs);
   h.session.sleep();
   h.now(1000);
   await h.wakeAndSpeak(); await h.session.work; h.finishPlayback();
-  assert.equal(h.session.deadline, 1000 + VOICE_SESSION_LIMITS.followupMs);
+  assert.equal(h.session.deadline, 1000 + VOICE_SESSION_LIMITS.followupMs - VOICE_SESSION_LIMITS.onsetGraceMs);
 });
 
 test('provider generation time does not consume the quiet window after playback', async t => {
@@ -375,8 +375,8 @@ test('provider generation time does not consume the quiet window after playback'
   assert.equal(h.session.state, 'generating');
   synthesis.resolve(Buffer.alloc(48044)); await h.session.work;
   h.finishPlayback();
-  assert.equal(h.session.deadline, 60_000 + VOICE_SESSION_LIMITS.followupMs);
-  h.now(60_000 + VOICE_SESSION_LIMITS.followupMs + VOICE_SESSION_LIMITS.onsetGraceMs);
+  assert.equal(h.session.deadline, 60_000 + VOICE_SESSION_LIMITS.followupMs - VOICE_SESSION_LIMITS.onsetGraceMs);
+  h.now(60_000 + VOICE_SESSION_LIMITS.followupMs);
   h.session.tick();
   assert.equal(h.session.state, 'wake');
   assert.equal(h.uploads.length, 1);
@@ -388,12 +388,12 @@ test('duplicate playback completion cannot extend quiet time, while replay start
   const receipt = { revision: h.session.revision, utteranceId: h.session.utteranceId };
   h.finishPlayback();
   h.now(5000); h.finishPlayback();
-  assert.equal(h.session.deadline, VOICE_SESSION_LIMITS.followupMs);
+  assert.equal(h.session.deadline, VOICE_SESSION_LIMITS.followupMs - VOICE_SESSION_LIMITS.onsetGraceMs);
   h.session.playback({ ...receipt, playing: true });
   assert.equal(h.session.state, 'speaking');
   h.now(6000); h.session.playback({ ...receipt, playing: false });
   assert.equal(h.session.state, 'followup');
-  assert.equal(h.session.deadline, 6000 + VOICE_SESSION_LIMITS.followupMs);
+  assert.equal(h.session.deadline, 6000 + VOICE_SESSION_LIMITS.followupMs - VOICE_SESSION_LIMITS.onsetGraceMs);
   assert.equal(h.uploads.length, 1);
   assert.equal(h.synthesis.length, 1);
 });
@@ -424,10 +424,11 @@ test('speech detected just after the nominal quiet deadline keeps the conversati
   const h = harness(t), detector = deferred();
   await h.session.start(); await h.wakeAndSpeak(); await h.session.work;
   h.finishPlayback();
-  h.now(VOICE_SESSION_LIMITS.followupMs - 10);
+  const deadline = h.session.deadline;
+  h.now(deadline - 10);
   const from = h.sample;
   const frame = h.frame(1280, () => detector.promise);
-  h.now(VOICE_SESSION_LIMITS.followupMs + 300); h.session.tick();
+  h.now(deadline + 300); h.session.tick();
   assert.equal(h.session.state, 'followup');
   detector.resolve({ speech: true, events: [{ type: 'speech_start', sample: from + 1280, startSample: from }] });
   await frame;
@@ -436,14 +437,14 @@ test('speech detected just after the nominal quiet deadline keeps the conversati
   await h.frame(8000, (_from, end) => [{ type: 'speech_end', sample: end, endSample: end }]);
   await h.session.work; h.finishPlayback();
   assert.equal(h.uploads.length, 2);
-  assert.equal(h.session.deadline, VOICE_SESSION_LIMITS.followupMs + 300 + VOICE_SESSION_LIMITS.extendedFollowupMs);
+  assert.equal(h.session.deadline, deadline + 300 + VOICE_SESSION_LIMITS.extendedFollowupMs - VOICE_SESSION_LIMITS.onsetGraceMs);
 });
 
-test('speech after the quiet deadline and onset grace remains local until another wake', async t => {
+test('speech at the 10-second quiet limit remains local until another wake', async t => {
   const h = harness(t);
   await h.session.start(); await h.wakeAndSpeak(); await h.session.work;
   h.finishPlayback();
-  h.now(VOICE_SESSION_LIMITS.followupMs + VOICE_SESSION_LIMITS.onsetGraceMs);
+  h.now(10_000);
   await h.speech();
   assert.equal(h.session.state, 'wake');
   assert.equal(h.uploads.length, 1);
@@ -455,10 +456,11 @@ test('manual sleep overrides a delayed speech onset during the quiet timeout gra
   const h = harness(t), detector = deferred();
   await h.session.start(); await h.wakeAndSpeak(); await h.session.work;
   h.finishPlayback();
-  h.now(VOICE_SESSION_LIMITS.followupMs - 10);
+  const deadline = h.session.deadline;
+  h.now(deadline - 10);
   const from = h.sample;
   const frame = h.frame(1280, () => detector.promise);
-  h.now(VOICE_SESSION_LIMITS.followupMs + 300); h.session.sleep();
+  h.now(deadline + 300); h.session.sleep();
   const revision = h.session.revision;
   detector.resolve({ speech: true, events: [{ type: 'speech_start', sample: from + 1280, startSample: from }] });
   await frame;
