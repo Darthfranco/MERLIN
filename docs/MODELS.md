@@ -84,3 +84,11 @@ Native web search is initially withheld. A local `prepare_web_search` function c
 ## Spotify boundary
 
 The typed Spotify integration retains standard Meta for interpreting user requests. Retrieved Spotify metadata is kept out of model inputs, replay history, traces, and household learning. A local adapter returns only fixed operation outcomes; actual search/playback/device data is rendered directly in the Spotify panel. Direct panel controls need no model call. This does not add voice control or Spotify alarms. See [Spotify setup and privacy](SPOTIFY.md).
+
+## Voice development lab — October 27, 2026
+
+The owner selected **Fenrir** from the linked Kokoro demo for a separate local echo lab. Speech recognition uses standard **`muse-voice-transcribe-1.0`**, whose account model-list access has been verified. Recorded mono PCM16 WAV is sent to `POST /v1/asr/transcribe` in `PUSH_TO_TALK` mode, following the [official speech guide](https://dev.meta.ai/docs/speech-to-text) and [file API reference](https://dev.meta.ai/docs/api-reference/voice/transcribe). This is transcription, not language translation or assistant reasoning.
+
+Speech output uses the official **`hexgrad/Kokoro-82M`** model through its Python `KPipeline`, fixed to **`am_fenrir`**, running locally after setup. This selects the development voice; final product deployment remains open. No public Hugging Face inference service receives the text. The lab does not load household memory or invoke Spotify.
+
+Meta’s [data commitments](https://dev.meta.ai/legal/commitments), checked October 27, state Standard Services content is not used to train Meta models while retention and safety processing can still apply. This lab does not enable or claim ZDR. The ASR API has no documented Responses-style `store:false` switch, so none is invented. See [VOICE.md](VOICE.md) for data flow, dependency attribution, and measured checks.

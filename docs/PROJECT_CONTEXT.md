@@ -14,6 +14,10 @@ The owner wants MERLIN to be accessible to as many people as possible. Exact hom
 
 The owner requested typed input → Meta understanding and tool selection → execution → text response, with **web search and timers only for this first build**. No voice input or voice output yet. The owner confirmed a **simple local browser UI with a small Node.js server** for testing; it need not be polished and does not choose MERLIN's final app platform or reduce the full feature scope. The owner confirmed Meta Model API access. The prototype uses standard `muse-spark-1.3`, Meta's built-in web search, and local timer functions; final model routing remains open. See [prototype implementation](PROTOTYPE.md) and [verification status](STATUS.md).
 
+## Separate voice development lab confirmed October 27, 2026
+
+The owner requested a separate, simple local browser interface to type words or speak, transcribe speech using a Meta model, and hear those same words spoken by the linked Kokoro model specifically in **Fenrir**. This authorizes the voice test surface and its intentional microphone capture. It is an echo/transcription development lab, not a request to route speech into assistant reasoning, household memory, routines, or Spotify. Implementation uses push-to-talk, standard `muse-voice-transcribe-1.0`, and local official Kokoro-82M with `am_fenrir`. The existing assistant UI remains separate. Production voice hosting, wake-word implementation, and integration into the full assistant remain open. See [voice lab](VOICE.md).
+
 ## Ten feature areas
 
 **Compound requests confirmed October 26, 2026:** the owner requested multiple tool operations in one message: multiple searches, multiple simultaneous timers, and especially timer creation plus web search in the same ask. The assistant should complete the requested parts together rather than requiring separate messages. Search content remains data, not permission to perform actions the user did not request.

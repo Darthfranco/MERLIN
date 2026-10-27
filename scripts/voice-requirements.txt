@@ -1,0 +1,8 @@
+# Official Kokoro runtime. Isolated from the dependency-free Node prototype.
+kokoro==0.9.4
+misaki[en]==0.9.4
+torch==2.14.1
+transformers==4.57.6
+huggingface-hub==0.36.2
+# Explicitly install English pronunciation data; runtime never downloads it.
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl

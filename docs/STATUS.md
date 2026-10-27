@@ -2,6 +2,12 @@
 
 Last updated: **October 27, 2026**.
 
+## Voice lab — October 27, 2026
+
+The owner requested a separate local voice echo development interface. The implementation adds `npm run voice` at `http://127.0.0.1:3001`, with typed text and push-to-talk recording, Meta Muse Voice Transcribe, and official local Kokoro-82M Fenrir (`am_fenrir`). The lab has no assistant reasoning, household memory, or Spotify connection. Audio/transcripts stay in runtime memory locally; intentional recordings are uploaded to standard Meta for transcription. See [VOICE.md](VOICE.md) for setup, boundaries, dependencies, and verification. Model-list access to `muse-voice-transcribe-1.0` was verified with the existing local key. Local setup, live synthetic Fenrir → Meta transcription, and browser typed playback/cancel/clear have passed. The synthetic phrase produced a 126,044-byte, 2.625-second WAV; one cold synthesis took 8.576 seconds including model loading. Separate direct adapter observations measured a warm request at 0.800 seconds and all three paragraphs retained in a 6.2-second WAV. These are individual local observations, not latency guarantees. The browser audio element reached its end with no console warnings/errors. Mobile geometry at 390 pixels had no horizontal overflow; the browser screenshot backend scaled the mobile capture incorrectly, so that capture is not a full visual approval. Actual owner microphone quality and speaker audibility remain to be tried.
+
+The final full workspace suite passed 308 tests, including 34 voice-specific checks for WAV and metadata validation, multipart requests, provider error privacy, limits, loopback/origin boundaries, concurrency, disconnect cancellation, worker recovery, and fixed Fenrir WAV output. Browser capture conversion and worklet bounds also passed synthetic checks. An independent review found a stale media-error race that could hide cancellation during a new recording; the error handler now preserves active capture state, with two regression checks. A third UI regression verifies the wall-time cap stops a microphone whose device supplies no more audio frames. Voice documents and dependency attribution are included. Models and the isolated Python environment remain in ignored `local/`; no audio, text, keys, or model weights enter Git.
+
 ## Current state
 
 - The owner's language/personality direction is implemented in the reply layer: sincere, capable, gently friendly, and brief by default. Ordinary confirmations lead with the verified result; explanations can expand when needed. Plain mode and an optional form of address persist locally through direct conversational requests. Optional courtesy uses a conservative recent-reply cooldown and yields to exact standing instructions; failures and sensitive moments call for calm wording. The owner narrowed this task to **words only**, so all UI work was removed. No microphone, TTS voice, or new home-device integration was added. See [personality behavior](PROTOTYPE.md#merlins-personality).
@@ -87,7 +93,7 @@ Last updated: **October 27, 2026**.
 | AI foundation | Meta models; first text prototype uses standard Spark 1.3; final routing remains open |
 | First application build | Owner-confirmed local browser/Node.js test UI; typed input, web search, and timers; no voice in/out yet |
 | Compound requests | Owner confirmed multiple searches/timers and timer creation plus web search in one message; separate asks are not required |
-| Speech output | Kokoro is the owner's tentative preference |
+| Speech output | Kokoro Fenrir (`am_fenrir`) selected for the separate local voice lab; final assistant deployment remains open |
 
 ## Next useful work
 
@@ -97,13 +103,15 @@ The requested text/search/timer, memory/routine, and typed Spotify slices are im
 
 1. Inventory available devices, cameras, and the intended demonstration environment.
 2. Choose the next demonstration flow and final application/device integration approach; the current local harness is temporary.
-3. Evaluate voice recognition and Kokoro response latency when voice work is authorized; text Meta access has been verified.
+3. Try the separate voice lab with the owner’s microphone/speakers; evaluate recognition and speech latency before selecting full assistant voice integration. The synthetic Meta/Kokoro round trip is verified; wake-word implementation and final deployment remain open.
 4. Evaluate memory/routine interpretation on varied household phrasing, retrieval accuracy, and latency; then select schedules or other features from the full scope.
 5. Maintain contribution history and prepare the three-minute demo and public submission before November 4 at 9 PM ET.
 
 Full Official Rules and participant acceptance have not been verified. The supplied materials differ on the building-period start; consult `HACKATHON.md` before relying on an eligibility interpretation. Team/track, production stack, hardware, other service/device integrations, hosting, license, wake phrase, exact voice API roles, production retention, detailed permissions, and final demo scope remain undecided. Do not turn the confirmed goal of broad accessibility into a specific platform choice.
 
 ## Contribution record
+
+- **October 27, 2026 — voice development lab:** added a separate loopback browser/server with explicit recording, standard Meta transcription, local official Kokoro Fenrir synthesis, playback and cancellation; bounded audio validation; isolated worker setup; synthetic regression and live round-trip checks; provider/privacy/dependency documentation. New Python dependencies are isolated from the existing Node assistant. No household memory, Spotify voice control, wake-word runtime, or device actions are connected.
 
 - **October 27, 2026 — language and personality:** original guide-inspired instructions, local warm/plain/address preferences, restrained courtesy cadence, bounded tool-free wording repair, and conversational correction handling. Existing Meta provider, tool validation, scoped rules, and UI are retained. No new runtime dependencies or third-party character assets were introduced; the attached reference document is not redistributed.
 

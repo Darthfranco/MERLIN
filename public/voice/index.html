@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>MERLIN voice lab</title>
+    <link rel="stylesheet" href="./voice.css">
+    <script type="module" src="./voice.js"></script>
+  </head>
+  <body>
+    <main>
+      <header class="page-header">
+        <h1>MERLIN voice lab</h1>
+        <p>Talk in. Hear it back in Fenrir’s voice.</p>
+      </header>
+
+      <section class="voice-workspace" aria-label="Voice test">
+        <div class="connection-row">
+          <p id="connection" class="help" role="status">Checking voice services…</p>
+          <button id="refresh-status" class="text-button" type="button">Check again</button>
+        </div>
+
+        <form id="voice-form">
+          <div class="label-row">
+            <label for="words">Words to say</label>
+            <span id="character-count" class="help">0 / 2,000</span>
+          </div>
+          <textarea id="words" name="words" rows="6" maxlength="2000" placeholder="Type something for Fenrir to read…" aria-describedby="words-help character-count" spellcheck="true"></textarea>
+          <p id="words-help" class="help">Or record your voice. Meta transcribes it, then Fenrir reads the transcript aloud.</p>
+
+          <div class="actions">
+            <button id="speak" type="submit" disabled>Speak with Fenrir</button>
+            <button id="record" class="secondary" type="button" disabled>
+              <svg id="mic-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="13" rx="4"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></svg>
+              <span id="record-label">Start recording</span>
+            </button>
+            <button id="stop" class="secondary" type="button" disabled>Stop</button>
+          </div>
+        </form>
+
+        <div class="activity-row">
+          <span id="activity-dot" aria-hidden="true"></span>
+          <p id="activity" role="status" aria-live="polite" aria-atomic="true">Type a sentence to try the voice.</p>
+          <span id="recording-time" hidden aria-hidden="true">0:00 / 1:00</span>
+        </div>
+        <p id="error" class="error" role="alert" hidden></p>
+
+        <section id="playback" class="playback" aria-labelledby="playback-heading" hidden>
+          <div class="playback-heading">
+            <h2 id="playback-heading">Playback</h2>
+            <span class="help">Kokoro · Fenrir</span>
+          </div>
+          <audio id="audio" controls preload="metadata" aria-label="Fenrir speech playback"></audio>
+          <p id="playback-help" class="help">Use the player to listen again.</p>
+        </section>
+
+        <div class="workspace-footer">
+          <p id="limit-help" class="help">Up to 60 seconds per recording. ⌘ / Ctrl + Enter to speak.</p>
+          <button id="clear" class="text-button" type="button">Clear</button>
+        </div>
+      </section>
+
+      <footer>
+        <p>Development test: Fenrir repeats your text; this page doesn’t run assistant commands.</p>
+        <p>Recorded audio goes to Meta for transcription. Speech is generated locally with Kokoro. Text and audio aren’t saved by this lab.</p>
+      </footer>
+      <noscript>This voice test needs JavaScript enabled.</noscript>
+    </main>
+  </body>
+</html>
