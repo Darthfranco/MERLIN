@@ -109,6 +109,17 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
     if (checked.violations.length || checked.conflicts.length) throw new AppError('A saved instruction prevents this timer announcement.', 409);
     return { reply: checked.text, presentation: [presentationResult('tool_result', { tool: 'create_timer', ok: true, result: timer })] };
   };
+  const checkedSpeech = text => {
+    const checked = checkOutput(memory.rules(), text);
+    if (checked.violations.length || checked.conflicts.length) throw new AppError('The reply cannot be spoken under the current instructions.', 409);
+    return checked.text;
+  };
+  const replyAudio = async requestId => {
+    uuid(requestId);
+    const text = speechReplies.get(requestId);
+    if (!text) throw new AppError('That reply is no longer available to read aloud.', 404);
+    return { reply: checkedSpeech(text), presentation: [] };
+  };
   const runChatTurn = async (body, { signal, onProgress } = {}) => {
     objectArgs(body, ['message', 'time_zone', 'request_id', 'session_id', 'channel']);
     uuid(body.request_id); uuid(body.session_id); timeZone(body.time_zone);
@@ -329,21 +340,18 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       }
       if (req.method !== 'POST') throw new AppError('Not found.', 404);
       const body = await bodyOf(req, path === '/api/documents' ? 650_000 : path === '/api/routines' ? 90_000 : 16_384);
-      if (path === '/api/companion/speak' || path === '/api/companion/timer-speech') {
+      if (['/api/companion/speak', '/api/companion/timer-speech', '/api/companion/audio-check'].includes(path)) {
         const announcement = path === '/api/companion/timer-speech';
-        objectArgs(body, [announcement ? 'timer_id' : 'request_id', 'delivery', 'speed']);
-        uuid(announcement ? body.timer_id : body.request_id);
-        const text = announcement ? (await timerAlert(body.timer_id)).reply : speechReplies.get(body.request_id);
-        if (!text) throw new AppError('That reply is no longer available to read aloud.', 404);
+        const audioCheck = path === '/api/companion/audio-check';
+        objectArgs(body, [...(audioCheck ? [] : [announcement ? 'timer_id' : 'request_id']), 'delivery', 'speed']);
         if (voiceSocket.active) throw new AppError('A wake conversation already controls speech.', 409);
-        const checked = checkOutput(memory.rules(), text);
-        if (checked.violations.length || checked.conflicts.length) throw new AppError('The reply cannot be spoken under the current instructions.', 409);
+        const text = audioCheck ? checkedSpeech('MERLIN is ready.') : announcement ? (await timerAlert(body.timer_id)).reply : (await replyAudio(body.request_id)).reply;
         const delivery = validateSpeechDelivery(body.delivery);
         const speed = body.speed ?? 1;
         if (typeof speed !== 'number' || !Number.isFinite(speed) || speed < 0.75 || speed > 1.25) throw new AppError('Speech speed must be between 0.75 and 1.25.');
         speechPending.add(controller);
         try {
-          const audio = await tts.synthesize(checked.text, { delivery, speed, signal: controller.signal });
+          const audio = await tts.synthesize(text, { delivery, speed, signal: controller.signal });
           if (!controller.signal.aborted && !res.destroyed) {
             res.writeHead(200, { 'Content-Type': 'audio/wav', 'Content-Length': audio.length }); res.end(audio);
           }
@@ -455,7 +463,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       else res.end();
     } finally { req.off('aborted', abort); res.off('close', abort); }
   });
-  const voiceSocket = attachVoiceSocket({ server, listener, meta: voiceMeta, tts, isBusy: () => speechPending.size > 0, timerAlert,
+  const voiceSocket = attachVoiceSocket({ server, listener, meta: voiceMeta, tts, isBusy: () => speechPending.size > 0, timerAlert, replyAudio,
     respond: async (text, { signal, onProgress, sessionId, timeZone: zone, requestId }) => {
       const result = await runChatTurn({ message: text, session_id: sessionId, time_zone: zone, request_id: requestId, channel: 'voice' }, { signal, onProgress });
       const { trace, ...response } = result.data;
@@ -466,7 +474,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
   });
   const closeVoice = () => { voiceSocket.close(); listener.close(); for (const pending of speechPending) pending.abort(); Promise.resolve(tts.close()).catch(() => {}); };
   server.on('close', () => { clearInterval(interval); closeVoice(); learning.close().catch(() => {}); });
-  return { server, timers, meta, store, memory, learning, routines, routineStore, spotify, runChatTurn, timerAlert, closeVoice };
+  return { server, timers, meta, store, memory, learning, routines, routineStore, spotify, runChatTurn, timerAlert, replyAudio, closeVoice };
 
 }
 

@@ -180,6 +180,32 @@ test('speech accepts only checked stored replies and deletion removes their repl
   assert.equal(app.spoken[0].text, result.data.reply);
   await app.request('/api/memory/clear', {});
   assert.equal((await app.request('/api/companion/speak', { request_id: input.request_id })).status, 404);
+  await assert.rejects(app.replyAudio(input.request_id), error => error.status === 404);
+});
+
+test('wake-session reply audio rechecks stored text against current instructions', async t => {
+  const app = await fixture(t, script([answer('Ready to help.')]));
+  const input = body('Hello.');
+  const result = await app.runChatTurn(input);
+  assert.deepEqual(await app.replyAudio(input.request_id), { reply: result.data.reply, presentation: [] });
+  await app.store.putRule(normalizeRule({ kind: 'avoid_word', value: 'ready', scope: 'assistant_reply', original: 'Never say ready.', source_id: 'manual', source_quote: '', explanation: 'Synthetic speech output rule.' }));
+  await assert.rejects(app.replyAudio(input.request_id), error => error.status === 409);
+  await assert.rejects(app.replyAudio(randomUUID()), error => error.status === 404);
+  await assert.rejects(app.replyAudio('unchecked text'), error => error.status === 400);
+  assert.equal(app.spoken.length, 0);
+});
+
+test('speaker check speaks only a fixed checked phrase with no model or memory write', async t => {
+  const app = await fixture(t, script());
+  assert.equal((await app.request('/api/companion/audio-check', { text: 'Client supplied text' })).status, 400);
+  assert.equal((await app.request('/api/companion/audio-check', {})).status, 200);
+  assert.equal(app.spoken[0].text, 'MERLIN is ready.');
+  assert.equal(app.meta.calls.length, 0);
+  assert.equal(app.spotifyCalls.length, 0);
+  assert.equal(app.store.snapshot().conversations.length, 0);
+  await app.store.putRule(normalizeRule({ kind: 'avoid_word', value: 'ready', scope: 'assistant_reply', original: 'Never say ready.', source_id: 'manual', source_quote: '', explanation: 'Synthetic speaker check rule.' }));
+  assert.equal((await app.request('/api/companion/audio-check', {})).status, 409);
+  assert.equal(app.spoken.length, 1);
 });
 
 test('timer speech verifies completion and current rules without a model or user-text input', async t => {

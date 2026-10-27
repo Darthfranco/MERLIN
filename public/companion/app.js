@@ -1,7 +1,7 @@
 import {createCharacter} from '/character/viewer/character.js';
-import {paintPanel,panelDescription,formatDuration} from '/character/viewer/panels/render.js';
-import {CompanionVoiceClient} from './voice-client.js';
-import {Orchestrator,ACTION_HOLD,pendingPanel,timerPanel,musicPanel} from './orchestrator.js';
+import {formatDuration} from '/character/viewer/panels/render.js';
+import {CompanionVoiceClient,unlockAudioPlayback} from './voice-client.js';
+import {Orchestrator,ACTION_HOLD,pendingPanel,timerPanel,musicPanel,presentationLayout} from './orchestrator.js';
 import {TimerAlertQueue} from './timer-alerts.js';
 
 const $=id=>document.getElementById(id);
@@ -13,8 +13,10 @@ let requestController, speechController, typedUrl, pollingTurn=null, turnId=null
 let completion=Promise.resolve(), pollCount=0, lastDestination='', lastPanelType='', activePanel=null, activePanels={left:null,right:null}, pendingRetry=null;
 const timerAlerts=new TimerAlertQueue();
 let panelControlsKey='';
+let timerRowsKey='';
 let destroyed=false, stateBusy=false, musicBusy=false, timerBusy=new Set(), voiceEnabled=false;
 const motionQuery=matchMedia('(prefers-reduced-motion: reduce)');
+try{const saved=localStorage.getItem('merlin-read-aloud');$('read-aloud').checked=saved===null||saved==='true';}catch{$('read-aloud').checked=true;}
 function notice(text=''){ $('notice').textContent=text;$('notice').hidden=!text; }
 function el(tag,text,className){const n=document.createElement(tag);n.textContent=text;if(className)n.className=className;return n;}
 async function api(path,body,{signal,timeout=15000}={}){
@@ -30,17 +32,11 @@ function currentPanel(side){
 function renderView(view){
   $('phase').textContent=view.label;
   activePanel=view.panel;activePanels=view.panels||{left:null,right:null};
-  const dual=Boolean(activePanels.left&&activePanels.right);
   const requestedBody=['right','left','both'].includes(view.destination);
-  const supportsBoth=Boolean(character?.capabilities?.states?.includes('both'));
-  const supported=!character||view.destination==='sweep'||character.capabilities?.states?.includes(view.destination);
-  const destination=!supported||view.destination==='both'&&!supportsBoth?'ready':view.destination;
-  const bodyPanel=requestedBody&&supported&&(view.destination!=='both'||supportsBoth);
+  const {destination,showControls}=presentationLayout(view,character?.capabilities?.states);
   $('stage').dataset.mode=destination;
-  const pinned=Boolean((activePanels.left||activePanels.right)&&!bodyPanel);
-  $('stage').classList.toggle('has-action',pinned);$('stage').classList.toggle('has-two-actions',pinned&&dual);
-  for(const side of ['left','right'])$('pinned-'+side).hidden=!(pinned&&activePanels[side]);
-  $('close-panel').hidden=!(activePanels.left||activePanels.right);
+  $('action-controls').hidden=!showControls;
+  $('close-panel').hidden=!showControls;
   if(character){
     for(const side of ['left','right'])if(!activePanels[side])character.clearPanel(side);
     if(requestedBody)for(const side of ['left','right'])if(activePanels[side]){
@@ -51,19 +47,23 @@ function renderView(view){
     if(view.phase!=='speaking')character.setSpeaking(0);
   }
   lastDestination=destination;lastPanelType=activePanel?.type||'';
-  drawPinned();renderPanelControls();
+  renderPanelControls();
 }
 const orchestration=new Orchestrator({render:renderView,now:()=>Date.now(),reducedMotion:motionQuery.matches});
 const voice=new CompanionVoiceClient({audio:$('voice-audio'),onEvent:voiceEvent,playbackGate:async header=>{
   const g=generation;await completion;if(g!==generation)return false;
-  const target=header.presentationMode==='body'?lastDestination:'face';if(character){character.go(target,{pace:4});return character.whenSettled(target);}return true;
+  const target=header.presentationMode==='body'?lastDestination:'face';if(character){character.go(target,{pace:4});return settleCharacter(target,g);}return true;
 }});
-function drawPinned(){
-  for(const side of ['left','right']){
-    const panel=currentPanel(side);if(!panel||$('pinned-'+side).hidden)continue;
-    paintPanel($('canvas-'+side).getContext('2d'),900,1080,panel,{controls:false});
-    $('description-'+side).textContent=panelDescription(panel);
-  }
+async function settleCharacter(destination,g=generation){
+  if(!character)return true;
+  const runtime=character,abort=new AbortController();
+  const timeout=setTimeout(()=>abort.abort(),2500);
+  try{
+    const settled=await runtime.whenSettled(destination,abort.signal);
+    if(g!==generation)return false;
+    if(!settled&&abort.signal.aborted&&runtime.desired===destination){runtime.go(destination,{urgent:true});return true;}
+    return settled;
+  }finally{clearTimeout(timeout);}
 }
 function renderPanelControls(){
   // Preserve focused/clicked controls when only conversation presence changes.
@@ -92,11 +92,12 @@ async function finish(id,result,before,g){
   if((result.tool_events||[]).some(e=>e.tool.startsWith('spotify_')))await refreshMusic().catch(()=>{});
   if(g!==generation)return;
   orchestration.result(id,result,{timers:snapshot.timers,previousTimers:before,spotify});
-  // Action begins promptly, keeps a visible receipt, and then survives beside the face.
-  if(orchestration.phase==='action'){if(character)await character.whenSettled(lastDestination);if(g!==generation)return;await new Promise(resolve=>setTimeout(resolve,ACTION_HOLD));}
+  showReply(result);
+  // Keep action data while the face takes the full stage for conversation.
+  if(orchestration.phase==='action'){await settleCharacter(lastDestination,g);if(g!==generation)return;await new Promise(resolve=>setTimeout(resolve,ACTION_HOLD));}
   if(g!==generation)return;
-  orchestration.reply(id);showReply(result);
-  if(character)await character.whenSettled('face');
+  orchestration.reply(id);
+  await settleCharacter('face',g);
   if(g!==generation)return;
   $('stop').hidden=true;
 }
@@ -110,6 +111,7 @@ async function submit(message){
   if(!message.trim())return;
   const retry=pendingRetry?.message===message?pendingRetry:null;
   voice.endConversation();invalidate();const g=generation;
+  if($('read-aloud').checked)void(voice.active?voice.unlockPlayback():unlockAudioPlayback($('typed-audio')));
   const id=retry?.id||crypto.randomUUID();turnId=id;pollingTurn=id;previousTimers=[...snapshot.timers];orchestration.begin(id);
   requestController=new AbortController();$('send').disabled=true;$('stop').hidden=false;notice();
   $('heard').textContent=message;$('heard').hidden=false;$('reply').textContent='';$('message').value='';
@@ -118,7 +120,7 @@ async function submit(message){
     const result=await api('/api/chat',{message,request_id:id,session_id:sessionId,time_zone:timeZone,channel:'typed'},{signal:requestController.signal,timeout:snapshot.chat_timeout_ms||510000});
     if(g!==generation)return;pendingRetry=null;pollingTurn=null;
     completion=finish(id,result,previousTimers,g);await completion;if(g!==generation)return;
-    if($('read-aloud').checked&&!voice.active)await speak(id,g);
+    if($('read-aloud').checked){if(voice.active)await voice.speakReply(id);else await speak(id,g);}
     if(g!==generation)return;orchestration.followup();
   }catch(error){
     if(g!==generation)return;pollingTurn=null;
@@ -149,8 +151,9 @@ function voiceEvent(event){
     const state=event.state;voiceEnabled=!['off','requesting'].includes(state)&&voice.active;
     $('microphone').setAttribute('aria-pressed',String(voice.active));$('microphone').querySelector('span').textContent=voice.active?'Microphone off':'Enable microphone';
     $('mic-state').dataset.on=String(voice.active);
-    const names={off:'Microphone off',requesting:'Microphone permission…',wake:'Mic on · local wake',listening:'Mic on · listening',transcribing:'Transcribing',processing:'Thinking',generating:'Preparing speech',speaking:'Speaking',followup:'Mic on · follow-up'};
+    const names={off:'Microphone off',requesting:'Microphone permission…',starting:'Preparing local listening…',wake:'Mic on · say MERLIN',listening:'Mic on · listening',transcribing:'Transcribing',processing:'Thinking',generating:'Preparing speech',speaking:'Speaking',followup:'Mic on · follow-up'};
     $('mic-state').textContent=names[state]||'Mic on';
+    $('test-speaker').disabled=voice.active;
     if(state==='listening'){invalidate();voiceTurn=null;orchestration.listening();notice();}
     else if(state==='transcribing'){voiceBefore=[...snapshot.timers];voiceTurn=`voice-${event.revision}`;orchestration.begin(voiceTurn);}
     else if(state==='wake'&&!turnId){orchestration.standby();}
@@ -165,16 +168,19 @@ function voiceEvent(event){
     if(!voiceTurn){voiceTurn=`voice-${event.revision}`;orchestration.begin(voiceTurn);}
     completion=finish(voiceTurn,event.response,voiceBefore,generation);
   }else if(event.type==='notification'){
+    if(event.kind==='reply'){$('reply').textContent=event.response.reply;return;}
     const presented=event.response.presentation?.find(p=>p.type==='timer');
     const timer=snapshot.timers.find(t=>t.id===presented?.id)||presented;
     if(timerAlerts.active?.id===timer?.id)timerAlerts.accept(timerAlerts.active);
-    if(timer){orchestration.inspect(timerPanel(timer,Date.now()+serverOffset));showReply(event.response);completion=character?character.whenSettled(lastDestination):Promise.resolve();}
+    if(timer){orchestration.inspect(timerPanel(timer,Date.now()+serverOffset));showReply(event.response);completion=settleCharacter(lastDestination);}
   }else if(event.type==='playback'){
     if(event.playing){orchestration.speaking({body:event.presentationMode==='body'});$('stop').hidden=false;}else{character?.setSpeaking(0);$('stop').hidden=true;}
   }else if(event.type==='interrupt'){
+    if(['reply-audio','reply-audio-ended'].includes(event.reason))return;
     invalidate({keepAlert:event.reason==='notification'});voiceTurn=null;if(!event.reason?.startsWith('notification'))orchestration.listening();
   }else if(event.type==='error'){
     if(timerAlerts.active)timerAlerts.release(timerAlerts.active);
+    $('voice-troubleshooting').hidden=false;
     notice(event.message);if(event.fatal)orchestration.error('Voice is unavailable');
     else if(/player|paused/.test(event.message))$('voice-audio').hidden=false;
   }
@@ -204,7 +210,7 @@ async function drainAlerts(){
   }
   try{
     if($('read-aloud').checked){
-      const g=generation;if(character)await character.whenSettled(lastDestination);
+      const g=generation;await settleCharacter(lastDestination,g);
       if(g!==generation||timerAlerts.active!==token)return;
       if(!$('read-aloud').checked){timerAlerts.accept(token);return;}
       timerAlerts.accept(token);await speak(id,g,{timer:true});
@@ -213,6 +219,8 @@ async function drainAlerts(){
   }finally{timerAlerts.release(token);}
 }
 function renderTimers(){
+  const key=JSON.stringify([snapshot.timers,[...timerBusy]]);
+  if(key===timerRowsKey){countdowns();return;}timerRowsKey=key;
   const focused=document.activeElement?.dataset?.timerAction;
   $('timers').replaceChildren();$('timers-empty').hidden=snapshot.timers.length>0;
   $('timer-count').textContent=snapshot.timers.length?`· ${snapshot.timers.filter(t=>t.status==='running').length} running`:'';
@@ -229,7 +237,6 @@ function renderTimers(){
 }
 function countdowns(){
   for(const node of $('timers').querySelectorAll('[data-timer-id]')){const t=snapshot.timers.find(t=>t.id===node.dataset.timerId);if(!t)continue;const seconds=Math.max(0,Math.ceil((Date.parse(t.ends_at)-Date.now()-serverOffset)/1000));node.textContent=t.status==='completed'?'Finished':t.status==='cancelled'?'Stopped':seconds===0?'Confirming…':formatDuration(seconds);}
-  drawPinned();
 }
 async function changeTimer(timer){
   if(timerBusy.has(timer.id))return;timerBusy.add(timer.id);renderTimers();renderPanelControls();
@@ -237,7 +244,7 @@ async function changeTimer(timer){
   catch(error){notice(error.message);}finally{timerBusy.delete(timer.id);renderTimers();renderPanelControls();}
 }
 async function refreshMusic(){
-  try{spotify=await api('/api/spotify?refresh=1');orchestration.musicPlaying=spotify.connected===true&&spotify.playback?.is_playing===true;renderMusic();for(const side of ['left','right'])if(activePanels[side]?.type==='music'){orchestration.panels[side]=musicPanel(spotify);activePanels[side]=orchestration.panels[side];if(orchestration.focusSide===side)activePanel=orchestration.panel=activePanels[side];drawPinned();character?.updatePanel(()=>currentPanel(side),side);}}
+  try{spotify=await api('/api/spotify?refresh=1');orchestration.musicPlaying=spotify.connected===true&&spotify.playback?.is_playing===true;renderMusic();for(const side of ['left','right'])if(activePanels[side]?.type==='music'){orchestration.panels[side]=musicPanel(spotify);activePanels[side]=orchestration.panels[side];if(orchestration.focusSide===side)activePanel=orchestration.panel=activePanels[side];character?.updatePanel(()=>currentPanel(side),side);}}
   catch(error){$('music-notice').textContent=error.message;throw error;}
 }
 function renderMusic(){
@@ -272,15 +279,30 @@ $('chat-form').addEventListener('submit',event=>{event.preventDefault();void sub
 $('message').addEventListener('focus',()=>{if(!turnId&&!voice.active){invalidate();orchestration.listening({typed:true});}});
 $('message').addEventListener('blur',()=>{if(orchestration.phase==='listening'&&!voice.active&&!turnId)orchestration.followup();});
 $('message').addEventListener('input',()=>{$('send').textContent=pendingRetry?.message===$('message').value.trim()?'Retry':'Send';});
-$('microphone').addEventListener('click',async()=>{notice();if(voice.active){invalidate();voice.stop();return;}invalidate();try{await voice.start({sessionId,timeZone});}catch(error){notice(error.message);}});
+$('microphone').addEventListener('click',async()=>{notice();if(voice.active){invalidate();voice.stop();return;}invalidate();try{await voice.start({sessionId,timeZone});}catch(error){notice(error.message);$('voice-troubleshooting').hidden=false;}});
 $('stop').addEventListener('click',()=>{invalidate();voice.interrupt();if(voice.active)orchestration.listening();else orchestration.followup();notice('Reply stopped. Completed actions are still in Activity.');});
 $('close-panel').addEventListener('click',()=>orchestration.dismiss());$('reload-scene').addEventListener('click',()=>location.reload());
 for(const button of document.querySelectorAll('[data-service]'))button.addEventListener('click',()=>{const type=button.dataset.service;orchestration.inspect(type==='music'?musicPanel(spotify):pendingPanel(type,'offline'));if(type!=='music')notice(type==='schedule'?'Schedules aren’t available yet.':'This home service isn’t connected yet.');});
 $('previous').addEventListener('click',()=>musicControl('previous'));$('next').addEventListener('click',()=>musicControl('next'));$('play-pause').addEventListener('click',()=>musicControl(spotify.playback?.is_playing?'pause':'play'));$('spotify-device').addEventListener('change',renderMusic);$('refresh-music').addEventListener('click',()=>refreshMusic().catch(()=>{}));
 $('clear-conversation').addEventListener('click',async()=>{invalidate();voice.stop();try{await api('/api/session/reset',{session_id:sessionId});$('heard').hidden=true;$('reply').textContent='Ready for a fresh conversation.';$('actions').replaceChildren();$('actions-empty').hidden=false;$('sources').hidden=true;pendingRetry=null;orchestration.dismiss();notice('This conversation was cleared. Saved household memory is managed in the memory controls.');}catch(error){notice(error.message);}});
-$('read-aloud').addEventListener('change',()=>{if(!$('read-aloud').checked)stopTyped();});
+$('read-aloud').addEventListener('change',()=>{try{localStorage.setItem('merlin-read-aloud',String($('read-aloud').checked));}catch{}if(!$('read-aloud').checked){stopTyped();if(turnId&&voice.active)voice.interrupt();}else void unlockAudioPlayback($('typed-audio'));});
+$('test-speaker').addEventListener('click',async()=>{
+  invalidate();const g=generation;void unlockAudioPlayback($('typed-audio'));$('test-speaker').disabled=true;notice('Preparing a short speaker test…');
+  try{
+    speechController=new AbortController();
+    const response=await fetch('/api/companion/audio-check',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}',signal:speechController.signal});
+    if(!response.ok){const body=await response.json();throw new Error(body.error||'Speech is unavailable.');}
+    const blob=await response.blob();if(g!==generation)return;
+    typedUrl=URL.createObjectURL(blob);const clipUrl=typedUrl,audio=$('typed-audio');audio.src=clipUrl;audio.hidden=false;
+    const ended=()=>{if(g===generation&&audio.src===clipUrl)notice('Speaker test complete. If you heard nothing, check your sound output and volume.');};
+    audio.addEventListener('ended',ended,{once:true,signal:speechController.signal});
+    try{await $('typed-audio').play();notice('Speaker test playing. If it is silent, check your sound output and volume.');}
+    catch{notice('Press play below to test your speakers.');}
+  }catch(error){if(g===generation){notice(error.message);$('voice-troubleshooting').hidden=false;}}
+  finally{$('test-speaker').disabled=voice.active;}
+});
 motionQuery.addEventListener('change',()=>{orchestration.reducedMotion=motionQuery.matches;if(motionQuery.matches&&orchestration.phase==='ambient')orchestration.standby();});
-const ticker=setInterval(()=>{orchestration.tick();countdowns();void drainAlerts();if(orchestration.phase==='speaking')character?.setSpeaking(.25+.55*Math.abs(Math.sin(performance.now()/110)));},250);
+const ticker=setInterval(()=>{if(document.hidden)return;orchestration.tick();countdowns();void drainAlerts();if(orchestration.phase==='speaking')character?.setSpeaking(.65);},500);
 const statePoll=setInterval(()=>{if(document.visibilityState!=='hidden')void pollState();},2000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){invalidate();voice.stop();orchestration.standby();}else void pollState();});
 window.addEventListener('pagehide',()=>{destroyed=true;invalidate();voice.destroy();character?.destroy();clearInterval(ticker);clearInterval(statePoll);},{once:true});

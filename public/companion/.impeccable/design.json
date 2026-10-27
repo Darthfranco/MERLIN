@@ -200,7 +200,7 @@
       "A large character presentation, with compact conversational text and controls.",
       "Midnight surfaces, pale cyan emphasis, and white retained action panels.",
       "Visible microphone state and textual service outcomes.",
-      "Independent left and right action content through face/body changes."
+      "Independent action data survives face/body changes; panels are visible only in body mode."
     ],
     "rules": [],
     "dos": [

@@ -2,7 +2,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { AppError, objectArgs, uuid } from '../errors.js';
 import { VoiceSession } from './session.js';
 
-export function attachVoiceSocket({ server, listener, meta, tts, respond, timerAlert, isBusy = () => false }) {
+export function attachVoiceSocket({ server, listener, meta, tts, respond, timerAlert, replyAudio, isBusy = () => false }) {
   const wss = new WebSocketServer({ noServer: true, maxPayload: 16_000, perMessageDeflate: false });
   const sessions = new Map();
   const reject = (socket, code) => { socket.end(`HTTP/1.1 ${code}\r\nConnection: close\r\nContent-Length: 0\r\n\r\n`); };
@@ -29,6 +29,7 @@ export function attachVoiceSocket({ server, listener, meta, tts, respond, timerA
     let controlCount = 0;
     const announcedTimers = new Set();
     let alertPending = false;
+    let replyPending = false;
     const connectedAt = performance.now();
     const send = value => {
       if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(value));
@@ -95,7 +96,7 @@ export function attachVoiceSocket({ server, listener, meta, tts, respond, timerA
           objectArgs(message, ['type']); audioEpoch += 1; session.interrupt();
         } else if (message.type === 'timer_alert' && timerAlert) {
           objectArgs(message, ['type', 'timerId']); uuid(message.timerId);
-          if (!ready || alertPending || announcedTimers.has(message.timerId) || announcedTimers.size >= 256 || !['wake', 'followup'].includes(session.state)) return;
+          if (!ready || alertPending || replyPending || announcedTimers.has(message.timerId) || announcedTimers.size >= 256 || !['wake', 'followup'].includes(session.state)) return;
           alertPending = true;
           const revision = session.revision;
           void Promise.resolve().then(() => timerAlert(message.timerId)).then(receipt => {
@@ -105,6 +106,19 @@ export function attachVoiceSocket({ server, listener, meta, tts, respond, timerA
             if (!session.closed && session.revision === revision) send({ type: 'error', revision, fatal: false,
               message: error instanceof AppError ? error.message : 'The timer announcement is unavailable.' });
           }).finally(() => { alertPending = false; });
+        } else if (message.type === 'reply_audio' && replyAudio) {
+          objectArgs(message, ['type', 'requestId']); uuid(message.requestId);
+          const unavailable = reason => send({ type: 'speech_complete', revision: session.revision, requestId: message.requestId, played: false, reason });
+          if (!ready || replyPending || alertPending || !['wake', 'followup'].includes(session.state)) { unavailable('busy'); return; }
+          replyPending = true;
+          const revision = session.revision;
+          void Promise.resolve().then(() => replyAudio(message.requestId)).then(receipt => {
+            if (session.closed) return;
+            if (session.revision !== revision || !session.announce(receipt?.reply, [], { presentationMode: 'face', kind: 'reply', requestId: message.requestId })) unavailable('interrupted');
+          }).catch(error => {
+            if (!session.closed) send({ type: 'error', revision: session.revision, requestId: message.requestId, fatal: false,
+              message: error instanceof AppError ? error.message : 'The spoken reply is unavailable.' });
+          }).finally(() => { replyPending = false; });
         } else if (message.type === 'configure') {
           objectArgs(message, ['type', 'delivery', 'speed']); session.configure(message);
         } else if (message.type === 'playback') {

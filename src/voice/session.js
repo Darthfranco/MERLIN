@@ -100,22 +100,23 @@ export class VoiceSession {
     this.#followup('I’m listening.');
   }
 
-  /** Already-checked timer receipt only; this path never invokes the assistant. */
-  announce(reply, presentation = []) {
+  /** Already-checked receipt or stored reply; this path never invokes the assistant. */
+  announce(reply, presentation = [], { presentationMode = 'body', kind = 'timer', requestId } = {}) {
     if (this.closed || !['wake', 'followup'].includes(this.state)) return false;
-    if (typeof reply !== 'string' || !reply.trim() || reply.length > 2000 || !Array.isArray(presentation)) throw new AppError('The timer announcement is unavailable.');
+    if (typeof reply !== 'string' || !reply.trim() || reply.length > 2000 || !Array.isArray(presentation) || !['body', 'face'].includes(presentationMode)) throw new AppError('The spoken reply is unavailable.');
     const notification = {
       returnState: this.state,
       remainingMs: this.deadline === null ? null : Math.max(0, this.deadline + this.limits.onsetGraceMs - this.now()),
       followupWaitMs: this.followupWaitMs,
+      presentationMode, kind, requestId,
     };
-    this.#invalidate({ reason: 'notification' });
+    this.#invalidate({ reason: kind === 'reply' ? 'reply-audio' : 'notification' });
     this.notification = notification;
     this.pendingPcm = null; this.capture = null; this.deadline = null;
     const revision = this.revision, controller = new AbortController();
     this.controller = controller;
-    this.emit('notification', { response: { reply, presentation }, presentationMode: 'body' });
-    this.setState('generating', 'Your timer is finished.', { presentationMode: 'body' });
+    this.emit('notification', { response: { reply, presentation }, presentationMode, kind, ...(requestId ? { requestId } : {}) });
+    this.setState('generating', kind === 'timer' ? 'Your timer is finished.' : 'Preparing speech…', { presentationMode });
     this.work = this.#speakNotification(reply, { revision, controller });
     return true;
   }
@@ -126,14 +127,15 @@ export class VoiceSession {
       const audio = await this.tts.synthesize(reply, { delivery: this.delivery, speed: this.speed, signal: controller.signal });
       if (!current()) return;
       this.controller = null; this.utteranceId = randomUUID();
-      this.setState('speaking', 'Your timer is finished.', { presentationMode: 'body' });
-      this.emit('audio', { utteranceId: this.utteranceId, presentationMode: 'body' });
+      const { presentationMode, kind, requestId } = this.notification;
+      this.setState('speaking', kind === 'timer' ? 'Your timer is finished.' : 'Speaking.', { presentationMode });
+      this.emit('audio', { utteranceId: this.utteranceId, presentationMode, ...(requestId ? { requestId } : {}) });
       this.sendAudio(audio);
       this.playbackBudgetMs = Math.max(10_000, audio.length / 48000 * 1000 + 5000);
       this.deadline = this.now() + this.playbackBudgetMs;
     } catch (error) {
       if (!current()) return;
-      this.emit('error', { message: error instanceof AppError ? error.message : 'Your timer is finished, but its spoken alert could not play.' });
+      this.emit('error', { message: error instanceof AppError ? error.message : 'The reply is on screen, but its audio could not play.', ...(this.notification?.requestId ? { requestId: this.notification.requestId } : {}) });
       this.#finishNotification();
     }
   }
@@ -142,10 +144,10 @@ export class VoiceSession {
     const notification = this.notification;
     if (!notification) return;
     if (notification.returnState === 'wake' || notification.remainingMs <= 0) {
-      this.sleep('Local wake only — say MERLIN.', 'notification-ended');
+      this.sleep('Local wake only — say MERLIN.', notification.kind === 'reply' ? 'reply-audio-ended' : 'notification-ended');
       return;
     }
-    this.#invalidate({ reason: 'notification-ended' });
+    this.#invalidate({ reason: notification.kind === 'reply' ? 'reply-audio-ended' : 'notification-ended' });
     this.followupWaitMs = notification.followupWaitMs;
     // Pause, rather than restart, the existing quiet budget during the alert.
     this.deadline = this.now() + notification.remainingMs - this.limits.onsetGraceMs;
@@ -215,7 +217,7 @@ export class VoiceSession {
       if (this.notification?.returnState === 'wake' && ['speech_start', 'wake'].includes(event.type)) {
         // A timer alert must not turn unrelated room speech into a cloud turn.
         // Keep the local ring so a MERLIN event in this same frame can wake us.
-        this.#invalidate({ reason: 'notification-interrupted' });
+        this.#invalidate({ reason: this.notification.kind === 'reply' ? 'reply-audio-interrupted' : 'notification-interrupted' });
         this.pendingPcm = null; this.deadline = null;
         this.setState('wake', 'Local wake only — say MERLIN.');
       }
@@ -333,7 +335,7 @@ export class VoiceSession {
     if (playing) {
       this.quietSince = null;
       this.deadline = this.now() + this.playbackBudgetMs;
-      this.setState('speaking', this.notification ? 'Your timer is finished.' : 'Fenrir is speaking. You can interrupt.', this.notification ? { presentationMode: 'body' } : {});
+      this.setState('speaking', this.notification?.kind === 'timer' ? 'Your timer is finished.' : 'Fenrir is speaking. You can interrupt.', this.notification ? { presentationMode: this.notification.presentationMode } : {});
     } else if (this.state === 'speaking') {
       if (this.notification) this.#finishNotification();
       else this.#followup();

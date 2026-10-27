@@ -87,7 +87,7 @@ The authority for this extension is the owner's combined-character direction in 
 - A large character presentation, with compact conversational text and controls.
 - Midnight surfaces, pale cyan emphasis, and white retained action panels.
 - Visible microphone state and textual service outcomes.
-- Independent left and right action content through face/body changes.
+- Independent left and right action content retained through face/body changes, visible only in body mode.
 
 ## Colors
 
@@ -119,9 +119,9 @@ Countdowns use tabular numerals. At the narrow breakpoint, replies become (19px)
 
 The main container is centered at a maximum width (1600px). The desktop masthead and main area use page spacing horizontally. The stage preserves a landscape ratio (4:3), fitting its width to the available viewport height; the conversation is capped at (880px). The activity area is hidden initially and opens as a secondary right column (320px), with a vertical divider and its own scroll region.
 
-With one retained panel, the scene occupies (64%) and the panel (34%); the visual order follows its left/right identity. With two, the face occupies (48%) between two panels of (24%) each. Panel canvases retain their (5:6) ratio.
+The scene keeps the full stage width. Action content appears on the character’s authored body-mode screens, preserving their (5:6) ratio. Face mode hides every panel and action control; there are no separate side or lower panel canvases.
 
-At (1000px) and below, page padding and the activity column tighten. At (720px) and below, activity follows the conversation, the input and Send share a row, and the microphone button takes a full row. A single panel stays beside the face; two panels move beneath the face in equal columns. Secondary buttons and the disclosure summary have a minimum height (44px) on this narrow layout. This responsive browser composition is not a final device-platform decision.
+At (1000px) and below, page padding and the activity column tighten. At (720px) and below, activity follows the conversation, the input and Send share a row, and the microphone button takes a full row. Secondary buttons and the disclosure summary have a minimum height (44px) on this narrow layout. This responsive browser composition is not a final device-platform decision.
 
 ## Elevation & Depth
 
@@ -135,11 +135,11 @@ The character's rounded silhouette is the dominant shape. Shell controls use the
 
 ### Character and retained panels
 
-Body presentation introduces actions; face presentation supports conversation while retaining independent action canvases. Panels reuse the actual shared painter, with separate text descriptions for assistive technology. The clock is hidden during full-face presentation. Authored routes normally animate state changes; urgent conversation takes priority. Reduced motion uses the appropriate static state and suppresses casual movement. Motion and timing remain governed by the orchestration contract.
+Body presentation introduces actions; face presentation supports conversation while hiding both action screens and retaining their independent data. Panels reuse the actual shared painter, with separate text descriptions for assistive technology. The clock is hidden during full-face presentation. Authored routes normally animate state changes; urgent conversation takes priority. Reduced motion uses the appropriate static state and suppresses casual movement. Motion and timing remain governed by the orchestration contract.
 
 ### Composer and microphone
 
-The single-line request field, Send button, and explicit microphone toggle form the primary control group. Microphone activation is visibly pressed and labeled. Typed focus uses “Ready when you are”; it must not imply audio capture while “Microphone off” is shown. Typed read-aloud is a separate checkbox.
+The single-line request field, Send button, and explicit microphone toggle form the primary control group. Microphone activation is visibly pressed and labeled. Typed focus uses “Ready when you are”; it must not imply audio capture while “Microphone off” is shown. Typed read-aloud is a separate checkbox, enabled initially with explicit changes remembered locally. Test speaker checks local Fenrir output without microphone access; contextual help explains browser/OS microphone blocking.
 
 ### Status, replies, and recovery
 
@@ -168,4 +168,4 @@ Keyboard focus uses a cyan outline (3px) with an offset (3px) on buttons, fields
 - **Don't** treat a panel animation or a simulated connection as proof that a device action succeeded.
 - **Don't** copy the older light utility palette over this scoped character surface.
 
-The final [visual verdict](../../.impeccable/review/companion/verdict.md) is **ship** at the three-fix scope: truthful typed status, distinguishable action controls, and mobile touch targets. Still-image review does not establish runtime motion, audio, or live-provider behavior.
+The initial [visual verdict](../../.impeccable/review/companion/verdict.md) is **ship** at the three-fix scope: truthful typed status, distinguishable action controls, and mobile touch targets. Still-image review does not establish runtime motion, audio, or live-provider behavior.

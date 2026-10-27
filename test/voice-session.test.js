@@ -834,3 +834,19 @@ test('explicit Stop and close cancel pending timer speech without permitting a l
     assert.equal(h.uploads.length, 0);
   }
 });
+
+test('checked typed read-aloud uses face mode with its own cancellation reason and no assistant call', async t => {
+  const h = harness(t);
+  await h.session.start();
+  assert.equal(h.session.announce('Checked typed answer.', [], { presentationMode: 'face', kind: 'reply', requestId: assistantContext.sessionId }), true);
+  await h.session.work;
+  assert.equal(h.uploads.length, 0);
+  assert.equal(h.sent.find(event => event.type === 'interrupt').reason, 'reply-audio');
+  assert.equal(h.sent.find(event => event.type === 'notification').kind, 'reply');
+  const audio = h.sent.find(event => event.type === 'audio');
+  assert.equal(audio.presentationMode, 'face');
+  assert.equal(audio.requestId, assistantContext.sessionId);
+  h.finishPlayback();
+  assert.equal(h.sent.filter(event => event.type === 'interrupt').at(-1).reason, 'reply-audio-ended');
+  assert.equal(h.session.state, 'wake');
+});

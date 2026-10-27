@@ -176,3 +176,25 @@ test('timer callback resolving after explicit sleep cannot start stale notificat
   assert.equal(h.messages.some(message => message.type === 'notification'), false);
   assert.equal(h.modelCalls.length, 0);
 });
+
+test('active wake socket speaks a checked typed reply without another model request or conversation write', { timeout: 7000 }, async t => {
+  const h = await fixture(t, [answer('Ready to help.')], []);
+  const requestId = randomUUID();
+  const result = await h.runChatTurn({ message: 'Hello.', request_id: requestId, session_id: h.sessionId, time_zone: 'America/New_York', channel: 'typed' });
+  const count = h.store.snapshot().conversations.length;
+  const missing = randomUUID();
+  h.socket.send(JSON.stringify({ type: 'reply_audio', requestId: missing }));
+  const error = await h.waitFor(message => message.type === 'error' && message.requestId === missing);
+  assert.equal(error.fatal, false);
+  h.socket.send(JSON.stringify({ type: 'reply_audio', requestId }));
+  const notice = await h.waitFor(message => message.type === 'notification' && message.requestId === requestId);
+  const audio = await h.waitFor(message => message.type === 'audio' && message.requestId === requestId);
+  await h.waitFor(message => message.binary);
+  assert.equal(notice.kind, 'reply');
+  assert.equal(notice.presentationMode, 'face');
+  assert.equal(audio.presentationMode, 'face');
+  assert.equal(h.spoken[0].text, result.data.reply);
+  assert.equal(h.modelCalls.length, 1);
+  assert.equal(h.uploads.length, 0);
+  assert.equal(h.store.snapshot().conversations.length, count);
+});

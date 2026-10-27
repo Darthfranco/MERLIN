@@ -14,6 +14,59 @@ const ambient = new Set(['walk', 'toss', 'nap', 'dance', 'sweep']);
 const assetURL = path => new URL(path, import.meta.url).href;
 const validData = value => value && typeof value === 'object' && !Array.isArray(value);
 
+export const RENDER_BUDGET = Object.freeze({fps: 30, maxPixels: 1024 * 768, maxPixelRatio: 1.25, panelInterval: 250, shadowSize: 512});
+export function renderPixelRatio(width, height, deviceRatio = 1) {
+  return Math.min(Math.max(.1, deviceRatio), RENDER_BUDGET.maxPixelRatio,
+    Math.sqrt(RENDER_BUDGET.maxPixels / Math.max(1, width * height)));
+}
+
+/** No frames while hidden; static scenes sleep until a change or live panel poll. */
+export function createRenderLoop({render, poll = () => false, animated = () => true, dynamic = () => false,
+  requestFrame = requestAnimationFrame, cancelFrame = cancelAnimationFrame, scheduleTimer = setTimeout, cancelTimer = clearTimeout,
+  now = () => performance.now(), visible = true}) {
+  let frame = null, timer = null, dirty = true, stopped = false, lastFrame = null, lastPoll = -Infinity;
+  function schedule() {
+    if (stopped || !visible || frame !== null || timer !== null) return;
+    if (dirty || animated()) frame = requestFrame(tick);
+    else if (dynamic()) timer = scheduleTimer(() => {timer = null; dirty = poll() || dirty; lastPoll = now(); schedule();}, RENDER_BUDGET.panelInterval);
+  }
+  function tick(timestamp) {
+    frame = null;
+    if (stopped || !visible) return;
+    const elapsed = lastFrame === null ? 1 / RENDER_BUDGET.fps : (timestamp - lastFrame) / 1000;
+    if (lastFrame !== null && elapsed < 1 / RENDER_BUDGET.fps - .001) {schedule(); return;}
+    if (timestamp - lastPoll >= RENDER_BUDGET.panelInterval) {dirty = poll() || dirty; lastPoll = timestamp;}
+    if (dirty || animated()) {
+      dirty = false; lastFrame = timestamp;
+      // Keep real-time motion through moderate dropped frames without a huge resume jump.
+      render(Math.min(elapsed, .25));
+    }
+    schedule();
+  }
+  function cancel() {if (frame !== null) cancelFrame(frame); if (timer !== null) cancelTimer(timer); frame = null; timer = null;}
+  return {
+    invalidate() {if (stopped) return; dirty = true; if (timer !== null) {cancelTimer(timer); timer = null;} schedule();},
+    setVisible(value) {visible = Boolean(value); cancel(); lastFrame = null; lastPoll = -Infinity; if (visible) {dirty = true; schedule();}},
+    destroy() {stopped = true; cancel();},
+    get scheduled() {return frame !== null || timer !== null;},
+  };
+}
+
+/** Scale-zero export helpers still submit draw calls unless explicitly hidden. */
+export function createHiddenMeshCuller(root) {
+  const meshes = []; root.traverse(object => {if (object.isMesh) meshes.push({object, visible: object.visible});});
+  return fullFace => {
+    let visible = 0;
+    for (const entry of meshes) {
+      const object = entry.object, m = object.matrixWorld.elements;
+      object.visible = entry.visible && !(fullFace && object.isSkinnedMesh) &&
+        Math.abs(m[0]) + Math.abs(m[1]) + Math.abs(m[2]) + Math.abs(m[4]) + Math.abs(m[5]) + Math.abs(m[6]) + Math.abs(m[8]) + Math.abs(m[9]) + Math.abs(m[10]) > 1e-7;
+      if (object.visible) visible++;
+    }
+    return visible;
+  };
+}
+
 /** A manifest may arrive before its GLB export; only advertise routes we can play. */
 export function runtimeManifest(manifest, clipNames) {
   const clips = new Set(clipNames);
@@ -68,9 +121,9 @@ function visiblePanels(controller) {
 }
 
 /** Presentation only: no microphone, model, service credentials or demo outcomes. */
-export function createCharacterDriver({controller, screens, panelArt = {}, reducedMotion = false, onStatus = () => {}}) {
+export function createCharacterDriver({controller, screens, panelArt = {}, reducedMotion = false, onStatus = () => {}, invalidate = () => {}}) {
   let wanted = 'ready', destroyed = false, lastSide = 'right', speaking = 0, listening = false, transitionPace = 1;
-  const panels = {left: null, right: null};
+  const panels = {left: null, right: null}; let panelPaints = 0;
   const capabilities = Object.freeze({states: Object.freeze(Object.keys(controller.states)),
     routes: Object.freeze((controller.routes || []).map(route => Object.freeze({...route}))), procedural: Object.freeze(['sweep'])});
   const waiters = new Set();
@@ -81,6 +134,7 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     waiter.resolve(result);
   };
   function motionChanged() {
+    invalidate();
     // The shared controller may resolve context-sensitive thought/face routes.
     if (!(wanted === 'sweep' && controller.desired === 'ready')) wanted = controller.desired;
     if (controller.active) controller.active.setEffectiveTimeScale(['idle', 'finishLoop'].includes(controller.phase) ? 1 : transitionPace);
@@ -119,9 +173,9 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     if (!panelTypes.has(type)) throw new TypeError('Choose a supported MERLIN panel design.');
     if (!['right', 'left'].includes(side)) throw new TypeError('Use the left or right panel.');
     if (typeof data !== 'function' && !validData(data)) throw new TypeError('Panel data must be an object or function.');
-    const record = {type, data, side};
-    readPanel(record); panels[side] = record; lastSide = side;
-    screens[side].draw((context, width, height) => paintPanel(context, width, height, readPanel(record), {art: panelArt, controls: false}), {animate: true});
+    const record = panels[side]?.type === type ? panels[side] : {type, side};
+    record.data = data; readPanel(record); panels[side] = record; lastSide = side;
+    refreshPanels([side]);
     if (options.navigate !== false) go(panels.left && panels.right && controller.states.both ? 'both' : side, options);
     return readPanel(record);
   }
@@ -133,8 +187,27 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     panel.data = typeof data === 'function' ? data : {...readPanel(panel), ...data};
     lastSide = side;
     // Screen content keeps updating when character motion is reduced/paused.
-    screens[panel.side].tick(0);
+    refreshPanels([side]);
     return readPanel(panel);
+  }
+  function refreshPanels(sides = ['left', 'right']) {
+    let changed = false;
+    for (const side of sides) {
+      const panel = panels[side]; if (!panel) continue;
+      const snapshot = readPanel(panel);
+      // Display precision is seconds; do not redraw/upload a 1MP texture for invisible fractions.
+      if (Number.isFinite(snapshot.seconds)) snapshot.seconds = Math.ceil(snapshot.seconds);
+      if (Number.isFinite(snapshot.elapsed)) snapshot.elapsed = Math.floor(snapshot.elapsed);
+      const signature = JSON.stringify(snapshot);
+      if (signature === panel.signature) continue;
+      panel.snapshot = snapshot; panel.signature = signature;
+      if (!panel.initialized) {
+        screens[side].draw((context, width, height) => paintPanel(context, width, height, panel.snapshot, {art: panelArt, controls: false}), {animate: true});
+        panel.initialized = true;
+      } else screens[side].tick(0);
+      panelPaints++; changed = true;
+    }
+    if (changed) invalidate(); return changed;
   }
   function clearPanel(side) {
     if (!['right', 'left', 'both'].includes(side)) throw new TypeError('Clear the left, right, or both panels.');
@@ -143,15 +216,17 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
       panels[target] = null; screens[target].reset?.();
       const surface = screens[target]; surface.context?.clearRect(0, 0, surface.canvas.width, surface.canvas.height);
     }
-    return true;
+    invalidate(); return true;
   }
   return {
-    go, showPanel, updatePanel, clearPanel, motionChanged, capabilities,
+    go, showPanel, updatePanel, clearPanel, refreshPanels, motionChanged, capabilities,
     setSpeaking(level) { speaking = Number.isFinite(level) ? Math.max(0, Math.min(1, level)) : level === true ? .5 : 0; },
     setListening(value) { listening = Boolean(value); },
     get state() { return state(); }, get desired() { return wanted; }, get phase() { return controller.phase; },
     get clip() { return controller.clip; }, get speaking() { return speaking; }, get listening() { return listening; },
     get reducedMotion() { return reducedMotion; }, get panel() { return readPanel(); },
+    get panelPaints() { return panelPaints; },
+    get hasDynamicPanels() { return Object.values(panels).some(panel => typeof panel?.data === 'function'); },
     get panels() { return {left: readPanel(panels.left), right: readPanel(panels.right)}; },
     setReducedMotion(value) { reducedMotion = Boolean(value); go(wanted, {urgent: true}); },
     whenSettled(next, signal) {
@@ -233,14 +308,17 @@ export function createSpeechOverlay(root) {
 
 export async function createCharacter({canvas, stage, onStatus = () => {}, onError = () => {}, reducedMotion} = {}) {
   if (!canvas || !stage) throw new TypeError('The character needs a canvas and stage.');
-  let renderer, composer, observer, sceneClock, driver, destroyDriver, controller, model, scene, surfaces, disposed = false;
+  let renderer, composer, observer, sceneClock, driver, destroyDriver, controller, model, scene, surfaces, renderLoop, disposed = false;
+  const renderStats = {frames: 0, drawCalls: 0, triangles: 0, visibleMeshes: 0, width: 0, height: 0, fpsCap: RENDER_BUDGET.fps};
   const media = matchMedia('(prefers-reduced-motion: reduce)');
   const followsPreference = reducedMotion === undefined;
   const onReducedMotion = () => driver?.setReducedMotion(media.matches);
+  const onVisibility = () => renderLoop?.setVisible(!document.hidden);
   const onContextLost = event => { event.preventDefault(); dispose(); onError(new Error('The character display stopped. Reload to restore it.')); };
   function dispose() {
     if (disposed) return; disposed = true;
-    destroyDriver?.(); renderer?.setAnimationLoop(null); observer?.disconnect(); sceneClock?.destroy();
+    destroyDriver?.(); renderLoop?.destroy(); observer?.disconnect(); sceneClock?.destroy();
+    document.removeEventListener('visibilitychange', onVisibility);
     media.removeEventListener('change', onReducedMotion); canvas.removeEventListener('webglcontextlost', onContextLost);
     controller?.mixer.stopAllAction(); if (model) controller?.mixer.uncacheRoot(model);
     for (const surface of Object.values(surfaces || {})) {
@@ -271,10 +349,10 @@ export async function createCharacter({canvas, stage, onStatus = () => {}, onErr
     const manifest = runtimeManifest(authoredManifest, gltf.animations.map(clip => clip.name));
     onStatus({loading: true, supportedStates: Object.keys(manifest.states), unavailableStates: manifest.unavailableStates});
     model = gltf.scene;
-    renderer = new THREE.WebGLRenderer({canvas, antialias: true, alpha: false, powerPreference: 'high-performance'});
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer = new THREE.WebGLRenderer({canvas, antialias: false, alpha: false, powerPreference: 'low-power'});
+    renderer.setPixelRatio(1); renderer.info.autoReset = false;
     renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.AgXToneMapping;
-    renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.VSMShadowMap;
+    renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false;
     scene = new THREE.Scene(); scene.background = new THREE.Color('#081326'); scene.fog = new THREE.Fog('#081326', 22, 50);
     const width = manifest.camera.orthographic_width, height = width / manifest.camera.aspect_ratio;
     const camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, .1, 100);
@@ -284,7 +362,7 @@ export async function createCharacter({canvas, stage, onStatus = () => {}, onErr
     function light(color, intensity, x, y, z, shadow = false) {
       const value = new THREE.DirectionalLight(color, intensity); value.position.set(x, y, z); value.target.position.set(0, 2.2, 0);
       if (shadow) {
-        value.castShadow = true; value.shadow.mapSize.set(1024, 1024);
+        value.castShadow = true; value.shadow.mapSize.set(RENDER_BUDGET.shadowSize, RENDER_BUDGET.shadowSize);
         Object.assign(value.shadow.camera, {left: -7, right: 7, top: 8, bottom: -5, near: .1, far: 35});
         value.shadow.normalBias = .025; value.shadow.bias = -.00015; value.shadow.radius = 4; value.shadow.blurSamples = 8; value.shadow.intensity = .5;
       }
@@ -302,7 +380,7 @@ export async function createCharacter({canvas, stage, onStatus = () => {}, onErr
       const foot = model.getObjectByName(name); if (!foot) continue;
       const glow = new THREE.PointLight(0x26bcff, 2.8, 1.1, 2); scene.add(glow); feet.push({foot, glow});
     }
-    const sweep = createSweep(model, scene), speech = createSpeechOverlay(model);
+    const sweep = createSweep(model, scene), speech = createSpeechOverlay(model), cullMeshes = createHiddenMeshCuller(model);
     const clockStates = {...manifest.states, sweep: {label: 'Sweeping', parent: 'ready', idle: 'CompanionSweep'}};
     const footprints = new Map(Object.entries(footprintData.clips));
     // Extra center-only envelope covers the broom and procedural arm reach.
@@ -311,32 +389,45 @@ export async function createCharacter({canvas, stage, onStatus = () => {}, onErr
     controller = new MotionController(new THREE.AnimationMixer(model), gltf.animations, manifest, info => {
       sceneClock.sync({...info, current: info.state}); driver?.motionChanged();
     });
-    driver = createCharacterDriver({controller, screens, panelArt, reducedMotion: reducedMotion ?? media.matches, onStatus: info => {
+    driver = createCharacterDriver({controller, screens, panelArt, reducedMotion: reducedMotion ?? media.matches,
+      invalidate: () => renderLoop?.invalidate(), onStatus: info => {
       if (info.state === 'sweep') sceneClock.sync({...info, current: 'sweep', desired: 'sweep', clip: 'CompanionSweep'});
       onStatus(info);
     }});
     destroyDriver = driver.destroy;
     composer = new EffectComposer(renderer); composer.addPass(new RenderPass(scene, camera));
-    composer.addPass(new UnrealBloomPass(new THREE.Vector2(800, 600), .32, .25, 1.1)); composer.addPass(new OutputPass());
-    function resize() { const width = Math.max(1, stage.clientWidth), height = Math.max(1, stage.clientHeight); renderer.setSize(width, height, false); composer.setSize(width, height); }
+    const bloom = new UnrealBloomPass(new THREE.Vector2(400, 300), .32, .25, 1.1), sizeBloom = bloom.setSize.bind(bloom);
+    bloom.setSize = (width, height) => sizeBloom(Math.max(1, Math.round(width / 2)), Math.max(1, Math.round(height / 2)));
+    composer.addPass(bloom); composer.addPass(new OutputPass());
+    function resize() {
+      const width = Math.max(1, stage.clientWidth), height = Math.max(1, stage.clientHeight);
+      const ratio = renderPixelRatio(width, height, window.devicePixelRatio || 1);
+      renderer.setPixelRatio(ratio); renderer.setSize(width, height, false); composer.setPixelRatio(ratio); composer.setSize(width, height);
+      renderStats.width = canvas.width; renderStats.height = canvas.height; renderLoop?.invalidate();
+    }
     observer = new ResizeObserver(resize); observer.observe(stage); resize();
-    const clock = new THREE.Clock(); let elapsed = 0, lastPanelPaint = -Infinity;
-    renderer.setAnimationLoop(() => {
+    let elapsed = 0;
+    renderLoop = createRenderLoop({visible: !document.hidden,
+      animated: () => !driver.reducedMotion && !controller.paused,
+      dynamic: () => driver.hasDynamicPanels && visiblePanels(controller).size > 0,
+      poll: () => driver.refreshPanels(visiblePanels(controller)),
+      render: delta => {
       if (disposed) return;
-      const delta = Math.min(clock.getDelta(), .05); if (document.hidden) return;
       sweep.restore(); speech.restore(); controller.update(delta);
       if (!driver.reducedMotion) elapsed += delta;
       sweep.update(elapsed, driver.state === 'sweep' && !driver.reducedMotion);
       speech.update(elapsed, driver.speaking, driver.state === 'face' && !driver.reducedMotion,
         ['ready', 'right', 'left', 'both', 'seatedLeft', 'seatedRight'].includes(driver.state) && !driver.reducedMotion);
-      // Live countdown uses wall-clock data, even when the animation is static.
-      if (performance.now() - lastPanelPaint > 100) {
-        for (const side of visiblePanels(controller)) screens[side]?.tick(elapsed);
-        lastPanelPaint = performance.now();
-      }
+      model.updateMatrixWorld(true);
+      const fullFace = isFaceState(controller.current, controller.states) && controller.phase === 'idle';
+      renderStats.visibleMeshes = cullMeshes(fullFace);
       for (const {foot, glow} of feet) { foot.getWorldPosition(glow.position); glow.position.y = .12; }
-      composer.render();
-    });
+      renderer.shadowMap.needsUpdate = !fullFace;
+      renderer.info.reset(); composer.render();
+      renderStats.frames++; renderStats.drawCalls = renderer.info.render.calls; renderStats.triangles = renderer.info.render.triangles;
+    }});
+    Object.defineProperty(driver, 'renderStats', {get: () => ({...renderStats, panelPaints: driver.panelPaints, hidden: document.hidden})});
+    document.addEventListener('visibilitychange', onVisibility);
     canvas.addEventListener('webglcontextlost', onContextLost);
     if (followsPreference) media.addEventListener('change', onReducedMotion);
     driver.go('ready', {urgent: true});

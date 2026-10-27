@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {AnimationMixer, AnimationClip, Object3D, NumberKeyframeTrack, Group, Box3, Vector3} from './vendor/three/build/three.module.min.js';
 import {MotionController} from './motion.js';
-import {createCharacterDriver, createSpeechOverlay, createSweep, runtimeManifest} from './character.js';
+import {createCharacterDriver, createSpeechOverlay, createSweep, runtimeManifest, createRenderLoop, createHiddenMeshCuller, renderPixelRatio, RENDER_BUDGET} from './character.js';
 import {loadFootprintSource} from '../scripts/build_motion_footprints.mjs';
 import {chooseClockSpot} from './clock-layout.js';
 
@@ -25,6 +25,53 @@ function fixture({reducedMotion = false, dualPanels = false} = {}) {
   return {controller, driver, model, screens};
 }
 function advance(controller, seconds) {for (let i = 0; i < seconds * 60; i++) controller.update(1 / 60);}
+
+function renderFixture(options = {}) {
+  let clock = 0, id = 0; const frames = new Map(), timers = new Map(), renders = [];
+  const loop = createRenderLoop({render: delta => renders.push(delta), now: () => clock,
+    requestFrame: callback => {frames.set(++id, callback); return id;}, cancelFrame: id => frames.delete(id),
+    scheduleTimer: (callback, delay) => {timers.set(++id, {callback, at: clock + delay}); return id;}, cancelTimer: id => timers.delete(id), ...options});
+  function step(milliseconds) {
+    clock += milliseconds;
+    for (const [id, timer] of [...timers]) if (timer.at <= clock) {timers.delete(id); timer.callback();}
+    const scheduled = [...frames]; frames.clear(); for (const [, callback] of scheduled) callback(clock);
+  }
+  return {loop, frames, timers, renders, step};
+}
+
+test('render loop caps GPU frames, preserves elapsed motion, and cancels all work when hidden', () => {
+  const {loop, frames, timers, renders, step} = renderFixture();
+  loop.invalidate(); for (let i = 0; i < 1200; i++) step(1000 / 120);
+  assert.ok(renders.length >= 295 && renders.length <= 301, `${renders.length} frames across ten seconds`);
+  step(100); assert.ok(renders.at(-1) >= .099, 'dropped frames do not slow motion to a fixed .05 step');
+  loop.setVisible(false); assert.equal(frames.size + timers.size, 0);
+  const count = renders.length; for (let i = 0; i < 120; i++) step(1000 / 120); assert.equal(renders.length, count);
+  loop.invalidate(); assert.equal(frames.size + timers.size, 0);
+  loop.setVisible(true); step(16); assert.equal(renders.length, count + 1); assert.ok(renders.at(-1) < .04);
+  loop.destroy(); assert.equal(frames.size + timers.size, 0);
+});
+
+test('a static reduced-motion scene renders only changes while dynamic panels can wake it', () => {
+  let changed = false, live = false, polls = 0;
+  const {loop, frames, timers, renders, step} = renderFixture({animated: () => false, dynamic: () => live,
+    poll: () => {polls++; const result = changed; changed = false; return result;}});
+  loop.invalidate(); step(16); assert.equal(renders.length, 1); assert.equal(frames.size + timers.size, 0);
+  for (let i = 0; i < 100; i++) step(100); assert.equal(renders.length, 1);
+  live = true; loop.invalidate(); step(40); assert.equal(renders.length, 2);
+  for (let i = 0; i < 4; i++) step(250); assert.equal(renders.length, 2);
+  changed = true; step(250); assert.equal(renders.length, 3); assert.ok(polls >= 6);
+  loop.destroy(); assert.equal(frames.size + timers.size, 0);
+});
+
+test('render resolution stays bounded on retina desktop and narrow mobile surfaces', () => {
+  for (const [width, height, dpr] of [[1360, 1020, 2], [2000, 1500, 3], [390, 292.5, 3], [800, 600, 1]]) {
+    const ratio = renderPixelRatio(width, height, dpr);
+    assert.ok(ratio <= RENDER_BUDGET.maxPixelRatio && ratio <= dpr);
+    assert.ok(width * height * ratio * ratio <= RENDER_BUDGET.maxPixels + 1);
+  }
+  const ratio = renderPixelRatio(1360, 1020, 2);
+  assert.ok((1360 * 1020 * ratio ** 2 * 30) / (1360 * 1020 * 4 * 60) < .08);
+});
 
 test('runtime manifest excludes unexported states, descendants, unavailable routes and stranded destinations', () => {
   const source = {initial: 'both', states: {
@@ -125,7 +172,7 @@ test('independent panel installation, updates and clear do not navigate or overw
   driver.showPanel('timer', () => ({status: 'running', label: 'First timer', seconds, durationSeconds: 60}), 'left', {navigate: false});
   driver.showPanel('lights', {status: 'off', label: 'Second panel'}, 'right', {navigate: false});
   assert.equal(driver.desired, 'ready'); assert.equal(driver.phase, 'idle');
-  seconds = 23; driver.updatePanel({status: 'on'}, 'right');
+  seconds = 23; driver.updatePanel({status: 'on'}, 'right'); driver.refreshPanels(['left']);
   assert.equal(driver.panels.left.seconds, 23); assert.equal(driver.panels.right.status, 'on');
   function paint(surface) {
     const texts = [], context = new Proxy({measureText: value => ({width: String(value).length * 12}), fillText: value => texts.push(String(value))},
@@ -139,6 +186,51 @@ test('independent panel installation, updates and clear do not navigate or overw
   driver.clearPanel('left'); assert.equal(driver.panels.left, null); assert.equal(screens.left.painter, null);
   assert.equal(driver.panels.right.status, 'on'); assert.equal(driver.desired, 'ready');
   assert.equal(driver.updatePanel({seconds: 1}, 'left'), false);
+});
+
+test('unchanged panels reuse textures and do no repeated painting while countdowns update at display precision', () => {
+  const {driver, screens} = fixture();
+  driver.showPanel('lights', {status: 'off'}, 'right', {navigate: false});
+  const firstPainter = screens.right.painter;
+  for (let i = 0; i < 600; i++) {driver.refreshPanels(); driver.showPanel('lights', {status: 'off'}, 'right', {navigate: false});}
+  assert.equal(driver.panelPaints, 1); assert.equal(screens.right.painter, firstPainter);
+  let seconds = 60;
+  driver.showPanel('timer', () => ({status: 'running', seconds, durationSeconds: 60}), 'left', {navigate: false});
+  for (let i = 0; i < 40; i++) {seconds = 60 - i / 4; driver.refreshPanels(['left']);}
+  assert.equal(driver.panelPaints, 11, 'one static paint plus ten countdown values across ten seconds');
+  assert.equal(screens.left.paints, 9);
+});
+
+test('zero-scale meshes and concealed body meshes skip GPU submission and restore on body return', async () => {
+  const {gltf} = await loadFootprintSource(), mixer = new AnimationMixer(gltf.scene), cull = createHiddenMeshCuller(gltf.scene);
+  function pose(name, face) {mixer.stopAllAction(); mixer.clipAction(gltf.animations.find(clip => clip.name === name)).play(); mixer.update(0); gltf.scene.updateMatrixWorld(true); return cull(face);}
+  const ready = pose('ReadyIdle', false), face = pose('FullFaceIdle', true), returned = pose('ReadyIdle', false);
+  assert.ok(ready > 0 && ready < 70); assert.ok(face > 0 && face < ready / 2); assert.equal(returned, ready);
+  gltf.scene.traverse(object => {if (object.isSkinnedMesh) assert.equal(object.visible, true);});
+});
+
+test('culled right panel restores during its authored entry and after a full-face excursion', async () => {
+  const {gltf, manifest: authored} = await loadFootprintSource();
+  const manifest = runtimeManifest(authored, gltf.animations.map(clip => clip.name)), cull = createHiddenMeshCuller(gltf.scene);
+  let driver;
+  const controller = new MotionController(new AnimationMixer(gltf.scene), gltf.animations, manifest, () => driver?.motionChanged());
+  driver = createCharacterDriver({controller, screens: {}});
+  const panelMeshes = [];
+  gltf.scene.traverse(object => {if (object.isMesh && object.parent.name === 'Panel_•_white_card') panelMeshes.push(object);});
+  assert.equal(panelMeshes.length, 2);
+  function run(seconds) {
+    for (let i = 0; i < seconds * 30; i++) {
+      controller.update(1 / 30); gltf.scene.updateMatrixWorld(true);
+      cull(controller.current === 'face' && controller.phase === 'idle');
+    }
+  }
+  driver.go('right', {pace: 4}); run(33);
+  assert.equal(driver.state, 'right'); assert.equal(driver.phase, 'idle');
+  assert.ok(panelMeshes.every(mesh => mesh.visible && mesh.parent.visible && mesh.getWorldScale(new Vector3()).lengthSq() > 2.9));
+  driver.go('face', {pace: 4}); run(6); assert.ok(panelMeshes.every(mesh => !mesh.visible));
+  driver.go('right', {pace: 4}); run(6);
+  assert.equal(driver.state, 'right'); assert.equal(driver.phase, 'idle');
+  assert.ok(panelMeshes.every(mesh => mesh.visible && mesh.parent.visible && mesh.getWorldScale(new Vector3()).lengthSq() > 2.9));
 });
 
 test('available dual-panel state is selected from the manifest and panel records survive face mode', () => {

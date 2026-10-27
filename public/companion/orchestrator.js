@@ -1,12 +1,21 @@
 /** Foreground presentation only. No device, memory, or model execution lives here. */
 export const IDLE_DELAY = 20_000;
 export const FOLLOWUP_DELAY = 10_000;
-export const ACTION_HOLD = 1_200;
+export const ACTION_HOLD = 400;
 const idleActivities = ['sweep', 'walk', 'toss'];
 export const toolPanel = tool => /^(create|cancel|list)_timer/.test(tool) ? 'timer'
   : tool?.startsWith('spotify_') ? 'music' : tool === 'routine_save' ? 'routine-saved'
     : ['routine_read', 'routine_use'].includes(tool) ? 'routine' : null;
 const labels = {timer:'Your timer',music:'Spotify',lights:'Lights',oven:'Oven',schedule:'Schedules',routine:'Your routine','routine-saved':'Your routine'};
+export function presentationLayout(view, states) {
+  const available = new Set(states || ['ready', 'face', 'faceThink', 'search', 'left', 'right']);
+  const body = ['left', 'right', 'both'].includes(view.destination);
+  let destination = view.destination;
+  if (!available.has(destination) && destination !== 'sweep') {
+    destination = body && available.has(view.focusSide) ? view.focusSide : 'ready';
+  }
+  return {destination, showControls:body && Boolean(view.panels?.left || view.panels?.right)};
+}
 export function pendingPanel(type, status = 'pending') { return {type,status,label:labels[type] || 'Your action',source:'live'}; }
 export function timerPanel(timer, now = Date.now()) {
   if (!timer) return pendingPanel('timer', 'unknown');
