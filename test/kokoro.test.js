@@ -45,6 +45,7 @@ test('Kokoro validates text and speed before starting any process', async () => 
   for (const speed of [0, 0.74, 1.26, Infinity, NaN, '1']) {
     await assert.rejects(service.synthesize('Hello', { speed }), /speech speed/);
   }
+  await assert.rejects(service.synthesize('Hello', { delivery: 'sad' }), /Choose natural/);
   assert.equal(workers.length, 0);
 });
 
@@ -67,8 +68,11 @@ test('Kokoro returns validated WAV and reuses its local offline Fenrir worker', 
   assert.equal(workers.length, 1);
   assert.equal(requests[0].speed, 0.75);
   assert.equal(requests[1].speed, 1.25);
+  assert.equal(requests[0].segments.map(segment => segment.text).join(''), 'Hello.');
+  assert.equal(requests[1].segments.map(segment => segment.text).join(''), 'Another sentence.');
   assert.notEqual(requests[0].id, requests[1].id);
   assert.equal(service.status().voice, 'am_fenrir');
+  assert.equal(service.status().defaultDelivery, 'natural');
   assert.equal(service.status().ready, true);
   assert.equal(service.status().busy, false);
   assert.equal(invocations[0].settings.env.HF_HUB_OFFLINE, '1');
@@ -76,6 +80,21 @@ test('Kokoro returns validated WAV and reuses its local offline Fenrir worker', 
   assert.equal(Object.hasOwn(invocations[0].settings.env, 'META_API_KEY'), false);
   assert.equal(Object.hasOwn(invocations[0].settings.env, 'HF_TOKEN'), false);
   assert.equal(invocations[0].args.includes('Hello.'), false);
+});
+
+test('Kokoro sends explicit stress to the local worker intact and neutral uses the requested rate', async t => {
+  const requests = [];
+  const { service } = harness((request, child) => {
+    requests.push(request);
+    setImmediate(() => child.send({ id: request.id, audio: wav().toString('base64') }));
+  });
+  t.after(() => service.close());
+  const text = 'That is [so](+2) good! Ready?';
+  await service.synthesize(text, { delivery: 'lively' });
+  await service.synthesize(text, { delivery: 'neutral', speed: 0.9 });
+  assert.equal(requests[0].text, text);
+  assert.equal(requests[0].segments.map(segment => segment.text).join(''), text);
+  assert.deepEqual(requests[1].segments, [{ text, speed: 0.9, pauseMs: 0 }]);
 });
 
 test('Kokoro rejects overlapping work without queueing and supports cancellation', async t => {

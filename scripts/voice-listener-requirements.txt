@@ -1,0 +1,5 @@
+# Local keyword spotting and VAD; no cloud recognition or credentials.
+sherpa-onnx==1.12.35
+sherpa-onnx-core==1.12.35
+# Used at setup to verify the official model's MERLIN tokenization.
+sentencepiece==0.2.1

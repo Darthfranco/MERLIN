@@ -5,6 +5,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { AppError, objectArgs } from './errors.js';
 import { MetaTranscriber } from './voice/meta.js';
 import { KokoroTts } from './voice/kokoro.js';
+import { LocalVoiceListener } from './voice/listener.js';
+import { attachVoiceSocket } from './voice/transport.js';
+import { validateSpeechDelivery } from './voice/prosody.js';
+import { VOICE_SESSION_LIMITS } from './voice/session.js';
 import { MAX_AUDIO_BYTES, MAX_RECORDING_SECONDS, MAX_TEXT_CHARACTERS, validateWav } from './voice/audio.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -31,6 +35,7 @@ async function readBody(request, limit) {
 export function createVoiceApp({
   meta = new MetaTranscriber({ apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY }),
   tts = new KokoroTts(),
+  listener = new LocalVoiceListener(),
 } = {}) {
   const pending = new Set();
   let transcribing = false;
@@ -63,11 +68,12 @@ export function createVoiceApp({
       }
       if (req.method === 'GET' && pathname === '/api/voice/status') {
         json(200, { metaConfigured: meta.configured, transcriptionModel: meta.model,
-          voice: 'am_fenrir', tts: await tts.status(),
+          voice: 'am_fenrir', tts: await tts.status(), listener: listener.status(), sessionLimits: VOICE_SESSION_LIMITS,
           limits: { maxTextCharacters: MAX_TEXT_CHARACTERS, maxRecordingSeconds: MAX_RECORDING_SECONDS, maxAudioBytes: MAX_AUDIO_BYTES } });
         return;
       }
       if (req.method === 'POST' && pathname === '/api/voice/transcribe') {
+        if (voiceSocket.active) throw new AppError('Turn off local wake mode before using manual recording.', 409);
         if (!/^audio\/wav(?:;|$)/i.test(req.headers['content-type'] || '')) throw new AppError('Send a WAV recording.', 415);
         if (transcribing) throw new AppError('Another recording is being transcribed. Try again when it finishes.', 429);
         transcribing = true; pending.add(controller);
@@ -81,6 +87,7 @@ export function createVoiceApp({
         return;
       }
       if (req.method === 'POST' && pathname === '/api/voice/speak') {
+        if (voiceSocket.active) throw new AppError('Turn off local wake mode before using typed speech.', 409);
         if (!/^application\/json(?:;|$)/i.test(req.headers['content-type'] || '')) throw new AppError('Send JSON text.', 415);
         if (speaking) throw new AppError('Fenrir is already generating speech. Try again when it finishes.', 429);
         speaking = true; pending.add(controller);
@@ -88,12 +95,13 @@ export function createVoiceApp({
           let data;
           try { data = JSON.parse((await readBody(req, 16_384)).toString('utf8')); }
           catch (error) { if (error instanceof AppError) throw error; throw new AppError('Request is not valid JSON.'); }
-          objectArgs(data, ['text', 'speed']);
+          objectArgs(data, ['text', 'speed', 'delivery']);
           if (typeof data.text !== 'string' || !data.text.trim() || data.text.length > MAX_TEXT_CHARACTERS) throw new AppError('Enter between 1 and 2,000 characters to speak.');
           const speed = data.speed ?? 1;
+          const delivery = validateSpeechDelivery(data.delivery);
           if (typeof speed !== 'number' || !Number.isFinite(speed) || speed < 0.75 || speed > 1.25) throw new AppError('Speech speed must be between 0.75 and 1.25.');
           const start = performance.now();
-          const audio = await tts.synthesize(data.text, { speed, signal: controller.signal });
+          const audio = await tts.synthesize(data.text, { speed, delivery, signal: controller.signal });
           if (controller.signal.aborted || res.destroyed) return;
           res.writeHead(200, { 'Content-Type': 'audio/wav', 'Content-Length': audio.length,
             'X-Voice': 'am_fenrir', 'X-Generation-Ms': Math.round(performance.now() - start) });
@@ -110,7 +118,10 @@ export function createVoiceApp({
   });
   server.requestTimeout = 30_000;
   server.headersTimeout = 15_000;
+  const voiceSocket = attachVoiceSocket({ server, listener, meta, tts, isBusy: () => transcribing || speaking });
   const close = async () => {
+    voiceSocket.close();
+    listener.close();
     for (const controller of pending) controller.abort();
     await tts.close();
     if (server.listening) await new Promise((resolveClose, reject) => server.close(error => error ? reject(error) : resolveClose()));

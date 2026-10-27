@@ -18,7 +18,7 @@ The owner requested typed input → Meta understanding and tool selection → ex
 
 ## Separate voice development lab confirmed October 27, 2026
 
-The owner requested a separate, simple local browser interface to type words or speak, transcribe speech using a Meta model, and hear those same words spoken by the linked Kokoro model specifically in **Fenrir**. This authorizes the voice test surface and its intentional microphone capture. It is an echo/transcription development lab, not a request to route speech into assistant reasoning, household memory, routines, or Spotify. Implementation uses push-to-talk, standard `muse-voice-transcribe-1.0`, and local official Kokoro-82M with `am_fenrir`. The existing assistant UI remains separate. Production voice hosting, wake-word implementation, and integration into the full assistant remain open. See [voice lab](VOICE.md).
+The owner requested a separate, simple local browser interface to type words or speak, transcribe speech using a Meta model, and hear those same words spoken by the linked Kokoro model specifically in **Fenrir**. This authorizes the voice test surface and its intentional microphone capture. It is an echo/transcription development lab, not a request to route speech into assistant reasoning, household memory, routines, or Spotify. Implementation uses optional local wake sessions or push-to-talk, standard `muse-voice-transcribe-1.0`, and local official Kokoro-82M with `am_fenrir`. The existing assistant UI remains separate. Production voice hosting and integration into the full assistant remain open. See [voice lab](VOICE.md).
 
 ## Ten feature areas
 
@@ -32,7 +32,9 @@ Continuous availability does not authorize learning from ambient household conve
 
 ### 2. Voice and interface
 
-**Wake-word activation is confirmed.** The exact wake phrase, detection implementation, and conversation-session behavior remain TBD. MERLIN should accept conversational voice commands, respond aloud, and require little or no touch for common tasks.
+**Voice follow-up confirmed October 27, 2026:** say **“MERLIN”** to activate; detect when the person finishes speaking, allow them to interrupt or resume, keep a short follow-up conversation open, then wait for another wake word. The owner explicitly rejects continuous cloud transcription and unnecessary API credit usage. While enabled, wake detection needs the local microphone; standby audio stays local and is discarded. Microphone off stops capture entirely. The owner also requested more expressive Fenrir speech using the controls actually supported by Kokoro.
+
+The development implementation uses local keyword spotting and speech activity detection, a 1.1-second endpoint pause, a 12-second follow-up window, and bounded active sessions. These timing values are initial tuning choices, not owner-specified permanent defaults. Kokoro punctuation, native stress markup, sentence pace, and pauses provide delivery variation; the model has no documented emotion-label control. The lab still echoes words rather than invoking assistant reasoning. MERLIN should eventually accept conversational voice commands, respond aloud, and require little or no touch for common tasks.
 
 Use Meta APIs in the voice/assistant experience; the exact role and model routing are still to be defined. Speech recognition and speech synthesis are separate responsibilities. **Kokoro remains the tentative speech-output choice.**
 
@@ -148,7 +150,7 @@ Validate device targets and parameters and respect actual device capabilities. K
 
 - Home display/hardware, companion-app platforms, actual device inventory, and other service providers, including calendar, cameras, doorbell, and music beyond the selected local Spotify integration.
 - App framework, device protocols/home hub, hosting, storage, authentication, and local/cloud split.
-- Exact wake phrase, detection implementation, conversation-session behavior, and voice pipeline/model selection.
+- Production wake accuracy, conversation timing tuning, assistant voice integration, and final voice deployment/model routing.
 - Household permission management, production memory retention/storage, and audio/image policies beyond the confirmed local retention and privacy decisions.
 - Additional rule handlers and ambiguous wording/channel handling; deterministic compilation, semantic guidance, and deferred conflict clarification are confirmed.
 - Location access, ETA source, remote-access implementation, and specific device-supported controls.

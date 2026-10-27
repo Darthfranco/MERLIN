@@ -7,6 +7,7 @@ import contextlib
 import importlib.util
 import io
 import json
+import math
 import os
 from pathlib import Path
 import sys
@@ -46,22 +47,51 @@ def pipeline_for(model_dir):
     return pipeline
 
 
-def synthesize(pipeline, text, speed):
+def validate_segments(segments, text):
+    if segments is None:
+        return None
+    if not isinstance(segments, list) or not 1 <= len(segments) <= 32:
+        raise ValueError("invalid_request")
+    for segment in segments:
+        if not isinstance(segment, dict) or not isinstance(segment.get("text"), str):
+            raise ValueError("invalid_request")
+        rate, pause = segment.get("speed"), segment.get("pauseMs")
+        if isinstance(rate, bool) or not isinstance(rate, (int, float)) or not math.isfinite(rate) or not 0.75 <= rate <= 1.25:
+            raise ValueError("invalid_request")
+        if isinstance(pause, bool) or not isinstance(pause, int) or not 0 <= pause <= 500:
+            raise ValueError("invalid_request")
+    # Delivery can adjust timing, never replace or drop source words/markup.
+    if "".join(segment["text"] for segment in segments) != text:
+        raise ValueError("invalid_request")
+    return segments
+
+
+def synthesize(pipeline, text, speed, segments=None):
     import numpy as np
 
     chunks = []
     samples = 0
-    # Retain every chunk (the Space's generate_first helper only returns one).
-    for _, _, audio in pipeline(text, voice=VOICE, speed=speed):
-        if audio is None:
-            continue
-        chunk = audio.detach().cpu().numpy().reshape(-1)
-        if not np.isfinite(chunk).all():
-            raise ValueError("invalid_audio")
-        samples += len(chunk)
-        if samples > MAX_SAMPLES:
-            raise ValueError("too_long")
-        chunks.append(chunk)
+    segments = validate_segments(segments, text) or [{"text": text, "speed": speed, "pauseMs": 0}]
+    for index, segment in enumerate(segments):
+        has_speech = False
+        # Retain every chunk (the Space's generate_first helper only returns one).
+        for _, _, audio in pipeline(segment["text"], voice=VOICE, speed=segment["speed"]):
+            if audio is None:
+                continue
+            chunk = audio.detach().cpu().numpy().reshape(-1)
+            if not np.isfinite(chunk).all():
+                raise ValueError("invalid_audio")
+            samples += len(chunk)
+            if samples > MAX_SAMPLES:
+                raise ValueError("too_long")
+            chunks.append(chunk)
+            has_speech = has_speech or len(chunk) > 0
+        if has_speech and index < len(segments) - 1 and segment["pauseMs"]:
+            pause_samples = SAMPLE_RATE * segment["pauseMs"] // 1000
+            samples += pause_samples
+            if samples > MAX_SAMPLES:
+                raise ValueError("too_long")
+            chunks.append(np.zeros(pause_samples, dtype=np.float32))
     if not samples:
         raise ValueError("no_speech")
     pcm = (np.clip(np.concatenate(chunks), -1, 1) * 32767).astype("<i2")
@@ -114,7 +144,7 @@ def main():
             if isinstance(speed, bool) or not isinstance(speed, (int, float)) or not 0.75 <= speed <= 1.25:
                 raise ValueError("invalid_request")
             with contextlib.redirect_stdout(sys.stderr):
-                audio = synthesize(pipeline, text.strip(), speed)
+                audio = synthesize(pipeline, text.strip(), speed, request.get("segments"))
             emit({"id": request_id, "audio": base64.b64encode(audio).decode("ascii")})
         except Exception as error:
             code = str(error) if str(error) in {"no_speech", "too_long"} else "generation"

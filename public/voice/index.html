@@ -21,6 +21,19 @@
           <button id="refresh-status" class="text-button" type="button">Check again</button>
         </div>
 
+        <section class="wake-controls" aria-labelledby="wake-heading">
+          <div class="wake-heading-row">
+            <div>
+              <h2 id="wake-heading">Hands-free conversation</h2>
+              <p id="wake-status" class="help" role="status" aria-live="polite">Microphone off</p>
+            </div>
+            <button id="wake-toggle" class="secondary" type="button" aria-pressed="false" aria-describedby="wake-help wake-setup" disabled>Enable local wake</button>
+          </div>
+          <p id="wake-help" class="help">Say “MERLIN,” then speak. Pause to hear Fenrir; speak again to interrupt. After a quiet pause, say “MERLIN” to start again.</p>
+          <p id="wake-setup" class="help" hidden></p>
+          <button id="end-conversation" class="text-button" type="button" hidden>End conversation</button>
+        </section>
+
         <form id="voice-form">
           <div class="label-row">
             <label for="words">Words to say</label>
@@ -28,6 +41,31 @@
           </div>
           <textarea id="words" name="words" rows="6" maxlength="2000" placeholder="Type something for Fenrir to read…" aria-describedby="words-help character-count" spellcheck="true"></textarea>
           <p id="words-help" class="help">Or record your voice. Meta transcribes it, then Fenrir reads the transcript aloud.</p>
+
+          <div class="delivery-controls">
+            <div>
+              <label for="delivery">Delivery</label>
+              <select id="delivery" name="delivery" aria-describedby="delivery-help">
+                <option value="natural" selected>Natural</option>
+                <option value="neutral">Neutral</option>
+                <option value="lively">Lively</option>
+                <option value="gentle">Gentle</option>
+              </select>
+            </div>
+            <div>
+              <label for="speed">Pace</label>
+              <select id="speed" name="speed">
+                <option value="0.9">Slower</option>
+                <option value="1" selected>Normal</option>
+                <option value="1.1">Faster</option>
+              </select>
+            </div>
+          </div>
+          <p id="delivery-help" class="help">Fenrir uses punctuation and varied pacing. These are delivery presets, not emotion instructions.</p>
+          <details class="voice-tips">
+            <summary>Try emphasis and punctuation</summary>
+            <p class="help">Try <code>That is [so](+2) good!</code> to emphasize “so.” Commas, periods, and question marks also shape the delivery. Kokoro doesn’t have a true emotion setting.</p>
+          </details>
 
           <div class="actions">
             <button id="speak" type="submit" disabled>Speak with Fenrir</button>
@@ -63,7 +101,8 @@
 
       <footer>
         <p>Development test: Fenrir repeats your text; this page doesn’t run assistant commands.</p>
-        <p>Recorded audio goes to Meta for transcription. Speech is generated locally with Kokoro. Text and audio aren’t saved by this lab.</p>
+        <p>Local wake mode keeps the microphone on to detect “MERLIN” on this computer. Idle audio stays local and makes no Meta calls. Only short active speech clips go to Meta for transcription. Turn the microphone off to stop all listening.</p>
+        <p>Speech is generated locally with Kokoro. This lab doesn’t save text or audio. Leaving or hiding this page turns its microphone off.</p>
       </footer>
       <noscript>This voice test needs JavaScript enabled.</noscript>
     </main>

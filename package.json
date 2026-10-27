@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "description": "MERLIN local assistant prototype and separate Meta/Kokoro voice lab",
-  "engines": { "node": ">=22.16.0" },
+  "engines": {
+    "node": ">=22.16.0"
+  },
   "scripts": {
     "start": "node --env-file-if-exists=.env src/server.js",
     "dev": "node --env-file-if-exists=.env --watch src/server.js",
@@ -13,6 +15,10 @@
     "setup:voice": "bash scripts/voice-setup.sh",
     "voice": "node --env-file-if-exists=.env src/voice-server.js",
     "dev:voice": "node --env-file-if-exists=.env --watch src/voice-server.js",
-    "check:voice": "node --env-file-if-exists=.env scripts/voice-check.js"
+    "check:voice": "node --env-file-if-exists=.env scripts/voice-check.js",
+    "check:voice-session": "node --env-file-if-exists=.env scripts/voice-session-check.js"
+  },
+  "dependencies": {
+    "ws": "8.22.0"
   }
 }

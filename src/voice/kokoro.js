@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { AppError } from '../errors.js';
+import { createSpeechPlan, DEFAULT_SPEECH_DELIVERY, SPEECH_DELIVERIES } from './prosody.js';
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 export const KOKORO_VOICE = 'am_fenrir';
@@ -66,12 +67,14 @@ export class KokoroTts {
       model: 'hexgrad/Kokoro-82M',
       voice: KOKORO_VOICE,
       sampleRate: 24000,
+      deliveries: SPEECH_DELIVERIES,
+      defaultDelivery: DEFAULT_SPEECH_DELIVERY,
     };
   }
 
-  async synthesize(text, { speed = 1, signal } = {}) {
+  async synthesize(text, { speed = 1, delivery = DEFAULT_SPEECH_DELIVERY, signal } = {}) {
     text = validateSpeechText(text);
-    if (typeof speed !== 'number' || !Number.isFinite(speed) || speed < 0.75 || speed > 1.25) throw new AppError('Choose a speech speed from 0.75 to 1.25.');
+    const segments = createSpeechPlan(text, { speed, delivery });
     if (signal?.aborted) throw new AppError('Speech was cancelled.', 499);
     if (this.pending) throw new AppError('Fenrir is busy. Stop the current request or try again shortly.', 409);
     if (!this.status().configured) throw new AppError('Set up the local Fenrir voice with npm run setup:voice, then try again.', 503);
@@ -86,7 +89,7 @@ export class KokoroTts {
       if (signal?.aborted) return onAbort();
       try {
         if (!this.worker) this.#start();
-        this.worker.stdin.write(`${JSON.stringify({ id, text, speed })}\n`, error => {
+        this.worker.stdin.write(`${JSON.stringify({ id, text, speed, segments })}\n`, error => {
           if (error && this.pending?.id === id) this.#stop(new AppError('The local voice worker stopped. Try again.', 503));
         });
       } catch {
