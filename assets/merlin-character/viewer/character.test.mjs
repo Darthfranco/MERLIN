@@ -183,6 +183,23 @@ test('conversation restores each exact retained screen layout without a dismissa
   }
 });
 
+test('floating activities can request neutral body and thought poses without dissolving retained panel data', async () => {
+  for (const destination of ['ready', 'bodyThink']) for (const reducedMotion of [false, true]) {
+    const {driver, controller, statuses} = fixture({reducedMotion});
+    driver.showPanel('timer', {label: 'Retained timer', status: 'running', seconds: 60}, 'right', {navigate: false});
+    driver.go('both', {urgent: true}); statuses.length = 0;
+    driver.go(destination, {preservePanels: true, restorePanels: false, pace: 4});
+    const settled = driver.whenSettled(destination); advance(controller, 8);
+    assert.equal(await settled, true); assert.equal(driver.state, destination);
+    assert.equal(driver.panels.right.label, 'Retained timer');
+    assert.ok(!clipsPlayed(statuses).some(dissolvesScreen));
+    if (!reducedMotion) assert.ok(clipsPlayed(statuses).includes('BothToFace'), 'physical panels leave under a face cover');
+    driver.go('face', {urgent: true});
+    driver.go('bodyThink', {restorePanels: false, pace: 4}); advance(controller, 8);
+    assert.equal(driver.state, 'bodyThink', 'explicit neutral thinking also exits the face');
+  }
+});
+
 test('thinking aliases resolve before reduced-motion sampling and return to their base for speaking', async () => {
   for (const reducedMotion of [false, true]) for (const context of ['ready', 'right', 'both', 'seatedRight', 'ceiling']) {
     const {driver, controller} = fixture({reducedMotion});

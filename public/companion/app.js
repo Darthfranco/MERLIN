@@ -1,4 +1,6 @@
 import {createCharacter} from '/character/viewer/character.js';
+import {SceneOverlays} from '/character/viewer/overlays/scene-overlays.js';
+import {floatingActivityPlan} from './floating-activities.js';
 import {formatDuration} from '/character/viewer/panels/render.js';
 import {CompanionVoiceClient,unlockAudioPlayback} from './voice-client.js';
 import {Orchestrator,ACTION_HOLD,pendingPanel,timerPanel,musicPanel,presentationLayout,panelSides} from './orchestrator.js';
@@ -8,7 +10,9 @@ const $=id=>document.getElementById(id);
 const timeZone=Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';
 let sessionId=crypto.randomUUID();
 try { const saved=sessionStorage.getItem('merlin-companion-session');if(/^[a-f0-9-]{36}$/i.test(saved||''))sessionId=saved;sessionStorage.setItem('merlin-companion-session',sessionId); }catch{}
-let character, snapshot={timers:[]}, spotify={connected:false}, serverOffset=0, connected=false;
+let character, floatingOverlays, floatingCount=0;
+const floatingSignatures=new Map();
+let snapshot={timers:[]}, spotify={connected:false}, serverOffset=0, connected=false;
 let requestController, speechController, typedUrl, typedPlayback, pollingTurn=null, turnId=null, generation=0, voiceTurn=null, voiceBefore=[], previousTimers=[];
 let completion=Promise.resolve(), pollCount=0, lastDestination='', lastPanelType='', activePanel=null, activePanels={left:null,right:null}, pendingRetry=null;
 let sceneRevision=0, sceneCleanup, sceneStatus=null, renderedView=null, firstSnapshot=true, speechPresentation=null;
@@ -31,8 +35,35 @@ function livePanel(panel){
   return panel;
 }
 function currentPanel(side){return livePanel(side?activePanels[side]:activePanel);}
+function scenePresentation(view){
+  const plan=floatingActivityPlan({timers:snapshot.timers,spotify,now:Date.now()+serverOffset,
+    destination:view.destination,panels:view.panels,maxCards:Number.MAX_SAFE_INTEGER});
+  return {...plan,...presentationLayout({...view,destination:plan.destination,panels:plan.physicalPanels},character?.capabilities?.states)};
+}
+function syncFloatingActivities(plan=scenePresentation(renderedView)){
+  floatingCount=plan.activities.length;
+  if(!floatingOverlays)return;
+  // The rail stays compact throughout actual face entry/return, including a
+  // temporary face cover between two retained body arrangements.
+  const face=plan.mode==='face'||['face','faceThink','search','camera'].includes(sceneStatus?.state)||/Face/.test(sceneStatus?.clip||'');
+  const visiblePlan=face?floatingActivityPlan({timers:snapshot.timers,spotify,now:Date.now()+serverOffset,destination:'face',panels:renderedView.panels,maxCards:Number.MAX_SAFE_INTEGER}):plan;
+  floatingOverlays.setPresentation(face?'face':'body');
+  const ids=new Set(visiblePlan.cards.map(card=>card.id));
+  for(const id of floatingSignatures.keys())if(!ids.has(id)){floatingOverlays.hide(id);floatingSignatures.delete(id);}
+  for(const card of visiblePlan.cards){
+    const signature=JSON.stringify(card.data);
+    if(floatingSignatures.get(card.id)===signature)continue;
+    floatingOverlays.show(card.type,card.data,{id:card.id});floatingSignatures.set(card.id,signature);
+  }
+}
+function refreshActivityPresentation(){
+  const plan=scenePresentation(renderedView);
+  const bindings=panels=>JSON.stringify(['left','right'].map(side=>{const p=panels[side];return p?[p.type,p.id]:null;}));
+  if(plan.destination!==lastDestination||bindings(plan.physicalPanels)!==bindings(activePanels))renderView(renderedView);
+  else syncFloatingActivities(plan);
+}
 function updateControlVisibility(){
-  const {showControls}=presentationLayout(renderedView,character?.capabilities?.states);
+  const {showControls}=scenePresentation(renderedView);
   const settled=!character||(sceneStatus?.phase==='idle'&&panelSides(sceneStatus.state).length>0);
   $('action-controls').hidden=!showControls||!settled;
   $('close-panel').hidden=!showControls||!settled;
@@ -40,8 +71,9 @@ function updateControlVisibility(){
 function renderView(view){
   renderedView=view;
   $('phase').textContent=view.label;
-  activePanel=view.panel;activePanels=view.panels||{left:null,right:null};
-  const {destination,showControls}=presentationLayout(view,character?.capabilities?.states);
+  const plan=scenePresentation(view),{destination,showControls}=plan;
+  activePanels=plan.physicalPanels;activePanel=activePanels[view.focusSide]||null;
+  syncFloatingActivities(plan);
   $('stage').dataset.mode=destination;
   $('action-controls').hidden=!showControls;
   $('close-panel').hidden=!showControls;
@@ -52,7 +84,7 @@ function renderView(view){
       const panel=activePanels[side];
       character.showPanel(panel.type,()=>livePanel(panel),side,{navigate:false});
     }
-    if(lastDestination!==destination||character.desired!==destination)character.go(destination,{preservePanels:Object.values(activePanels).some(Boolean),dismiss:Boolean(view.dismiss),pace:['idle','ambient'].includes(view.phase)?1:4});
+    if(lastDestination!==destination||character.desired!==destination)character.go(destination,{preservePanels:Object.values(view.panels||{}).some(Boolean),restorePanels:plan.restorePanels,dismiss:Boolean(view.dismiss),pace:['idle','ambient'].includes(view.phase)?1:4});
     const runtime=character,revision=++sceneRevision;
     sceneCleanup?.abort();const cleanup=new AbortController();sceneCleanup=cleanup;
     void runtime.whenSettled(destination,cleanup.signal).then(settled=>{
@@ -82,7 +114,7 @@ async function settleCharacter(destination,g=generation){
   try{
     const settled=await runtime.whenSettled(destination,abort.signal);
     if(g!==generation)return false;
-    if(!settled&&abort.signal.aborted&&runtime.desired===destination){runtime.go(destination,{urgent:true,preservePanels:Object.values(activePanels).some(Boolean)});return true;}
+    if(!settled&&abort.signal.aborted&&runtime.desired===destination){runtime.go(destination,{urgent:true,preservePanels:Object.values(renderedView.panels||{}).some(Boolean),restorePanels:scenePresentation(renderedView).restorePanels});return true;}
     return settled;
   }finally{clearTimeout(timeout);}
 }
@@ -99,7 +131,7 @@ async function prepareSpeech(presentation){
   const settled=await settleCharacter(target,presentation.generation);
   return settled&&!presentation.cancelled&&presentation.generation===generation&&!document.hidden;
 }
-function resolveDestination(destination){return presentationLayout({...orchestration.view,destination},character?.capabilities?.states).destination;}
+function resolveDestination(destination){return scenePresentation({...orchestration.view,destination}).destination;}
 function renderPanelControls(){
   // Preserve focused/clicked controls when only conversation presence changes.
   const visible=panelSides(lastDestination),layout=renderedView.bodyLayout||'ready';
@@ -275,7 +307,7 @@ function acceptSnapshot(data){
   snapshot={...snapshot,...data,timers:data.timers||snapshot.timers};
   if(firstSnapshot){firstSnapshot=false;orchestration.restoreTimers(snapshot.timers);}
   else orchestration.syncTimers(snapshot.timers);
-  renderTimers();
+  renderTimers();refreshActivityPresentation();
   for(const t of snapshot.timers)if(t.status==='completed'&&old.has(t.id)&&old.get(t.id)!=='completed'){
     timerAlerts.enqueue(t);
     // Announcements wait for conversation quiet, while Activity updates immediately.
@@ -329,8 +361,19 @@ async function changeTimer(timer){
   try{acceptSnapshot(await api(`/api/timers/${encodeURIComponent(timer.id)}/${timer.status==='running'?'cancel':'dismiss'}`,{}));for(const side of ['left','right'])if(activePanels[side]?.type==='timer'&&!snapshot.timers.some(t=>t.id===activePanels[side]?.id))orchestration.dismiss(side);}
   catch(error){notice(error.message);}finally{timerBusy.delete(timer.id);renderTimers();renderPanelControls();}
 }
+function acceptMusic(data){
+  spotify=data;orchestration.musicPlaying=spotify.connected===true&&spotify.playback?.is_playing===true;renderMusic();
+  const next=musicPanel(spotify),signature=JSON.stringify(next);let changed=false;
+  // Floating layouts conceal physical bindings, but their retained records must
+  // still follow every confirmed playback/connection change before returning.
+  for(const side of ['left','right'])if(orchestration.panels[side]?.type==='music'&&JSON.stringify(orchestration.panels[side])!==signature){
+    orchestration.panels[side]=next;if(orchestration.focusSide===side)orchestration.panel=next;changed=true;
+  }
+  if(changed)orchestration.show(orchestration.view.destination,orchestration.view.label);
+  else refreshActivityPresentation();
+}
 async function refreshMusic(){
-  try{spotify=await api('/api/spotify?refresh=1');orchestration.musicPlaying=spotify.connected===true&&spotify.playback?.is_playing===true;renderMusic();let changed=false;for(const side of ['left','right'])if(activePanels[side]?.type==='music'){orchestration.panels[side]=musicPanel(spotify);if(orchestration.focusSide===side)orchestration.panel=orchestration.panels[side];changed=true;}if(changed)orchestration.show(orchestration.view.destination,orchestration.view.label);}
+  try{acceptMusic(await api('/api/spotify?refresh=1'));}
   catch(error){$('music-notice').textContent=error.message;throw error;}
 }
 function renderMusic(){
@@ -354,7 +397,7 @@ async function pollState(){
     if(!connected)notice('The assistant is not connected yet. You can still view local timers.');
     $('send').disabled=!connected||Boolean(turnId);
     const status=state.services?.spotify;$('spotify-state').textContent=status?.connected?'Connected':'Not connected';
-    if(!status?.connected){spotify={connected:false};orchestration.musicPlaying=false;renderMusic();}
+    if(!status?.connected)acceptMusic({connected:false});
     else if(pollCount++%5===0)void refreshMusic().catch(()=>{});
   }catch{connected=false;$('connection').textContent='Connection lost · Reconnecting';$('send').disabled=true;}
   finally{stateBusy=false;}
@@ -388,12 +431,12 @@ $('test-speaker').addEventListener('click',async()=>{
   finally{$('test-speaker').disabled=voice.active;}
 });
 motionQuery.addEventListener('change',()=>{orchestration.reducedMotion=motionQuery.matches;if(motionQuery.matches&&orchestration.phase==='ambient')orchestration.standby();});
-const ticker=setInterval(()=>{if(document.hidden)return;orchestration.tick();countdowns();void drainAlerts();if(orchestration.phase==='speaking')character?.setSpeaking(.65);},500);
+const ticker=setInterval(()=>{if(document.hidden)return;if(!floatingCount||!['idle','ambient'].includes(orchestration.phase))orchestration.tick();countdowns();syncFloatingActivities();void drainAlerts();if(orchestration.phase==='speaking')character?.setSpeaking(.65);},500);
 const statePoll=setInterval(()=>{if(document.visibilityState!=='hidden')void pollState();},2000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){invalidate();voice.stop();orchestration.standby();}else void pollState();});
-window.addEventListener('pagehide',()=>{destroyed=true;invalidate();voice.destroy();character?.destroy();clearInterval(ticker);clearInterval(statePoll);},{once:true});
+window.addEventListener('pagehide',()=>{destroyed=true;invalidate();voice.destroy();floatingOverlays?.destroy();character?.destroy();clearInterval(ticker);clearInterval(statePoll);},{once:true});
 void pollState();
 createCharacter({canvas:$('scene'),stage:$('scene-frame'),onStatus:info=>{
   if(info?.message)$('loading').textContent=info.message;
-  if(info?.state){sceneStatus=info;Object.assign($('stage').dataset,{characterState:info.state,characterDesired:info.desired||'',characterClip:info.clip||'',motionPhase:info.phase||''});if(character)updateControlVisibility();}
-},onError:()=>{$('scene-error').hidden=false;}}).then(runtime=>{character=runtime;$('loading').hidden=true;lastDestination='';renderView(orchestration.view);}).catch(()=>{$('loading').hidden=true;$('scene-error').hidden=false;});
+  if(info?.state){sceneStatus=info;Object.assign($('stage').dataset,{characterState:info.state,characterDesired:info.desired||'',characterClip:info.clip||'',motionPhase:info.phase||''});if(character){updateControlVisibility();syncFloatingActivities();}}
+},onError:()=>{$('scene-error').hidden=false;}}).then(runtime=>{character=runtime;floatingOverlays=new SceneOverlays($('scene-frame'),{clock:runtime,presentation:'companion'});$('loading').hidden=true;lastDestination='';renderView(orchestration.view);}).catch(()=>{$('loading').hidden=true;$('scene-error').hidden=false;});

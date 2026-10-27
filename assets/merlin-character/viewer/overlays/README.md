@@ -1,6 +1,6 @@
 # Optional floating timer and music cards
 
-Short, white-backed versions of the existing MERLIN panels, scaled with the scene clock. These are reusable DOM/CSS/vector assets, not new timer or music services. Nothing appears on startup, nothing is saved, and the companion's normal physical-panel behavior is unchanged.
+Short, white-backed versions of the existing MERLIN panels, scaled with the scene clock. These are reusable DOM/CSS/vector assets, not new timer or music services. The standalone studio starts empty and saves nothing. The companion now opts into these assets for multiple timer/music activities and compact face-corner summaries; its data comes from the existing real stores.
 
 In the [character studio](../), expand **Floating timer & music previews** and choose a sample. Only these explicit buttons create synthetic data. Pause/resume changes the sample's appearance; there is no countdown execution or audio. Clear overlays removes both samples; reloading also starts empty.
 
@@ -47,8 +47,14 @@ const overlays = new SceneOverlays(stage, {clock: sceneClock});
 overlays.destroy();
 ```
 
-The stage needs `position: relative`, `overflow: hidden`, and `container-type: inline-size`, as in the studio. No package dependency, raster artwork, frame loop, network call, or polling timer is added. The caller supplies countdown/progress updates from its own authoritative state and refreshes after sleep. This module is deliberately not mounted or wired to live timers/music in `/companion/`.
+The stage needs `position: relative`, `overflow: hidden`, and `container-type: inline-size`, as in the studio. No package dependency, raster artwork, frame loop, network call, or polling timer is added. The caller supplies countdown/progress updates from its own authoritative state and refreshes after sleep. The companion mounts this module with the explicit mode below; the studio retains the optional behavior described here.
 
 The clock publishes its layout through `subscribeLayout(listener)`, returning an unsubscribe function. Cards reserve the clock first, then earlier cards, among upper-left, upper-middle, upper-right, lower-left and lower-right. They use the same full-route animation footprints, including return walks. A card retains its anchor while safe, moves in 320 ms, and uses immediate placement for resize/reduced motion. No clear anchor means temporary concealment with retained data; tight viewports and single-side panels can hide all cards. Full-face, ceiling, and busy paired-screen transitions share the clock's concealment policy. Hidden cards are inert and removed from the accessibility tree. Long titles visually truncate but retain their full accessible text and title tooltip; countdowns are not live-announced every second.
 
 Original contributions: compact card composition, authored record/transport vector geometry derived from the panel family, collision-aware coordinator, data normalization and explicit preview controls. No third-party asset or new runtime dependency.
+
+## Companion presentation
+
+`new SceneOverlays(stage, {clock: character, presentation: 'companion'})` opts into a scrollable corner rail; `character.subscribeLayout` supplies the existing clock/geometry subscription. Call `setPresentation('body' | 'face' | 'hidden')`. Body cards choose the clearer side around the clock and model. Face rows stay in the lower-right 20% of stage height, with artist/progress/transport hidden. The companion supplies read-only cards and keeps cancellation/dismissal/playback controls in Activity. Every supplied card retains its id in the rail even when scrolled below the fold; `status.visible` indicates participation in this visible scrolling region, not intersection with its viewport.
+
+The caller owns actual timer/playback state, the existing countdown ticker, and cleanup. No extra frame loop or polling is added. Destroy the overlays before the character. Omitting `presentation:'companion'` preserves studio collision-based concealment, including full-face hiding.

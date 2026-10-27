@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "two real timers use floating body cards without duplicate physical panels",
+    "face keeps both timer identities live below the facial features",
+    "390px body and compact face layouts retain timers without page overflow",
+    "eight retained activities remain keyboard-scrollable in a bounded face corner",
+    "timer plus verified synthetic music shares body cards and the same face corner; no provider metadata leaves the UI",
+    "disconnect removes music without removing the live timer",
+    "returning to one timer restores its physical screen without a duplicate floating card",
+    "reduced motion preserves a visible timer in face mode"
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "scope": "Real persisted synthetic timers and current 113-clip character, isolated temporary store, scripted Spotify snapshot, no real provider/audio/microphone."
+}

@@ -151,14 +151,15 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
   // The intended layout can differ from the inbound face clip's source during a
   // covered layout change. An interruption keeps that intent without revealing it.
   function bodyContext() {return retainedBody;}
-  function resolveDestination(next, {preservePanels = true, dismiss = false} = {}) {
+  function resolveDestination(next, {preservePanels = true, dismiss = false, restorePanels = true} = {}) {
     const context = bodyContext();
     if (next === 'bodyThink') {
+      if (!restorePanels) return 'bodyThink';
       if (isFaceState(pendingState(), controller.states) || isFaceState(wanted, controller.states)) return 'faceThink';
       return Object.keys(controller.states).find(name => controller.states[name].contextualThinking &&
         (controller.states[name].bodyContext || controller.states[name].parent) === context) || 'bodyThink';
     }
-    if (next === 'ready' && preservePanels && !dismiss && stateScreens(context).some(side => side !== 'camera')) return context;
+    if (next === 'ready' && preservePanels && restorePanels && !dismiss && stateScreens(context).some(side => side !== 'camera')) return context;
     return reducedMotion && ambient.has(next) ? 'ready' : next;
   }
   const complete = (waiter, result) => {
@@ -204,11 +205,11 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     } finally { moving = false; }
     motionChanged();
   }
-  function go(next, {urgent = false, pace = 1, preservePanels = true, dismiss = false} = {}) {
+  function go(next, {urgent = false, pace = 1, preservePanels = true, dismiss = false, restorePanels = true} = {}) {
     if (destroyed) return false;
     if (!controller.states[next]) throw new RangeError('Unknown MERLIN state: ' + next);
     if (!Number.isFinite(pace) || pace <= 0 || pace > 8) throw new RangeError('Animation pace must be greater than zero and at most eight.');
-    const destination = resolveDestination(next, {preservePanels, dismiss});
+    const destination = resolveDestination(next, {preservePanels, dismiss, restorePanels});
     transitionPace = pace;
     requestedAlias = next;
     if (destination === wanted && !(urgent || reducedMotion)) {motionChanged(); return true;}
@@ -478,6 +479,6 @@ export async function createCharacter({canvas, stage, onStatus = () => {}, onErr
     canvas.addEventListener('webglcontextlost', onContextLost);
     if (followsPreference) media.addEventListener('change', onReducedMotion);
     driver.go('ready', {urgent: true});
-    return Object.assign(driver, {destroy: dispose});
+    return Object.assign(driver, {subscribeLayout: listener => sceneClock.subscribeLayout(listener), destroy: dispose});
   } catch (error) { dispose(); onError(error); throw error; }
 }

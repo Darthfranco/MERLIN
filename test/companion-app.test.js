@@ -4,6 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {createContext,runInContext} from 'node:vm';
 import {randomUUID} from 'node:crypto';
 import * as orchestration from '../public/companion/orchestrator.js';
+import {floatingActivityPlan} from '../public/companion/floating-activities.js';
 import {TimerAlertQueue} from '../public/companion/timer-alerts.js';
 import {AnimationMixer,AnimationClip,Object3D} from '../assets/merlin-character/viewer/vendor/three/build/three.module.min.js';
 import {MotionController} from '../assets/merlin-character/viewer/motion.js';
@@ -14,7 +15,7 @@ const timer=(id='one')=>({id,label:'Timer',duration_seconds:300,ends_at:new Date
 const receipt=t=>({reply:'Your timer is running.',tool_events:[{tool:'create_timer',status:'completed',message:'Timer started.'}],presentation:[{type:'timer',...t}],timers:[t]});
 function deferred(){let resolve;const promise=new Promise(done=>{resolve=done;});return {promise,resolve};}
 
-async function fixture(t,{timers=[],chatResult,tts,realDriver=false}={}){
+async function fixture(t,{timers=[],chatResult,tts,realDriver=false,musicSnapshot={connected:false}}={}){
   class Element{
     constructor(tag='div'){this.tag=tag;this.children=[];this.dataset={};this.hidden=false;this.handlers=new Map();this.attributes={};this.value='';this.textContent='';this.src='';this.currentSrc='';this.paused=true;this.plays=0;}
     addEventListener(name,fn,{signal}={}){if(signal?.aborted)return;const list=this.handlers.get(name)||[];list.push(fn);this.handlers.set(name,list);signal?.addEventListener('abort',()=>this.removeEventListener(name,fn),{once:true});}
@@ -58,31 +59,38 @@ async function fixture(t,{timers=[],chatResult,tts,realDriver=false}={}){
   }
   let urlCount=0;class ObjectURL extends URL{static createObjectURL(){return 'blob:app-'+(++urlCount);}static revokeObjectURL(){}}
   const storage={getItem(){return null;},setItem(){}};
-  const context=createContext({...orchestration,TimerAlertQueue,document,window,URL:ObjectURL,Blob,AbortController,AbortSignal,Date,Intl,crypto:{randomUUID},sessionStorage:storage,localStorage:storage,innerWidth:1200,location:{reload(){}},
+  class SceneOverlays{
+    constructor(){this.cards=new Map();}
+    setPresentation(mode){this.mode=mode;}
+    show(type,data,{id}){this.cards.set(id,{type,data});}
+    hide(id){this.cards.delete(id);}
+    destroy(){this.cards.clear();}
+  }
+  const context=createContext({...orchestration,floatingActivityPlan,SceneOverlays,TimerAlertQueue,document,window,URL:ObjectURL,Blob,AbortController,AbortSignal,Date,Intl,crypto:{randomUUID},sessionStorage:storage,localStorage:storage,innerWidth:1200,location:{reload(){}},
     CompanionVoiceClient:Voice,unlockAudioPlayback:()=>Promise.resolve(true),formatDuration:seconds=>String(seconds),
     createCharacter:async options=>{notify=options.onStatus;notify({state:'ready',desired:'ready',phase:'idle',clip:'ReadyIdle'});return runtime;},
     matchMedia:()=>({matches:false,addEventListener(){}}),Option:class extends Element{constructor(text,value){super('option');this.textContent=text;this.value=value;}},
     setInterval:()=>0,clearInterval(){},setTimeout,clearTimeout,
-    fetch:async(path,options={})=>{requests.push({path,options});if(path.includes('/speak')||path.includes('/timer-speech')){if(tts)await tts.promise;return {ok:true,blob:async()=>new Blob(['synthetic audio'])};}const data=path==='/api/companion/state'?{configured:true,timers,services:{spotify:{connected:false}}}:path==='/api/chat'?chatResult||{reply:'Hello.',tool_events:[],timers}:path.includes('/progress?')?{status:'complete',events:[]}:{};return {ok:true,json:async()=>data};},
+    fetch:async(path,options={})=>{requests.push({path,options});if(path.includes('/speak')||path.includes('/timer-speech')){if(tts)await tts.promise;return {ok:true,blob:async()=>new Blob(['synthetic audio'])};}const data=path==='/api/companion/state'?{configured:true,timers,services:{spotify:{connected:musicSnapshot.connected}}}:path==='/api/spotify?refresh=1'?musicSnapshot:path==='/api/chat'?chatResult||{reply:'Hello.',tool_events:[],timers}:path.includes('/progress?')?{status:'complete',events:[]}:{};return {ok:true,json:async()=>data};},
   });
   const source=await readFile(new URL('../public/companion/app.js',import.meta.url),'utf8');
   runInContext(source.replace(/^import .*;\n/gm,''),context);
   const run=code=>runInContext(code,context);
   await flush();await flush();
   t.after(()=>{run('destroyed=true;invalidate();sceneCleanup?.abort();voice.destroy();character?.destroy();');});
-  return {element,document,run,runtime,calls,requests,physical,async advance(seconds=30){for(let i=0;i<seconds*60;i++)controller.update(1/60);await flush();},get voice(){return run('voice');},get o(){return run('orchestration');},async until(predicate){for(let i=0;i<100;i++){if(predicate())return;await new Promise(resolve=>setTimeout(resolve,10));}assert.fail('Expected app state did not arrive.');}};
+  return {element,document,run,runtime,calls,requests,physical,setMusicSnapshot(value){musicSnapshot=value;},async advance(seconds=30){for(let i=0;i<seconds*60;i++)controller.update(1/60);await flush();},get voice(){return run('voice');},get o(){return run('orchestration');},async until(predicate){for(let i=0;i<100;i++){if(predicate())return;await new Promise(resolve=>setTimeout(resolve,10));}assert.fail('Expected app state did not arrive.');}};
 }
 
 test('actual app startup restores running timers and clearing conversation keeps both identities',async t=>{
   const a=timer('a'),b=timer('b'),h=await fixture(t,{timers:[a,b]});
-  assert.equal(h.runtime.desired,'both');assert.equal(h.physical.right.data().id,'a');assert.equal(h.physical.left.data().id,'b');
+  assert.equal(h.runtime.desired,'ready');assert.equal(h.run('floatingOverlays.cards.size'),2);assert.equal(h.physical.right,null);assert.equal(h.physical.left,null);
   await h.element('clear-conversation').dispatch('click');await flush();
-  assert.equal(h.o.panels.right.id,'a');assert.equal(h.o.panels.left.id,'b');assert.equal(h.runtime.desired,'both');
+  assert.equal(h.o.panels.right.id,'a');assert.equal(h.o.panels.left.id,'b');assert.equal(h.runtime.desired,'ready');
   assert.equal(h.requests.some(request=>request.path.includes('/api/timers/')),false);
 });
 
 test('selective dismissal keeps outgoing textures until its authored transition settles',async t=>{
-  const h=await fixture(t,{timers:[timer('a'),timer('b')]});h.runtime.auto=false;
+  const h=await fixture(t);h.run(`orchestration.inspect(timerPanel(${JSON.stringify(timer('a'))}));orchestration.inspect(timerPanel(${JSON.stringify(timer('b'))}));`);h.runtime.auto=false;
   h.run("changeLayout(()=>orchestration.dismiss('left'))");
   assert.equal(h.runtime.desired,'seatedRight');assert.equal(h.calls.at(-1).options.dismiss,true);
   assert.equal(h.physical.left.data().id,'b','the disappearing card stays intact during its exit');
@@ -145,9 +153,9 @@ test('automatic third timer alert speaks beside retained screens without replaci
   const h=await fixture(t,{timers:[timer('a'),timer('b')]});
   h.run(`voiceEvent({type:'notification',revision:40,presentationMode:'body',response:{reply:'Another timer finished.',presentation:[${JSON.stringify({...timer('c'),status:'completed',type:'timer'})}]}})`);
   await h.run('completion');assert.equal(await h.voice.options.playbackGate({revision:40,utteranceId:'alert',presentationMode:'body'}),true);
-  assert.equal(h.runtime.desired,'both');assert.equal(h.o.panels.right.id,'a');assert.equal(h.o.panels.left.id,'b');
+  assert.equal(h.runtime.desired,'ready');assert.equal(h.o.panels.right.id,'a');assert.equal(h.o.panels.left.id,'b');
   h.run("voiceEvent({type:'interrupt',reason:'notification-ended',revision:41});voiceEvent({type:'state',state:'wake',revision:41})");
-  assert.equal(h.runtime.desired,'both');assert.equal(await h.voice.options.playbackGate({revision:41,utteranceId:'alert',presentationMode:'body'}),true,'manual fallback retains its original alert target');
+  assert.equal(h.runtime.desired,'ready');assert.equal(await h.voice.options.playbackGate({revision:41,utteranceId:'alert',presentationMode:'body'}),true,'manual fallback retains its original alert target');
 });
 
 test('closing a panel while HTTP or wake-socket speech is pending cannot restore the closed layout',async t=>{
@@ -167,7 +175,7 @@ test('closing a panel while HTTP or wake-socket speech is pending cannot restore
 
 test('actual app and driver return to an empty ready scene when snapshot removal deletes the final timer',async t=>{
   const a=timer('a'),b=timer('b'),h=await fixture(t,{timers:[a,b],realDriver:true});await h.advance();
-  assert.equal(h.runtime.state,'both');
+  assert.equal(h.runtime.state,'ready');assert.equal(h.run('floatingOverlays.cards.size'),2);
   h.run(`acceptSnapshot({timers:[${JSON.stringify(b)}]})`);await h.advance();
   assert.equal(h.runtime.state,'seatedLeft');assert.equal(h.runtime.panels.left.id,'b');
   assert.equal(h.calls.at(-1).options.preservePanels,true,'a surviving record retains its physical context');
@@ -175,4 +183,73 @@ test('actual app and driver return to an empty ready scene when snapshot removal
   assert.equal(h.runtime.state,'ready');assert.equal(h.runtime.desired,'ready');
   assert.equal(h.runtime.panels.left,null);assert.equal(h.runtime.panels.right,null);
   assert.equal(h.element('action-controls').hidden,true);
+});
+
+
+test('actual companion keeps live timer identities in the compact face rail and returns to floating body',async t=>{
+  const a=timer('a'),b=timer('b'),c=timer('c'),h=await fixture(t,{timers:[a,b,c]});
+  assert.equal(h.runtime.desired,'ready');assert.equal(h.run('floatingOverlays.cards.size'),3);
+  h.run('orchestration.listening()');await flush();
+  assert.equal(h.runtime.desired,'face');assert.equal(h.run('floatingOverlays.mode'),'face');
+  assert.equal(h.run('floatingOverlays.cards.size'),3);assert.equal(h.element('action-controls').hidden,true);
+  const before=h.run("floatingOverlays.cards.get('timer:a').data.remainingSeconds");
+  h.run('serverOffset=2000;syncFloatingActivities()');
+  assert.ok(h.run("floatingOverlays.cards.get('timer:a').data.remainingSeconds")<before);
+  h.run('orchestration.standby()');await flush();
+  assert.equal(h.runtime.desired,'ready');assert.equal(h.run('floatingOverlays.mode'),'body');
+  assert.equal(h.run('floatingOverlays.cards.size'),3);
+  h.run(`acceptSnapshot({timers:[${JSON.stringify({...a,status:'cancelled'})},${JSON.stringify({...b,status:'completed'})},${JSON.stringify(c)}]})`);await flush();
+  assert.equal(h.run("floatingOverlays.cards.has('timer:a')"),false);
+  assert.equal(h.run("floatingOverlays.cards.get('timer:b').data.status"),'finished');
+  h.run('acceptSnapshot({timers:[]})');await flush();assert.equal(h.run('floatingOverlays.cards.size'),0);
+});
+
+test('timer plus verified music uses floating body and face with metadata confined to local presentation',async t=>{
+  const h=await fixture(t,{timers:[timer('a')]});
+  h.run(`spotify={connected:true,playback:{is_playing:true,track:{name:'Synthetic song',artists:['Synthetic artist']}}};refreshActivityPresentation()`);await flush();
+  assert.equal(h.runtime.desired,'ready');assert.equal(h.run('floatingOverlays.cards.size'),2);
+  assert.equal(h.run("floatingOverlays.cards.get('music:spotify').data.title"),'Synthetic song');
+  h.run('orchestration.listening()');await flush();assert.equal(h.run('floatingOverlays.mode'),'face');
+  assert.equal(h.requests.some(r=>r.options.body?.includes('Synthetic song')),false);
+  h.run('spotify={connected:false};refreshActivityPresentation()');await flush();
+  assert.equal(h.run("floatingOverlays.cards.has('music:spotify')"),false);assert.equal(h.run('floatingOverlays.cards.size'),1);
+});
+
+test('adding a second live timer uses a safe neutral-body route without deleting the logical first panel',async t=>{
+  const a=timer('a'),b=timer('b'),h=await fixture(t,{timers:[a],realDriver:true});await h.advance();assert.equal(h.runtime.state,'right');
+  h.run(`acceptSnapshot({timers:[${JSON.stringify(a)},${JSON.stringify(b)}]})`);
+  assert.equal(h.runtime.desired,'ready');assert.equal(h.calls.at(-1).options.restorePanels,false);
+  assert.equal(h.calls.at(-1).options.preservePanels,true);await h.advance();
+  assert.equal(h.runtime.state,'ready');assert.equal(h.o.panels.right.id,'a');assert.equal(h.run('floatingOverlays.cards.size'),2);
+  h.run('orchestration.listening()');await h.advance();assert.equal(h.runtime.state,'face');assert.equal(h.run('floatingOverlays.cards.size'),2);
+});
+
+test('retained music refreshes while floating and returns with current track and paused state',async t=>{
+  const h=await fixture(t,{timers:[timer('a')]});
+  h.setMusicSnapshot({connected:true,playback:{is_playing:true,track:{name:'Synthetic first song',artists:['Synthetic artist']}}});
+  await h.run('refreshMusic()');h.run('orchestration.inspect(musicPanel(spotify))');await flush();
+  assert.equal(h.runtime.desired,'ready');assert.equal(h.physical.left,null);assert.equal(h.physical.right,null);
+  assert.equal(h.o.panels.left.type,'music');
+  h.setMusicSnapshot({connected:true,playback:{is_playing:false,track:{name:'Synthetic next song',artists:['Synthetic artist']}}});
+  await h.run('refreshMusic()');await flush();
+  assert.equal(h.o.panels.left.title,'Synthetic next song');assert.equal(h.o.panels.left.status,'paused');
+  assert.equal(h.o.view.panels.left.title,'Synthetic next song');assert.equal(h.run("floatingOverlays.cards.get('music:spotify').data.status"),'paused');
+  const revision=h.run('sceneRevision');await h.run('refreshMusic()');assert.equal(h.run('sceneRevision'),revision,'unchanged playback does not rebuild the scene');
+  h.run('acceptSnapshot({timers:[]})');await flush();
+  assert.equal(h.runtime.desired,'seatedLeft');assert.equal(h.physical.left.data().title,'Synthetic next song');
+  assert.equal(h.physical.left.data().status,'paused');assert.equal(h.run('floatingOverlays.cards.size'),0);
+  assert.equal(h.requests.some(request=>request.options.body?.includes('Synthetic next song')),false);
+});
+
+test('connection polling reconciles concealed music before disconnected physical panels return',async t=>{
+  const h=await fixture(t,{timers:[timer('a')]});
+  h.setMusicSnapshot({connected:true,playback:{is_playing:true,track:{name:'Synthetic playing song',artists:[]}}});
+  await h.run('refreshMusic()');h.run('orchestration.inspect(musicPanel(spotify))');await flush();
+  assert.equal(h.runtime.desired,'ready');assert.equal(h.run('floatingOverlays.cards.size'),2);
+  h.setMusicSnapshot({connected:false});await h.run('pollState()');await flush();
+  assert.equal(h.o.panels.left.status,'offline');assert.equal(h.o.view.panels.left.status,'offline');
+  assert.equal(h.physical.left.data().status,'offline');assert.equal(h.physical.left.data().title,undefined);
+  assert.equal(h.run("floatingOverlays.cards.has('music:spotify')"),false);assert.equal(h.run('orchestration.musicPlaying'),false);
+  h.run('acceptSnapshot({timers:[]})');await flush();
+  assert.equal(h.runtime.desired,'seatedLeft');assert.equal(h.physical.left.data().status,'offline');
 });

@@ -68,14 +68,50 @@ function clockFixture() {
   };
 }
 
-function fixture(t, options) {
-  const env = environment(t, options), clock = clockFixture(), overlays = new SceneOverlays(env.stage, {clock});
+function fixture(t, options = {}) {
+  const env = environment(t, options), clock = clockFixture(), overlays = new SceneOverlays(env.stage, {clock, presentation: options.presentation});
   env.cleanup(() => overlays.destroy());
-  return {...env, clock, overlays, card: id => env.stage.children.find(element => element.dataset.overlayId === id)};
+  return {...env, clock, overlays, card: id => (overlays.rail || env.stage).children.find(element => element.dataset.overlayId === id)};
 }
 
 const rect = spot => ({left: spot.x, top: spot.y, right: spot.x + spot.width, bottom: spot.y + spot.height});
 const timer = {title: 'Synthetic timer', status: 'running', remainingSeconds: 120, durationSeconds: 300};
+
+test('companion rail retains every activity in face and small layouts without a new timer loop', t => {
+  const h = fixture(t, {presentation: 'companion'});
+  assert.equal(h.overlays.rail.hidden, true);
+  for (let i = 0; i < 5; i++) h.overlays.show('timer', {...timer, title: `Timer ${i}`}, {id: `timer-${i}`});
+  const nodes = [...h.overlays.rail.children];
+  h.clock.publish({width: 358, height: 268.5, hidden: true, obstacles: [{left: 0, top: 0, right: 1, bottom: 1}]});
+  h.overlays.setPresentation('face');
+  assert.equal(h.overlays.rail.hidden, false);
+  assert.equal(h.overlays.rail.tabIndex, 0);
+  assert.equal(h.overlays.rail.dataset.presentation, 'face');
+  assert.equal(h.overlays.rail.style.maxHeight, '53.7px');
+  assert.ok(h.overlays.status.every(status => status.visible && status.spot === 'lower-right'));
+  assert.equal(h.scheduled.size, 0);
+  h.overlays.update('timer-0', {remainingSeconds: 90});
+  assert.equal(h.card('timer-0').querySelector('.floating-countdown').textContent, '1:30');
+  h.overlays.setPresentation('body');
+  assert.deepEqual(h.overlays.rail.children, nodes, 'presentation changes keep the original cards and their identity');
+  h.overlays.setPresentation('hidden');
+  assert.equal(h.overlays.rail.hidden, true); assert.ok(h.overlays.status.every(status => !status.visible));
+  h.overlays.setPresentation('face'); h.overlays.clear();
+  assert.equal(h.overlays.rail.hidden, true); assert.equal(h.overlays.rail.children.length, 0);
+  h.overlays.destroy(); assert.equal(h.stage.children.length, 0);
+});
+
+test('face controls disappear while accessible music metadata survives and body callbacks remain honest', t => {
+  const h = fixture(t, {presentation: 'companion'}), requests = [];
+  h.overlays.show('music', {title: 'Synthetic track', artist: 'Synthetic artist', status: 'playing'}, {onAction: action => requests.push(action)});
+  const element = h.card('music'), button = element.querySelector('button');
+  h.overlays.setPresentation('face');
+  assert.equal(button.hidden, true); button.dispatch('click'); assert.equal(requests.length, 0);
+  assert.match(element.getAttribute('aria-label'), /Synthetic artist/);
+  h.overlays.setPresentation('body'); button.dispatch('click'); assert.equal(requests.length, 1);
+  assert.equal(element.dataset.status, 'playing');
+  assert.throws(() => h.overlays.setPresentation('elsewhere'), TypeError);
+});
 
 test('constructing the optional layer creates no cards, samples, polling, or action callbacks', t => {
   const {overlays, stage, observers, scheduled, clock} = fixture(t);

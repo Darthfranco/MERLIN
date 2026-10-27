@@ -2,13 +2,38 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {chooseClockSpot, clockAnchors, clockMotionPlan, overlapArea} from '../clock-layout.js';
-import {chooseOverlaySpot} from './layout.js';
+import {chooseOverlaySpot, companionOverlayRail} from './layout.js';
 import {normalizeOverlay, formatOverlayDuration} from './model.js';
 
 const size = {width: 1000, height: 750, cardWidth: 270, cardHeight: 145};
 const manifest = JSON.parse(readFileSync(new URL('../../states.json', import.meta.url)));
 const footprints = JSON.parse(readFileSync(new URL('../motion-footprints.json', import.meta.url))).clips;
 const pixelRect = spot => ({left: spot.x, top: spot.y, right: spot.x + spot.width, bottom: spot.y + spot.height});
+
+test('companion rails stay outside central facial features and the neutral body at narrow and wide sizes', () => {
+  for (const width of [288, 358, 720, 1200]) {
+    const height = width * .75;
+    const face = companionOverlayRail({width, height, mode: 'face'});
+    assert.ok(face.x > 0 && face.x + face.width < width);
+    assert.ok(height - face.bottom - face.maxHeight > height * .77, 'face rail stays below eyes and mouth');
+    assert.ok(face.width <= width * .42 && face.maxHeight <= height * .2);
+    const body = companionOverlayRail({width, height});
+    assert.ok(body.x > width * .65, 'body rail stays right of neutral robot');
+    assert.ok(body.maxHeight < height && body.bottom > 0);
+  }
+  for (const value of [0, -1, NaN, Infinity, '300']) assert.equal(companionOverlayRail({width: value, height: 100}), null);
+  assert.equal(companionOverlayRail({width: 300, height: 200, mode: 'hidden'}), null);
+});
+
+test('body rails choose the clear corner beside the robot and opposite the retained clock anchor', () => {
+  const stage = {width: 1000, height: 750};
+  assert.equal(companionOverlayRail({...stage, clock: {x: 720, y: 30, width: 220, height: 100}}).id, 'lower-left');
+  assert.equal(companionOverlayRail({...stage, clock: {x: 30, y: 30, width: 220, height: 100}}).id, 'lower-right');
+  assert.equal(companionOverlayRail({...stage, obstacles: [{left: .65, top: .2, right: 1, bottom: 1}]}).id, 'lower-left');
+  assert.equal(companionOverlayRail({...stage, obstacles: [{left: 0, top: .2, right: .35, bottom: 1}]}).id, 'lower-right');
+  assert.equal(companionOverlayRail({...stage, current: 'lower-left'}).id, 'lower-left', 'an unconstrained corner stays stable');
+  assert.equal(companionOverlayRail({...stage, mode: 'face', clock: {x: 720, y: 30, width: 220, height: 100}}).id, 'lower-right');
+});
 
 test('fresh overlays contain no sample values and never infer successful state from a duration', () => {
   assert.deepEqual(normalizeOverlay('timer'), {type: 'timer', title: 'Timer', status: 'unknown', remainingSeconds: null, durationSeconds: null});

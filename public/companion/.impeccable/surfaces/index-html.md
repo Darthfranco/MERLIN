@@ -2,7 +2,7 @@
 version: 1
 slug: "index-html"
 primary_target: "index.html"
-related_targets: ["companion.css", "app.js", "orchestrator.js", "voice-client.js", "timer-alerts.js"]
+related_targets: ["companion.css", "app.js", "orchestrator.js", "floating-activities.js", "voice-client.js", "timer-alerts.js"]
 ---
 
 # MERLIN at home
@@ -13,13 +13,13 @@ related_targets: ["companion.css", "app.js", "orchestrator.js", "voice-client.js
 
 ## Job and sequence
 
-Start with the body and scene clock. Typing or activated speech brings the face forward; a compact status and microphone label remain visible below it. Thinking/searching use their corresponding expression. An actual checked action introduces a body panel and receives its short confirmation there. General conversation uses the full face, hiding panels temporarily; quiet restores the exact retained arrangement. Pending work never overwrites confirmed content. More results remain in Activity. Each panel can close independently; timer controls act on their identified timer.
+Start with the body and scene clock. Typing or activated speech brings the face forward; a compact status and microphone label remain visible below it. Thinking/searching use their corresponding expression. An actual checked action introduces a body panel and receives its short confirmation there. General conversation uses the full face with a compact lower-right timer/music rail; large physical panels hide temporarily. Multiple timer/music activities use floating body cards, while a single timer can retain its physical screen. Pending work never overwrites confirmed content. More results remain in Activity. Each panel can close independently; timer controls act on their identified timer.
 
 Microphone access starts off and requires the explicit Enable microphone control. Typing focus says “Ready when you are”; actual voice listening has its own state. Typed read-aloud starts on and remembers explicit changes. Test speaker checks local output; microphone permission failures show recovery guidance. Walking in either direction and ball tossing yield to directed conversation and run only without retained screens; sweeping is removed. The clock hides in full-face presentation. Reduced motion retains state and content without casual movement.
 
 ## Built direction
 
-The accepted matte-blue character, luminous cyan face/soles, midnight room, and white 5:6 panels are the visual authority. The large landscape stage leads, followed by concise conversation and the input controls. Activity & services opens a secondary column on desktop and follows the conversation on narrow screens. The face occupies the full stage at every width; panels appear only on the body-mode screens. Visible Left/Right labels and accessible action names distinguish duplicate timer labels.
+The accepted matte-blue character, luminous cyan face/soles, midnight room, and white 5:6 panels are the visual authority. The large landscape stage leads, followed by concise conversation and the input controls. Activity & services opens a secondary column on desktop and follows the conversation on narrow screens. The face occupies the full stage at every width; compact activity rows stay below its eyes and mouth. Floating body cards choose a clear corner around MERLIN and the scene clock. Visible Left/Right labels and accessible action names distinguish duplicate timer labels.
 
 This is an extension of the existing character world with native control typography. No replacement world or concept comp was introduced. The shell is flat, with tonal controls, restrained dividers, and clear cyan focus; visual depth comes from the existing character asset.
 
@@ -38,3 +38,7 @@ That review does not verify room microphone/echo behavior, live Spotify playback
 ## Retained-scene follow-up
 
 The completed 113-clip asset supplies contextual thought, paired/seated layouts, direct face returns, and the ceiling presentation. Dismissal belongs to explicit Close controls. Layout changes lacking a safe direct clip pass under the full face, then reveal the same content. A single panel can be enlarged and docked left or right; two open panels are not overwritten by automatic results. The independent [follow-up verdict](../../../../.impeccable/review/companion-retained/verdict.md) is **ship** for the static desktop/mobile retained-screen, large-screen controls, and face layouts. See the current orchestration plan and STATUS for separate functional verification.
+
+## Floating activity integration
+
+The latest owner request explicitly keeps timer/music information visible during face conversation. Reuse the new white floating assets: expanded body cards for multiple activities, compact lower-right face rows with bounded scrolling. Real timer snapshots and connected Spotify playback are the sole data sources. Cards are read-only; Activity owns device controls. Keep existing single physical-panel, speech, privacy, and rendering behavior. The independent [floating-layout verdict](../../../../.impeccable/review/companion-floating/verdict.md) is **ship** for the supplied desktop/mobile two-timer, timer/music, and overflow captures. Functional checks and limits remain separate in STATUS.md.

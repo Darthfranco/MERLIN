@@ -1,4 +1,4 @@
-import {chooseOverlaySpot} from './layout.js';
+import {chooseOverlaySpot, companionOverlayRail} from './layout.js';
 import {normalizeOverlay, formatOverlayDuration} from './model.js';
 
 const paths = {
@@ -13,12 +13,22 @@ const labels = {running: 'Counting down', paused: 'Paused', finished: 'Time’s 
 
 /** Optional presentation only. No timer, playback, service call, persistence, or demo defaults. */
 export class SceneOverlays {
-  constructor(stage, {clock, onChange = () => {}} = {}) {
+  constructor(stage, {clock, onChange = () => {}, presentation = 'studio'} = {}) {
     if (!stage || !clock?.subscribeLayout) throw new TypeError('Floating overlays need a stage and its SceneClock.');
     if (typeof onChange !== 'function') throw new TypeError('onChange must be a function.');
+    if (!['studio', 'companion'].includes(presentation)) throw new TypeError('Choose the studio or companion overlay presentation.');
     this.stage = stage;
+    this.presentation = presentation;
+    this.mode = 'body';
     this.onChange = onChange;
     this.cards = new Map();
+    if (presentation === 'companion') {
+      this.rail = document.createElement('section');
+      this.rail.className = 'floating-rail'; this.rail.dataset.presentation = this.mode; this.rail.hidden = true;
+      this.rail.tabIndex = 0; this.rail.setAttribute('role', 'region');
+      this.rail.setAttribute('aria-label', 'Active timers and music. Scroll for more.');
+      stage.append(this.rail);
+    }
     this.reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     this.observer = new ResizeObserver(() => this.place(true));
     this.unsubscribe = clock.subscribeLayout(layout => { this.layout = layout; this.place(layout.resize); });
@@ -45,7 +55,7 @@ export class SceneOverlays {
         if (!this.destroyed && this.cards.get(id) === card && element.dataset.visible === 'true' &&
             !card.button.hidden && !card.button.disabled && card.onAction) card.onAction({id, type, action: card.action});
       });
-      this.cards.set(id, card); this.stage.append(element); this.observer.observe(element);
+      this.cards.set(id, card); (this.rail || this.stage).append(element); this.observer.observe(element);
     }
     card.data = {...data}; card.state = state; card.onAction = onAction;
     this.paint(card); this.place();
@@ -69,6 +79,15 @@ export class SceneOverlays {
 
   clear() { for (const id of [...this.cards.keys()]) this.hide(id); }
 
+  setPresentation(mode) {
+    if (!['body', 'face', 'hidden'].includes(mode)) throw new TypeError('Choose body, face, or hidden overlay presentation.');
+    if (this.destroyed || this.mode === mode) return;
+    this.mode = mode;
+    if (this.rail) this.rail.dataset.presentation = mode;
+    for (const card of this.cards.values()) this.paint(card);
+    this.place(true);
+  }
+
   get status() {
     return [...this.cards.values()].map(card => ({id: card.id, type: card.type,
       visible: card.element.dataset.visible === 'true', spot: card.spot?.id ?? null,
@@ -85,10 +104,11 @@ export class SceneOverlays {
       set('.floating-countdown', countdown); element.dataset.long = String(countdown.length > 5);
     }
     else { set('.floating-artist', state.artist); element.querySelector('.floating-artist').title = state.artist; }
-    element.setAttribute('aria-label', `${type === 'timer' ? 'Timer' : 'Music'}: ${state.title}`);
+    element.setAttribute('aria-label', type === 'timer' ? `Timer: ${state.title}, ${formatOverlayDuration(state.remainingSeconds)}, ${labels[state.status]}` :
+      `Music: ${state.title}${state.artist ? ', ' + state.artist : ''}, ${labels[state.status]}`);
     const active = state.status === 'running' || state.status === 'playing';
     card.action = active ? 'pause' : 'resume';
-    card.button.hidden = !card.onAction;
+    card.button.hidden = !card.onAction || this.presentation === 'companion' && this.mode === 'face';
     card.button.disabled = !active && state.status !== 'paused';
     card.button.setAttribute('aria-label', `${active ? 'Pause' : 'Resume'} ${type === 'timer' ? state.title : 'music'}`);
     const symbol = active ? 'pause' : 'play';
@@ -103,6 +123,22 @@ export class SceneOverlays {
   place(resize = false) {
     if (!this.layout || this.destroyed) return;
     const {width, height, obstacles, clock, hidden} = this.layout;
+    if (this.rail) {
+      const target = companionOverlayRail({width, height, mode: this.mode, clock: hidden ? null : clock, obstacles, current: this.railSpot?.id});
+      const visible = Boolean(target && this.cards.size);
+      this.rail.hidden = !visible; this.rail.inert = !visible;
+      if (target) {
+        this.railSpot = target;
+        this.rail.style.left = `${target.x}px`; this.rail.style.bottom = `${target.bottom}px`;
+        this.rail.style.width = `${target.width}px`; this.rail.style.maxHeight = `${target.maxHeight}px`;
+      }
+      for (const card of this.cards.values()) {
+        card.element.dataset.visible = String(visible); card.element.setAttribute('aria-hidden', String(!visible));
+        card.element.inert = !visible; card.reason = visible ? null : 'presentation';
+        card.spot = target; card.element.dataset.spot = target?.id || '';
+      }
+      this.onChange(this.status); return;
+    }
     const reserved = clock ? [clock] : [];
     for (const card of this.cards.values()) {
       const target = hidden ? null : chooseOverlaySpot({width, height, obstacles, reserved,
@@ -125,5 +161,5 @@ export class SceneOverlays {
     this.onChange(this.status);
   }
 
-  destroy() { this.clear(); this.destroyed = true; this.unsubscribe(); this.observer.disconnect(); }
+  destroy() { this.clear(); this.destroyed = true; this.unsubscribe(); this.observer.disconnect(); this.rail?.remove(); }
 }
