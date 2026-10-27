@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createApp } from '../src/server.js';
 import { MemoryStore } from '../src/memory-store.js';
-import { parsePersonalityRequest, normalizePersonality, personalityContext, withCourtesy } from '../src/personality.js';
+import { parsePersonalityRequest, normalizePersonality, personalityContext, personalityInstructions, withCourtesy, withPlayfulReceipt, checkPersonalityDraft } from '../src/personality.js';
 import { checkTool } from '../src/memory-rules.js';
 
 const reply = text => ({ type: 'message', role: 'assistant', phase: 'final_answer', content: [{ type: 'output_text', text, annotations: [] }] });
@@ -48,7 +48,7 @@ async function fixture(t, meta = provider()) {
 
 test('style parser accepts direct corrections, declines quotes, definitions, negation and contact requests', () => {
   for (const text of ['Please just answer normally.', 'Use plain mode', 'Could you just answer normally?']) assert.deepEqual(parsePersonalityRequest(text), { style: 'plain' });
-  for (const text of ['Please use a warm tone.', 'Could you be a little warmer?', 'be more friendly']) assert.deepEqual(parsePersonalityRequest(text), { style: 'warm' });
+  for (const text of ['Please use a warm tone.', 'Could you be a little warmer?', 'be more friendly', 'make it a little more fun', 'be more playful']) assert.deepEqual(parsePersonalityRequest(text), { style: 'warm' });
   assert.deepEqual(parsePersonalityRequest('Call me mister.'), { address: 'mister' });
   assert.deepEqual(parsePersonalityRequest('Call me Mr. Lee.'), { address: 'Mr. Lee' });
   assert.deepEqual(parsePersonalityRequest('Stop calling me mister.'), { address: '', remove_address: 'mister' });
@@ -73,6 +73,8 @@ test('optional courtesy has a delivery-based cooldown, no inferred address, and 
   for (const overrides of [{ settings: defaultStyle }, { settings: { style: 'plain', address: 'mister' } }, { message: 'I already told you. Stop asking.' }, { tool_events: [{ status: 'failed' }] }]) assert.equal(withCourtesy(receipt, personalityContext({ ...base, ...overrides }), [], { success: true }), receipt);
   assert.equal(withCourtesy(receipt, policy, [], { success: false }), receipt);
   assert.equal(withCourtesy('All set. Your timer is running.', policy, [], { success: true }), 'All set. Your timer is running.');
+  const urgent = 'Leave the house and call emergency services from outside.';
+  assert.equal(withCourtesy(urgent, personalityContext({ ...base, message: 'I smell gas in the house. What should I do?' }), [], { success: true }), urgent);
 });
 
 test('personality settings persist, migrate older memory, preserve factual history and clear with all memory', async t => {
@@ -140,13 +142,14 @@ test('quoted style examples stay with Meta without changing settings, and curren
   assert.match(meta.calls[0].instructions, /Current shared-household reply style: plain/);
   assert.match(meta.calls[0].instructions, /optional preferred address is "Alex"/);
   assert.match(meta.calls[0].instructions, /emotionally dependent/);
-  assert.match(meta.calls[0].instructions, /4–12 words/);
+  assert.match(meta.calls[0].instructions, /6–18 words/);
   assert.match(meta.calls[0].instructions, /not a reminder time/);
 });
 
 test('repeated or plain-mode decorative framing gets one tool-free repair while completed actions stay truthful', async t => {
   const meta = provider([[call('create_timer', { label: 'Tea', duration: 1, unit: 'minutes' })], [reply('Golly, your tea timer is running.')], [reply('Golly, your tea timer is running.')]]);
   const app = await fixture(t, meta);
+  await app.store.setPersonality({ style: 'plain', address: '' });
   const result = await app.request('/api/chat', body('Set a tea timer for one minute.'));
   assert.equal(result.status, 200); assert.equal(result.body.timers.length, 1);
   assert.match(result.body.reply, /timer is running/);
@@ -158,10 +161,128 @@ test('repeated or plain-mode decorative framing gets one tool-free repair while 
 test('style repair does not consume the exact-rule repair budget or permit duplicate tool execution', async t => {
   const meta = provider([[reply('Golly, cat.')], [reply('cat.')], [reply('A quiet afternoon.')]]);
   const app = await fixture(t, meta);
+  await app.store.setPersonality({ style: 'plain', address: '' });
   await app.store.putRule(rule('avoid_word', 'cat'));
   const result = await app.request('/api/chat', body('Describe the afternoon.'));
   assert.equal(result.status, 200); assert.equal(result.body.reply, 'A quiet afternoon.');
   assert.deepEqual(meta.calls[1].tools, []); assert.deepEqual(meta.calls[2].tools, []);
+});
+
+test('warm mascot language is allowed, with a short cooldown and calm/plain exceptions', () => {
+  const warm = personalityContext();
+  assert.deepEqual(checkPersonalityDraft('Golly, your tea timer is running.', warm), []);
+  const recent = [{ role: 'assistant', text: 'Golly, your tea timer is running.' }];
+  assert.ok(checkPersonalityDraft('Golly, happy to help.', personalityContext({ conversations: recent })).length);
+  const neutral = Array.from({ length: 3 }, () => ({ role: 'assistant', text: 'The answer is four.' }));
+  assert.deepEqual(checkPersonalityDraft('Golly, happy to help.', personalityContext({ conversations: [...recent, ...neutral] })), []);
+  const countdown = 'Tea timer set for 30 seconds. A splendid little countdown!';
+  assert.ok(checkPersonalityDraft(countdown, personalityContext({ conversations: [{ role: 'assistant', text: countdown }] })).length);
+  assert.deepEqual(checkPersonalityDraft(countdown, warm), []);
+  for (const policy of [personalityContext({ settings: { style: 'plain', address: '' } }), personalityContext({ message: 'I am upset.' })]) {
+    assert.ok(checkPersonalityDraft('Golly, your tea timer is running.', policy).length);
+    assert.deepEqual(checkPersonalityDraft('Your tea timer is running.', policy), []);
+    assert.ok(checkPersonalityDraft('Egg timer cancelled. Done and dusted!', policy).length);
+    assert.doesNotMatch(personalityInstructions(policy), /An occasional golly|A splendid little countdown|a tiny playful opener is welcome/);
+  }
+});
+
+test('explicit framing wins without suppressing unrelated calm or plain checks', () => {
+  const plain = personalityContext({ settings: { style: 'plain', address: '' } });
+  assert.ok(checkPersonalityDraft('Golly, your timer is running! Confirmed.', plain, [rule('response_suffix', 'Confirmed.')]).length);
+  assert.deepEqual(checkPersonalityDraft('Golly, your timer is running.', plain, [rule('response_prefix', 'Golly,')]), []);
+  assert.deepEqual(checkPersonalityDraft('Your timer is running. Standing down!', plain, [rule('response_suffix', 'Standing down!')]), []);
+  assert.deepEqual(checkPersonalityDraft('Confirmed: sir, Your timer is running.', plain, [rule('response_prefix', 'Confirmed:'), rule('address_as', 'sir')]), []);
+});
+
+test('frustrated requests repair a playful sign-off without repeating the action', async t => {
+  const meta = provider([[call('create_timer', { label: 'Egg', duration: 10, unit: 'seconds' })],
+    [reply('Egg timer set for 10 seconds. Off it goes!')], [reply('Egg timer set for 10 seconds.')]]);
+  const app = await fixture(t, meta);
+  const result = await app.request('/api/chat', body('I already told you. Stop asking. Set an egg timer for ten seconds.'));
+  assert.equal(result.status, 200); assert.equal(result.body.reply, 'Egg timer set for 10 seconds.');
+  assert.equal(result.body.timers.length, 1); assert.deepEqual(meta.calls[2].tools, []);
+  assert.match(meta.calls[0].instructions, /This turn needs calm, direct wording/);
+});
+
+test('first warm flourish needs no repair and a repeated flourish cannot repeat a completed action', async t => {
+  const meta = provider([
+    [call('create_timer', { label: 'Tea', duration: 1, unit: 'minutes' })], [reply('Golly, your tea timer is running.')],
+    [call('create_timer', { label: 'Pasta', duration: 2, unit: 'minutes' })], [reply('Golly, your pasta timer is running.')],
+    [reply('Your pasta timer is running for two minutes.')],
+  ]);
+  const app = await fixture(t, meta);
+  const session = randomUUID();
+  const first = await app.request('/api/chat', body('Set a tea timer for one minute.', session));
+  assert.equal(first.status, 200); assert.equal(first.body.reply, 'Golly, your tea timer is running.');
+  assert.equal(first.body.trace.model_calls, 2);
+  assert.equal(first.body.trace.events.some(event => event.stage === 'personality_check'), false);
+  const second = await app.request('/api/chat', body('Set a pasta timer for two minutes.', session));
+  assert.equal(second.status, 200); assert.equal(second.body.trace.model_calls, 3);
+  assert.equal(second.body.timers.length, 2); assert.deepEqual(meta.calls[4].tools, []);
+  assert.ok(second.body.trace.events.some(event => event.stage === 'personality_check'));
+  assert.doesNotMatch(second.body.reply, /Golly/iu);
+});
+
+test('local warm timer replies vary without model calls or duplicate execution, while plain stays exact', async t => {
+  const meta = provider();
+  const app = await fixture(t, meta);
+  await app.store.putRule(rule('timer_default_seconds', 300));
+  const session = randomUUID();
+  const request = body('set me a timer', session);
+  const first = await app.request('/api/chat', request);
+  assert.equal(first.status, 200); assert.equal(first.body.trace.model_calls, 0);
+  assert.notEqual(first.body.reply, 'Your timer is set for 5 minutes.');
+  assert.match(first.body.reply, /5 minutes/); assert.equal(first.body.timers.length, 1);
+  const retry = await app.request('/api/chat', request);
+  assert.equal(retry.body.reply, first.body.reply); assert.equal(retry.body.timers.length, 1);
+  const second = await app.request('/api/chat', body('set me a timer', session));
+  assert.equal(second.body.trace.model_calls, 0); assert.equal(second.body.timers.length, 2);
+  assert.notEqual(second.body.reply, first.body.reply); assert.match(second.body.reply, /5 minutes/);
+  await app.store.setPersonality({ style: 'plain', address: '' });
+  const plain = await app.request('/api/chat', body('set me a timer', session));
+  assert.equal(plain.body.reply, 'Your timer is set for 5 minutes.');
+  assert.equal(plain.body.trace.model_calls, 0); assert.equal(plain.body.timers.length, 3);
+  assert.equal(meta.calls.length, 0);
+});
+
+test('fixed receipt charm preserves Spotify outcomes and declines arbitrary text or unverified actions', () => {
+  const policy = personalityContext();
+  const receipts = [
+    ['spotify_search', 'Results are in the Spotify panel.'],
+    ['spotify_control', 'Request sent to Spotify. Check the panel for playback status.'],
+  ];
+  for (const [tool, text] of receipts) {
+    const options = { success: true, tool_events: [{ tool, status: 'completed', message: text }] };
+    const warm = withPlayfulReceipt(text, policy, [], options);
+    assert.notEqual(warm, text);
+    assert.match(warm, /Spotify panel|panel for playback status/);
+    assert.doesNotMatch(warm, /\b(?:now playing|is playing|is paused|music started|playback started)\b/iu);
+    assert.equal(withPlayfulReceipt(text, personalityContext({ settings: { style: 'plain', address: '' } }), [], options), text);
+    assert.equal(withPlayfulReceipt(text, personalityContext({ message: 'I am frustrated.' }), [], options), text);
+    assert.equal(withPlayfulReceipt(text, policy, [], { ...options, success: false }), text);
+    assert.equal(withPlayfulReceipt(text, policy, [], { success: true, tool_events: [] }), text);
+    assert.equal(withPlayfulReceipt(text, policy, [rule('response_prefix', 'Confirmed:')], options), text);
+    assert.equal(withPlayfulReceipt(text, policy, [], { success: true, tool_events: [{ tool, status: 'completed', message: 'Different receipt.' }] }), text);
+  }
+  const metadata = 'Your song synthetic-private-spotify-name is playing.';
+  assert.equal(withPlayfulReceipt(metadata, policy, [], { success: true,
+    tool_events: [{ tool: 'spotify_control', status: 'completed', message: metadata }] }), metadata);
+  assert.equal(withPlayfulReceipt('Your timer is set for 5 minutes.', policy, [], { success: true,
+    tool_events: [{ tool: 'list_timers', status: 'completed', message: 'Found one timer.' }] }), 'Your timer is set for 5 minutes.');
+});
+
+test('banned decoration cannot block a local timer and unavailable flourishes fall back to its verified receipt', async t => {
+  const app = await fixture(t);
+  await app.store.putRule(rule('timer_default_seconds', 300));
+  await app.store.putRule(rule('avoid_phrase', 'Tick-tock'));
+  const result = await app.request('/api/chat', body('set me a timer'));
+  assert.equal(result.status, 200); assert.match(result.body.reply, /Your timer is set for 5 minutes\./);
+  assert.equal(result.body.timers.length, 1); assert.equal(result.body.trace.model_calls, 0);
+  assert.doesNotMatch(result.body.reply, /tick-tock/iu);
+  await app.store.putRule(rule('avoid_phrase', '!'));
+  const fallback = await app.request('/api/chat', body('set me a timer'));
+  assert.equal(fallback.status, 200); assert.equal(fallback.body.reply, 'Your timer is set for 5 minutes.');
+  assert.equal(fallback.body.timers.length, 2); assert.equal(fallback.body.trace.model_calls, 0);
 });
 
 test('optional address respects bans on local receipts, cooldown across HTTP retries and plain mode', async t => {
