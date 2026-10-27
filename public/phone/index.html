@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+  <meta name="theme-color" content="#080f1c">
+  <meta name="color-scheme" content="dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="MERLIN">
+  <title>MERLIN · Companion</title>
+  <link rel="icon" href="/phone/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/phone/manifest.webmanifest">
+  <link rel="stylesheet" href="/phone/styles.css">
+  <script type="importmap">{"imports":{"three":"/character/viewer/vendor/three/build/three.module.min.js","three/addons/":"/character/viewer/vendor/three/examples/jsm/"}}</script>
+  <script type="module" src="/phone/app.js"></script>
+</head>
+<body>
+<!-- THESIS: The same friendly home assistant, within a thumb's reach. A phone companion organized around conversation, presence, and settings.
+OWN-WORLD: Existing MERLIN midnight blue and ice-cyan face; calm navy surfaces, luminous active controls, generous dark breathing room, legible native typography.
+STORY: Message MERLIN, bring that conversation into Talk, and manage recognizable connected services. All actions are explicitly local simulations.
+FIRST VIEWPORT: Compact MERLIN masthead; greeting and three useful prompts; persistent attachment composer; three equal bottom navigation targets. Talk centers the actual animated full-face asset.
+FORM: Owner-specified three-area phone app, extending the established character world. Signature interaction: shared conversation transitions into responsive face presence.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance -->
+  <div class="phone-app">
+    <header class="app-header">
+      <a class="wordmark" href="#chat" aria-label="MERLIN chat">MERLIN<span class="wordmark-signal" aria-hidden="true"><i></i><i></i><i></i></span></a>
+      <div class="header-actions"><span class="demo-pill"><span></span>Local demo</span><button id="memory-open" class="icon-button" aria-label="Memory and app settings" data-icon="memory"></button></div>
+    </header>
+    <div id="storage-notice" class="storage-notice" role="alert" hidden></div>
+    <main id="main">
+      <section id="view-chat" class="view chat-view" aria-label="Chat with MERLIN">
+        <div id="chat-scroll" class="chat-scroll">
+          <div id="welcome" class="welcome">
+            <div class="hello-face"><img src="/character/previews/merlin-fullscreen-face.png" alt="MERLIN’s friendly blue face" width="1600" height="1200"></div>
+            <h1>A little help.<br><span>Wherever you are.</span></h1>
+            <p>At your service, mister.<br>What can I take care of?</p>
+            <div class="suggestions">
+              <button data-prompt="What’s on my calendar today?"><span class="suggestion-icon" data-icon="calendar"></span><span>What does my day look like?</span><span data-icon="arrow-up-right"></span></button>
+              <button data-prompt="Turn on the living room lights"><span class="suggestion-icon" data-icon="light"></span><span>Turn on the living room lights</span><span data-icon="arrow-up-right"></span></button>
+              <button data-prompt="Remember I like the lights warm"><span class="suggestion-icon" data-icon="memory"></span><span>Remember I like warm lighting</span><span data-icon="arrow-up-right"></span></button>
+            </div>
+            <p class="welcome-note">Same MERLIN. A little closer to hand.</p>
+          </div>
+          <div id="messages" class="messages" role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions"></div>
+          <div id="typing" class="typing" role="status" hidden><span class="mini-mark">M</span><span>MERLIN is thinking<span class="typing-dots" aria-hidden="true">…</span></span></div>
+        </div>
+        <div class="composer-area">
+          <div id="pending-files" class="pending-files"></div>
+          <form id="chat-form" class="composer">
+            <button id="attach" type="button" class="icon-button" data-icon="plus" aria-label="Attach files"></button>
+            <label class="sr-only" for="message">Message MERLIN</label>
+            <textarea id="message" rows="1" placeholder="Message MERLIN…" maxlength="4000" enterkeyhint="send"></textarea>
+            <button id="send" type="submit" class="send-button" aria-label="Send message" data-icon="arrow-up" disabled></button>
+          </form>
+          <input id="file-input" type="file" multiple hidden>
+          <p class="local-note">Demo replies &amp; actions · Saved on this browser</p>
+        </div>
+      </section>
+      <section id="view-talk" class="view talk-view" aria-label="Talk with MERLIN" hidden>
+        <div class="talk-heading"><h1>A familiar face.</h1><p>The same conversation, out loud.</p></div>
+        <div id="face-stage" class="face-stage" data-phase="idle">
+          <div class="presence-ring" aria-hidden="true"></div>
+          <img id="face-fallback" src="/character/previews/merlin-fullscreen-face.png" alt="MERLIN’s face" width="1600" height="1200">
+          <canvas id="face-canvas" aria-label="Animated MERLIN face" hidden></canvas>
+        </div>
+        <div class="talk-feedback"><p id="voice-state" class="voice-state" role="status">Here when you need me</p><p id="voice-caption" class="voice-caption">Ask a question. Make yourself at home.</p><p id="microphone-state" class="microphone-state">Microphone off</p></div>
+        <div class="talk-actions"><button id="sound" class="icon-button secondary-circle" aria-label="Enable spoken replies" aria-pressed="false" data-icon="volume-off"></button><button id="talk" class="talk-button" aria-label="Talk to MERLIN" data-icon="mic"></button><button id="voice-preview-open" class="icon-button secondary-circle" aria-label="Type a voice preview" data-icon="keyboard"></button></div>
+        <p id="talk-label" class="talk-label">Tap to talk</p>
+        <button id="sample-voice" class="text-button">Try a voice preview<span data-icon="arrow-right"></span></button>
+        <p class="talk-note"><span data-icon="memory"></span>One conversation. One shared memory.</p>
+      </section>
+      <section id="view-connections" class="view connections-view" aria-label="Connections" hidden>
+        <div id="connections-list-view">
+          <div class="page-heading"><h1>Connections</h1><p>Your home. Your services.<br>All in one familiar place.</p></div>
+          <label class="search-field"><span data-icon="search"></span><input id="service-search" type="search" placeholder="Search services or devices" aria-label="Search services or devices"></label>
+          <div class="filter-tabs" aria-label="Filter connections"><button class="selected" data-filter="all" aria-pressed="true">All</button><button data-filter="connected" aria-pressed="false">Connected <span id="connected-count">0</span></button><button data-filter="account" aria-pressed="false">Accounts</button><button data-filter="home" aria-pressed="false">Home</button></div>
+          <p class="connection-note"><span data-icon="info"></span>Preview connections. No accounts or devices are accessed.</p>
+          <div id="services"></div>
+          <p id="services-empty" class="empty-state" hidden>No matches. Try a brand, service, or device type.</p>
+          <button id="connection-settings" class="settings-row"><span data-icon="memory"></span><span>Memory &amp; local data</span><span data-icon="chevron-right"></span></button>
+        </div>
+        <div id="connection-detail" hidden></div>
+      </section>
+    </main>
+    <nav class="bottom-nav" aria-label="Main navigation"><a href="#chat" data-view="chat" aria-current="page"><span data-icon="chat"></span><span>Chat</span></a><a href="#talk" data-view="talk"><span data-icon="wave"></span><span>Talk</span></a><a href="#connections" data-view="connections"><span data-icon="connections"></span><span>Connections</span></a></nav>
+  </div>
+  <dialog id="settings-dialog" class="sheet"><div class="sheet-header"><h2>Memory &amp; local data</h2><button class="icon-button" data-close="settings-dialog" data-icon="x" aria-label="Close settings"></button></div><div class="sheet-body"><p class="sheet-intro">A little continuity, wherever you chat. Text and Talk share these memories on this browser.</p><div id="memory-list"></div><p id="memory-empty" class="empty-state">Nothing saved just yet. Tell me something to remember in Chat or Talk.</p><form id="memory-form" class="memory-form"><label for="memory-input">Add a memory</label><div><input id="memory-input" placeholder="I like my lights warm" maxlength="500" required><button class="small-button" type="submit">Save</button></div></form><div class="data-info"><h3>Just on this browser</h3><p>Chats, memories, attachments, and demo connections stay here until you delete them. They aren’t synced to the iPad yet. No live assistant or services are contacted.</p><p id="storage-summary"></p></div><button id="clear-chat" class="settings-row">Clear chat history<span data-icon="trash"></span></button><button id="reset-demo" class="settings-row destructive">Delete all local demo data<span data-icon="trash"></span></button><div id="delete-confirm" class="delete-confirm" hidden><p id="delete-description"></p><div><button id="delete-cancel" class="small-button">Keep my data</button><button id="delete-confirm-button" class="small-button danger-button">Delete</button></div></div></div></dialog>
+  <dialog id="voice-dialog" class="sheet"><div class="sheet-header"><h2>Talk to MERLIN</h2><button class="icon-button" data-close="voice-dialog" data-icon="x" aria-label="Close voice options"></button></div><div class="sheet-body"><p id="voice-availability" class="sheet-intro">Voice preview lets you try the full conversation without a microphone.</p><form id="voice-form"><label for="voice-input">Say it in a voice preview</label><textarea id="voice-input" rows="3" placeholder="What do you remember about me?" maxlength="4000" required></textarea><button class="primary-button" type="submit">Start voice preview<span data-icon="wave"></span></button></form><p class="privacy-note">Microphone input uses on-device recognition only, when your browser supports it. Preview mode uses your typed words. Spoken replies use an available local device voice.</p></div></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>

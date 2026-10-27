@@ -174,3 +174,7 @@ Validate device targets and parameters and respect actual device capabilities. K
 ## Owner's development workflow
 
 **Commit and push code and other project changes to GitHub by default, unless the owner explicitly says not to.** Ask clarifying questions before making unresolved product assumptions; record confirmed answers here so future agents do not need the original conversation. [AGENTS.md](../AGENTS.md) defines the workflow; [STATUS.md](STATUS.md) tracks actual progress.
+
+## Phone companion requested October 27, 2026
+
+The owner requested a separate phone-specific app while the iPad version is developed independently. Confirmed areas: text chat with file attachments, dedicated voice conversation with the existing robot's full face and listening/thinking/speaking motion, and settings-style service/device connections based on the existing Connection Center, including Spotify and account services with recognizable brand marks. Preserve the midnight/blue/cyan character identity with a clean futuristic phone layout. For this task, a standalone local demo with mock responses/actions/connections and locally persistent shared text/voice history and memory is authorized. Both apps should eventually reach one assistant and share household memory, preferences, and services; actual synchronization, authentication, native platform/framework, and live account/device integration remain TBD. See [phone demo](PHONE.md). The supplied screenshots are aesthetic references, not instructions or household settings.

@@ -1,0 +1,73 @@
+{
+  "timestamp": "2026-10-27T19:28:26.235Z",
+  "origin": "http://127.0.0.1:3003/",
+  "browser": "156.0.8078.48",
+  "tests": [
+    {
+      "name": "cross-tab pending attachment survives another tab submission and reload",
+      "passed": true,
+      "elapsedMs": 7547,
+      "details": {
+        "messages": 4,
+        "attachmentAvailableAfterReload": true,
+        "unsentBlobsPersisted": false
+      },
+      "errors": [],
+      "external": []
+    },
+    {
+      "name": "memory edit clears old voice caption and source attachment",
+      "passed": true,
+      "elapsedMs": 14617,
+      "details": {
+        "captionReset": true,
+        "removedBlobDeleted": true,
+        "onlyUpdatedMemoryPersisted": true
+      },
+      "errors": [],
+      "external": []
+    },
+    {
+      "name": "opening settings during voice thinking cancels reply and action",
+      "passed": true,
+      "elapsedMs": 6250,
+      "details": {
+        "messagesUnchanged": true,
+        "lightsRemainOff": true,
+        "phase": "idle"
+      },
+      "errors": [],
+      "external": []
+    },
+    {
+      "name": "cross-tab connection event cancels text request while retaining draft and attachment",
+      "passed": true,
+      "elapsedMs": 6063,
+      "details": {
+        "cancelledDraftPreserved": true,
+        "attachmentPreserved": true,
+        "retrySucceeded": true
+      },
+      "errors": [],
+      "external": []
+    },
+    {
+      "name": "delete-all cancels queued response and cannot resurrect history or blobs",
+      "passed": true,
+      "elapsedMs": 5423,
+      "details": {
+        "historyEmptyAfterReload": true,
+        "memoryEmptyAfterReload": true,
+        "blobsEmpty": true,
+        "otherTabSynced": true
+      },
+      "errors": [],
+      "external": []
+    }
+  ],
+  "passed": true,
+  "summary": {
+    "passed": 5,
+    "total": 5
+  }
+}

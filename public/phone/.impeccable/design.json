@@ -1,0 +1,480 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-27T19:35:18.670515+00:00",
+  "title": "Design System: MERLIN phone companion",
+  "extensions": {
+    "colorMeta": {
+      "midnight": {
+        "role": "neutral",
+        "displayName": "Midnight",
+        "canonical": "#080f1c",
+        "tonalRamp": [
+          "oklch(0.150 0.0296 261.79)",
+          "oklch(0.264 0.0296 261.79)",
+          "oklch(0.379 0.0296 261.79)",
+          "oklch(0.493 0.0296 261.79)",
+          "oklch(0.607 0.0296 261.79)",
+          "oklch(0.721 0.0296 261.79)",
+          "oklch(0.836 0.0296 261.79)",
+          "oklch(0.950 0.0296 261.79)"
+        ]
+      },
+      "outer-night": {
+        "role": "neutral",
+        "displayName": "Outer Night",
+        "canonical": "#050a12",
+        "tonalRamp": [
+          "oklch(0.150 0.0201 255.76)",
+          "oklch(0.264 0.0201 255.76)",
+          "oklch(0.379 0.0201 255.76)",
+          "oklch(0.493 0.0201 255.76)",
+          "oklch(0.607 0.0201 255.76)",
+          "oklch(0.721 0.0201 255.76)",
+          "oklch(0.836 0.0201 255.76)",
+          "oklch(0.950 0.0201 255.76)"
+        ]
+      },
+      "nav-night": {
+        "role": "neutral",
+        "displayName": "Nav Night",
+        "canonical": "#0c1624",
+        "tonalRamp": [
+          "oklch(0.150 0.0320 256.92)",
+          "oklch(0.264 0.0320 256.92)",
+          "oklch(0.379 0.0320 256.92)",
+          "oklch(0.493 0.0320 256.92)",
+          "oklch(0.607 0.0320 256.92)",
+          "oklch(0.721 0.0320 256.92)",
+          "oklch(0.836 0.0320 256.92)",
+          "oklch(0.950 0.0320 256.92)"
+        ]
+      },
+      "sheet-night": {
+        "role": "neutral",
+        "displayName": "Sheet Night",
+        "canonical": "#101c2c",
+        "tonalRamp": [
+          "oklch(0.150 0.0358 255.93)",
+          "oklch(0.264 0.0358 255.93)",
+          "oklch(0.379 0.0358 255.93)",
+          "oklch(0.493 0.0358 255.93)",
+          "oklch(0.607 0.0358 255.93)",
+          "oklch(0.721 0.0358 255.93)",
+          "oklch(0.836 0.0358 255.93)",
+          "oklch(0.950 0.0358 255.93)"
+        ]
+      },
+      "raised-navy": {
+        "role": "neutral",
+        "displayName": "Raised Navy",
+        "canonical": "#16283e",
+        "tonalRamp": [
+          "oklch(0.150 0.0476 254.22)",
+          "oklch(0.264 0.0476 254.22)",
+          "oklch(0.379 0.0476 254.22)",
+          "oklch(0.493 0.0476 254.22)",
+          "oklch(0.607 0.0476 254.22)",
+          "oklch(0.721 0.0476 254.22)",
+          "oklch(0.836 0.0476 254.22)",
+          "oklch(0.950 0.0476 254.22)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "canonical": "#25364a",
+        "tonalRamp": [
+          "oklch(0.150 0.0422 253.04)",
+          "oklch(0.264 0.0422 253.04)",
+          "oklch(0.379 0.0422 253.04)",
+          "oklch(0.493 0.0422 253.04)",
+          "oklch(0.607 0.0422 253.04)",
+          "oklch(0.721 0.0422 253.04)",
+          "oklch(0.836 0.0422 253.04)",
+          "oklch(0.950 0.0422 253.04)"
+        ]
+      },
+      "ice-cyan": {
+        "role": "primary",
+        "displayName": "Ice Cyan",
+        "canonical": "#8bddf4",
+        "tonalRamp": [
+          "oklch(0.150 0.0860 217.61)",
+          "oklch(0.264 0.0860 217.61)",
+          "oklch(0.379 0.0860 217.61)",
+          "oklch(0.493 0.0860 217.61)",
+          "oklch(0.607 0.0860 217.61)",
+          "oklch(0.721 0.0860 217.61)",
+          "oklch(0.836 0.0860 217.61)",
+          "oklch(0.950 0.0860 217.61)"
+        ]
+      },
+      "ice-cyan-hover": {
+        "role": "primary",
+        "displayName": "Ice Cyan Hover",
+        "canonical": "#b3ecfd",
+        "tonalRamp": [
+          "oklch(0.150 0.0622 218.08)",
+          "oklch(0.264 0.0622 218.08)",
+          "oklch(0.379 0.0622 218.08)",
+          "oklch(0.493 0.0622 218.08)",
+          "oklch(0.607 0.0622 218.08)",
+          "oklch(0.721 0.0622 218.08)",
+          "oklch(0.836 0.0622 218.08)",
+          "oklch(0.950 0.0622 218.08)"
+        ]
+      },
+      "pale-ink": {
+        "role": "neutral",
+        "displayName": "Pale Ink",
+        "canonical": "#e8f3fc",
+        "tonalRamp": [
+          "oklch(0.150 0.0169 242.43)",
+          "oklch(0.264 0.0169 242.43)",
+          "oklch(0.379 0.0169 242.43)",
+          "oklch(0.493 0.0169 242.43)",
+          "oklch(0.607 0.0169 242.43)",
+          "oklch(0.721 0.0169 242.43)",
+          "oklch(0.836 0.0169 242.43)",
+          "oklch(0.950 0.0169 242.43)"
+        ]
+      },
+      "muted-blue": {
+        "role": "neutral",
+        "displayName": "Muted Blue",
+        "canonical": "#98adc4",
+        "tonalRamp": [
+          "oklch(0.150 0.0408 250.76)",
+          "oklch(0.264 0.0408 250.76)",
+          "oklch(0.379 0.0408 250.76)",
+          "oklch(0.493 0.0408 250.76)",
+          "oklch(0.607 0.0408 250.76)",
+          "oklch(0.721 0.0408 250.76)",
+          "oklch(0.836 0.0408 250.76)",
+          "oklch(0.950 0.0408 250.76)"
+        ]
+      },
+      "button-ink": {
+        "role": "neutral",
+        "displayName": "Button Ink",
+        "canonical": "#092133",
+        "tonalRamp": [
+          "oklch(0.150 0.0456 244.16)",
+          "oklch(0.264 0.0456 244.16)",
+          "oklch(0.379 0.0456 244.16)",
+          "oklch(0.493 0.0456 244.16)",
+          "oklch(0.607 0.0456 244.16)",
+          "oklch(0.721 0.0456 244.16)",
+          "oklch(0.836 0.0456 244.16)",
+          "oklch(0.950 0.0456 244.16)"
+        ]
+      },
+      "brand-tile": {
+        "role": "neutral",
+        "displayName": "Brand Tile",
+        "canonical": "#f1f6f9",
+        "tonalRamp": [
+          "oklch(0.150 0.0067 233.64)",
+          "oklch(0.264 0.0067 233.64)",
+          "oklch(0.379 0.0067 233.64)",
+          "oklch(0.493 0.0067 233.64)",
+          "oklch(0.607 0.0067 233.64)",
+          "oklch(0.721 0.0067 233.64)",
+          "oklch(0.836 0.0067 233.64)",
+          "oklch(0.950 0.0067 233.64)"
+        ]
+      },
+      "connected-mint": {
+        "role": "neutral",
+        "displayName": "Connected Mint",
+        "canonical": "#8fe0cd",
+        "tonalRamp": [
+          "oklch(0.150 0.0842 177.64)",
+          "oklch(0.264 0.0842 177.64)",
+          "oklch(0.379 0.0842 177.64)",
+          "oklch(0.493 0.0842 177.64)",
+          "oklch(0.607 0.0842 177.64)",
+          "oklch(0.721 0.0842 177.64)",
+          "oklch(0.836 0.0842 177.64)",
+          "oklch(0.950 0.0842 177.64)"
+        ]
+      },
+      "danger-ink": {
+        "role": "neutral",
+        "displayName": "Danger Ink",
+        "canonical": "#f1aca8",
+        "tonalRamp": [
+          "oklch(0.150 0.0818 22.76)",
+          "oklch(0.264 0.0818 22.76)",
+          "oklch(0.379 0.0818 22.76)",
+          "oklch(0.493 0.0818 22.76)",
+          "oklch(0.607 0.0818 22.76)",
+          "oklch(0.721 0.0818 22.76)",
+          "oklch(0.836 0.0818 22.76)",
+          "oklch(0.950 0.0818 22.76)"
+        ]
+      },
+      "danger-fill": {
+        "role": "neutral",
+        "displayName": "Danger Fill",
+        "canonical": "#bd635f",
+        "tonalRamp": [
+          "oklch(0.150 0.1163 23.76)",
+          "oklch(0.264 0.1163 23.76)",
+          "oklch(0.379 0.1163 23.76)",
+          "oklch(0.493 0.1163 23.76)",
+          "oklch(0.607 0.1163 23.76)",
+          "oklch(0.721 0.1163 23.76)",
+          "oklch(0.836 0.1163 23.76)",
+          "oklch(0.950 0.1163 23.76)"
+        ]
+      },
+      "receipt-navy": {
+        "role": "neutral",
+        "displayName": "Receipt Navy",
+        "canonical": "#102435",
+        "tonalRamp": [
+          "oklch(0.150 0.0416 246.07)",
+          "oklch(0.264 0.0416 246.07)",
+          "oklch(0.379 0.0416 246.07)",
+          "oklch(0.493 0.0416 246.07)",
+          "oklch(0.607 0.0416 246.07)",
+          "oklch(0.721 0.0416 246.07)",
+          "oklch(0.836 0.0416 246.07)",
+          "oklch(0.950 0.0416 246.07)"
+        ]
+      },
+      "receipt-line": {
+        "role": "neutral",
+        "displayName": "Receipt Line",
+        "canonical": "#254252",
+        "tonalRamp": [
+          "oklch(0.150 0.0446 234.00)",
+          "oklch(0.264 0.0446 234.00)",
+          "oklch(0.379 0.0446 234.00)",
+          "oklch(0.493 0.0446 234.00)",
+          "oklch(0.607 0.0446 234.00)",
+          "oklch(0.721 0.0446 234.00)",
+          "oklch(0.836 0.0446 234.00)",
+          "oklch(0.950 0.0446 234.00)"
+        ]
+      },
+      "selection-navy": {
+        "role": "neutral",
+        "displayName": "Selection Navy",
+        "canonical": "#213b51",
+        "tonalRamp": [
+          "oklch(0.150 0.0504 245.53)",
+          "oklch(0.264 0.0504 245.53)",
+          "oklch(0.379 0.0504 245.53)",
+          "oklch(0.493 0.0504 245.53)",
+          "oklch(0.607 0.0504 245.53)",
+          "oklch(0.721 0.0504 245.53)",
+          "oklch(0.836 0.0504 245.53)",
+          "oklch(0.950 0.0504 245.53)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "body": {
+        "displayName": "Native phone text",
+        "purpose": "Intentional local system font across conversation and controls; no external fonts."
+      },
+      "display": {
+        "displayName": "Welcome headline",
+        "purpose": "Large two-line opening greeting."
+      },
+      "navigation": {
+        "displayName": "Bottom destination label",
+        "purpose": "Persistent three-tab navigation."
+      }
+    },
+    "shadows": [
+      {
+        "name": "talk-control",
+        "value": "0 9px 24px #01071180",
+        "purpose": "Lift the central voice control."
+      },
+      {
+        "name": "sheet",
+        "value": "0 -10px 60px #0008",
+        "purpose": "Separate settings and preview dialogs."
+      },
+      {
+        "name": "toast",
+        "value": "0 10px 30px #0006",
+        "purpose": "Short status overlay above navigation."
+      },
+      {
+        "name": "desktop-shell",
+        "value": "0 25px 90px #0008",
+        "purpose": "Desktop preview shell only."
+      }
+    ],
+    "motion": [
+      {
+        "name": "arrival-easing",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "250ms message entrance from 7px below."
+      },
+      {
+        "name": "message-arrival",
+        "value": "250ms",
+        "purpose": "New conversation entry."
+      },
+      {
+        "name": "control-hover",
+        "value": "200ms",
+        "purpose": "Suggestion fill and talk-control fill/scale."
+      },
+      {
+        "name": "thinking-ellipsis",
+        "value": "1s",
+        "purpose": "Breathing thinking indicator."
+      },
+      {
+        "name": "listening-ring",
+        "value": "1.6s",
+        "purpose": "Listening pulse with a 1.05 scale peak."
+      },
+      {
+        "name": "thinking-ring",
+        "value": "4s linear infinite",
+        "purpose": "One full ring rotation."
+      },
+      {
+        "name": "presence-transition",
+        "value": "1s",
+        "purpose": "Ring scale and opacity change."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "none",
+        "purpose": "CSS animations/transitions/smooth scrolling disabled; face holds a static pose and stops RAF."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "desktop-phone-preview",
+        "value": "min-width: 600px"
+      },
+      {
+        "name": "short-viewport",
+        "value": "max-height: 740px"
+      },
+      {
+        "name": "narrow-phone",
+        "value": "max-width: 350px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Connect or start a preview; pale cyan marks the primary operation.",
+      "html": "<button class=\"ds-primary\">Connect Spotify</button>",
+      "css": ".ds-primary{display:flex;align-items:center;justify-content:center;background:var(--cyan,#8bddf4);color:#092133;min-height:49px;width:100%;border:0;border-radius:12px;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;font-weight:550;font-size:14px;cursor:pointer}.ds-primary:hover{background:#b3ecfd}.ds-primary:focus-visible{outline:2px solid var(--cyan,#8bddf4);outline-offset:4px;}.ds-primary:disabled{opacity:.4;cursor:default}"
+    },
+    {
+      "name": "Disconnect",
+      "kind": "button",
+      "refersTo": "button-disconnect",
+      "description": "An outlined secondary action for an existing demo connection.",
+      "html": "<button class=\"ds-disconnect\">Disconnect</button>",
+      "css": ".ds-disconnect{display:flex;align-items:center;justify-content:center;background:#17293e;color:#cbdfee;min-height:49px;width:100%;border:1px solid #405b74;border-radius:12px;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;font-weight:550;font-size:14px;cursor:pointer}.ds-disconnect:focus-visible{outline:2px solid var(--cyan,#8bddf4);outline-offset:4px;}"
+    },
+    {
+      "name": "Small settings action",
+      "kind": "button",
+      "refersTo": "button-small",
+      "description": "Compact save and cancel controls in memory/settings sheets.",
+      "html": "<button class=\"ds-small\">Save</button>",
+      "css": ".ds-small{border:0;border-radius:9px;min-height:44px;padding:10px 14px;background:#254660;color:#d4f3ff;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;font-size:13px;white-space:nowrap;cursor:pointer}.ds-small:focus-visible{outline:2px solid var(--cyan,#8bddf4);outline-offset:4px;}.ds-small:disabled{opacity:.4;cursor:default}"
+    },
+    {
+      "name": "Talk control",
+      "kind": "button",
+      "refersTo": "button-talk",
+      "description": "Large central microphone control; its accessible name changes to Stop while active.",
+      "html": "<button class=\"ds-talk\" aria-label=\"Talk to MERLIN\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"8\" y=\"2\" width=\"8\" height=\"13\" rx=\"4\"/><path d=\"M4 10v2a8 8 0 0 0 16 0v-2M12 20v2\"/></svg></button>",
+      "css": ".ds-talk{width:76px;height:76px;display:grid;place-items:center;border-radius:50%;background:var(--cyan,#8bddf4);color:#0b2638;border:7px solid #173447;box-shadow:0 9px 24px #01071180;transition:background .2s,transform .2s;cursor:pointer}.ds-talk svg{width:26px;height:26px;stroke-width:1.8}.ds-talk:hover{background:#baf0ff;transform:scale(1.03)}.ds-talk[data-active=\"true\"]{background:#c5eeff;border-color:#2b6381}.ds-talk:focus-visible{outline:2px solid var(--cyan,#8bddf4);outline-offset:4px;}@media(prefers-reduced-motion:reduce){.ds-talk{transition:none}}"
+    },
+    {
+      "name": "Service search",
+      "kind": "input",
+      "refersTo": "search-field",
+      "description": "A labeled search field above the service filters.",
+      "html": "<label class=\"ds-search\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"10.5\" cy=\"10.5\" r=\"7.5\"/><path d=\"m16 16 5 5\"/></svg><input type=\"search\" aria-label=\"Search services or devices\" placeholder=\"Search services or devices\"></label>",
+      "css": ".ds-search{display:flex;align-items:center;gap:9px;background:#111f30;border:1px solid #38516a;border-radius:12px;padding:0 12px;height:48px;color:#a2b8ce}.ds-search svg{width:19px;height:19px}.ds-search input{width:100%;min-width:0;height:100%;border:0;background:none;color:#e9f3fc;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;font-size:14px;outline:0;caret-color:var(--cyan,#8bddf4)}.ds-search input::placeholder{color:#94a9c0}.ds-search:focus-within{border-color:var(--cyan,#8bddf4)}.ds-search input:focus-visible{outline:2px solid var(--cyan,#8bddf4);outline-offset:4px;}"
+    },
+    {
+      "name": "Connection filters",
+      "kind": "chip",
+      "refersTo": "filter-selected",
+      "description": "All, Connected, Accounts, and Home refine the list without changing modes.",
+      "html": "<div class=\"ds-filters\" aria-label=\"Filter connections\"><button aria-pressed=\"true\">All</button><button aria-pressed=\"false\">Connected <span>2</span></button><button aria-pressed=\"false\">Accounts</button><button aria-pressed=\"false\">Home</button></div>",
+      "css": ".ds-filters{display:flex;gap:5px;overflow-x:auto;padding:2px 0 4px}.ds-filters button{border:0;background:none;padding:9px 12px;border-radius:8px;white-space:nowrap;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;font-size:12px;min-height:40px;color:#9cb4ca;cursor:pointer}.ds-filters button[aria-pressed=\"true\"]{background:#213b51;color:#d9f4ff}.ds-filters button:hover{background:#152b40}.ds-filters button span{font-size:10px;padding:1px 4px;border-radius:4px;background:#34536b;margin-left:3px}.ds-filters button:focus-visible{outline:2px solid var(--cyan,#8bddf4);outline-offset:4px;}"
+    },
+    {
+      "name": "Bottom navigation",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Three equal, persistent phone destinations with a fine active indicator.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><a href=\"#chat\" aria-current=\"page\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 11.5a8 8 0 0 1-8.3 8 10 10 0 0 1-4-.8L3 20l1.3-4.6a8 8 0 1 1 15.7-3.9Z\"/></svg><span>Chat</span></a><a href=\"#talk\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 10v4m4-7v10m4-14v18m4-14v10m4-7v4\"/></svg><span>Talk</span></a><a href=\"#connections\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"2\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"2\"/><path d=\"M17.5 3v7M14 6.5h7M6.5 14v7M3 17.5h7\"/></svg><span>Connections</span></a></nav>",
+      "css": ".ds-nav{display:grid;grid-template-columns:repeat(3,1fr);padding:9px 12px 11px;border-top:1px solid #1a293b;background:#0c1624}.ds-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:7px 3px 4px;color:#8fa5bd;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;font-size:11px;letter-spacing:.015em;min-height:51px;position:relative}.ds-nav svg{width:22px;height:22px}.ds-nav a[aria-current]{color:var(--cyan,#8bddf4)}.ds-nav a[aria-current]:before{content:\"\";position:absolute;top:-10px;width:26px;height:2px;background:var(--cyan,#8bddf4);border-radius:2px}.ds-nav a:hover{color:#d7f3ff}.ds-nav a:focus-visible{outline:2px solid var(--cyan,#8bddf4);outline-offset:4px;}"
+    },
+    {
+      "name": "Simulated action receipt",
+      "kind": "card",
+      "refersTo": "receipt",
+      "description": "An explicit result attached to a conversational answer; never a live-action claim.",
+      "html": "<div class=\"ds-receipt\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m5 12 4 4L19 6\"/></svg><div><p class=\"ds-receipt-title\">Living room lights · Demo</p><p class=\"ds-receipt-detail\">Lights are on in this preview.</p><p class=\"ds-receipt-label\">Simulated action</p></div></div>",
+      "css": ".ds-receipt{display:flex;align-items:flex-start;gap:11px;padding:13px 14px;background:#102435;border:1px solid #254252;border-radius:13px;color:#e8f3fc;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif}.ds-receipt>svg{width:19px;height:19px;color:var(--cyan,#8bddf4);margin-top:2px;flex:none}.ds-receipt p{margin:0;line-height:1.55}.ds-receipt-title{font-weight:550;font-size:13px}.ds-receipt-detail{white-space:pre-line;color:#a0b8cd;font-size:12px;margin-top:3px!important}.ds-receipt-label{font-size:9px;color:#9bb3c8;text-transform:uppercase;letter-spacing:.06em;margin-top:8px!important}"
+    },
+    {
+      "name": "Service row and brand tile",
+      "kind": "custom",
+      "refersTo": "brand-tile",
+      "description": "Recognizable service mark and short status in a large settings-list target.",
+      "html": "<button class=\"ds-service\"><span class=\"ds-brand-tile\"><svg class=\"ds-brand-mark\" aria-hidden=\"true\" fill=\"#1ED760\" role=\"img\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><title>Spotify</title><path d=\"M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z\"/></svg></span><span class=\"ds-service-description\"><span class=\"ds-service-name\">Spotify</span><span class=\"ds-service-subtitle\">Music</span></span><span class=\"ds-service-connect\">Connect</span><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 5 7 7-7 7\"/></svg></button>",
+      "css": ".ds-service{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;border-bottom:1px solid #1b2b3d;background:none;padding:16px 0;min-height:79px;color:#e3edf7;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;cursor:pointer}.ds-service:hover{background:#0e1c2c}.ds-brand-tile{width:43px;height:43px;display:grid;place-items:center;background:#f1f6f9;border-radius:12px;flex-shrink:0}.ds-brand-mark{width:25px;height:25px}.ds-service-description{flex:1;min-width:0}.ds-service-name{font-size:14px;font-weight:500}.ds-service-subtitle{display:block;font-size:11px;color:#91abc3;margin-top:4px}.ds-service-connect{font-size:11px;color:var(--cyan,#8bddf4);white-space:nowrap}.ds-service>svg{width:16px;height:16px;color:#809db6}.ds-service:focus-visible{outline:2px solid var(--cyan,#8bddf4);outline-offset:4px;}"
+    },
+    {
+      "name": "Message composer",
+      "kind": "input",
+      "refersTo": "composer",
+      "description": "Persistent attachment, text, and send controls beneath chat history.",
+      "html": "<form class=\"ds-composer\"><button class=\"ds-attach\" type=\"button\" aria-label=\"Attach files\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg></button><textarea aria-label=\"Message MERLIN\" rows=\"1\" placeholder=\"Message MERLIN…\"></textarea><button class=\"ds-send\" type=\"button\" aria-label=\"Send message\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 19V5m-6 6 6-6 6 6\"/></svg></button></form>",
+      "css": ".ds-composer{display:flex;align-items:flex-end;padding:6px;border:1px solid #33485f;border-radius:26px;background:#111e2e;gap:2px}.ds-composer:focus-within{border-color:var(--cyan,#8bddf4)}.ds-composer textarea{flex:1;min-width:0;border:0;background:none;color:#e8f3fc;padding:11px 2px 10px;resize:none;min-height:44px;max-height:120px;line-height:22px;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;font-size:16px;caret-color:var(--cyan,#8bddf4)}.ds-composer textarea::placeholder{color:#94a9c0}.ds-composer textarea:focus-visible{outline:none}.ds-attach{border:0;background:none;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;color:var(--muted,#98adc4);flex-shrink:0;cursor:pointer}.ds-attach:hover{background:#192b40;color:#e3f4ff}.ds-send{border:0;border-radius:50%;width:40px;height:40px;background:var(--cyan,#8bddf4);color:#071421;display:grid;place-items:center;margin:2px;flex-shrink:0;cursor:pointer}.ds-send:hover{background:#b6edfc}.ds-send:disabled{background:#32465b;color:#8da1b6;cursor:default}.ds-composer svg{width:22px;height:22px}.ds-composer button:focus-visible{outline:2px solid var(--cyan,#8bddf4);outline-offset:4px;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "MERLIN within a thumb’s reach",
+    "overview": "The same friendly home assistant moves between a message thread, a familiar face, and a practical settings list. The owner’s pinned direction is clean, simple, futuristic, and comfortable on a phone: midnight blue, the established cyan MERLIN character, generous dark space, and legible native typography. Futuristic character comes from the face, precise fine borders, and restrained light at active controls.\n\nThis is a scoped **Operate** surface. The built sources are [index.html](index.html), [styles.css](styles.css), [app.js](app.js), and [face.js](face.js); [docs/PHONE.md](../../docs/PHONE.md) defines the current product boundary. The older root product/design files describe the separate text test harness. This document records the phone implementation without selecting a native framework, changing the iPad interface, or claiming a shared backend. The source contract and existing mobile captures are the design evidence; final reviewer disposition is recorded separately in the phone review folder.",
+    "keyCharacteristics": [
+      "A narrow, persistent three-tab shell: Chat, Talk, Connections.",
+      "Native phone typography over calm midnight surfaces.",
+      "One actual MERLIN face, with readable listening, thinking, and speaking states.",
+      "Recognizable brand marks in light tiles within a settings list.",
+      "Explicit local-demo, microphone, storage, and simulated-action labels."
+    ],
+    "rules": [],
+    "dos": [
+      "Do preserve the three equal bottom destinations and keep service setup in Connections.",
+      "Do reuse the existing MERLIN face, native font stack, midnight background, and cyan active states.",
+      "Do pair color and animation with written connection, microphone, processing, and storage states.",
+      "Do keep brand marks recognizable on light tiles and retain their documented provenance.",
+      "Do make Chat and Talk read as one conversation with one local memory.",
+      "Do retain reduced-motion, visible keyboard focus, safe areas, and short-screen scrolling."
+    ],
+    "donts": [
+      "Don't imply live account access, actual device execution, or iPad synchronization in this demo.",
+      "Don't replace the existing face with a new mascot, add its body to Talk, or turn settings into another chat mode.",
+      "Don't add decorative instrumentation that competes with messages or controls.",
+      "Don't use brand logos as proof of endorsement or tested hardware support.",
+      "Don't apply this phone document to the separate root text harness or home-display interface."
+    ]
+  }
+}

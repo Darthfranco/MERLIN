@@ -1,0 +1,73 @@
+{
+  "recall": "Here’s what I remember:\n• I like the lights warm",
+  "voiceFallbackShown": true,
+  "errors": [],
+  "externalRequests": [],
+  "geometry": {
+    "320-chat": {
+      "scrollWidth": 320,
+      "innerWidth": 320,
+      "navBottom": 640,
+      "innerHeight": 640
+    },
+    "320-talk": {
+      "scrollWidth": 320,
+      "innerWidth": 320,
+      "navBottom": 640,
+      "innerHeight": 640
+    },
+    "320-connections": {
+      "scrollWidth": 320,
+      "innerWidth": 320,
+      "navBottom": 640,
+      "innerHeight": 640
+    },
+    "390-chat": {
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "navBottom": 844,
+      "innerHeight": 844
+    },
+    "390-talk": {
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "navBottom": 844,
+      "innerHeight": 844
+    },
+    "390-connections": {
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "navBottom": 844,
+      "innerHeight": 844
+    },
+    "430-chat": {
+      "scrollWidth": 430,
+      "innerWidth": 430,
+      "navBottom": 932,
+      "innerHeight": 932
+    },
+    "430-talk": {
+      "scrollWidth": 430,
+      "innerWidth": 430,
+      "navBottom": 932,
+      "innerHeight": 932
+    },
+    "430-connections": {
+      "scrollWidth": 430,
+      "innerWidth": 430,
+      "navBottom": 932,
+      "innerHeight": 932
+    }
+  },
+  "checks": [
+    "shared memory across text and Talk",
+    "Talk history in Chat",
+    "attachment local storage and reload",
+    "Spotify connect, reload, disconnect and action gate",
+    "memory deletion",
+    "voice fallback without microphone",
+    "clear all local state",
+    "320/390/430 geometry",
+    "desktop and mobile captures"
+  ]
+}

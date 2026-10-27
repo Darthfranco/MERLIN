@@ -1,0 +1,11 @@
+{
+  "mode": "degraded-regex",
+  "reason": "Optional HTML/CSS parser modules unavailable",
+  "baseline": "Legacy root DESIGN.md for older light text harness; the phone has a scoped system",
+  "findings": {
+    "design-system-color": 113,
+    "design-system-radius": 13,
+    "design-system-font-size": 22
+  },
+  "nonAdvisory": 0
+}

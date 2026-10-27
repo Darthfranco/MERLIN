@@ -1,0 +1,461 @@
+[
+  {
+    "name": "amazon-alexa",
+    "file": "amazon-alexa.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/11.15.0/icons/amazonalexa.svg",
+    "upstream": null,
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "e8de15d915debaff8b40bcdd7cb441b2f87e2996b8ed007c5a2540905bb0c843"
+  },
+  {
+    "name": "apple",
+    "file": "apple.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/apple.svg",
+    "upstream": "https://www.apple.com",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "44f95515744773c02ea4e6b4fa34c3d0aed3635960949293b1e15aa5cc680159"
+  },
+  {
+    "name": "apple-music",
+    "file": "apple-music.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/applemusic.svg",
+    "upstream": "https://www.apple.com/itunes/marketing-on-music/identity-guidelines.html#apple-music-icon",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "32c11551e925c29e54ff677ebff7b897179cd5f81598e7e2ca9d63145dc8722b"
+  },
+  {
+    "name": "aqara",
+    "file": "aqara.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_brands/aqara/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "e8c69241ea68d5cd3876e35a08e8923d09238fcb288a82fb5641deee7bf64dd3",
+    "sourceSha256": "5c5901db4b3692cd4ecd378aecaf057bbe1b497b4766693e0644ee8e7442478a",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "august",
+    "file": "august.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_brands/august/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "47733e7db7b3bdee781597c933bb586c6c8a5936dfe9f7a07407e3b6d6c15db5",
+    "sourceSha256": "30bbfaf8a7900579f1f4968927ef8a64618b2c4617f8bbd27da8563bbebdea1c",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "dropbox",
+    "file": "dropbox.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/dropbox.svg",
+    "upstream": "https://www.dropbox.com/branding",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "38722c48b209260ebe27747c7eca7c77b00a775c2177dbc54a5d91362abc8d09"
+  },
+  {
+    "name": "ecobee",
+    "file": "ecobee.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_integrations/ecobee/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "d6b614442721433f22e7642142851858216792142ec23befc67a9c3cd7612c08",
+    "sourceSha256": "0f20a3e2c211ca2a3ba14673cbd7bfc88e0e2a6b6176adb82097025e94ccb382",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "enphase",
+    "file": "enphase.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_integrations/enphase_envoy/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "49c0ae75b4e792df4093cf7fce1c16f7d553d13f87e49397498507fc622cb0b8",
+    "sourceSha256": "43226a44b2520d3fdc5c2eda3a2fb3374fe6477089c076e1d76a0f811b71d6e1",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "eufy",
+    "file": "eufy.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_brands/eufy/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "836437d556a8f49a1ec85866a89c0571b50d06ed74d4d511012dc7c6f77f2f23",
+    "sourceSha256": "b4c699fbf3403ca02790d7d06d5522e24a762668222bf7cbc375f8b9c0f9c448",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "eve",
+    "file": "eve.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_brands/eve/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "33e81db17510fe82b452272946be975c74a28c3d7dff0037d2e0d04449828005",
+    "sourceSha256": "b1b4be3fd2a9e7ba87d380eefa2ac46dbd275ceb9676680521cbaa439bdd6024",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "ge-appliances",
+    "file": "ge-appliances.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/custom_integrations/ge_appliances/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "5979c1981f9252bbf1fa3d63fb420ae0d86b7667d468e55ff2e3bc9eebc1784e",
+    "sourceSha256": "9613e2f53f0b91b10ad5d6d46506e49822122abbda0585e516e1719b0bb2f398",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "gmail",
+    "file": "gmail.svg",
+    "url": "https://fonts.gstatic.com/s/i/productlogos/gmail_2020q4/v8/192px.svg",
+    "collection": "Google product logo",
+    "license": "Brand identification; trademark rights retained by Google",
+    "sha256": "8f441dea004be681a062d6377f644065c59987138ca77d60dde2c9d49d5351b6"
+  },
+  {
+    "name": "google",
+    "file": "google.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/google.svg",
+    "upstream": "https://partnermarketinghub.withgoogle.com",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "60156f26885990fd7cc7fec486884d5a7b15d50e600b3416835f376e6838d6b7"
+  },
+  {
+    "name": "google-calendar",
+    "file": "google-calendar.svg",
+    "url": "https://fonts.gstatic.com/s/i/productlogos/calendar_2020q4/v8/192px.svg",
+    "collection": "Google product logo",
+    "license": "Brand identification; trademark rights retained by Google",
+    "sha256": "e7577a7464e2da8278c2fc5e0825e2546a15a422d17102eca831b3ecc7b1e171"
+  },
+  {
+    "name": "google-cast",
+    "file": "google-cast.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/googlecast.svg",
+    "upstream": "https://partnermarketinghub.withgoogle.com/brands/google-cast/visual-identity/visual-identity",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "6f122f6665ec9cac6ec1ab4ead41ff61b1c7c09a62670fa8136ff824816d6d8c"
+  },
+  {
+    "name": "google-drive",
+    "file": "google-drive.svg",
+    "url": "https://fonts.gstatic.com/s/i/productlogos/drive_2020q4/v8/192px.svg",
+    "collection": "Google product logo",
+    "license": "Brand identification; trademark rights retained by Google",
+    "sha256": "93bf1e2d9abafc0348007b38f6dd0e6e67631866c6230744b028ba7070b75e5e"
+  },
+  {
+    "name": "google-home",
+    "file": "google-home.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/googlehome.svg",
+    "upstream": "https://home.google.com/welcome/",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "d9a424f3f6f37eae06b251ff6c5cf3c8d4a44ade7ffc3a8d021193323f6795b4"
+  },
+  {
+    "name": "gree",
+    "file": "gree.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_brands/gree/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "66fb09e1ebb675ebccab742e9f40650857ad7ce8632f431d5d32c606c44c4711",
+    "sourceSha256": "1209c4507d6439196f8f0bcc49ceaff7b9724f4854f496ef58bb9300b991170f",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "home-assistant",
+    "file": "home-assistant.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/homeassistant.svg",
+    "upstream": "https://github.com/home-assistant/assets/blob/0f69676da79c3881e7dfca6d6c0a5739f88273d8/logo/home-assistant-logo.zip",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "7cfd22a11bdfe9364aff5d08cdafb8f7ac07b9d884082f728ce533698b80540f"
+  },
+  {
+    "name": "home-connect",
+    "file": "home-connect.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_integrations/home_connect/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "32222023f0c0fa58c59fdd94c07a82ad76a2c818edfa73db3a6cfa3ac0c9f3de",
+    "sourceSha256": "eab6c981c68fe4d68733c768a5a72230d27f2909ce29add73829584e306a93a8",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "ikea",
+    "file": "ikea.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/ikea.svg",
+    "upstream": "https://www.ikea.com",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "2197f8e361d97d56d3a49ffbc1d2c0a872dfd71df1f0df3338353282b27c1007"
+  },
+  {
+    "name": "irobot",
+    "file": "irobot.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/irobot.svg",
+    "upstream": "https://www.irobot.com",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "8a814806ef78fe0d5c1790d18a9b521f41ae632e565b2abf5307d5da47f6f997"
+  },
+  {
+    "name": "lg",
+    "file": "lg.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/lg.svg",
+    "upstream": "https://www.lg.com/global/our-brand/brand-expression/elements/logo/index.jsp",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "f6ac3b210d5c838850fa0f4edf1f817a81f3b2c212bdb344e95cec9caafc4cb9"
+  },
+  {
+    "name": "lutron",
+    "file": "lutron.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_brands/lutron/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "9182cbe3b25fc5d67469bf011a363c0f726dc74b676688a110a5d93da6bd3369",
+    "sourceSha256": "7ca7b2414fd2c785d1dd06b08260a7728ed39f1b09fd762f435d0f29ef899c3e",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "matter",
+    "file": "matter.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_integrations/matter/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "b20450afccde2244eaed5100d5eef8baa491cb2855d23c821a9703b29279cdcf",
+    "sourceSha256": "078f81667cf29b84daad7891070999c8abae891908d7fcb5af5c3e3637dd66ba",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "midea",
+    "file": "midea.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_brands/midea/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "9bbfd246f709390b14319237631cb900a82a7be46a096be7b3c43e7b0a39f803",
+    "sourceSha256": "67e6d6b94f7667bf635e95c1df5289bf69d80d2d830d64467091c846998eb5a6",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "mqtt",
+    "file": "mqtt.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/mqtt.svg",
+    "upstream": "https://mqtt.org",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "be2d7f42f127b71378351748f3f39db583969906ffab3a8a6c122ec951f085f1"
+  },
+  {
+    "name": "notion",
+    "file": "notion.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/notion.svg",
+    "upstream": "https://www.notion.so",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "47ba0eebe53bb897f101675978667ab8cefbb70ac12120c57aebb363d86c550b"
+  },
+  {
+    "name": "outlook",
+    "file": "outlook.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/11.15.0/icons/microsoftoutlook.svg",
+    "upstream": null,
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "488d67066746ba39bb82a811c4c379f47ff90e11617617340ca0d5b35d3dd3be"
+  },
+  {
+    "name": "philips-hue",
+    "file": "philips-hue.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/philipshue.svg",
+    "upstream": "https://www.philips-hue.com/en-us/support/faq",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "345a3ce3db315a0d4a15101b83b9d90f38f437efe6801807f66092013794f77d"
+  },
+  {
+    "name": "rabbit-air",
+    "file": "rabbit-air.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_integrations/rabbitair/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "c22122c78be859a11f54814886a36f255aebe0ad2a187a942391f200fcf28f4d",
+    "sourceSha256": "52e070e9259bf5d7dbd2db68a6cfd6d7d6b2073cea2a4933e09dc00208749a3a",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "rachio",
+    "file": "rachio.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_integrations/rachio/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "835d3cb6c2ee0d9a2cd3919764caa8a1085b41dc7233a85fa2924c299333aad2",
+    "sourceSha256": "213d4f3efc055644573f8ba08f79bf7965c2fda2cca2c704e619799856278ab5",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "reolink",
+    "file": "reolink.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_integrations/reolink/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "a781239c4db3fdbbd87bdfbc708d8eb05b92d2f65d4af97fec719cb0915c7906",
+    "sourceSha256": "8ae41c77b32a4f75817f2eb87c7d39ef676f2f2b5d264e0b34ca3817796857cf",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "ring",
+    "file": "ring.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/ring.svg",
+    "upstream": "https://store.ring.com/press",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "2972d6d3de82878250e8b8f6bf0394918d02e7821a8ef798adb46750f60cca03"
+  },
+  {
+    "name": "roborock",
+    "file": "roborock.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_integrations/roborock/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "d090c9bdfd40912b0727c60014303868cf72f18edb864f7d7f923d77b007b7d4",
+    "sourceSha256": "6504e8281a090d6c6b6a8dc4949a638a64ce5cc4c31842ba43d01193945461df",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "samsung",
+    "file": "samsung.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/samsung.svg",
+    "upstream": "https://www.samsung.com/us/about-us/brand-identity/logo/",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "9f3e9403d1f15a6aabf2fe7b1182cf86dd153b5dd753d0ddd3fab7f9c1c6becf"
+  },
+  {
+    "name": "schlage",
+    "file": "schlage.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_integrations/schlage/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "2133e313a4f5b9184d8e8c9e8077a999d7bdf5e9b0871d08ad1b11648f6351f1",
+    "sourceSha256": "0c38ad044d9fc42509255a71e4e828299db90aa175d2e777945fe1a204377eb3",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "shelly",
+    "file": "shelly.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/shelly.svg",
+    "upstream": "https://shelly.com",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "0cea2d82eedcf791d80d9ea1545cbc272445d4054ba09df79b7a5c3fb22214a4"
+  },
+  {
+    "name": "smartthings",
+    "file": "smartthings.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/smartthings.svg",
+    "upstream": "https://www.smartthings.com/press-kit",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "3c2a7392b9938c10be1d3f5cc37b257adc4d7e5f4218e7e74eb54887339f041a"
+  },
+  {
+    "name": "sonos",
+    "file": "sonos.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/sonos.svg",
+    "upstream": "https://www.sonos.com/en-gb/home",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "55806e05f06d240f166f2b407ebcc8899c649c475b80d46682de785da4bdf7b8"
+  },
+  {
+    "name": "spotify",
+    "file": "spotify.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/spotify.svg",
+    "upstream": "https://developer.spotify.com/documentation/general/design-and-branding/#using-our-logo",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "d2cb55db0be10945e0fdc14686255c2bd445dbfe102e9e7f4cb608d7c0be917d"
+  },
+  {
+    "name": "switchbot",
+    "file": "switchbot.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_brands/switchbot/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "208a8767f38a009151cb788be9ec44a3400af473fd0561f7ec91aa4413947576",
+    "sourceSha256": "3fac074d0117e90233bc8c078a0face95d7bd7b45d99d69ef5a6ad88e5841dcf",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "tp-link",
+    "file": "tp-link.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/tplink.svg",
+    "upstream": "https://www.tp-link.com",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "b2fbebcbc6ada16329ad5a7a86c5aeaf5767745cb43285b91a9289052f4787c8"
+  },
+  {
+    "name": "ubiquiti",
+    "file": "ubiquiti.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/ubiquiti.svg",
+    "upstream": "https://www.ui.com",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "b467858f2cfc4dea8db91e3354bfb9c3bc54484096c90a221a5af2a9378d3b19"
+  },
+  {
+    "name": "vesync",
+    "file": "vesync.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_integrations/vesync/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "c410b88207c9a3aa17b6eb679a7cf05a78b1da06da5a00ddc90753da7edbd428",
+    "sourceSha256": "ba1ba8f80a9d62a5b9f2bea05072024941c38d50e7f40015de72e59e7003924d",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "wallbox",
+    "file": "wallbox.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_integrations/wallbox/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "7b907653e0e2453258cd7d9d80542a96eb0a4a60ee8b6b2fc244945ef6e77341",
+    "sourceSha256": "12ccbd296509b24b59a67bb4c468993e4beb32cfdd7dc90ad2d749063795d652",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "yale",
+    "file": "yale.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/yale.svg",
+    "upstream": "https://yalehome.com",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "724f83e6067f4c4075f76e0465e89f611f4a2902e96abd0fae50d19a7f5989c5"
+  },
+  {
+    "name": "z-wave",
+    "file": "z-wave.png",
+    "url": "https://raw.githubusercontent.com/home-assistant/brands/f4bc3c013b5b8f8daf84a96a460b891433690a74/core_integrations/zwave_js/icon.png",
+    "collection": "Home Assistant Brands",
+    "license": "Brand identification; trademark notice applies (no blanket license claimed)",
+    "sha256": "5cef433a4f3769945fbf715c5bdbe18b857e154237d88eea110ff8f63aaa3967",
+    "sourceSha256": "817219fec462d05fa3b4c3a7687fc7f4dacd1af44f7dbf8393a9cd5fa66c749d",
+    "metadata": "PNG tEXt impeccable:prompt records exact source URL; image data unchanged."
+  },
+  {
+    "name": "zigbee",
+    "file": "zigbee.svg",
+    "url": "https://raw.githubusercontent.com/simple-icons/simple-icons/90646e4bf7f3b89df6c37e65baf3e7bc759a517c/icons/zigbee.svg",
+    "upstream": "https://csa-iot.org/all-solutions/zigbee",
+    "collection": "Simple Icons",
+    "license": "CC0-1.0 collection; marks remain their owners\u2019 property",
+    "sha256": "bdd05e79ca87bbf7b9d0eba3719e15292234b13e46f65c8996ded2307bc9086a"
+  }
+]

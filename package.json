@@ -18,7 +18,9 @@
     "voice": "node --env-file-if-exists=.env src/voice-server.js",
     "dev:voice": "node --env-file-if-exists=.env --watch src/voice-server.js",
     "check:voice": "node --env-file-if-exists=.env scripts/voice-check.js",
-    "check:voice-session": "node --env-file-if-exists=.env scripts/voice-session-check.js"
+    "check:voice-session": "node --env-file-if-exists=.env scripts/voice-session-check.js",
+    "phone": "node src/phone-server.js",
+    "dev:phone": "node --watch src/phone-server.js"
   },
   "dependencies": {
     "ws": "8.22.0"
