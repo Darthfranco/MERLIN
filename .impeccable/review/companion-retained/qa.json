@@ -1,0 +1,18 @@
+{
+  "checks": [
+    "actual persisted timer introduced and reply remains in its physical body layout",
+    "quiet keeps a timer visible instead of dismissing it for an idle",
+    "second real timer joins the first in the paired seated layout",
+    "third automatic result stays in Activity and does not overwrite either pinned timer",
+    "selective dismissal uses the seated survivor",
+    "face hides panels and restores the exact seated context after quiet",
+    "ceiling presentation docks left without losing the live timer or its control identity",
+    "reload restores two running timers from the live store",
+    "390px paired and face layouts fit without side popups or horizontal overflow",
+    "reduced motion preserves correct retained layout and static face"
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "spokenClips": 3,
+  "scope": "Actual 113-clip character and persisted timers in isolated temporary storage; scripted Meta and synthetic WAV output; no household store or microphone."
+}

@@ -119,7 +119,7 @@ Countdowns use tabular numerals. At the narrow breakpoint, replies become (19px)
 
 The main container is centered at a maximum width (1600px). The desktop masthead and main area use page spacing horizontally. The stage preserves a landscape ratio (4:3), fitting its width to the available viewport height; the conversation is capped at (880px). The activity area is hidden initially and opens as a secondary right column (320px), with a vertical divider and its own scroll region.
 
-The scene keeps the full stage width. Action content appears on the character’s authored body-mode screens, preserving their (5:6) ratio. Face mode hides every panel and action control; there are no separate side or lower panel canvases.
+The scene keeps the full stage width. Action content appears on the character’s authored body-mode screens. Side screens preserve their (5:6) ratio; an explicitly enlarged single panel uses the landscape ceiling presentation. Face mode hides every panel and action control; there are no separate side or lower panel canvases.
 
 At (1000px) and below, page padding and the activity column tighten. At (720px) and below, activity follows the conversation, the input and Send share a row, and the microphone button takes a full row. Secondary buttons and the disclosure summary have a minimum height (44px) on this narrow layout. This responsive browser composition is not a final device-platform decision.
 
@@ -135,7 +135,7 @@ The character's rounded silhouette is the dominant shape. Shell controls use the
 
 ### Character and retained panels
 
-Body presentation introduces actions; face presentation supports conversation while hiding both action screens and retaining their independent data. Panels reuse the actual shared painter, with separate text descriptions for assistive technology. The clock is hidden during full-face presentation. Authored routes normally animate state changes; urgent conversation takes priority. Reduced motion uses the appropriate static state and suppresses casual movement. Motion and timing remain governed by the orchestration contract.
+Body presentation introduces actions and keeps short action confirmations beside their screens. General face conversation hides both action screens and retains their independent data; quiet restores the exact standing, paired, seated, or ceiling arrangement. Pending work never replaces a confirmed panel. Walking and tossing only run with no retained panels; sweeping is removed. Panels reuse the actual shared painter, with separate text descriptions for assistive technology. The clock is hidden during full-face presentation. Authored routes normally animate state changes; urgent conversation takes priority. Reduced motion uses the appropriate static state and suppresses casual movement. Motion and timing remain governed by the orchestration contract.
 
 ### Composer and microphone
 
@@ -147,7 +147,7 @@ A compact state line keeps presentation and microphone state readable together. 
 
 ### Action controls
 
-Every retained panel has a visible side and label. Timer Cancel/Dismiss accessible names include its side and timer label; Close names its side. These controls are DOM buttons below the stage, distinct from the drawn panel content. Closing one panel preserves the other.
+Every retained panel has a visible side and label. Timer Cancel/Dismiss accessible names include its side and timer label; Close names its side. These controls are DOM buttons below the stage, distinct from the drawn panel content. Closing one panel preserves the other and uses the authored seated-survivor pose. Close panel changes presentation only; Cancel timer changes the real timer. A single panel can be enlarged and docked left or right without changing its identity.
 
 ### Activity and services
 

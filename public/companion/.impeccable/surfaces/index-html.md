@@ -13,9 +13,9 @@ related_targets: ["companion.css", "app.js", "orchestrator.js", "voice-client.js
 
 ## Job and sequence
 
-Start with the body and scene clock. Typing or activated speech brings the face forward; a compact status and microphone label remain visible below it. Thinking/searching use their corresponding expression. An actual checked action introduces a body panel, then a reply returns to the face with action panels hidden and up to two independent panel records retained for body mode. More results remain in Activity. Each panel can close independently; timer controls act on their identified timer.
+Start with the body and scene clock. Typing or activated speech brings the face forward; a compact status and microphone label remain visible below it. Thinking/searching use their corresponding expression. An actual checked action introduces a body panel and receives its short confirmation there. General conversation uses the full face, hiding panels temporarily; quiet restores the exact retained arrangement. Pending work never overwrites confirmed content. More results remain in Activity. Each panel can close independently; timer controls act on their identified timer.
 
-Microphone access starts off and requires the explicit Enable microphone control. Typing focus says “Ready when you are”; actual voice listening has its own state. Typed read-aloud starts on and remembers explicit changes. Test speaker checks local output; microphone permission failures show recovery guidance. Casual waiting activities yield to directed conversation. The clock hides in full-face presentation. Reduced motion retains state and content without casual movement.
+Microphone access starts off and requires the explicit Enable microphone control. Typing focus says “Ready when you are”; actual voice listening has its own state. Typed read-aloud starts on and remembers explicit changes. Test speaker checks local output; microphone permission failures show recovery guidance. Walking in either direction and ball tossing yield to directed conversation and run only without retained screens; sweeping is removed. The clock hides in full-face presentation. Reduced motion retains state and content without casual movement.
 
 ## Built direction
 
@@ -34,3 +34,7 @@ The old memory/testing interface remains accessible through a disclosure. Ordina
 The original integration captures cover desktop, activity, one/two retained panels, disconnected service, and narrow layouts. The initial independent [verdict](../../../../.impeccable/review/companion/verdict.md) is **ship** for its three scored fixes: truthful typed-status wording, independent action-target identity, and minimum (44px) narrow-layout control heights. [Recorded browser checks](../../../../.impeccable/review/companion/qa.json) used isolated storage, scripted providers, real timer persistence, and no microphone.
 
 That review does not verify room microphone/echo behavior, live Spotify playback, physical appliances, runtime animation/audio, production hardware, or background operating-system notifications. Refer to [STATUS.md](../../../../docs/STATUS.md) for functional verification and current limits; do not expand the visual verdict into a claim about those systems.
+
+## Retained-scene follow-up
+
+The completed 113-clip asset supplies contextual thought, paired/seated layouts, direct face returns, and the ceiling presentation. Dismissal belongs to explicit Close controls. Layout changes lacking a safe direct clip pass under the full face, then reveal the same content. A single panel can be enlarged and docked left or right; two open panels are not overwritten by automatic results. The independent [follow-up verdict](../../../../.impeccable/review/companion-retained/verdict.md) is **ship** for the static desktop/mobile retained-screen, large-screen controls, and face layouts. See the current orchestration plan and STATUS for separate functional verification.

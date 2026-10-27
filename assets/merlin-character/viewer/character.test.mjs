@@ -1,12 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {AnimationMixer, AnimationClip, Object3D, NumberKeyframeTrack, Group, Box3, Vector3, Mesh, PlaneGeometry} from './vendor/three/build/three.module.min.js';
+import {AnimationMixer, AnimationClip, Object3D, NumberKeyframeTrack, Group, Vector3, Mesh, PlaneGeometry} from './vendor/three/build/three.module.min.js';
 import {MotionController} from './motion.js';
 import {surfaceBasis} from './screens.js';
-import {createCharacterDriver, createSpeechOverlay, createSweep, runtimeManifest, createRenderLoop, createHiddenMeshCuller, renderPixelRatio, RENDER_BUDGET} from './character.js';
+import {createCharacterDriver, createSpeechOverlay, runtimeManifest, createRenderLoop, createHiddenMeshCuller, renderPixelRatio, RENDER_BUDGET} from './character.js';
 import {loadFootprintSource} from '../scripts/build_motion_footprints.mjs';
-import {chooseClockSpot} from './clock-layout.js';
 
 const manifest = JSON.parse(readFileSync(new URL('../states.json', import.meta.url)));
 function fixture({reducedMotion = false, dualPanels = false} = {}) {
@@ -18,16 +17,18 @@ function fixture({reducedMotion = false, dualPanels = false} = {}) {
   const model = new Object3D();
   const clips = Object.entries(fixtureManifest.clips).map(([name, meta], index) => new AnimationClip(name, (meta.frames - 1) / 24,
     [new NumberKeyframeTrack('.position[x]', [0, (meta.frames - 1) / 24], [index, index])]));
-  let driver;
+  let driver; const statuses = [];
   const controller = new MotionController(new AnimationMixer(model), clips, fixtureManifest, () => driver?.motionChanged());
   const screens = Object.fromEntries(['left', 'right'].map(side => [side, {paints: 0, version: 0,
     draw(painter, options) {this.painter = painter; this.options = options; this.version++;}, tick() {this.paints++;},
     copyFrom(other) {this.painter = other.painter; this.options = other.options; this.version++;},
     setAspect(aspect) {this.aspect = aspect;}, reset() {this.painter = null; this.version++;}}]));
-  driver = createCharacterDriver({controller, screens, reducedMotion});
-  return {controller, driver, model, screens};
+  driver = createCharacterDriver({controller, screens, reducedMotion, onStatus: status => statuses.push(status)});
+  return {controller, driver, model, screens, statuses};
 }
 function advance(controller, seconds) {for (let i = 0; i < seconds * 60; i++) controller.update(1 / 60);}
+const clipsPlayed = statuses => [...new Set(statuses.map(status => status.clip))];
+const dissolvesScreen = clip => /^(Panel|LeftPanel|BothPanels|SeatedLeft|SeatedRight|Ceiling)ToReady$/.test(clip);
 
 function renderFixture(options = {}) {
   let clock = 0, id = 0; const frames = new Map(), timers = new Map(), renders = [];
@@ -141,7 +142,7 @@ test('reduced motion changes to correct static face/panel states and suppresses 
   assert.equal(controller.paused, true); advance(controller, 3); assert.equal(controller.active.time, 0);
   driver.showPanel('timer', {status: 'running', seconds: 20, durationSeconds: 60});
   assert.equal(driver.state, 'right'); assert.notEqual(model.position.x, facePosition); assert.equal(controller.active.time, 0);
-  for (const ambient of ['walk', 'toss', 'sweep', 'nap', 'dance']) {driver.go(ambient); assert.equal(driver.state, 'ready');}
+  for (const ambient of ['walk', 'toss', 'nap', 'dance']) {driver.go(ambient); assert.equal(driver.state, 'ready');}
   driver.go('faceThink'); assert.equal(await driver.whenSettled('faceThink'), true);
 });
 
@@ -167,6 +168,123 @@ test('transition pace shortens authored routes but restores normal idle playback
   const at = controller.active.time; advance(controller, .25); assert.ok(Math.abs(controller.active.time - at - .25) < .001);
   assert.throws(() => driver.go('face', {pace: 0}), RangeError); assert.equal(driver.desired, 'right');
   driver.go('face', {urgent: true, pace: 4}); assert.equal(controller.active.getEffectiveTimeScale(), 1);
+});
+
+test('conversation restores each exact retained screen layout without a dismissal clip', async () => {
+  for (const context of ['right', 'left', 'both', 'seatedLeft', 'seatedRight', 'ceiling']) {
+    const {driver, controller, statuses} = fixture();
+    driver.go(context, {urgent: true}); statuses.length = 0;
+    driver.go('face', {pace: 4}); advance(controller, 4);
+    assert.equal(await driver.whenSettled('face'), true); assert.equal(driver.bodyContext, context);
+    driver.go('faceThink', {pace: 4}); advance(controller, 4);
+    driver.body({pace: 4}); advance(controller, 4);
+    assert.equal(await driver.whenSettled(context), true); assert.equal(driver.state, context);
+    assert.ok(!clipsPlayed(statuses).some(dissolvesScreen), `${context} must not dissolve during conversation`);
+  }
+});
+
+test('thinking aliases resolve before reduced-motion sampling and return to their base for speaking', async () => {
+  for (const reducedMotion of [false, true]) for (const context of ['ready', 'right', 'both', 'seatedRight', 'ceiling']) {
+    const {driver, controller} = fixture({reducedMotion});
+    driver.go(context, {urgent: true}); driver.go('bodyThink', {pace: 8}); advance(controller, 2);
+    const expected = context === 'ready' ? 'bodyThink' : context + 'Think';
+    assert.equal(driver.state, expected); assert.equal(driver.desired, expected);
+    assert.equal(await driver.whenSettled('bodyThink'), true);
+    driver.go('face', {pace: 8}); advance(controller, 3);
+    driver.body({pace: 8}); advance(controller, 3);
+    assert.equal(driver.state, context, 'a thought is not resumed after the spoken reply');
+  }
+});
+
+test('retained layout changes cover with the face instead of dissolving and rebuilding screens', async () => {
+  for (const [from, to, entry, reveal] of [
+    ['right', 'both', 'RightToFace', 'FaceToBoth'],
+    ['rightThink', 'both', 'RightToFace', 'FaceToBoth'],
+    ['seatedRight', 'right', 'SeatedRightToFace', 'FaceToRight'],
+  ]) {
+    const {driver, controller, statuses} = fixture(); let seconds = 40;
+    driver.showPanel('timer', () => ({label: 'Retained timer', status: 'running', seconds, durationSeconds: 60}), 'right', {navigate: false});
+    driver.go(from, {urgent: true}); statuses.length = 0;
+    driver.go(to, {preservePanels: true, pace: 4});
+    const arrival = driver.whenSettled(to); advance(controller, 6);
+    assert.equal(await arrival, true); assert.equal(driver.state, to); assert.equal(driver.phase, 'idle');
+    const clips = clipsPlayed(statuses);
+    assert.ok(clips.includes(entry) && clips.includes(reveal), clips.join(', '));
+    assert.ok(!clips.some(dissolvesScreen)); assert.ok(!clips.includes('ReadyToBothPanels'));
+    assert.ok(statuses.every(status => status.desired === to), 'the temporary cover never becomes the public request');
+    seconds = 7; assert.equal(driver.panels.right.seconds, 7);
+    statuses.length = 0; driver.go(to, {pace: 4});
+    assert.deepEqual(clipsPlayed(statuses), [manifest.states[to].idle], 'content refresh cannot replay the bridge');
+  }
+});
+
+test('face interruption cancels a covered reveal while retaining the intended body layout', async () => {
+  const {driver, controller, statuses} = fixture();
+  driver.go('right', {urgent: true}); driver.go('both', {preservePanels: true, pace: 4});
+  const superseded = driver.whenSettled('both'); advance(controller, .05);
+  driver.go('face', {preservePanels: true, pace: 4}); statuses.length = 0;
+  const face = driver.whenSettled('face'); advance(controller, 8);
+  assert.equal(await superseded, false); assert.equal(await face, true);
+  assert.equal(driver.desired, 'face'); assert.equal(driver.state, 'face'); assert.equal(driver.bodyContext, 'both');
+  assert.ok(!clipsPlayed(statuses).includes('FaceToBoth'), 'no late reveal after listening interrupts');
+  driver.body({pace: 4}); advance(controller, 4);
+  assert.equal(driver.state, 'both'); assert.ok(clipsPlayed(statuses).includes('FaceToBoth'));
+  assert.ok(!clipsPlayed(statuses).some(dissolvesScreen));
+});
+
+test('retargeting during cover or reveal resolves only the newest requested layout', async () => {
+  for (const moment of ['cover', 'reveal']) {
+    const {driver, controller, statuses} = fixture();
+    driver.go('right', {urgent: true}); driver.go('both', {pace: 4});
+    const superseded = driver.whenSettled('both');
+    if (moment === 'reveal') for (let frame = 0; frame < 600 && controller.clip !== 'FaceToBoth'; frame++) controller.update(1 / 60);
+    else advance(controller, .05);
+    driver.go('left', {pace: 4}); statuses.length = 0;
+    const final = driver.whenSettled('left'); advance(controller, 12);
+    assert.equal(await superseded, false); assert.equal(await final, true);
+    assert.equal(driver.desired, 'left'); assert.equal(driver.state, 'left'); assert.equal(driver.bodyContext, 'left');
+    assert.ok(!clipsPlayed(statuses).some(dissolvesScreen));
+  }
+});
+
+test('ready preserves an active screen while explicit dismissals use the authored survivor and final exits', async () => {
+  const {driver, controller, statuses} = fixture();
+  driver.go('both', {urgent: true}); driver.go('face', {pace: 4}); advance(controller, 4);
+  driver.go('ready', {pace: 4}); advance(controller, 4);
+  assert.equal(await driver.whenSettled('ready'), true); assert.equal(driver.state, 'both');
+  statuses.length = 0; driver.dismissScreen('left', {pace: 4}); advance(controller, 4);
+  assert.equal(driver.state, 'seatedRight'); assert.ok(clipsPlayed(statuses).includes('BothToRightPanel'));
+  assert.ok(!clipsPlayed(statuses).some(dissolvesScreen));
+  driver.go('face', {pace: 4}); advance(controller, 4); statuses.length = 0;
+  driver.ready({pace: 4}); advance(controller, 6);
+  assert.equal(driver.state, 'ready'); assert.equal(driver.bodyContext, 'ready');
+  assert.ok(clipsPlayed(statuses).includes('FaceToSeatedRight')); assert.ok(clipsPlayed(statuses).includes('SeatedRightToReady'));
+});
+
+test('closing a pending second screen keeps the original timer through cover, listening interruption, or reveal', async () => {
+  for (const moment of ['cover', 'listening', 'reveal']) {
+    const {driver, controller, statuses} = fixture();
+    driver.go('right', {urgent: true}); driver.go('both', {pace: 4});
+    const superseded = driver.whenSettled('both');
+    if (moment === 'reveal') for (let frame = 0; frame < 600 && controller.clip !== 'FaceToBoth'; frame++) controller.update(1 / 60);
+    else advance(controller, .05);
+    if (moment === 'listening') driver.go('face', {pace: 4});
+    statuses.length = 0; driver.dismissScreen('left', {pace: 4});
+    const survivor = driver.whenSettled('seatedRight'); advance(controller, 8);
+    assert.equal(await superseded, false); assert.equal(await survivor, true);
+    assert.equal(driver.state, 'seatedRight'); assert.equal(driver.bodyContext, 'seatedRight');
+    assert.ok(!clipsPlayed(statuses).some(dissolvesScreen), moment + ': ' + clipsPlayed(statuses).join(', '));
+  }
+});
+
+test('replacing content on a seated or ceiling screen retains its exact physical context', () => {
+  for (const context of ['seatedRight', 'seatedLeft', 'ceiling']) {
+    const {driver} = fixture({reducedMotion: true}); const side = context === 'seatedLeft' ? 'left' : 'right';
+    driver.go(context);
+    driver.showPanel('timer', {label: 'First', seconds: 20}, side); assert.equal(driver.state, context);
+    driver.go('face'); driver.showPanel('timer', {label: 'Updated', seconds: 19}, side);
+    assert.equal(driver.state, context); assert.equal(driver.panels[side].label, 'Updated');
+  }
 });
 
 test('independent panel installation, updates and clear do not navigate or overwrite the other side', () => {
@@ -236,6 +354,27 @@ test('culled right panel restores during its authored entry and after a full-fac
   assert.ok(panelMeshes.every(mesh => mesh.visible && mesh.parent.visible && mesh.getWorldScale(new Vector3()).lengthSq() > 2.9));
 });
 
+test('the exported right-thinking to dual-screen bridge never displays dissolution fragments', async () => {
+  const {gltf, manifest} = await loadFootprintSource();
+  let driver;
+  const controller = new MotionController(new AnimationMixer(gltf.scene), gltf.animations, manifest, () => driver?.motionChanged());
+  driver = createCharacterDriver({controller, screens: {}});
+  const fragments = [], cards = [], scale = new Vector3();
+  gltf.scene.traverse(object => {
+    if (!object.isMesh) return;
+    if (/fragment/i.test(object.name)) fragments.push(object);
+    if (/white_card_mesh/.test(object.name)) cards.push(object);
+  });
+  assert.ok(fragments.length > 60); assert.equal(cards.length, 4);
+  driver.go('rightThink', {urgent: true}); driver.go('both', {preservePanels: true, pace: 4});
+  for (let frame = 0; frame < 180; frame++) {
+    controller.update(1 / 30); gltf.scene.updateMatrixWorld(true);
+    assert.ok(fragments.every(object => object.getWorldScale(scale).lengthSq() < 1e-8), controller.clip + ' must keep fragments hidden');
+  }
+  assert.equal(driver.state, 'both'); assert.equal(driver.phase, 'idle');
+  assert.ok(cards.every(object => object.getWorldScale(scale).lengthSq() > 1), 'both real cards return after the face cover');
+});
+
 test('available dual-panel state is selected from the manifest and panel records survive face mode', () => {
   const {driver, controller} = fixture({dualPanels: true, reducedMotion: true});
   driver.showPanel('timer', {status: 'running', seconds: 20, durationSeconds: 60}, 'left');
@@ -287,10 +426,11 @@ test('settlement wakes on arrival, replacement, abort and destruction without st
   assert.equal(await destroyed, false); assert.equal(driver.go('face'), false);
 });
 
-test('procedural sweep is interruptible and reports a separate state without changing the studio manifest', () => {
-  const {driver, controller} = fixture(); driver.go('sweep');
-  assert.equal(driver.state, 'sweep'); assert.equal(controller.current, 'ready'); assert.equal(manifest.states.sweep, undefined);
-  driver.go('face', {urgent: true}); assert.equal(driver.state, 'face');
+test('only authored capabilities are exposed and speaking levels remain bounded', () => {
+  const {driver, controller} = fixture();
+  assert.deepEqual(driver.capabilities.states, Object.keys(manifest.states));
+  assert.equal(driver.capabilities.procedural, undefined);
+  assert.throws(() => driver.go('sweep'), RangeError); assert.equal(controller.current, 'ready');
   driver.setSpeaking(2); assert.equal(driver.speaking, 1); driver.setSpeaking(NaN); assert.equal(driver.speaking, 0);
 });
 
@@ -321,28 +461,4 @@ test('actual exported geometry can snap to full face and hide every carried prop
   speech.update(0, .8, false, true);
   assert.equal(smile.morphTargetInfluences[smile.morphTargetDictionary.Whistle], .52);
   speech.restore(); assert.deepEqual(smile.morphTargetInfluences, original);
-});
-
-test('original sweep stays above the floor and inside its reserved clock envelope', async () => {
-  const {gltf, camera, manifest} = await loadFootprintSource();
-  const scene = new Group(); scene.add(gltf.scene);
-  const controller = new MotionController(new AnimationMixer(gltf.scene), gltf.animations, manifest);
-  const sweep = createSweep(gltf.scene, scene), box = new Box3(), point = new Vector3();
-  const envelope = {left: .30, right: .70, top: .43, bottom: .91};
-  for (let i = 0; i < 50; i++) {
-    sweep.restore(); controller.update(.16); sweep.update(i * .16, true); scene.updateMatrixWorld(true); box.setFromObject(sweep.group);
-    assert.ok(box.min.y >= .024, 'broom remains above the floor');
-    for (let corner = 0; corner < 8; corner++) {
-      point.set(corner & 1 ? box.max.x : box.min.x, corner & 2 ? box.max.y : box.min.y, corner & 4 ? box.max.z : box.min.z).project(camera);
-      const x = (point.x + 1) / 2, y = (1 - point.y) / 2;
-      assert.ok(x >= envelope.left && x <= envelope.right && y >= envelope.top && y <= envelope.bottom, `${x}, ${y} escaped sweep envelope`);
-    }
-  }
-  const footprints = JSON.parse(readFileSync(new URL('./motion-footprints.json', import.meta.url)));
-  for (const width of [358, 896]) {
-    const spot = chooseClockSpot({width, height: width * .75, clockWidth: width * .27, clockHeight: width * .14,
-      obstacles: [...footprints.clips.ReadyIdle, envelope]});
-    assert.equal(spot.overlap, 0);
-  }
-  sweep.restore(); assert.equal(sweep.group.visible, false);
 });

@@ -1,7 +1,7 @@
 import {createCharacter} from '/character/viewer/character.js';
 import {formatDuration} from '/character/viewer/panels/render.js';
 import {CompanionVoiceClient,unlockAudioPlayback} from './voice-client.js';
-import {Orchestrator,ACTION_HOLD,pendingPanel,timerPanel,musicPanel,presentationLayout} from './orchestrator.js';
+import {Orchestrator,ACTION_HOLD,pendingPanel,timerPanel,musicPanel,presentationLayout,panelSides} from './orchestrator.js';
 import {TimerAlertQueue} from './timer-alerts.js';
 
 const $=id=>document.getElementById(id);
@@ -9,8 +9,10 @@ const timeZone=Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';
 let sessionId=crypto.randomUUID();
 try { const saved=sessionStorage.getItem('merlin-companion-session');if(/^[a-f0-9-]{36}$/i.test(saved||''))sessionId=saved;sessionStorage.setItem('merlin-companion-session',sessionId); }catch{}
 let character, snapshot={timers:[]}, spotify={connected:false}, serverOffset=0, connected=false;
-let requestController, speechController, typedUrl, pollingTurn=null, turnId=null, generation=0, voiceTurn=null, voiceBefore=[], previousTimers=[];
+let requestController, speechController, typedUrl, typedPlayback, pollingTurn=null, turnId=null, generation=0, voiceTurn=null, voiceBefore=[], previousTimers=[];
 let completion=Promise.resolve(), pollCount=0, lastDestination='', lastPanelType='', activePanel=null, activePanels={left:null,right:null}, pendingRetry=null;
+let sceneRevision=0, sceneCleanup, sceneStatus=null, renderedView=null, firstSnapshot=true, speechPresentation=null;
+const speechTurns=new Map(),speechClips=new Map();
 const timerAlerts=new TimerAlertQueue();
 let panelControlsKey='';
 let timerRowsKey='';
@@ -24,35 +26,54 @@ async function api(path,body,{signal,timeout=15000}={}){
   let data;try{data=await response.json();}catch{throw new Error('The connection was interrupted. Check your activities before retrying.');}
   if(!response.ok)throw Object.assign(new Error(data.error||'That request could not finish.'),{data,status:response.status});return data;
 }
-function currentPanel(side){
-  const panel=side?activePanels[side]:activePanel;
-  if(panel?.type==='timer'&&panel.id){const t=snapshot.timers.find(t=>t.id===panel.id);return t?timerPanel(t,Date.now()+serverOffset):pendingPanel('timer','unknown');}
+function livePanel(panel){
+  if(panel?.type==='timer'&&panel.id){const t=snapshot.timers.find(t=>t.id===panel.id);return t?timerPanel(t,Date.now()+serverOffset):panel;}
   return panel;
 }
+function currentPanel(side){return livePanel(side?activePanels[side]:activePanel);}
+function updateControlVisibility(){
+  const {showControls}=presentationLayout(renderedView,character?.capabilities?.states);
+  const settled=!character||(sceneStatus?.phase==='idle'&&panelSides(sceneStatus.state).length>0);
+  $('action-controls').hidden=!showControls||!settled;
+  $('close-panel').hidden=!showControls||!settled;
+}
 function renderView(view){
+  renderedView=view;
   $('phase').textContent=view.label;
   activePanel=view.panel;activePanels=view.panels||{left:null,right:null};
-  const requestedBody=['right','left','both'].includes(view.destination);
   const {destination,showControls}=presentationLayout(view,character?.capabilities?.states);
   $('stage').dataset.mode=destination;
   $('action-controls').hidden=!showControls;
   $('close-panel').hidden=!showControls;
   if(character){
-    for(const side of ['left','right'])if(!activePanels[side])character.clearPanel(side);
-    if(requestedBody)for(const side of ['left','right'])if(activePanels[side]){
-      character.showPanel(activePanels[side].type,()=>currentPanel(side),side,{navigate:false});
+    for(const side of ['left','right'])if(activePanels[side]){
+      // The data follows its card through the ceiling handoff, even while its
+      // logical side changes. A side lookup would silently switch identities.
+      const panel=activePanels[side];
+      character.showPanel(panel.type,()=>livePanel(panel),side,{navigate:false});
     }
-    if(lastDestination!==destination)character.go(destination,{urgent:['listening'].includes(view.phase),pace:['idle','ambient'].includes(view.phase)?1:4});
+    if(lastDestination!==destination||character.desired!==destination)character.go(destination,{preservePanels:Object.values(activePanels).some(Boolean),dismiss:Boolean(view.dismiss),pace:['idle','ambient'].includes(view.phase)?1:4});
+    const runtime=character,revision=++sceneRevision;
+    sceneCleanup?.abort();const cleanup=new AbortController();sceneCleanup=cleanup;
+    void runtime.whenSettled(destination,cleanup.signal).then(settled=>{
+      if(!settled||cleanup.signal.aborted||revision!==sceneRevision||runtime!==character)return;
+      for(const side of ['left','right'])if(!activePanels[side])runtime.clearPanel(side);
+      updateControlVisibility();
+    });
     character.setListening(view.phase==='listening'||view.phase==='followup');
     if(view.phase!=='speaking')character.setSpeaking(0);
   }
   lastDestination=destination;lastPanelType=activePanel?.type||'';
   renderPanelControls();
+  if(character)updateControlVisibility();
 }
 const orchestration=new Orchestrator({render:renderView,now:()=>Date.now(),reducedMotion:motionQuery.matches});
 const voice=new CompanionVoiceClient({audio:$('voice-audio'),onEvent:voiceEvent,playbackGate:async header=>{
   const g=generation;await completion;if(g!==generation)return false;
-  const target=header.presentationMode==='body'?lastDestination:'face';if(character){character.go(target,{pace:4});return settleCharacter(target,g);}return true;
+  const presentation=speechClips.get(header.utteranceId)||speechTurns.get(`request:${header.requestId}`)||speechTurns.get(`revision:${header.revision}`);
+  if(!presentation||presentation.cancelled||presentation.generation!==generation)return false;
+  speechClips.set(header.utteranceId,presentation);
+  return prepareSpeech(presentation);
 }});
 async function settleCharacter(destination,g=generation){
   if(!character)return true;
@@ -61,24 +82,52 @@ async function settleCharacter(destination,g=generation){
   try{
     const settled=await runtime.whenSettled(destination,abort.signal);
     if(g!==generation)return false;
-    if(!settled&&abort.signal.aborted&&runtime.desired===destination){runtime.go(destination,{urgent:true});return true;}
+    if(!settled&&abort.signal.aborted&&runtime.desired===destination){runtime.go(destination,{urgent:true,preservePanels:Object.values(activePanels).some(Boolean)});return true;}
     return settled;
   }finally{clearTimeout(timeout);}
 }
+function pinSpeech(destination,{requestId,revision,kind='reply'}={}){
+  const presentation={destination,generation,kind};speechPresentation=presentation;
+  if(requestId)speechTurns.set(`request:${requestId}`,presentation);
+  if(Number.isSafeInteger(revision))speechTurns.set(`revision:${revision}`,presentation);
+  return presentation;
+}
+async function prepareSpeech(presentation){
+  if(!presentation||presentation.cancelled||presentation.generation!==generation||document.hidden)return false;
+  const target=resolveDestination(presentation.destination);
+  orchestration.prepareSpeech({destination:target});
+  const settled=await settleCharacter(target,presentation.generation);
+  return settled&&!presentation.cancelled&&presentation.generation===generation&&!document.hidden;
+}
+function resolveDestination(destination){return presentationLayout({...orchestration.view,destination},character?.capabilities?.states).destination;}
 function renderPanelControls(){
   // Preserve focused/clicked controls when only conversation presence changes.
-  const key=JSON.stringify(['left','right'].map(side=>{const p=currentPanel(side);return p?[side,p.type,p.id,p.label,p.title,p.status,timerBusy.has(p.id)]:null;}));
+  const visible=panelSides(lastDestination),layout=renderedView.bodyLayout||'ready';
+  const key=JSON.stringify([lastDestination,layout,...['left','right'].map(side=>{const p=currentPanel(side);return p?[side,p.type,p.id,p.label,p.title,p.status,timerBusy.has(p.id)]:null;})]);
   if(key===panelControlsKey)return;panelControlsKey=key;
   const container=$('action-controls');container.replaceChildren();
   for(const side of ['left','right']){
-    const p=currentPanel(side);if(!p)continue;
-    const group=el('div','','panel-controls'),label=el('span',`${side==='left'?'Left':'Right'} · ${p.label||p.title||'Action'}`);group.append(label);
-    if(p.type==='timer'&&p.id){const timer=snapshot.timers.find(t=>t.id===p.id);if(timer){const action=el('button',timer.status==='running'?'Cancel timer':'Dismiss timer');action.setAttribute('aria-label',`${timer.status==='running'?'Cancel':'Dismiss'} ${side} timer: ${timer.label||'Timer'}`);action.addEventListener('click',()=>changeTimer(timer));action.disabled=timerBusy.has(timer.id);group.append(action);}}
-    const close=el('button','Close panel');close.setAttribute('aria-label','Close '+side+' panel');close.addEventListener('click',()=>orchestration.dismiss(side));group.append(close);container.append(group);
+    const p=currentPanel(side);if(!p||!visible.includes(side))continue;
+    const location=layout==='ceiling'?'Large screen':side==='left'?'Left':'Right';
+    const group=el('div','','panel-controls'),label=el('span',`${location} · ${p.label||p.title||'Action'}`);group.dataset.panelId=p.id||'';group.dataset.panelSide=side;group.append(label);
+    if(p.type==='timer'&&p.id){const timer=snapshot.timers.find(t=>t.id===p.id);if(timer){const action=el('button',timer.status==='running'?'Cancel timer':'Dismiss timer');action.dataset.panelId=p.id;action.setAttribute('aria-label',`${timer.status==='running'?'Cancel':'Dismiss'} ${location.toLowerCase()} timer: ${timer.label||'Timer'}`);action.addEventListener('click',()=>changeTimer(timer));action.disabled=timerBusy.has(timer.id);group.append(action);}}
+    if(Object.values(activePanels).filter(Boolean).length===1){
+      if(layout==='ceiling')for(const dockSide of ['left','right']){const dock=el('button',`Dock ${dockSide}`);dock.dataset.panelId=p.id||'';dock.addEventListener('click',()=>changeLayout(()=>orchestration.dockPanel(dockSide)));group.append(dock);}
+      else if(!character||character.capabilities.states.includes('ceiling')){const enlarge=el('button','Enlarge');enlarge.dataset.panelId=p.id||'';enlarge.setAttribute('aria-label',`Enlarge ${location.toLowerCase()} panel: ${p.label||p.title||'Action'}`);enlarge.addEventListener('click',()=>changeLayout(()=>orchestration.expandPanel(side)));group.append(enlarge);}
+    }
+    const close=el('button','Close panel');close.dataset.panelId=p.id||'';close.setAttribute('aria-label','Close '+location.toLowerCase()+' panel');close.addEventListener('click',()=>changeLayout(()=>orchestration.dismiss(side)));group.append(close);container.append(group);
   }
 }
-function stopTyped(){speechController?.abort();speechController=null;$('typed-audio').pause();$('typed-audio').removeAttribute('src');$('typed-audio').load();$('typed-audio').hidden=true;if(typedUrl){URL.revokeObjectURL(typedUrl);typedUrl=null;}character?.setSpeaking(0);}
-function invalidate({keepAlert=false}={}){generation++;if(!keepAlert)timerAlerts.interrupt();requestController?.abort();requestController=null;stopTyped();$('stop').hidden=true;$('send').disabled=!connected;turnId=null;pollingTurn=null;}
+function stopTyped(){const clip=typedPlayback;typedPlayback=null;clip?.finish(false);speechController?.abort();speechController=null;$('typed-audio').pause();$('typed-audio').removeAttribute('src');$('typed-audio').load();$('typed-audio').hidden=true;if(typedUrl){URL.revokeObjectURL(typedUrl);typedUrl=null;}character?.setSpeaking(0);}
+function clearSpeech(){for(const presentation of new Set([...speechTurns.values(),...speechClips.values(),speechPresentation]))if(presentation)presentation.cancelled=true;speechTurns.clear();speechClips.clear();speechPresentation=null;}
+function changeLayout(change){
+  if(speechPresentation){
+    clearSpeech();stopTyped();if(voice.active)voice.endConversation();
+    if(['reply','speaking','followup'].includes(orchestration.phase)){orchestration.phase='panel';orchestration.speechDestination=orchestration.bodyLayout;}
+  }
+  change();
+}
+function invalidate({keepAlert=false}={}){generation++;clearSpeech();if(!keepAlert)timerAlerts.interrupt();requestController?.abort();requestController=null;stopTyped();$('stop').hidden=true;$('send').disabled=!connected;turnId=null;pollingTurn=null;}
 function showReply(result){
   $('reply').textContent=result.reply||result.error||'The request finished.';
   $('sources').replaceChildren();for(const source of result.sources||[]){try{const url=new URL(source.url);if(!['https:','http:'].includes(url.protocol))continue;const a=el('a',source.title||url.hostname);a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';const li=el('li','');li.append(a);$('sources').append(li);}catch{}}
@@ -86,20 +135,22 @@ function showReply(result){
   $('actions').replaceChildren();for(const event of result.tool_events||[]){$('actions').append(el('li',event.message||`${event.status==='completed'?'Completed':'Couldn’t finish'} ${event.tool.replaceAll('_',' ')}`));}
   $('actions-empty').hidden=Boolean($('actions').children.length);
 }
-async function finish(id,result,before,g){
+async function finish(id,result,before,g,voiceContext={}){
   if(g!==generation)return;
   if(Array.isArray(result.timers))acceptSnapshot(result);
   if((result.tool_events||[]).some(e=>e.tool.startsWith('spotify_')))await refreshMusic().catch(()=>{});
   if(g!==generation)return;
   orchestration.result(id,result,{timers:snapshot.timers,previousTimers:before,spotify});
   showReply(result);
-  // Keep action data while the face takes the full stage for conversation.
+  // The accepted reply owns one exact body/face destination through every audio path.
   if(orchestration.phase==='action'){await settleCharacter(lastDestination,g);if(g!==generation)return;await new Promise(resolve=>setTimeout(resolve,ACTION_HOLD));}
   if(g!==generation)return;
   orchestration.reply(id);
-  await settleCharacter('face',g);
+  const presentation=pinSpeech(resolveDestination(orchestration.speechDestination),{requestId:id,...voiceContext});
+  await settleCharacter(presentation.destination,g);
   if(g!==generation)return;
   $('stop').hidden=true;
+  return presentation;
 }
 async function pollProgress(id,g){
   while(g===generation&&pollingTurn===id){
@@ -119,9 +170,9 @@ async function submit(message){
   try{
     const result=await api('/api/chat',{message,request_id:id,session_id:sessionId,time_zone:timeZone,channel:'typed'},{signal:requestController.signal,timeout:snapshot.chat_timeout_ms||510000});
     if(g!==generation)return;pendingRetry=null;pollingTurn=null;
-    completion=finish(id,result,previousTimers,g);await completion;if(g!==generation)return;
-    if($('read-aloud').checked){if(voice.active)await voice.speakReply(id);else await speak(id,g);}
-    if(g!==generation)return;orchestration.followup();
+    completion=finish(id,result,previousTimers,g);const presentation=await completion;if(g!==generation||!presentation||presentation.cancelled)return;
+    if($('read-aloud').checked){if(voice.active)await voice.speakReply(id);else await speak(id,g,{presentation});}
+    if(g!==generation||presentation.cancelled||speechPresentation!==presentation)return;orchestration.followup();
   }catch(error){
     if(g!==generation)return;pollingTurn=null;
     if(error.data){completion=finish(id,error.data,previousTimers,g);await completion;if(g!==generation)return;}
@@ -130,22 +181,48 @@ async function submit(message){
     if(!error.data){$('message').value=message;$('send').textContent='Retry';}
   }finally{if(g===generation){turnId=null;pollingTurn=null;requestController=null;$('send').disabled=!connected;$('stop').hidden=true;}}
 }
-async function speak(id,g,{timer=false}={}){
+async function speak(id,g,{timer=false,presentation=speechPresentation}={}){
   speechController=new AbortController();const signal=speechController.signal;
   try{
     const response=await fetch(timer?'/api/companion/timer-speech':'/api/companion/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({[timer?'timer_id':'request_id']:id,delivery:'natural',speed:1}),signal});
     if(!response.ok){const data=await response.json();throw new Error(data.error||'Speech is unavailable. Your reply is on screen.');}
-    const blob=await response.blob();if(g!==generation)return;
+    const blob=await response.blob();if(g!==generation||signal.aborted||!presentation||presentation.cancelled)return;
     typedUrl=URL.createObjectURL(blob);const clipUrl=typedUrl;$('typed-audio').src=clipUrl;
-    await new Promise((resolve,reject)=>{
-      const audio=$('typed-audio');let settled=false;
-      const done=()=>{if(settled)return;settled=true;audio.removeEventListener('ended',done);audio.removeEventListener('error',failed);signal.removeEventListener('abort',done);resolve();};
-      const failed=()=>{done();notice('The spoken reply could not play. Your answer is on screen.');};
-      audio.addEventListener('ended',done);audio.addEventListener('error',failed);signal.addEventListener('abort',done,{once:true});
-      audio.play().then(()=>{if(g!==generation){if(audio.src===clipUrl)audio.pause();done();return;}orchestration.speaking({body:timer});$('stop').hidden=false;}).catch(()=>{if(g===generation&&audio.src===clipUrl){audio.hidden=false;notice('Press play to hear this reply.');}done();});
+    await new Promise(resolve=>{
+      const clip={url:clipUrl,presentation,signal,ready:false,gating:false,task:null,finish:resolve};typedPlayback=clip;
+      signal.addEventListener('abort',()=>clip.finish(false),{once:true});
+      void playTyped(clip);
     });
   }catch(error){if(g===generation&&!signal.aborted)notice(error.message||'Speech is unavailable. Your answer is on screen.');}
 }
+function validTyped(clip){return typedPlayback===clip&&!clip.signal.aborted&&!clip.presentation.cancelled&&clip.presentation.generation===generation&&$('typed-audio').src===clip.url;}
+async function playTyped(clip){
+  if(clip.task)return clip.task;
+  clip.gating=true;
+  clip.task=(async()=>{
+    try{
+      if(!await prepareSpeech(clip.presentation)||!validTyped(clip)){clip.finish(false);return;}
+      clip.ready=true;await $('typed-audio').play();
+      if(!validTyped(clip)&&$('typed-audio').src===clip.url)$('typed-audio').pause();
+    }catch{
+      if(validTyped(clip)){clip.ready=false;$('typed-audio').hidden=false;notice('Press play to hear this reply.');}
+      clip.finish(false);
+    }finally{clip.gating=false;clip.task=null;}
+  })();
+  return clip.task;
+}
+$('typed-audio').addEventListener('play',()=>{
+  const clip=typedPlayback;if(!clip)return;
+  if(!validTyped(clip)){$('typed-audio').pause();return;}
+  if(!clip.ready){clip.gating=true;$('typed-audio').pause();void playTyped(clip);return;}
+  orchestration.speaking({destination:clip.presentation.destination});$('stop').hidden=false;
+});
+for(const event of ['pause','ended'])$('typed-audio').addEventListener(event,()=>{
+  const clip=typedPlayback;if(!clip||!validTyped(clip)||clip.gating)return;
+  clip.ready=false;character?.setSpeaking(0);$('stop').hidden=true;clip.finish(event==='ended');
+  orchestration.followup();
+});
+$('typed-audio').addEventListener('error',()=>{const clip=typedPlayback;if(!clip||!validTyped(clip))return;clip.finish(false);character?.setSpeaking(0);notice('The spoken reply could not play. Your answer is on screen.');});
 function voiceEvent(event){
   if(event.type==='state'){
     const state=event.state;voiceEnabled=!['off','requesting'].includes(state)&&voice.active;
@@ -166,17 +243,23 @@ function voiceEvent(event){
     orchestration.progress(voiceTurn,[event.progress]);
   }else if(event.type==='response'){
     if(!voiceTurn){voiceTurn=`voice-${event.revision}`;orchestration.begin(voiceTurn);}
-    completion=finish(voiceTurn,event.response,voiceBefore,generation);
+    completion=finish(voiceTurn,event.response,voiceBefore,generation,{requestId:event.requestId,revision:event.revision});
   }else if(event.type==='notification'){
     if(event.kind==='reply'){$('reply').textContent=event.response.reply;return;}
     const presented=event.response.presentation?.find(p=>p.type==='timer');
     const timer=snapshot.timers.find(t=>t.id===presented?.id)||presented;
     if(timerAlerts.active?.id===timer?.id)timerAlerts.accept(timerAlerts.active);
-    if(timer){orchestration.inspect(timerPanel(timer,Date.now()+serverOffset));showReply(event.response);completion=settleCharacter(lastDestination);}
+    if(timer){
+      orchestration.timerFinished(timer);showReply(event.response);
+      const presentation=pinSpeech(resolveDestination(orchestration.bodyLayout),{revision:event.revision,kind:'timer'});
+      completion=settleCharacter(presentation.destination,presentation.generation);
+    }
   }else if(event.type==='playback'){
-    if(event.playing){orchestration.speaking({body:event.presentationMode==='body'});$('stop').hidden=false;}else{character?.setSpeaking(0);$('stop').hidden=true;}
+    const presentation=speechClips.get(event.utteranceId);
+    if(event.playing){if(presentation&&!presentation.cancelled&&presentation.generation===generation){orchestration.speaking({destination:presentation.destination});$('stop').hidden=false;}}else{character?.setSpeaking(0);$('stop').hidden=true;}
   }else if(event.type==='interrupt'){
     if(['reply-audio','reply-audio-ended'].includes(event.reason))return;
+    if(event.reason==='notification-ended'){timerAlerts.release(timerAlerts.active);return;}
     invalidate({keepAlert:event.reason==='notification'});voiceTurn=null;if(!event.reason?.startsWith('notification'))orchestration.listening();
   }else if(event.type==='error'){
     if(timerAlerts.active)timerAlerts.release(timerAlerts.active);
@@ -190,6 +273,8 @@ function acceptSnapshot(data){
   const old=new Map(snapshot.timers.map(t=>[t.id,t.status]));
   if(data.server_time)serverOffset=Date.parse(data.server_time)-Date.now();
   snapshot={...snapshot,...data,timers:data.timers||snapshot.timers};
+  if(firstSnapshot){firstSnapshot=false;orchestration.restoreTimers(snapshot.timers);}
+  else orchestration.syncTimers(snapshot.timers);
   renderTimers();
   for(const t of snapshot.timers)if(t.status==='completed'&&old.has(t.id)&&old.get(t.id)!=='completed'){
     timerAlerts.enqueue(t);
@@ -203,6 +288,7 @@ async function drainAlerts(){
   const {id,timer}=token;
   if(!snapshot.timers.some(t=>t.id===id&&t.status==='completed')){timerAlerts.release(token);return;}
   if(!orchestration.timerFinished(timer)){timerAlerts.release(token,{retry:true});return;}
+  const presentation=pinSpeech(resolveDestination(orchestration.bodyLayout),{kind:'timer'});
   $('reply').textContent=`${timer.label||'Your timer'} is finished.`;
   if(voice.active){
     if(voice.announceTimer?.(id))timerAlerts.waiting(token);else timerAlerts.release(token,{retry:true});
@@ -210,11 +296,11 @@ async function drainAlerts(){
   }
   try{
     if($('read-aloud').checked){
-      const g=generation;await settleCharacter(lastDestination,g);
+      const g=generation;await settleCharacter(presentation.destination,g);
       if(g!==generation||timerAlerts.active!==token)return;
       if(!$('read-aloud').checked){timerAlerts.accept(token);return;}
-      timerAlerts.accept(token);await speak(id,g,{timer:true});
-      if(g===generation){orchestration.phase='panel';orchestration.show(orchestration.bodyDestination(),'Timer finished');$('stop').hidden=true;}
+      timerAlerts.accept(token);await speak(id,g,{timer:true,presentation});
+      if(g===generation&&!presentation.cancelled){orchestration.phase='panel';orchestration.show(orchestration.bodyDestination(),'Timer finished');$('stop').hidden=true;}
     }else timerAlerts.accept(token);
   }finally{timerAlerts.release(token);}
 }
@@ -244,7 +330,7 @@ async function changeTimer(timer){
   catch(error){notice(error.message);}finally{timerBusy.delete(timer.id);renderTimers();renderPanelControls();}
 }
 async function refreshMusic(){
-  try{spotify=await api('/api/spotify?refresh=1');orchestration.musicPlaying=spotify.connected===true&&spotify.playback?.is_playing===true;renderMusic();for(const side of ['left','right'])if(activePanels[side]?.type==='music'){orchestration.panels[side]=musicPanel(spotify);activePanels[side]=orchestration.panels[side];if(orchestration.focusSide===side)activePanel=orchestration.panel=activePanels[side];character?.updatePanel(()=>currentPanel(side),side);}}
+  try{spotify=await api('/api/spotify?refresh=1');orchestration.musicPlaying=spotify.connected===true&&spotify.playback?.is_playing===true;renderMusic();let changed=false;for(const side of ['left','right'])if(activePanels[side]?.type==='music'){orchestration.panels[side]=musicPanel(spotify);if(orchestration.focusSide===side)orchestration.panel=orchestration.panels[side];changed=true;}if(changed)orchestration.show(orchestration.view.destination,orchestration.view.label);}
   catch(error){$('music-notice').textContent=error.message;throw error;}
 }
 function renderMusic(){
@@ -281,10 +367,10 @@ $('message').addEventListener('blur',()=>{if(orchestration.phase==='listening'&&
 $('message').addEventListener('input',()=>{$('send').textContent=pendingRetry?.message===$('message').value.trim()?'Retry':'Send';});
 $('microphone').addEventListener('click',async()=>{notice();if(voice.active){invalidate();voice.stop();return;}invalidate();try{await voice.start({sessionId,timeZone});}catch(error){notice(error.message);$('voice-troubleshooting').hidden=false;}});
 $('stop').addEventListener('click',()=>{invalidate();voice.interrupt();if(voice.active)orchestration.listening();else orchestration.followup();notice('Reply stopped. Completed actions are still in Activity.');});
-$('close-panel').addEventListener('click',()=>orchestration.dismiss());$('reload-scene').addEventListener('click',()=>location.reload());
+$('close-panel').addEventListener('click',()=>changeLayout(()=>orchestration.dismiss()));$('reload-scene').addEventListener('click',()=>location.reload());
 for(const button of document.querySelectorAll('[data-service]'))button.addEventListener('click',()=>{const type=button.dataset.service;orchestration.inspect(type==='music'?musicPanel(spotify):pendingPanel(type,'offline'));if(type!=='music')notice(type==='schedule'?'Schedules aren’t available yet.':'This home service isn’t connected yet.');});
 $('previous').addEventListener('click',()=>musicControl('previous'));$('next').addEventListener('click',()=>musicControl('next'));$('play-pause').addEventListener('click',()=>musicControl(spotify.playback?.is_playing?'pause':'play'));$('spotify-device').addEventListener('change',renderMusic);$('refresh-music').addEventListener('click',()=>refreshMusic().catch(()=>{}));
-$('clear-conversation').addEventListener('click',async()=>{invalidate();voice.stop();try{await api('/api/session/reset',{session_id:sessionId});$('heard').hidden=true;$('reply').textContent='Ready for a fresh conversation.';$('actions').replaceChildren();$('actions-empty').hidden=false;$('sources').hidden=true;pendingRetry=null;orchestration.dismiss();notice('This conversation was cleared. Saved household memory is managed in the memory controls.');}catch(error){notice(error.message);}});
+$('clear-conversation').addEventListener('click',async()=>{invalidate();voice.stop();try{await api('/api/session/reset',{session_id:sessionId});$('heard').hidden=true;$('reply').textContent='Ready for a fresh conversation.';$('actions').replaceChildren();$('actions-empty').hidden=false;$('sources').hidden=true;pendingRetry=null;orchestration.standby();notice('This conversation was cleared. Your timers and panels are still here.');}catch(error){notice(error.message);}});
 $('read-aloud').addEventListener('change',()=>{try{localStorage.setItem('merlin-read-aloud',String($('read-aloud').checked));}catch{}if(!$('read-aloud').checked){stopTyped();if(turnId&&voice.active)voice.interrupt();}else void unlockAudioPlayback($('typed-audio'));});
 $('test-speaker').addEventListener('click',async()=>{
   invalidate();const g=generation;void unlockAudioPlayback($('typed-audio'));$('test-speaker').disabled=true;notice('Preparing a short speaker test…');
@@ -307,4 +393,7 @@ const statePoll=setInterval(()=>{if(document.visibilityState!=='hidden')void pol
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){invalidate();voice.stop();orchestration.standby();}else void pollState();});
 window.addEventListener('pagehide',()=>{destroyed=true;invalidate();voice.destroy();character?.destroy();clearInterval(ticker);clearInterval(statePoll);},{once:true});
 void pollState();
-createCharacter({canvas:$('scene'),stage:$('scene-frame'),onStatus:info=>{if(info?.message)$('loading').textContent=info.message;},onError:()=>{$('scene-error').hidden=false;}}).then(runtime=>{character=runtime;$('loading').hidden=true;lastDestination='';renderView(orchestration.view);}).catch(()=>{$('loading').hidden=true;$('scene-error').hidden=false;});
+createCharacter({canvas:$('scene'),stage:$('scene-frame'),onStatus:info=>{
+  if(info?.message)$('loading').textContent=info.message;
+  if(info?.state){sceneStatus=info;Object.assign($('stage').dataset,{characterState:info.state,characterDesired:info.desired||'',characterClip:info.clip||'',motionPhase:info.phase||''});if(character)updateControlVisibility();}
+},onError:()=>{$('scene-error').hidden=false;}}).then(runtime=>{character=runtime;$('loading').hidden=true;lastDestination='';renderView(orchestration.view);}).catch(()=>{$('loading').hidden=true;$('scene-error').hidden=false;});

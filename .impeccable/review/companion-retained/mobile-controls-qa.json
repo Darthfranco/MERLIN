@@ -1,0 +1,27 @@
+{
+  "targets": [
+    {
+      "name": "Cancel timer",
+      "height": 44
+    },
+    {
+      "name": "Dock left",
+      "height": 44
+    },
+    {
+      "name": "Dock right",
+      "height": 44
+    },
+    {
+      "name": "Close panel",
+      "height": 44
+    }
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "checks": [
+    "390px Enlarge and ceiling controls fit with 44px targets",
+    "Dock right restores the retained timer"
+  ],
+  "scope": "Final mobile control confirmation using an isolated synthetic persisted timer; no model, audio or microphone."
+}

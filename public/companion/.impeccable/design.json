@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-27T19:26:40.334Z",
+  "generatedAt": "2026-10-27T22:58:33.264Z",
   "title": "Design System: MERLIN at home",
   "extensions": {
     "sources": [
@@ -134,8 +134,8 @@
     },
     "review": {
       "verdict": "ship",
-      "scope": "Three scored visual fixes only",
-      "path": ".impeccable/review/companion/verdict.md"
+      "scope": "Static desktop/mobile retained-screen and face layouts; see scoped verdict for limits",
+      "path": ".impeccable/review/companion-retained/verdict.md"
     },
     "paletteNote": "Metadata describes implemented colors only; no synthesized tonal scale is introduced."
   },
@@ -188,9 +188,9 @@
     {
       "name": "Independent panel controls",
       "kind": "custom",
-      "description": "Side identity and explicit timer/close targets, separate from canvas artwork.",
-      "html": "<div class=\"ds-panel-controls\"><span>Left · timer</span><button aria-label=\"Cancel left timer: Timer\">Cancel timer</button><button aria-label=\"Close left panel\">Close panel</button></div>",
-      "css": ".ds-panel-controls{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--soft,#a9c5d8)}.ds-panel-controls span{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-panel-controls button{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;min-height:44px;border:1px solid var(--line,#31475c);border-radius:10px;padding:10px 16px;cursor:pointer;min-height:36px;font-size:11px;padding:6px 10px;background:var(--surface,#101f34);color:var(--ink,#e2f5ff)}.ds-panel-controls button:hover{background:var(--control-hover,#1d344a)}.ds-panel-controls button:focus-visible{outline:3px solid var(--cyan,#8bd9f2);outline-offset:3px}@media(max-width:720px){.ds-panel-controls{flex-wrap:wrap}.ds-panel-controls button{min-height:44px}}"
+      "description": "Side or large-screen identity with explicit timer, Enlarge/Dock, and Close targets, separate from canvas artwork.",
+      "html": "<div class=\"ds-panel-controls\"><span>Right · timer</span><button aria-label=\"Cancel right timer: Timer\">Cancel timer</button><button aria-label=\"Enlarge right panel: Timer\">Enlarge</button><button aria-label=\"Close right panel\">Close panel</button></div>",
+      "css": ".ds-panel-controls{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;max-width:100%;gap:8px;font-size:12px;color:var(--soft,#a9c5d8)}.ds-panel-controls span{max-width:min(240px,100%);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-panel-controls button{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;min-height:44px;border:1px solid var(--line,#31475c);border-radius:10px;padding:10px 16px;cursor:pointer;white-space:nowrap;min-height:36px;font-size:11px;padding:6px 10px;background:var(--surface,#101f34);color:var(--ink,#e2f5ff)}.ds-panel-controls button:hover{background:var(--control-hover,#1d344a)}.ds-panel-controls button:focus-visible{outline:3px solid var(--cyan,#8bd9f2);outline-offset:3px}@media(max-width:720px){.ds-panel-controls{flex-wrap:wrap}.ds-panel-controls button{min-height:44px}}"
     }
   ],
   "narrative": {

@@ -7,11 +7,12 @@ import { OutputPass } from './vendor/three/examples/jsm/postprocessing/OutputPas
 import { collectScreens, syncScreenAspect } from './screens.js';
 import { ScreenHandoff } from './screen-layout.js';
 import { MotionController } from './motion.js';
+import { planRoute, stateScreens, contentDestination, dismissalDestination } from './motion-routes.js';
 import { SceneClock } from './scene-clock.js';
 import { PANEL_TYPES, paintPanel, loadPanelArt } from './panels/render.js';
 
 const panelTypes = new Set(PANEL_TYPES.map(panel => panel.id));
-const ambient = new Set(['walk', 'toss', 'nap', 'dance', 'sweep']);
+const ambient = new Set(['walk', 'walkReverse', 'toss', 'nap', 'dance']);
 const assetURL = path => new URL(path, import.meta.url).href;
 const validData = value => value && typeof value === 'object' && !Array.isArray(value);
 
@@ -124,6 +125,7 @@ function visiblePanels(controller) {
 /** Presentation only: no microphone, model, service credentials or demo outcomes. */
 export function createCharacterDriver({controller, screens, panelArt = {}, reducedMotion = false, onStatus = () => {}, invalidate = () => {}}) {
   let wanted = 'ready', destroyed = false, lastSide = 'right', speaking = 0, listening = false, transitionPace = 1;
+  let bridge = null, requestedAlias = 'ready', moving = false, retainedBody = 'ready';
   const panels = {left: null, right: null}; let panelPaints = 0;
   const handoff = typeof screens.left?.copyFrom === 'function' && screens.right ? new ScreenHandoff(screens, () => {
     // The left texture needs its own record so live polling follows the card,
@@ -133,9 +135,32 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     lastSide = 'left'; refreshPanels(['left']); invalidate();
   }) : null;
   const capabilities = Object.freeze({states: Object.freeze(Object.keys(controller.states)),
-    routes: Object.freeze((controller.routes || []).map(route => Object.freeze({...route}))), procedural: Object.freeze(['sweep'])});
+    routes: Object.freeze((controller.routes || []).map(route => Object.freeze({...route})))});
   const waiters = new Set();
-  const state = () => wanted === 'sweep' && controller.current === 'ready' && controller.phase === 'idle' ? 'sweep' : controller.current;
+  const state = () => controller.current;
+  const phase = () => bridge ? 'transition' : controller.phase;
+  function baseContext(value) {
+    const definition = controller.states[value];
+    return definition?.contextualThinking || value === 'bodyThink' ? definition.bodyContext || definition.parent : definition?.rest || value;
+  }
+  function pendingState() { return controller.phase === 'idle' ? controller.current : controller.arrival; }
+  function physicalContext() {
+    const pending = pendingState();
+    return baseContext(isFaceState(pending, controller.states) ? controller.bodyContext : pending) || 'ready';
+  }
+  // The intended layout can differ from the inbound face clip's source during a
+  // covered layout change. An interruption keeps that intent without revealing it.
+  function bodyContext() {return retainedBody;}
+  function resolveDestination(next, {preservePanels = true, dismiss = false} = {}) {
+    const context = bodyContext();
+    if (next === 'bodyThink') {
+      if (isFaceState(pendingState(), controller.states) || isFaceState(wanted, controller.states)) return 'faceThink';
+      return Object.keys(controller.states).find(name => controller.states[name].contextualThinking &&
+        (controller.states[name].bodyContext || controller.states[name].parent) === context) || 'bodyThink';
+    }
+    if (next === 'ready' && preservePanels && !dismiss && stateScreens(context).some(side => side !== 'camera')) return context;
+    return reducedMotion && ambient.has(next) ? 'ready' : next;
+  }
   const complete = (waiter, result) => {
     waiters.delete(waiter);
     waiter.signal?.removeEventListener('abort', waiter.abort);
@@ -144,33 +169,73 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
   function motionChanged() {
     handoff?.sync(controller.clip);
     invalidate();
-    // The shared controller may resolve context-sensitive thought/face routes.
-    if (!(wanted === 'sweep' && controller.desired === 'ready')) wanted = controller.desired;
     if (controller.active) controller.active.setEffectiveTimeScale(['idle', 'finishLoop'].includes(controller.phase) ? 1 : transitionPace);
+    // A cover is presentation only. Keep the final requested destination visible
+    // to callers, and change the underlying body context only under a full face.
+    if (bridge && !moving && controller.current === 'face' && controller.phase === 'idle' && bridge.stage === 'cover') {
+      bridge.stage = 'reveal'; controller.bodyContext = baseContext(wanted);
+      move(wanted);
+      return;
+    }
+    if (bridge?.stage === 'reveal' && controller.current === wanted && controller.phase === 'idle') bridge = null;
+    if (!moving && !bridge && controller.phase === 'idle' && isFaceState(controller.current, controller.states) && isFaceState(wanted, controller.states)) {
+      controller.bodyContext = retainedBody;
+    }
+    // An authored one-way walk settles into its matching endpoint naturally.
+    if (!bridge && controller.states[wanted]?.rest === controller.current && controller.phase === 'idle') wanted = controller.current;
     for (const waiter of waiters) {
       if (destroyed || waiter.signal?.aborted || waiter.state !== wanted) complete(waiter, false);
-      else if (state() === waiter.state && controller.phase === 'idle') complete(waiter, true);
+      else if (state() === waiter.state && phase() === 'idle') complete(waiter, true);
     }
-    if (!destroyed) onStatus({state: state(), desired: wanted, phase: controller.phase, clip: controller.clip,
-      paused: controller.paused, bodyContext: controller.bodyContext, procedural: state() === 'sweep'});
+    if (!destroyed) onStatus({state: state(), desired: wanted, phase: phase(), clip: controller.clip,
+      paused: controller.paused, bodyContext: retainedBody, bridge: bridge?.stage || null});
   }
-  function go(next, {urgent = false, pace = 1} = {}) {
-    if (destroyed) return false;
-    if (next !== 'sweep' && !controller.states[next]) throw new RangeError('Unknown MERLIN state: ' + next);
-    if (!Number.isFinite(pace) || pace <= 0 || pace > 8) throw new RangeError('Animation pace must be greater than zero and at most eight.');
-    transitionPace = pace;
-    wanted = reducedMotion && ambient.has(next) ? 'ready' : next;
-    const destination = wanted === 'sweep' ? 'ready' : wanted;
-    if (urgent || reducedMotion) {
-      const pending = controller.phase === 'idle' ? controller.current : controller.arrival;
-      if (isFaceState(destination, controller.states) && !isFaceState(pending, controller.states)) controller.bodyContext = controller.states[pending]?.rest || pending;
-      const source = isFaceState(pending, controller.states) ? controller.bodyContext : pending;
-      if (lineage(source, controller.states).includes('ceiling') && lineage(destination, controller.states).includes('left')) handoff?.sync('CeilingToLeftPanel');
-      controller.snap(destination, {paused: reducedMotion});
-    } else if (destination === 'ready' && controller.ready) controller.ready();
-    else controller.go(destination);
+  function move(destination, {snap = false} = {}) {
+    const pending = pendingState(), source = physicalContext();
+    if (isFaceState(destination, controller.states) && !isFaceState(pending, controller.states)) controller.bodyContext = source;
+    moving = true;
+    try {
+      if (snap) {
+        if (lineage(source, controller.states).includes('ceiling') && lineage(destination, controller.states).includes('left')) handoff?.sync('CeilingToLeftPanel');
+        if (!isFaceState(destination, controller.states)) controller.bodyContext = baseContext(destination);
+        controller.snap(destination, {paused: reducedMotion});
+      } else if (controller.request) controller.request(destination);
+      else controller.go(destination);
+    } finally { moving = false; }
     motionChanged();
+  }
+  function go(next, {urgent = false, pace = 1, preservePanels = true, dismiss = false} = {}) {
+    if (destroyed) return false;
+    if (!controller.states[next]) throw new RangeError('Unknown MERLIN state: ' + next);
+    if (!Number.isFinite(pace) || pace <= 0 || pace > 8) throw new RangeError('Animation pace must be greater than zero and at most eight.');
+    const destination = resolveDestination(next, {preservePanels, dismiss});
+    transitionPace = pace;
+    requestedAlias = next;
+    if (destination === wanted && !(urgent || reducedMotion)) {motionChanged(); return true;}
+    wanted = destination;
+    if (!isFaceState(destination, controller.states)) retainedBody = baseContext(destination);
+    for (const waiter of waiters) if (waiter.state !== wanted) complete(waiter, false);
+    bridge = null;
+    if (urgent || reducedMotion) {
+      move(destination, {snap: true});
+    } else {
+      const route = planRoute(pendingState(), destination, controller.states, controller.routes || [], controller.bodyContext);
+      const dissolvesPanel = route.some(edge => edge.to === 'ready' && stateScreens(edge.from).some(side => side !== 'camera'));
+      // A selective close may arrive before a paired layout finishes appearing.
+      // Its surviving screen still cannot take a destructive detour through ready.
+      const keepsScreen = stateScreens(physicalContext()).some(side => side !== 'camera' && stateScreens(destination).includes(side));
+      if (preservePanels && (!dismiss || keepsScreen) && !isFaceState(destination, controller.states) && dissolvesPanel) {
+        bridge = {stage: 'cover'};
+        move('face');
+      } else move(destination);
+    }
     return true;
+  }
+  function body(options = {}) {return go(bodyContext(), {...options, preservePanels: true});}
+  function ready(options = {}) {return go('ready', {...options, preservePanels: false, dismiss: true});}
+  function dismissScreen(side, options = {}) {
+    const context = bridge ? baseContext(wanted) : bodyContext();
+    return go(dismissalDestination(context, side), {...options, preservePanels: true, dismiss: true});
   }
   function readPanel(record = panels[lastSide]) {
     if (!record) return null;
@@ -187,7 +252,12 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     const record = panels[side]?.type === type ? panels[side] : {type, side};
     record.data = data; readPanel(record); panels[side] = record; lastSide = side;
     refreshPanels([side]);
-    if (options.navigate !== false) go(panels.left && panels.right && controller.states.both ? 'both' : side, options);
+    if (options.navigate !== false) {
+      const context = bodyContext(), existing = stateScreens(context);
+      const destination = existing.includes(side) ? context : panels.left && panels.right && controller.states.both ? 'both' :
+        contentDestination({...controller, desired: wanted}, side);
+      go(destination, {...options, preservePanels: true});
+    }
     return readPanel(record);
   }
   function updatePanel(data, side = 'right') {
@@ -235,10 +305,11 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     for (const side of visiblePanels(controller)) if (screens[side]) syncScreenAspect(screens[side]);
   }
   return {
-    go, showPanel, updatePanel, clearPanel, refreshPanels, syncScreens, motionChanged, capabilities,
+    go, body, ready, dismissScreen, resolveDestination, showPanel, updatePanel, clearPanel, refreshPanels, syncScreens, motionChanged, capabilities,
     setSpeaking(level) { speaking = Number.isFinite(level) ? Math.max(0, Math.min(1, level)) : level === true ? .5 : 0; },
     setListening(value) { listening = Boolean(value); },
-    get state() { return state(); }, get desired() { return wanted; }, get phase() { return controller.phase; },
+    get state() { return state(); }, get desired() { return wanted; }, get phase() { return phase(); },
+    get bodyContext() { return retainedBody; },
     get clip() { return controller.clip; }, get speaking() { return speaking; }, get listening() { return listening; },
     get reducedMotion() { return reducedMotion; }, get panel() { return readPanel(); },
     get panelPaints() { return panelPaints; },
@@ -246,8 +317,9 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     get panels() { return {left: readPanel(panels.left), right: readPanel(panels.right)}; },
     setReducedMotion(value) { reducedMotion = Boolean(value); go(wanted, {urgent: true}); },
     whenSettled(next, signal) {
+      if (next === requestedAlias) next = wanted;
       if (destroyed || signal?.aborted || next !== wanted) return Promise.resolve(false);
-      if (state() === next && controller.phase === 'idle') return Promise.resolve(true);
+      if (state() === next && phase() === 'idle') return Promise.resolve(true);
       return new Promise(resolve => {
         const waiter = {state: next, signal, resolve, abort: null};
         waiter.abort = () => complete(waiter, false);
@@ -255,41 +327,6 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
       });
     },
     destroy() { destroyed = true; speaking = 0; listening = false; panels.left = null; panels.right = null; for (const waiter of waiters) complete(waiter, false); },
-  };
-}
-
-/** Original browser-only broom and restrained ready-pose animation, not a baked GLB clip. */
-export function createSweep(root, scene) {
-  const group = new THREE.Group(); group.name = 'MERLIN_CompanionBroom'; group.visible = false; scene.add(group);
-  const handleMaterial = new THREE.MeshStandardMaterial({color: 0x739bb5, roughness: .8});
-  const brushMaterial = new THREE.MeshStandardMaterial({color: 0xc3e4ee, roughness: 1});
-  const handle = new THREE.Mesh(new THREE.CylinderGeometry(.024, .024, 1, 8), handleMaterial);
-  const brush = new THREE.Mesh(new THREE.BoxGeometry(.46, .1, .17), handleMaterial);
-  group.add(handle, brush);
-  const bristles = new THREE.Group(); group.add(bristles);
-  for (let i = 0; i < 12; i++) {
-    const strand = new THREE.Mesh(new THREE.BoxGeometry(.025, .13, .13), brushMaterial);
-    strand.position.set((i - 5.5) * .036, 0, 0); bristles.add(strand);
-  }
-  group.traverse(object => { if (object.isMesh) object.castShadow = true; });
-  const hand = root.getObjectByName('handR'), arm = root.getObjectByName('upper_armR');
-  const grip = new THREE.Vector3(), base = new THREE.Vector3(), direction = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
-  let restoreArm = null;
-  return {
-    group,
-    restore() { if (restoreArm) { arm.quaternion.copy(restoreArm); restoreArm = null; } group.visible = false; },
-    update(time, active) {
-      group.visible = active && Boolean(hand && arm);
-      if (!group.visible) return;
-      restoreArm = arm.quaternion.clone();
-      arm.rotateX(-.2); arm.rotateZ(.12 * Math.sin(time * 1.7));
-      root.updateMatrixWorld(true); hand.getWorldPosition(grip);
-      base.set(-.65 + .28 * Math.sin(time * 1.7), .20, .48);
-      direction.subVectors(grip, base);
-      handle.position.copy(grip).add(base).multiplyScalar(.5);
-      handle.scale.y = direction.length(); handle.quaternion.setFromUnitVectors(up, direction.normalize());
-      brush.position.copy(base); bristles.position.copy(base); bristles.position.y -= .1;
-    },
   };
 }
 
@@ -396,20 +433,14 @@ export async function createCharacter({canvas, stage, onStatus = () => {}, onErr
       const foot = model.getObjectByName(name); if (!foot) continue;
       const glow = new THREE.PointLight(0x26bcff, 2.8, 1.1, 2); scene.add(glow); feet.push({foot, glow});
     }
-    const sweep = createSweep(model, scene), speech = createSpeechOverlay(model), cullMeshes = createHiddenMeshCuller(model);
-    const clockStates = {...manifest.states, sweep: {label: 'Sweeping', parent: 'ready', idle: 'CompanionSweep'}};
+    const speech = createSpeechOverlay(model), cullMeshes = createHiddenMeshCuller(model);
     const footprints = new Map(Object.entries(footprintData.clips));
-    // Extra center-only envelope covers the broom and procedural arm reach.
-    footprints.set('CompanionSweep', [...footprints.get('ReadyIdle'), {left: .30, right: .70, top: .43, bottom: .91, object: 'Companion broom'}]);
-    sceneClock = new SceneClock(stage, clockStates, footprints, manifest.routes || []);
+    sceneClock = new SceneClock(stage, manifest.states, footprints, manifest.routes || []);
     controller = new MotionController(new THREE.AnimationMixer(model), gltf.animations, manifest, info => {
       sceneClock.sync({...info, current: info.state}); driver?.motionChanged();
     });
     driver = createCharacterDriver({controller, screens, panelArt, reducedMotion: reducedMotion ?? media.matches,
-      invalidate: () => renderLoop?.invalidate(), onStatus: info => {
-      if (info.state === 'sweep') sceneClock.sync({...info, current: 'sweep', desired: 'sweep', clip: 'CompanionSweep'});
-      onStatus(info);
-    }});
+      invalidate: () => renderLoop?.invalidate(), onStatus});
     destroyDriver = driver.destroy;
     composer = new EffectComposer(renderer); composer.addPass(new RenderPass(scene, camera));
     const bloom = new UnrealBloomPass(new THREE.Vector2(400, 300), .32, .25, 1.1), sizeBloom = bloom.setSize.bind(bloom);
@@ -429,11 +460,10 @@ export async function createCharacter({canvas, stage, onStatus = () => {}, onErr
       poll: () => driver.refreshPanels(visiblePanels(controller)),
       render: delta => {
       if (disposed) return;
-      sweep.restore(); speech.restore(); controller.update(delta);
+      speech.restore(); controller.update(delta);
       if (!driver.reducedMotion) elapsed += delta;
-      sweep.update(elapsed, driver.state === 'sweep' && !driver.reducedMotion);
       speech.update(elapsed, driver.speaking, driver.state === 'face' && !driver.reducedMotion,
-        ['ready', 'right', 'left', 'both', 'seatedLeft', 'seatedRight'].includes(driver.state) && !driver.reducedMotion);
+        ['ready', 'right', 'left', 'both', 'seatedLeft', 'seatedRight', 'ceiling'].includes(driver.state) && !driver.reducedMotion);
       model.updateMatrixWorld(true);
       driver.syncScreens();
       const fullFace = isFaceState(controller.current, controller.states) && controller.phase === 'idle';
