@@ -3,7 +3,8 @@ import { AppError } from '../errors.js';
 import { validateSpeechDelivery } from './prosody.js';
 
 export const VOICE_SESSION_LIMITS = Object.freeze({
-  sampleRate: 16000, idleBufferSeconds: 4, followupMs: 12_000,
+  sampleRate: 16000, idleBufferSeconds: 4, followupMs: 20_000,
+  extendedFollowupMs: 30_000, longPauseMs: 8000, onsetGraceMs: 400,
   maxConversationMs: 180_000, maxUtteranceSeconds: 60, maxTurns: 12,
 });
 const RATE = VOICE_SESSION_LIMITS.sampleRate;
@@ -31,6 +32,8 @@ export class VoiceSession {
     this.lastFrameAt = now(); this.activeSince = null; this.deadline = null;
     this.utteranceId = null; this.firstUtterance = false; this.wakeEnd = null;
     this.sleepEpoch = 0;
+    this.followupWaitMs = this.limits.followupMs;
+    this.quietSince = null; this.quietBeforeSpeech = null;
   }
 
   configure({ delivery = this.delivery, speed = this.speed } = {}) {
@@ -68,6 +71,8 @@ export class VoiceSession {
     this.capture = null; this.pendingPcm = null; this.ring = [];
     this.activeSince = null; this.deadline = null; this.firstUtterance = false;
     this.turns = 0; this.wakeEnd = null;
+    this.followupWaitMs = this.limits.followupMs;
+    this.quietSince = null; this.quietBeforeSpeech = null;
     this.setState('wake', message);
   }
 
@@ -93,6 +98,16 @@ export class VoiceSession {
     // Continuing before a reply preserves the earlier utterance; interrupting
     // audible playback begins a fresh turn. No late provider result can speak.
     const prefix = ['transcribing', 'generating'].includes(this.state) ? this.pendingPcm : null;
+    if (this.state !== 'listening' || !this.capture) {
+      this.quietBeforeSpeech = this.state === 'followup'
+        ? { since: this.quietSince, deadline: this.deadline, waitMs: this.followupWaitMs } : null;
+      const interrupted = ['transcribing', 'generating', 'speaking'].includes(this.state);
+      const resumedAfterPause = this.quietSince !== null && this.now() - this.quietSince >= this.limits.longPauseMs;
+      // Timing context can give someone more thinking time, never close a
+      // conversation based on words or require another model request.
+      this.followupWaitMs = interrupted || resumedAfterPause ? this.limits.extendedFollowupMs : this.limits.followupMs;
+      this.quietSince = null;
+    }
     if (this.state !== 'listening') {
       this.#invalidate();
       this.#startCapture(event.startSample ?? event.sample, prefix, Boolean(prefix && this.pendingStripWake));
@@ -123,6 +138,8 @@ export class VoiceSession {
       if (event.type === 'wake' && this.state === 'wake') {
         this.#invalidate();
         this.activeSince = this.now(); this.turns = 0;
+        this.followupWaitMs = this.limits.followupMs;
+        this.quietSince = null; this.quietBeforeSpeech = null;
         this.firstUtterance = true;
         this.wakeEnd = event.endSample ?? event.sample;
         this.#startCapture(event.startSample ?? event.sample);
@@ -147,8 +164,17 @@ export class VoiceSession {
     // short activation contained only the wake word. This may upload one short
     // clip after activation; standby never reaches this path.
     if (spokenSamples < RATE * .2 && !capture.prefixBytes) {
-      this.deadline = this.now() + this.limits.followupMs; return;
+      // A rejected tiny noise must not keep extending an otherwise quiet room.
+      if (this.quietBeforeSpeech) {
+        this.deadline = this.quietBeforeSpeech.deadline;
+        this.quietSince = this.quietBeforeSpeech.since;
+        this.followupWaitMs = this.quietBeforeSpeech.waitMs;
+        this.quietBeforeSpeech = null;
+        this.setState('followup', 'Still here. Take your time.');
+      } else this.deadline = this.now() + this.followupWaitMs;
+      return;
     }
+    this.quietBeforeSpeech = null;
     const full = Buffer.concat(capture.chunks, capture.bytes);
     // Keep a short trailing pad, not the entire endpointing silence.
     const bytes = Math.min(full.length, capture.prefixBytes + Math.max(0, end - capture.start + RATE * .12) * 2);
@@ -175,10 +201,6 @@ export class VoiceSession {
       const text = (stripWake ? result.text.replace(/^\s*(?:hey\s+)?merlin\b[\s,.!?:;—-]*/iu, '') : result.text).trim();
       if (!text) { this.pendingPcm = null; this.#followup('I’m listening.'); return; }
       this.emit('transcript', { text });
-      // A narrow explicit end phrase never becomes an assistant/tool action.
-      if (/^(?:(?:(?:ok(?:ay)?|thanks|thank you)[,.! ]*)?(?:that(?:’|')?s all|stop listening|end (?:the )?conversation|go to sleep)|(?:goodbye|bye)(?:[, ]+merlin)?|(?:thanks|thank you)[, ]+merlin)[.! ]*$/iu.test(text)) {
-        this.sleep(); return;
-      }
       if (text.length > 2000) throw new AppError('The transcript is too long to read aloud. Shorten the next turn.');
       this.setState('generating', 'Preparing Fenrir’s voice…');
       const audio = await this.tts.synthesize(text, { delivery: this.delivery, speed: this.speed, signal: controller.signal });
@@ -198,18 +220,20 @@ export class VoiceSession {
     }
   }
 
-  #followup(message = 'Anything else? Speak now, or wait to return to local wake mode.') {
+  #followup(message = 'Still here. Speak when you’re ready; a longer quiet pause ends the conversation.') {
     if (this.turns >= this.limits.maxTurns) { this.sleep('Conversation limit reached. Say MERLIN to continue.'); return; }
-    this.deadline = this.now() + this.limits.followupMs;
+    this.quietSince = this.now();
+    this.deadline = this.quietSince + this.followupWaitMs;
     this.setState('followup', message);
   }
 
   playback({ playing, revision, utteranceId }) {
     if (typeof playing !== 'boolean' || revision !== this.revision || !utteranceId || utteranceId !== this.utteranceId || !['speaking', 'followup'].includes(this.state)) return;
     if (playing) {
+      this.quietSince = null;
       this.deadline = this.now() + this.playbackBudgetMs;
       this.setState('speaking', 'Fenrir is speaking. You can interrupt.');
-    } else this.#followup();
+    } else if (this.state === 'speaking') this.#followup();
   }
 
   tick() {
@@ -220,7 +244,9 @@ export class VoiceSession {
     }
     if (this.deadline !== null && now >= this.deadline) {
       if (this.state === 'speaking') this.#followup();
-      else if (['listening', 'followup'].includes(this.state)) this.sleep();
+      // VAD needs a little onset audio before reporting speech. Allow a bounded
+      // grace period so starting near the quiet deadline doesn't lose the turn.
+      else if (['listening', 'followup'].includes(this.state) && now >= this.deadline + this.limits.onsetGraceMs) this.sleep();
     }
   }
 

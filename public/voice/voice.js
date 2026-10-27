@@ -440,7 +440,7 @@ function showWakeState(session) {
     transcribing: 'Transcribing your speech with Meta',
     generating: 'Preparing Fenrir’s voice — you can interrupt',
     speaking: 'Fenrir is speaking — speak to interrupt',
-    followup: 'Listening for a follow-up — or say “goodbye”',
+    followup: 'Still here — a longer quiet pause ends the conversation',
   };
   const next = session.serverState;
   if (!labels[next]) return;
