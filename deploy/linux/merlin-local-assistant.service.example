@@ -1,0 +1,21 @@
+# Inert per-user unit. Read ../README.md and replace all absolute path placeholders.
+# Run as the checkout's unprivileged owner; do not install as a root system service.
+[Unit]
+Description=MERLIN loopback assistant prototype
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+[Service]
+Type=simple
+WorkingDirectory=/ABSOLUTE/PATH/TO/MERLIN
+ExecStart=/ABSOLUTE/PATH/TO/node --env-file-if-exists=/ABSOLUTE/PATH/TO/MERLIN/.env /ABSOLUTE/PATH/TO/MERLIN/src/server.js
+Restart=on-failure
+RestartSec=10
+KillSignal=SIGTERM
+TimeoutStopSec=30
+UMask=0077
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

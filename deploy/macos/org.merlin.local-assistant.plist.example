@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Inert example. Read ../README.md and replace every /ABSOLUTE/PATH/TO value.
+     A per-user LaunchAgent, not an authenticated household server. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>org.merlin.local-assistant</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/ABSOLUTE/PATH/TO/node</string>
+    <string>--env-file-if-exists=/ABSOLUTE/PATH/TO/MERLIN/.env</string>
+    <string>/ABSOLUTE/PATH/TO/MERLIN/src/server.js</string>
+  </array>
+  <key>WorkingDirectory</key><string>/ABSOLUTE/PATH/TO/MERLIN</string>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><dict><key>SuccessfulExit</key><false/></dict>
+  <key>ThrottleInterval</key><integer>30</integer>
+  <key>Umask</key><integer>63</integer>
+  <key>StandardOutPath</key><string>/ABSOLUTE/PATH/TO/MERLIN/local/hosting-logs/assistant.out.log</string>
+  <key>StandardErrorPath</key><string>/ABSOLUTE/PATH/TO/MERLIN/local/hosting-logs/assistant.err.log</string>
+</dict>
+</plist>

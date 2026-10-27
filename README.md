@@ -12,6 +12,10 @@ Built for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Ce
 
 **Separate Connection Center:** run `npm run connections` and open [localhost:3002](http://127.0.0.1:3002). Search by company or device category, compare setup difficulty, and try guided connections. All connection states are simulated and stored only in this browser; this preview does not access accounts or hardware. See [Connection Center setup](docs/CONNECTIONS.md).
 
+**Phone companion demo:** run `npm run phone` and open [localhost:3003](http://127.0.0.1:3003). Chat with attachments, talk with the original MERLIN face, and browse branded connection settings. History and preferences stay in this browser; responses/actions are simulated and the phone is not yet connected to the home-display assistant. See [phone demo details](docs/PHONE.md).
+
+**Want to host MERLIN yourself?** Read [hosting options and setup tools](docs/HOSTING.md) for Mac mini, Linux/home server, cloud VM, and managed-cloud approaches. The guide includes current local setup, an offline prerequisite inspector, optional startup templates, backups, and the work still required for shared phone/iPad access. It does not deploy or connect anything automatically.
+
 ## Product vision
 
 MERLIN's language has a bright little-robot personality: cheerful old-fashioned courtesy, playful short replies with “in a jiffy” energy and “mister” by default, calm corrections, customizable forms of address, and a conversational plain mode. This wording is reused by the text prototype and combined character/voice surface. See [personality behavior and examples](docs/PROTOTYPE.md#merlins-personality).
@@ -41,6 +45,8 @@ Meta models are a core product requirement. Kokoro is the tentative speech synth
 | [Hackathon brief](docs/HACKATHON.md) | Rules from the supplied materials, schedule, judging, and submission checklist |
 | [Model reference](docs/MODELS.md) | Meta catalog, tentative model roles, pricing snapshot, and Kokoro reference |
 | [Project status](docs/STATUS.md) | Current implementation state, decisions, and next steps |
+| [Hosting options](docs/HOSTING.md) and [optional toolkit](deploy/README.md) | Compare home/cloud routes, inspect prerequisites, and supervise the current local assistant; shared-device access remains pending |
+| [Phone companion](docs/PHONE.md) | Standalone phone demo, shared text/voice browser memory, attachments, and branded connection settings |
 | [Spotify setup and privacy](docs/SPOTIFY.md) | Connect an account, playback controls, data boundaries, and limitations |
 | [Memory and routines](docs/MEMORY.md) | Memory lab, rule scopes, retention, routine activation, and testing |
 | [Original event overview](docs/sources/event-overview.txt) and [participant guide](docs/sources/participant-guide.txt) | User-supplied source snapshots |
