@@ -30,6 +30,31 @@ One message can include multiple searches, multiple timers, or both together. Th
 
 Timers show running, finished, and cancelled states with local-time deadlines and an explicit time zone. Cancel and Dismiss buttons work directly; dismissal hides a finished/cancelled timer. Keep the server running and page open for visible completion. There is no alarm sound, background browser notification, wake lock, or delivery while the machine sleeps. Overdue timers reconcile when the server resumes/restarts.
 
+## MERLIN's personality
+
+MERLIN is a small, capable home helper: sincere, attentive, gently cheerful, and comfortable letting a finished conversation end. The owner's October 27 language guide supplies the creative direction; its fictional-character analysis is inspiration for original dialogue, not a request to imitate a character or install the guide's example home actions.
+
+Lead with the answer or confirmed result. A routine action usually needs one sentence, around 4–12 words. A useful explanation gets the detail it needs, and compound requests still cover every result. Ask one concrete question only when information is missing. Use natural contractions and everyday words. Warmth comes from understanding the request and taking care with the answer. It does not require a catchphrase, repeated greeting, compliment, or follow-up offer.
+
+Let tone follow the moment. During frustration, corrections, failures, or serious distress, be calm and direct. Never use baby talk, dependency, guilt, worshipful praise, jokes about mistakes, or cheerful wording that hides failure. A preferred name or address is optional courtesy; the app does not assume “mister” or infer a household member's identity. Explicit standing instructions retain their normal checks and conflict behavior.
+
+Direct requests such as “Please just answer normally,” “Please use a warm tone,” “Call me Sam,” and “Stop calling me Sam” update a local shared-household preference before the next answer. Quoted examples and routine definitions are not setting changes. These settings survive restart and reset with **Delete all memory**. The internal `GET /api/personality` and `PUT /api/personality` endpoints expose `{style: "warm" | "plain", address: "" | string}` for testing; there is no new UI panel. A chosen address is optional, while an explicit `address_as` instruction still requires its normal prefix; an exact request to stop that address removes the matching instruction.
+
+Optional courtesy is added only to a short successful action confirmation, never to questions or reported failures. It is suppressed in plain/calm replies, after a use in the last seven assistant replies, or after a use in the same conversation within two minutes. This is a conservative implementation limit, not a requirement to use a title every eighth turn. Recent recognizable openings are supplied to Meta to reduce repetition. A bounded tool-free rewrite can repair decorative framing; the system never shortens an answer by truncating facts or replays tools merely to change the tone. Natural-language tone and emotion recognition remain imperfect, so dialogue review is still needed.
+
+Original writing examples below assume the stated facts and tool outcomes are confirmed; they do not add capabilities:
+
+| Situation | Example reply |
+| --- | --- |
+| A timer successfully started | “Your pasta timer is running for twelve minutes.” |
+| Another timer successfully started | “Tea timer set for three minutes.” |
+| A duration is missing | “How long should I set it for?” |
+| No home-light integration | “I can't control the lights yet.” |
+| A correction succeeded | “You're right. The timer is now five minutes.” |
+| A completed exchange | “You're welcome.” |
+
+The personality belongs to the language layer. The owner asked to leave the UI unchanged for this task. It does not select a TTS voice, add speech input/output, or change device permissions. Spoken delivery and wake-word integration remain separate work.
+
 ## Execution and boundaries
 
 - `src/meta.js` calls the **Meta Responses API**. Built-in `web_search` executes inside Meta; custom timer functions execute locally. Search events are reported from actual `web_search_call` output, and returned URL citations become safe clickable source links. A failed search or missing citation is not fabricated into a success or source.
@@ -46,7 +71,7 @@ The public repository contains code and synthetic tests only. `.env`, `data/`, a
 
 - Messages, selected conversation/memory context, rules, requested document excerpts, activated routine requests, relevant tool results, and the browser's time zone go to Meta. Deferred household extraction sends batches of direct user messages. Search queries are processed by Meta's search infrastructure. This prototype has no microphone or camera access.
 - Requests use `store:false` and encrypted reasoning replay. Standard mode excludes model training under Meta's terms; **this is not a claim of zero retention**. Separately enabled Meta ZDR is incompatible with built-in web search.
-- Exact conversation and memory records persist locally until deleted. Reloading restores the browser's session; **New conversation** starts another session while retaining household records. Active model history uses at most 12 whole turns with a size budget; older exact text remains searchable. **Delete this conversation** removes that transcript; **Delete all memory** clears conversations, household records, rules, documents, routines, queued learning, and response/trace caches. Individual deletion/correction invalidates dependent recall. No conversation text is written to the hash-only request ledger.
+- Exact conversation and memory records persist locally until deleted. Reloading restores the browser's session; **New conversation** starts another session while retaining household records. Active model history uses at most 12 whole turns with a size budget; older exact text remains searchable. **Delete this conversation** removes that transcript; **Delete all memory** clears conversations, household records, rules, documents, routines, queued learning, and response/trace caches, and restores the default warm style with no preferred address. Individual deletion/correction invalidates dependent recall. No conversation text is written to the hash-only request ledger.
 - `data/timers.json` stores labels, times, status, and operation IDs locally. Dismissed records remain for retry protection. `data/requests.jsonl` stores request-ID and payload hashes, not message text or keys; treat even these hashes as private. There is no automatic on-disk retention limit. To erase all local runtime data, stop the server and remove `data/`; this also removes timers and retry protection.
 - `data/memory.json`, `data/memory-learning.json`, and `data/routines.json` hold private local records. Clear-all memory deliberately preserves existing timers and hash-only retry receipts; stop the server and remove `data/` only to erase every runtime file including timers and retry protection.
 - Spotify connection uses PKCE and local tokens; retrieved Spotify metadata is rendered only in its panel and never sent to Meta or household learning. Disconnect removes tokens and transient Spotify data; clear-all memory preserves the separate connection. See [Spotify privacy](SPOTIFY.md#data-and-privacy).

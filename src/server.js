@@ -148,6 +148,15 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         const sessionId = url.searchParams.get('session_id'); if (sessionId) uuid(sessionId);
         json(200, inspect(sessionId)); return;
       }
+      if (path === '/api/personality' && req.method === 'GET') {
+        json(200, store.personality()); return;
+      }
+      if (path === '/api/personality' && req.method === 'PUT') {
+        if ([...sessions.values()].some(session => session.busy)) throw new AppError('Wait for the current reply before changing personality.', 409);
+        const settings = await store.setPersonality(await bodyOf(req));
+        clearCaches();
+        json(200, settings); return;
+      }
       if (req.method === 'GET' && path === '/api/trace') {
         const requestId = url.searchParams.get('request_id'); uuid(requestId);
         json(200, traces.get(requestId) ?? { status: 'pending', events: [] }); return;
@@ -298,13 +307,16 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
               clearCaches(); await learning.clear();
               trace.events = []; onTrace('invalidated', 'Removed earlier trace and cached replies after memory changed.');
               traces.set(body.request_id, trace);
+            } else if (response.personality_changed) {
+              clearCaches(); traces.set(body.request_id, trace);
+              onTrace('personality_context', 'Current style takes precedence; factual conversation and pending household learning are preserved.');
             }
             const presentIds = new Set([...store.snapshot().facts, ...memory.rules(), ...store.snapshot().documents, ...routineStore.list()].map(item => item.id));
             const memoryIds = [...new Set([...inheritedIds, ...(response.memory_ids || [])])].filter(id => presentIds.has(id));
             await store.recordMessage({ session_id: body.session_id, request_id: body.request_id, role: 'assistant', text: response.reply, turn: response.turn, memory_ids: memoryIds });
             trace.status = 'complete'; trace.total_ms = Math.round(performance.now() - started);
             onTrace('delivered', 'Delivered the checked reply. Household learning runs in the background.');
-            try { if (!response.forget_completed) await learning.enqueue(source); }
+            try { if (!response.forget_completed && !response.personality_changed) await learning.enqueue(source); }
             catch { onTrace('learning_error', 'Could not queue background learning. The reply and completed actions are preserved.'); }
             const { turn, memory_ids, forget_completed, ...visible } = response;
             return { status: 200, data: { ...visible, trace: structuredClone(trace) } };
@@ -326,7 +338,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
             return { status: safe.status, data: { error: visibleError, tool_events: events, sources: error.sources || [], ...(error.trace ? { trace: error.trace } : {}) } };
           } finally { session.busy = false; }
         });
-        json(result.status, { ...result.data, ...await state() });
+        json(result.status, { ...result.data, personality: store.personality(), ...await state() });
         return;
       }
       throw new AppError('Not found.', 404);

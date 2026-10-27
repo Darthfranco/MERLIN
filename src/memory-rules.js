@@ -190,6 +190,11 @@ export function checkTool(rules, { name, args = {}, message } = {}) {
   if (result.conflicts.length || result.violations.length) { result.ok = false; return result; }
   if (name !== 'create_timer') return result;
 
+  if (typeof message === 'string' && /\b(?:remind me|reminder|alarm)\b/iu.test(message)
+    && !/\b(?:timer|countdown|seconds?|secs?|minutes?|mins?|hours?|hrs?)\b/iu.test(message)) {
+    result.violations.push(violation(null, 'REMINDER_TIME_REQUIRED', 'When should I remind you? A default timer duration does not supply a reminder time.'));
+  }
+
   const knownArguments = new Set(['label', 'duration_seconds', 'duration', 'amount', 'unit']);
   if (Object.keys(args).some(key => !knownArguments.has(key))) {
     result.violations.push(violation(null, 'INVALID_TOOL_ARGUMENTS', 'Timer arguments contain an unsupported field.'));

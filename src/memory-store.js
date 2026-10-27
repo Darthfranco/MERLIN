@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { mkdir, open, readFile, rename, rm, chmod } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
+import { DEFAULT_PERSONALITY, normalizePersonality } from './personality.js';
 
 const COLLECTIONS = ['facts', 'rules', 'documents', 'conversations', 'events'];
 const FACT_KEYS = ['content', 'subject', 'kind', 'source_id', 'source_quote', 'reason', 'supersedes'];
@@ -136,11 +137,12 @@ function snippet(text, terms, maximum = 800) {
 }
 
 function initialState() {
-  return { version: 1, revision: 0, epoch: 0, facts: [], rules: [], documents: [], conversations: [], events: [] };
+  return { version: 1, revision: 0, epoch: 0, personality: { ...DEFAULT_PERSONALITY }, facts: [], rules: [], documents: [], conversations: [], events: [] };
 }
 
 function validateState(state) {
-  keys(state, ['version', 'revision', 'epoch', ...COLLECTIONS]);
+  keys(state, ['version', 'revision', 'epoch', 'personality', ...COLLECTIONS]);
+  if (state.personality !== undefined) normalizePersonality(state.personality);
   if (state.version !== 1 || !Number.isSafeInteger(state.revision) || state.revision < 0
     || !Number.isSafeInteger(state.epoch) || state.epoch < 0
     || COLLECTIONS.some(key => !Array.isArray(state[key]))) throw invalid('Unsupported memory file structure or version.');
@@ -259,12 +261,35 @@ export class MemoryStore {
         }
         await chmod(this.#filePath, 0o600);
       }
+      state.personality ??= { ...DEFAULT_PERSONALITY };
       this.#state = state;
       return this;
     });
   }
 
   get epoch() { this.#requireInitialized(); return this.#state.epoch; }
+
+  personality() { this.#requireInitialized(); return clone(this.#state.personality); }
+
+  async setPersonality(value, { source_id = 'manual', source_quote = '', removeAddress, expectedEpoch } = {}) {
+    const settings = normalizePersonality(value);
+    return this.#mutate(state => {
+      this.#checkEvidence(state, { source_id, source_quote });
+      const removed = removeAddress ? state.rules.filter(rule => rule.kind === 'address_as' && (removeAddress === '*'
+        || rule.value.normalize('NFKC').toLowerCase() === removeAddress.normalize('NFKC').toLowerCase())) : [];
+      if (removed.length) {
+        state.rules = state.rules.filter(rule => !removed.includes(rule));
+        this.#invalidate(state, new Set(removed.map(rule => rule.source_id)), new Set(removed.map(rule => rule.id)));
+      }
+      state.personality = settings;
+      // Preserve factual multi-step context. The current policy outranks old styling.
+      state.events.push({ id: randomUUID(), type: 'personality', message: 'Updated the shared household reply style.',
+        details: { source_id, source_quote, style: settings.style, has_address: !!settings.address }, created_at: now() });
+      state.events = state.events.slice(-100);
+      if (removed.length) state.epoch++;
+      return { result: settings };
+    }, expectedEpoch);
+  }
 
   snapshot() {
     this.#requireInitialized();
@@ -490,6 +515,7 @@ export class MemoryStore {
   async clearAll() {
     return this.#mutate(state => {
       COLLECTIONS.forEach(collection => { state[collection] = []; });
+      state.personality = { ...DEFAULT_PERSONALITY };
       state.epoch++;
       return { result: { epoch: state.epoch } };
     });
