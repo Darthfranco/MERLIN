@@ -2,6 +2,16 @@
 
 Last updated: **October 27, 2026**.
 
+## Separate Connection Center — October 27, 2026
+
+The owner-requested local browser Connection Center is implemented at `http://127.0.0.1:3002` with `npm run connections`. It has 45 researched connection routes across 15 categories, company/category/keyword search, alias matching, Easy / Medium / Hard household setup ratings, direct demo Connect for easy routes, and dedicated setup pages with prerequisites, steps, limitations, and primary references. Connected selections persist only as catalog IDs in this browser; individual disconnect and clear-all are available. All states are explicitly simulated. No credentials, account authorization, discovery, device actions, or Meta calls occur. Vendor availability and hardware support remain unverified in MERLIN; neither a final app platform nor Home Assistant as the universal backend is selected. See [run instructions and boundaries](CONNECTIONS.md).
+
+Verification: all **21 focused catalog/search, storage, and static-server tests** pass, and the current checkout's full **444-test run** passed. Browser checks covered aliases, combined filters, empty states, easy/guided connections, reload persistence, filter-preserving back navigation, disconnect, clear/cancel, cross-tab state/focus, invalid routes, and unavailable/corrupt storage. Desktop at 1365px and mobile at 390px passed; 320px geometry checks found no horizontal overflow. The isolated browser run captured no page/console errors or external requests. The design detector ran in degraded regex mode because optional parsers were unavailable and reported advisory palette/type/radius differences from the older utility interface; it is not a complete accessibility audit.
+
+The independent visual review identified one input-border contrast issue. It was corrected and the reviewer scored that sole fix resolved, with final disposition **ship** at the fix-list scope. Final desktop/mobile captures and the scoped verdict are recorded in `.impeccable/review/connections/`.
+
+Contribution: an isolated loopback Node static server, responsive directory and setup UI, researched catalog, original SVG icons, browser-only persistence, tests, and documentation. No runtime dependencies, external fonts, downloaded brand imagery, or live home adapters were added. Next useful step: owner review of the connection experience, then choose and implement a real adapter with scoped authorization, exact model/capability discovery, and truthful execution feedback.
+
 ## Robot screen-panel designs — October 27, 2026
 
 The owner requested seven simple 2D panels intended for the robot's existing pulled-out screens and clarified countdown timer only: timer, lights on/off, oven on/off, music, schedule set, routine set, and routine detail. The [panel gallery](../assets/merlin-character/viewer/panels/README.md) now provides all seven, interactive preview controls, state variants (including pending, disconnected, failed, paused, finished, and removed where relevant), editable labels, recurrence examples, and 900 × 1080 PNG export. Both model panels use the identical canvas painter at their exact 5:6 aspect ratio, retaining dismissal-fragment textures. The studio has a design picker, left/right target, query links, and `merlin.showPanel()` preview API. No Blender geometry or animation files changed.

@@ -8,6 +8,8 @@ Built for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Ce
 
 **Separate voice lab:** run `npm ci` and `npm run setup:voice` once, then `npm run voice` and open [localhost:3001](http://127.0.0.1:3001). Choose a Fenrir delivery and type, record, or enable local “MERLIN” wake detection. The lab supports automatic speech completion, interruption, and follow-ups. Idle audio stays local; active clips go to Meta for transcription, then local Kokoro reads the words back. See [voice setup and privacy](docs/VOICE.md).
 
+**Separate Connection Center:** run `npm run connections` and open [localhost:3002](http://127.0.0.1:3002). Search by company or device category, compare setup difficulty, and try guided connections. All connection states are simulated and stored only in this browser; this preview does not access accounts or hardware. See [Connection Center setup](docs/CONNECTIONS.md).
+
 ## Product vision
 
 MERLIN's language has a bright little-robot personality: cheerful old-fashioned courtesy, playful short replies with “in a jiffy” energy and “mister” by default, calm corrections, customizable forms of address, and a conversational plain mode. This changes the wording in the current text prototype; the UI and speech pipeline are unchanged. See [personality behavior and examples](docs/PROTOTYPE.md#merlins-personality).

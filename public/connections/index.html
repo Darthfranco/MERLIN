@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Explore and try MERLIN's smart-home connection setup in a local demo.">
+  <title>Connection center · MERLIN</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <!-- THESIS: A searchable directory makes existing home equipment easy to find and its setup understandable.
+  OWN-WORLD: Inherit MERLIN's system type, blue actions, dark ink, white surfaces, pale neutral canvas, flat borders and 6px controls.
+  STORY: Find a company or category, understand setup effort, try a simulated connection, and manage it later.
+  FIRST VIEWPORT: Compact brand/navigation, visible demo notice, page title, large search, category rail, and scan-friendly connection rows with ratings and actions.
+  FORM: Code-led extension of the established prototype; precise owner-requested search-and-setup surface, no identity replacement or concept seed.
+  FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance -->
+  <a class="skip-link" href="#main">Skip to connections</a>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="MERLIN connection center home"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="5" width="26" height="22" rx="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 13v5m12-5v5M13 22h6M16 2v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>MERLIN</span><span class="brand-divider"></span><span class="brand-section">Connections</span></a>
+    <nav class="view-nav" aria-label="Connection views">
+      <button id="browse-view" class="nav-button" aria-current="page">Browse</button>
+      <button id="connected-view" class="nav-button">Connected <span id="connected-count" class="nav-count">0</span></button>
+    </nav>
+  </header>
+  <div class="demo-banner"><span class="demo-label">Demo mode</span><p>Try the setup. Connections are simulated; no accounts or hardware are accessed.</p></div>
+  <main id="main" tabindex="-1">
+    <div id="storage-warning" class="storage-warning" role="status" hidden></div>
+    <section id="directory" aria-labelledby="page-title">
+      <div class="page-heading">
+        <div><h1 id="page-title">Connection center</h1><p id="page-subtitle">A little help bringing your home together. Find a company or choose a category.</p></div>
+        <button id="clear-connections" class="text-button" hidden>Clear demo connections</button>
+      </div>
+      <div id="clear-confirmation" class="clear-confirmation" hidden>
+        <p>Remove all simulated connections from this browser?</p>
+        <div><button id="confirm-clear" class="secondary danger">Clear all</button><button id="cancel-clear" class="secondary">Keep connections</button></div>
+      </div>
+      <div class="search-row">
+        <div class="search-field"><label class="visually-hidden" for="search">Search companies, devices, or categories</label><span id="search-icon" class="field-icon"></span><input id="search" type="search" placeholder="Search companies, devices, or categories" autocomplete="off" spellcheck="false"><button id="clear-search" class="icon-button" aria-label="Clear search" hidden></button></div>
+        <div class="filter-field"><label for="company">Company</label><select id="company"><option value="all">All companies</option></select></div>
+        <div class="filter-field"><label for="difficulty">Setup difficulty</label><select id="difficulty"><option value="all">Any difficulty</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></div>
+      </div>
+      <div class="directory-layout">
+        <aside class="categories" aria-label="Filter by category"><h2>Categories</h2><div id="category-list"></div><p class="sidebar-note">Ratings describe the setup for someone who already owns the device.</p></aside>
+        <div class="mobile-category filter-field"><label for="category-mobile">Category</label><select id="category-mobile"><option value="all">All categories</option></select></div>
+        <section class="results" aria-labelledby="results-heading">
+          <div class="results-heading"><h2 id="results-heading">All connections <span id="results-count"></span></h2><button id="reset-filters" class="text-button" hidden>Reset filters</button></div>
+          <p id="results-announcement" class="visually-hidden" role="status" aria-live="polite"></p>
+          <div class="list-head" aria-hidden="true"><span>Company &amp; connection</span><span>Setup</span><span></span></div>
+          <div id="connection-list"></div>
+          <div id="empty-state" class="empty-state" hidden><span id="empty-icon" class="empty-icon"></span><h3 id="empty-title"></h3><p id="empty-description"></p><button id="empty-action" class="secondary"></button></div>
+        </section>
+      </div>
+    </section>
+    <section id="setup" class="setup" aria-labelledby="setup-title" hidden></section>
+    <noscript><p class="storage-warning">Enable JavaScript to search the directory and try demo connections.</p></noscript>
+  </main>
+  <footer class="page-footer"><span>MERLIN · A helpful home, one connection at a time.</span><span>Local preview · No device controls</span></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

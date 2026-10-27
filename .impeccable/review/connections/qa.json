@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "45 routes and initial directory",
+    "alias/accent search, combined filters, no-match reset",
+    "easy connect, persistence, guided route, disconnect, filter-preserving back and top navigation",
+    "cross-tab sync/focus, clear cancel/confirm, invalid route fallback",
+    "corrupt storage recovery, no credentials, no external requests or browser errors",
+    "390px mobile browse/filter/connect/guide and 320px overflow checks",
+    "storage-disabled session remains usable"
+  ],
+  "issues": [],
+  "external": []
+}
