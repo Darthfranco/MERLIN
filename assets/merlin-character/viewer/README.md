@@ -10,6 +10,23 @@ node assets/merlin-character/viewer/serve.mjs
 
 Open **http://127.0.0.1:3310/viewer/**. Select an animation and choose **Play animation**. Use **Return to ready** to route back to the centered robot. The screen editor supports text, local PNG/JPEG/WebP images, and a live canvas example. Images remain in browser memory and are not uploaded or saved. Reloading restores the bundled synthetic content.
 
+## MERLIN panel designs
+
+The **MERLIN panels** controls place the reusable 2D designs onto either physical panel. The [2D panel gallery](panels/) offers countdown timer, lights, oven, music, schedule confirmation, routine confirmation, and routine detail designs. These use synthetic demonstration data: selecting a panel does not start a timer, control a device, play music, or save a schedule or routine. They do not install routine defaults. The existing assistant's persisted timers and routines remain separate.
+
+Both physical panels are **5:6 portrait** (4.75 × 5.70 scene units); the studio draws them at **900 × 1080**. The same canvas renderer supplies the gallery and each panel, including the dismissal fragments. The camera viewfinder has a different aspect ratio and is not a target for these designs.
+
+Open a design directly with a link such as [`?panel=timer&side=right`](./?panel=timer&side=right). Supported IDs are `timer`, `lights`, `oven`, `music`, `schedule`, `routine-saved`, and `routine`; sides are `right` and `left`. An invalid ID or side reports an error and leaves the original screen content intact. The initial design is selected before `merlinready` fires. With reduced motion enabled, use **Resume** to play the panel entry.
+
+After `merlinready`, the synchronous preview API merges supplied fields over the selected synthetic fixture and returns the painted state:
+
+```js
+const state = merlin.showPanel('timer', {}, 'right');
+merlin.showPanel('routine', {}, 'left');
+```
+
+`showPanel(type, data = {}, target = 'right')` validates the design, requires an object for `data`, and accepts only the two portrait panels. It changes the texture and requests the corresponding authored animation. It does not execute the represented action. The routine illustration is loaded once before editing becomes available, so a late image load cannot replace subsequent edits. If art is unavailable, the renderer's simple fallback remains usable. A later text edit, image upload, or panel selection replaces that surface's content. These preview states are static; production state updates must come from verified assistant/tool results and a real timer clock.
+
 ## Use the screens from JavaScript
 
 The page exposes `window.merlin` after loading and dispatches `merlinready`. Each surface has a stable ID: `right`, `left`, or `camera`. Code can draw text, charts, buttons, or other canvas content, or supply an image/video element. Textures update on the physical panel and on its fragments when dismissed.

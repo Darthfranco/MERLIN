@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f3f7fa">
+  <title>MERLIN · Screen panels</title>
+  <link rel="stylesheet" href="./panels.css">
+  <script type="module" src="./panels.js"></script>
+</head>
+<body>
+<!-- Direction: extend MERLIN's existing white panels and matte blue character.
+     Mode: Operate. One legible result per 5:6 panel, with minimal touch controls.
+     First view: seven actual screen designs on a quiet blue-grey work surface.
+     Signature: the same 2D canvas becomes the texture on either robot panel.
+     Finish: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance. -->
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="MERLIN panels home"><svg viewBox="0 0 38 30" aria-hidden="true"><rect width="38" height="30" rx="12" fill="currentColor"/><path d="M11 10v6m16-6v6m-12 5q4 3 8 0" fill="none" stroke="#b8ecff" stroke-width="3" stroke-linecap="round"/></svg>MERLIN <span>Panels</span></a>
+    <a class="studio-link" href="../">Open robot studio <span aria-hidden="true">↗</span></a>
+  </header>
+  <main>
+    <section id="collection" aria-labelledby="collection-title">
+      <div class="intro"><div><h1 id="collection-title">A little help, at a glance.</h1><p>Seven simple screens. Made for MERLIN.</p></div><p class="scope">Interactive design preview<br><span>Example data · devices are not connected</span></p></div>
+      <div class="collection" id="panel-grid"></div>
+    </section>
+    <section id="detail" hidden aria-labelledby="detail-title">
+      <button class="back" id="back" type="button"><span aria-hidden="true">←</span> All panels</button>
+      <div class="detail-layout">
+        <div class="panel-stage"><div class="screen-wrap"><canvas id="detail-canvas" width="900" height="1080" role="img"></canvas><div id="touch-controls" class="touch-controls"></div></div></div>
+        <div class="detail-info">
+          <h1 id="detail-title" tabindex="-1"></h1><p id="detail-description"></p>
+          <p class="preview-note">Try the controls on the panel. Everything here is a preview; no device or saved routine is changed.</p>
+          <div class="field"><label for="variant">Preview state</label><select id="variant"></select></div>
+          <div class="field" id="name-field"><label for="panel-name">Panel name</label><input id="panel-name" maxlength="70"></div>
+          <div class="field" id="timer-field" hidden><label for="timer-minutes">Timer length (minutes)</label><input id="timer-minutes" type="number" min="1" max="10080" value="5"></div>
+          <div class="field" id="repeat-field" hidden><label for="repeat">Frequency</label><select id="repeat"><option value="Every day">Every day</option><option value="Once · Oct 28">Once · Oct 28</option><option value="Weekdays">Weekdays</option></select></div>
+          <div class="detail-actions"><a id="on-robot" class="button primary" href="../?panel=timer&amp;side=right">See example on MERLIN</a><button id="download" class="button" type="button">Export PNG</button></div>
+          <div class="spec"><span>5:6 portrait</span><span>900 × 1080</span><span>Left or right panel</span></div>
+          <p id="art-note" hidden>Routine illustration generated with Meta Muse. <a href="./art/tea-time.json">Artwork source</a></p>
+          <p id="feedback" role="status"></p>
+        </div>
+      </div>
+    </section>
+    <noscript><p>Enable JavaScript to see the panel designs and interactive previews.</p></noscript>
+    <p id="load-error" role="status" hidden>Routine artwork is unavailable. A simple routine icon is shown instead.</p>
+  </main>
+  <footer class="site-footer"><span>Quiet screens. Helpful little robot.</span><span>Designed for the existing MERLIN model.</span></footer>
+</body>
+</html>

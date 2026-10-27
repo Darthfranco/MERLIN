@@ -17,7 +17,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 <main>
   <header class="page-header">
     <h1>MERLIN character studio</h1>
-    <a href="../merlin-states.blend" download>Download Blender file</a>
+    <nav class="header-links" aria-label="Character resources">
+      <a href="./panels/">Panel designs</a>
+      <a href="../merlin-states.blend" download>Download Blender file</a>
+    </nav>
   </header>
   <div class="studio">
     <section class="performance" aria-label="Character preview">
@@ -63,6 +66,17 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         </select>
         <button class="primary" type="submit" id="play" disabled>Play animation</button>
       </form>
+      <form id="panel-form">
+        <h2>MERLIN panels</h2>
+        <label for="panel-design">Panel design</label>
+        <select id="panel-design" disabled></select>
+        <label for="panel-side">Show on</label>
+        <select id="panel-side" disabled><option value="right">Right panel</option><option value="left">Left panel</option></select>
+        <button class="primary" type="submit" id="show-panel" disabled>Show panel</button>
+        <p class="help">Synthetic previews. These designs don’t control devices, play music, or save schedules and routines.</p>
+        <p id="panel-status" class="help" role="status"></p>
+        <a class="panel-gallery-link" href="./panels/">View all 2D designs</a>
+      </form>
       <form id="screen-form">
         <h2>Screen content</h2>
         <label for="screen-target">Screen</label>
@@ -82,7 +96,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       <details>
         <summary>Use the screens from code</summary>
         <p class="help">Each surface accepts a canvas, image, or video element. The content moves with the panel and its fragments.</p>
-        <pre><code>const screen = merlin.screens.right;
+        <pre><code>// Show a reusable 5:6 panel design.
+merlin.showPanel('timer', {}, 'right');
+
+const screen = merlin.screens.right;
 screen.draw((ctx, width, height) =&gt; {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, width, height);

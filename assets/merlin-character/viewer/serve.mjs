@@ -14,6 +14,7 @@ const server=createServer(async(req,res)=>{
     let path=decodeURIComponent(url.pathname);
     if(path==='/'){res.writeHead(302,{Location:'/viewer/'});res.end();return;}
     if(path==='/viewer/')path='/viewer/index.html';
+    if(path==='/viewer/panels/'||path==='/viewer/panels')path='/viewer/panels/index.html';
     const allowed=path.startsWith('/viewer/')||['/merlin-states.blend','/merlin-states.glb','/states.json','/merlin-interactions.glb','/interactions.json'].includes(path);
     const file=resolve(ROOT,'.'+path);
     if(!allowed||!file.startsWith(ROOT+sep)||(path.startsWith('/viewer/')&&!file.startsWith(resolve(ROOT,'viewer')+sep)))throw new Error('Not found');

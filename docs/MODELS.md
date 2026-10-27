@@ -14,6 +14,10 @@ Catalog/prices checked: **2026-10-26**. Voice implementation updated **2026-10-2
 
 An SDK with another provider's name does not by itself determine the model provider. Meta documents compatible API clients and the base URL `https://api.meta.ai/v1`; credentials belong on the trusted server or local runtime, never in a public repository or shipped client. [Meta API overview](https://dev.meta.ai/docs/overview)
 
+## Routine illustration authoring — October 27, 2026
+
+The owner requested simple cartoon routine images generated with Muse. Account access to standard **`muse-image-1.0`** and a live synthetic Tea time generation succeeded. The explicit authoring CLI in `scripts/generate-routine-art.mjs` uses the Responses API with `image_generation`, `store:false`, and web/image search and shell disabled. It never reads household routines, memory, or Spotify metadata. Private authoring defaults to ignored `local/`; synthetic public output requires `--public-demo`. The returned 1600 × 1600 PNG retains its exact prompt in metadata and a provenance/hash manifest. It supplies the panel demonstration, not an automatic runtime generation hook. See the [panel artwork notes](../assets/merlin-character/viewer/panels/README.md#artwork-for-any-routine), [official image API](https://dev.meta.ai/docs/image-generation), and [data commitments](https://dev.meta.ai/legal/commitments). Standard mode and `store:false` do not imply zero retention. No new runtime dependency or alternate provider was added.
+
 ## Catalog and pricing snapshot
 
 The founder provided these model names, capabilities, and prices. The official [Meta model catalog](https://dev.meta.ai/docs/models) confirms the hosted IDs and access distinctions below. Wonder and the hosted Spark versions have 1,048,576-token context windows. Wonder Full is a separate Muse Code subscription offering, not an API model unlocked by raising reasoning effort.
