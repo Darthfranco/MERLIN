@@ -1,0 +1,17 @@
+{
+  "checks": [
+    "real character loads without requesting microphone",
+    "local timer action returns to face with retained live timer",
+    "two independent real timer panels survive reply presentation",
+    "closing one panel preserves other and face conversation",
+    "disconnected oven stays unavailable without a setup flow",
+    "390px face, two retained panels and activity without horizontal overflow",
+    "real timer cancellation updates its status",
+    "synthetic connected Spotify fixture enables real control UI without setup",
+    "reduced motion changes to the correct static listening face"
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "overflow": false,
+  "scope": "Isolated intentional changes over committed baseline; providers scripted, timer persistence real; no microphone."
+}

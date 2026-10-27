@@ -17,6 +17,17 @@ export class MotionController {
     if(!this.states[state])throw new RangeError('Unknown MERLIN state: '+state);
     this.desired=state;this.resume();if(this.phase==='idle')this.route();return this;
   }
+  /** Conversation interrupts ambient choreography; the studio's normal routes stay unchanged. */
+  snap(state,{paused=false}={}){
+    if(!this.states[state])throw new RangeError('Unknown MERLIN state: '+state);
+    this.mixer.stopAllAction();this.retiring=[];this.active=null;
+    this.current=state;this.desired=state;this.arrival=state;this.phase='idle';
+    this.paused=paused;this.mixer.timeScale=1;
+    this.play(this.states[state].idle,true);
+    // Sample now, even with reduced motion, so a paused body can become a face.
+    this.mixer.update(0);this.mixer.timeScale=paused?0:1;
+    return this;
+  }
   route(){
     if(this.current===this.desired){this.phase='idle';this.play(this.states[this.current].idle,true);return;}
     const path=this.ancestors(this.desired);

@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-27T19:26:40.334Z",
+  "title": "Design System: MERLIN at home",
+  "extensions": {
+    "sources": [
+      "public/companion/index.html",
+      "public/companion/companion.css",
+      "public/companion/app.js",
+      "public/companion/orchestrator.js",
+      "docs/ORCHESTRATION.md"
+    ],
+    "colorMeta": {
+      "night": {
+        "role": "neutral",
+        "displayName": "Midnight page"
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Control surface"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Pale primary text"
+      },
+      "soft": {
+        "role": "neutral",
+        "displayName": "Muted supporting text"
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Blue-gray divider"
+      },
+      "cyan": {
+        "role": "primary",
+        "displayName": "Cyan emphasis"
+      },
+      "action": {
+        "role": "primary",
+        "displayName": "Pale cyan action"
+      },
+      "dark-ink": {
+        "role": "neutral",
+        "displayName": "Dark action text"
+      },
+      "control-hover": {
+        "role": "neutral",
+        "displayName": "Secondary hover"
+      },
+      "action-hover": {
+        "role": "primary",
+        "displayName": "Primary hover"
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "White action panel"
+      }
+    },
+    "typographyMeta": {
+      "body": {
+        "displayName": "Native controls",
+        "purpose": "System typography throughout the shell."
+      },
+      "reply": {
+        "displayName": "Assistant reply",
+        "purpose": "Centered current response, 68ch maximum; 19px on narrow layouts."
+      },
+      "wordmark": {
+        "displayName": "MERLIN wordmark",
+        "purpose": "Compact identity with a three-bar cyan mark."
+      },
+      "heading": {
+        "displayName": "Activity title",
+        "purpose": "At home title inside the expandable activity area."
+      },
+      "section": {
+        "displayName": "Section heading",
+        "purpose": "Timers, services, and current-request groups."
+      },
+      "status": {
+        "displayName": "State",
+        "purpose": "Compact presentation and microphone labels."
+      },
+      "support": {
+        "displayName": "Supporting text",
+        "purpose": "Preferences and helper labels."
+      },
+      "countdown": {
+        "displayName": "Activity countdown",
+        "purpose": "Tabular figures in timer rows; 24px on narrow layouts."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "shell",
+        "value": "none",
+        "purpose": "No animated control transitions; hover changes tone."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "CSS animation/transitions are removed; character runtime uses static face/body states and suppresses casual motion."
+      },
+      {
+        "name": "character",
+        "value": "authored state routes",
+        "purpose": "See docs/ORCHESTRATION.md and the character runtime for state priority and tunable route timing."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-stage",
+        "value": "min-width: 1500px"
+      },
+      {
+        "name": "compact",
+        "value": "max-width: 1000px"
+      },
+      {
+        "name": "narrow",
+        "value": "max-width: 720px"
+      }
+    ],
+    "interaction": {
+      "focus": "3px solid cyan, offset 3px",
+      "narrowTarget": "44px minimum height on buttons and disclosure summary",
+      "disabled": "opacity 0.55; cursor default"
+    },
+    "inheritedAssets": {
+      "character": "assets/merlin-character/viewer/character.js",
+      "clock": "assets/merlin-character/viewer/scene-clock.css",
+      "panels": "assets/merlin-character/viewer/panels/render.js"
+    },
+    "review": {
+      "verdict": "ship",
+      "scope": "Three scored visual fixes only",
+      "path": ".impeccable/review/companion/verdict.md"
+    },
+    "paletteNote": "Metadata describes implemented colors only; no synthesized tonal scale is introduced."
+  },
+  "components": [
+    {
+      "name": "Send",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary typed-request action.",
+      "html": "<button class=\"ds-send\">Send</button>",
+      "css": ".ds-send{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;min-height:44px;border:1px solid var(--line,#31475c);border-radius:10px;padding:10px 16px;cursor:pointer;background:var(--action,#b4e8fb);color:var(--dark-ink,#12334b);border-color:var(--action,#b4e8fb);font-weight:600}.ds-send:hover{background:var(--action-hover,#d0f1fd)}.ds-send:disabled{opacity:.55;cursor:default}.ds-send:focus-visible{outline:3px solid var(--cyan,#8bd9f2);outline-offset:3px}"
+    },
+    {
+      "name": "Secondary action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Ordinary explicit controls such as Close panel.",
+      "html": "<button class=\"ds-secondary\">Close panel</button>",
+      "css": ".ds-secondary{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;min-height:44px;border:1px solid var(--line,#31475c);border-radius:10px;padding:10px 16px;cursor:pointer;background:var(--surface,#101f34);color:var(--ink,#e2f5ff)}.ds-secondary:hover{background:var(--control-hover,#1d344a)}.ds-secondary:disabled{opacity:.55;cursor:default}.ds-secondary:focus-visible{outline:3px solid var(--cyan,#8bd9f2);outline-offset:3px}"
+    },
+    {
+      "name": "Request field",
+      "kind": "input",
+      "refersTo": "text-field",
+      "description": "Single-line typed request field.",
+      "html": "<label class=\"ds-field-label\" for=\"ds-message\">Ask MERLIN</label><input class=\"ds-field\" id=\"ds-message\" placeholder=\"Ask MERLIN something…\" maxlength=\"4000\">",
+      "css": ".ds-field-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.ds-field{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;width:100%;min-width:0;min-height:50px;background:var(--surface,#101f34);border:1px solid var(--line,#31475c);border-radius:10px;color:var(--ink,#e2f5ff);padding:14px 16px;caret-color:var(--cyan,#8bd9f2)}.ds-field::placeholder{color:var(--soft,#a9c5d8)}.ds-field:focus-visible{outline:3px solid var(--cyan,#8bd9f2);outline-offset:3px}"
+    },
+    {
+      "name": "Microphone toggle",
+      "kind": "button",
+      "description": "Explicit microphone control, shown in its initial off state.",
+      "html": "<button class=\"ds-microphone\" aria-pressed=\"false\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"9\" y=\"2\" width=\"6\" height=\"13\" rx=\"3\"/><path d=\"M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8\"/></svg><span>Enable microphone</span></button>",
+      "css": ".ds-microphone{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;min-height:44px;border:1px solid var(--line,#31475c);border-radius:10px;padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surface,#101f34);color:var(--ink,#e2f5ff)}.ds-microphone:hover{background:var(--control-hover,#1d344a)}.ds-microphone[aria-pressed=true]{background:var(--action,#b4e8fb);color:var(--dark-ink,#12334b)}.ds-microphone svg{width:20px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;flex-shrink:0}.ds-microphone span{font-size:13px}.ds-microphone:focus-visible{outline:3px solid var(--cyan,#8bd9f2);outline-offset:3px}"
+    },
+    {
+      "name": "Home wordmark",
+      "kind": "nav",
+      "description": "Compact home link with the actual three-bar identity detail.",
+      "html": "<a class=\"ds-wordmark\" href=\"/companion/\" aria-label=\"MERLIN home\">MERLIN<span class=\"ds-bars\" aria-hidden=\"true\"><i></i><i></i><i></i></span></a>",
+      "css": ".ds-wordmark{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;font-size:18px;font-weight:700;letter-spacing:.12em;text-decoration:none;display:inline-flex;gap:12px;align-items:center;color:var(--ink,#e2f5ff)}.ds-bars{display:flex;gap:3px;align-items:center}.ds-bars i{display:block;width:4px;height:13px;border-radius:2px;background:var(--cyan,#8bd9f2)}.ds-bars i:nth-child(2){height:21px}.ds-wordmark:focus-visible{outline:3px solid var(--cyan,#8bd9f2);outline-offset:3px}@media(max-width:720px){.ds-wordmark{font-size:15px;gap:8px}}"
+    },
+    {
+      "name": "Service row",
+      "kind": "custom",
+      "description": "Availability row opens the corresponding service presentation; it does not perform setup.",
+      "html": "<button class=\"ds-service\"><span>Oven</span><span>Not connected</span></button>",
+      "css": ".ds-service{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;width:100%;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:16px;border:0;border-radius:0;border-bottom:1px solid var(--line,#31475c);padding:16px 0;background:transparent;color:var(--ink,#e2f5ff);text-align:left;cursor:pointer}.ds-service span:last-child{color:var(--soft,#a9c5d8);font-size:12px}.ds-service:hover{background:var(--surface,#101f34)}.ds-service:focus-visible{outline:3px solid var(--cyan,#8bd9f2);outline-offset:3px}"
+    },
+    {
+      "name": "Independent panel controls",
+      "kind": "custom",
+      "description": "Side identity and explicit timer/close targets, separate from canvas artwork.",
+      "html": "<div class=\"ds-panel-controls\"><span>Left · timer</span><button aria-label=\"Cancel left timer: Timer\">Cancel timer</button><button aria-label=\"Close left panel\">Close panel</button></div>",
+      "css": ".ds-panel-controls{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--soft,#a9c5d8)}.ds-panel-controls span{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-panel-controls button{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;min-height:44px;border:1px solid var(--line,#31475c);border-radius:10px;padding:10px 16px;cursor:pointer;min-height:36px;font-size:11px;padding:6px 10px;background:var(--surface,#101f34);color:var(--ink,#e2f5ff)}.ds-panel-controls button:hover{background:var(--control-hover,#1d344a)}.ds-panel-controls button:focus-visible{outline:3px solid var(--cyan,#8bd9f2);outline-offset:3px}@media(max-width:720px){.ds-panel-controls{flex-wrap:wrap}.ds-panel-controls button{min-height:44px}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "MERLIN at home",
+    "overview": "This scoped reference captures the implemented companion surface and stylesheet. The rounded matte-blue character, luminous cyan face, midnight room, and white action panels carry its identity. Familiar native controls support the character without becoming the main attraction.",
+    "keyCharacteristics": [
+      "A large character presentation, with compact conversational text and controls.",
+      "Midnight surfaces, pale cyan emphasis, and white retained action panels.",
+      "Visible microphone state and textual service outcomes.",
+      "Independent left and right action content through face/body changes."
+    ],
+    "rules": [],
+    "dos": [
+      "Do preserve the accepted character proportions, matte blue materials, cyan lighting, and midnight scene.",
+      "Do retain independent panel identity and readable controls across face/body and responsive layouts.",
+      "Do keep microphone state explicit and typed readiness distinct from voice listening.",
+      "Do show actual availability and checked action results with text.",
+      "Do preserve visible focus, narrow-layout touch targets, and reduced-motion behavior."
+    ],
+    "donts": [
+      "Don't add account setup, pairing, or provider authorization fields to this surface.",
+      "Don't treat a panel animation or a simulated connection as proof that a device action succeeded.",
+      "Don't copy the older light utility palette over this scoped character surface."
+    ]
+  }
+}

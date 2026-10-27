@@ -2,6 +2,12 @@
 
 Catalog/prices checked: **2026-10-26**. Voice implementation updated **2026-10-27**. This records the founder's supplied catalog and initial preferences, cross-checked against the linked primary documentation. Prices are a dated planning snapshot in USD, not a spending authorization or guarantee of account access.
 
+## Combined local assistant — October 27, 2026
+
+The new `/companion/` surface on the assistant server connects standard Meta transcription to the existing standard Spark reasoning/memory/tool path, then speaks its checked reply with local Fenrir. It reuses the lab's local wake/VAD and quiet windows. The separate voice lab still echoes. Voice channel removes and rejects Spotify tools, including routine expansion; typed Spotify remains unchanged. Background learning retains the existing standard-Meta boundary. No new provider/model or Contributor variant was introduced. Completed-timer announcements use validated local timer records and local TTS without a model call. See [orchestration](ORCHESTRATION.md).
+
+A real synthetic isolated check transcribed “Set a ninety second laboratory timer,” created/persisted a 90-second timer, and synthesized the assistant's distinct reply. Individual measurements: ASR 1.286 s; assistant 3.499 s with two foreground model calls; warm reply synthesis 7.601 s; generated reply audio 4.885 s. Initial synthetic-input synthesis loaded the model in 27.489 s; total check 39.950 s. These observations are not latency promises. No microphone, household store, Spotify, or physical device was used; temporary storage was deleted.
+
 ## Selected direction and open choices
 
 - **Selected direction:** build MERLIN around Meta AI capabilities for the Meta hackathon.

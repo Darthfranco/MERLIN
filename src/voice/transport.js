@@ -1,8 +1,8 @@
 import { WebSocketServer, WebSocket } from 'ws';
-import { AppError, objectArgs } from '../errors.js';
+import { AppError, objectArgs, uuid } from '../errors.js';
 import { VoiceSession } from './session.js';
 
-export function attachVoiceSocket({ server, listener, meta, tts, isBusy = () => false }) {
+export function attachVoiceSocket({ server, listener, meta, tts, respond, timerAlert, isBusy = () => false }) {
   const wss = new WebSocketServer({ noServer: true, maxPayload: 16_000, perMessageDeflate: false });
   const sessions = new Map();
   const reject = (socket, code) => { socket.end(`HTTP/1.1 ${code}\r\nConnection: close\r\nContent-Length: 0\r\n\r\n`); };
@@ -27,11 +27,13 @@ export function attachVoiceSocket({ server, listener, meta, tts, isBusy = () => 
     let chain = Promise.resolve();
     let controlWindow = performance.now();
     let controlCount = 0;
+    const announcedTimers = new Set();
+    let alertPending = false;
     const connectedAt = performance.now();
     const send = value => {
       if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(value));
     };
-    const session = new VoiceSession({ listener, meta, tts, send,
+    const session = new VoiceSession({ listener, meta, tts, send, respond,
       sendAudio: audio => {
         if (socket.readyState === WebSocket.OPEN) socket.send(audio, { binary: true });
       },
@@ -81,7 +83,7 @@ export function attachVoiceSocket({ server, listener, meta, tts, isBusy = () => 
         try { message = JSON.parse(data.toString('utf8')); } catch { throw new AppError('Invalid voice control.'); }
         if (!message || typeof message.type !== 'string') throw new AppError('Invalid voice control.');
         if (message.type === 'start') {
-          objectArgs(message, ['type', 'delivery', 'speed']);
+          objectArgs(message, ['type', 'delivery', 'speed', ...(respond ? ['sessionId', 'timeZone'] : [])]);
           if (started) throw new AppError('Voice session was already started.');
           started = true;
           void session.start(message).then(() => { if (!session.closed) ready = true; }).catch(fail);
@@ -89,6 +91,20 @@ export function attachVoiceSocket({ server, listener, meta, tts, isBusy = () => 
           objectArgs(message, ['type']); cleanup(); socket.close(1000, 'Microphone off');
         } else if (message.type === 'sleep') {
           objectArgs(message, ['type']); audioEpoch += 1; session.sleep();
+        } else if (message.type === 'interrupt') {
+          objectArgs(message, ['type']); audioEpoch += 1; session.interrupt();
+        } else if (message.type === 'timer_alert' && timerAlert) {
+          objectArgs(message, ['type', 'timerId']); uuid(message.timerId);
+          if (!ready || alertPending || announcedTimers.has(message.timerId) || announcedTimers.size >= 256 || !['wake', 'followup'].includes(session.state)) return;
+          alertPending = true;
+          const revision = session.revision;
+          void Promise.resolve().then(() => timerAlert(message.timerId)).then(receipt => {
+            if (session.closed || session.revision !== revision) return;
+            if (session.announce(receipt?.reply, receipt?.presentation)) announcedTimers.add(message.timerId);
+          }).catch(error => {
+            if (!session.closed && session.revision === revision) send({ type: 'error', revision, fatal: false,
+              message: error instanceof AppError ? error.message : 'The timer announcement is unavailable.' });
+          }).finally(() => { alertPending = false; });
         } else if (message.type === 'configure') {
           objectArgs(message, ['type', 'delivery', 'speed']); session.configure(message);
         } else if (message.type === 'playback') {

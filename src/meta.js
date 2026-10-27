@@ -1,5 +1,6 @@
 import { AppError } from './errors.js';
 import { MAX_SEARCH_CALLS, MODEL_TIMEOUT_MS } from './limits.js';
+import { checkCancelled } from './cancellation.js';
 
 export class MetaClient {
   constructor({ apiKey = '', model = 'muse-spark-1.3', fetchImpl = fetch } = {}) {
@@ -13,7 +14,8 @@ export class MetaClient {
 
   get configured() { return Boolean(this.apiKey); }
 
-  async request(path, body) {
+  async request(path, body, { signal } = {}) {
+    checkCancelled(signal);
     if (!this.configured) throw new AppError('Add META_API_KEY to .env and restart the server to connect Meta.', 503);
     let response;
     try {
@@ -21,12 +23,14 @@ export class MetaClient {
         method: body ? 'POST' : 'GET',
         headers: { Authorization: `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' },
         ...(body ? { body: JSON.stringify(body) } : {}),
-        signal: AbortSignal.timeout(MODEL_TIMEOUT_MS),
+        signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(MODEL_TIMEOUT_MS)]) : AbortSignal.timeout(MODEL_TIMEOUT_MS),
         redirect: 'error',
       });
     } catch {
+      checkCancelled(signal);
       throw new AppError('Meta could not be reached or timed out. Check the connection and the tool results before submitting again.', 502);
     }
+    checkCancelled(signal);
     if (!response.ok) {
       const detail = response.status === 401 || response.status === 403
         ? 'Check your API key and model access.'
@@ -39,7 +43,7 @@ export class MetaClient {
     catch { throw new AppError('Meta returned an unreadable response.', 502); }
   }
 
-  async respond(input, tools, instructions, { maxSearchCalls = MAX_SEARCH_CALLS, onUsage, effort = 'low' } = {}) {
+  async respond(input, tools, instructions, { maxSearchCalls = MAX_SEARCH_CALLS, onUsage, effort = 'low', signal } = {}) {
     const response = await this.request('responses', {
       model: this.model, input, instructions, tools,
       store: false,
@@ -49,7 +53,8 @@ export class MetaClient {
       max_tool_calls: maxSearchCalls,
       max_output_tokens: 8192,
       reasoning: { effort },
-    });
+    }, { signal });
+    checkCancelled(signal);
     if (response.status !== 'completed' || !Array.isArray(response.output)) {
       throw new AppError('Meta did not finish its response. No partial function calls were executed.', 502);
     }

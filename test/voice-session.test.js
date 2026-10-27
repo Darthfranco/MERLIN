@@ -11,7 +11,7 @@ function deferred() {
 
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
-function harness(t, { limits = {}, configured = true, startPromise } = {}) {
+function harness(t, { limits = {}, configured = true, startPromise, respond } = {}) {
   let clock = 0, sample = 0;
   const events = [], sent = [], audio = [], uploads = [], synthesis = [], listenerCalls = [];
   const transcripts = [], voices = [];
@@ -41,7 +41,7 @@ function harness(t, { limits = {}, configured = true, startPromise } = {}) {
       return await (voices.shift() ?? Buffer.alloc(48044));
     },
   };
-  const session = new VoiceSession({ listener, meta, tts, send: value => sent.push(value), sendAudio: value => audio.push(value), now: () => clock, limits });
+  const session = new VoiceSession({ listener, meta, tts, respond, send: value => sent.push(value), sendAudio: value => audio.push(value), now: () => clock, limits });
   t.after(() => session.close());
   const h = {
     session, listener, sent, audio, uploads, synthesis, listenerCalls, transcripts, voices,
@@ -637,4 +637,200 @@ test('unconfigured Meta does not open the microphone listener', async t => {
   await assert.rejects(h.session.start(), error => error.status === 503);
   assert.equal(h.listener.starts, 0);
   assert.equal(h.uploads.length, 0);
+});
+
+const assistantContext = { sessionId: '12345678-1234-1234-1234-123456789abc', timeZone: 'America/New_York' };
+
+test('assistant voice validates context before starting and standby never invokes the responder', async t => {
+  const calls = [], h = harness(t, { respond: (...args) => calls.push(args) });
+  await assert.rejects(h.session.start(), /identifier/);
+  await assert.rejects(h.session.start({ ...assistantContext, timeZone: 'invalid' }), /time zone/);
+  assert.equal(h.listener.starts, 0);
+  await h.session.start(assistantContext);
+  await h.speech();
+  assert.equal(calls.length, 0);
+  assert.equal(h.uploads.length, 0);
+});
+
+test('assistant voice passes one exact transcript and speaks only the checked response with revision-tagged progress', async t => {
+  const calls = [], h = harness(t, { respond: async (text, context) => {
+    calls.push({ text, ...context });
+    context.onProgress({ stage: 'action', domain: 'timer' });
+    return { reply: 'Your tea timer is set.', tool_events: [{ tool: 'create_timer', status: 'completed' }] };
+  } });
+  h.transcripts.push('Merlin, start my tea timer.');
+  await h.session.start(assistantContext); await h.wakeAndSpeak(); await h.session.work;
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].text, 'start my tea timer.');
+  assert.equal(calls[0].sessionId, assistantContext.sessionId);
+  assert.equal(calls[0].timeZone, assistantContext.timeZone);
+  assert.match(calls[0].requestId, /^[a-f0-9-]{36}$/);
+  assert.equal(h.synthesis[0].text, 'Your tea timer is set.');
+  const events = h.sent.filter(event => ['transcript', 'progress', 'response'].includes(event.type));
+  assert.deepEqual(events.map(event => event.type), ['transcript', 'progress', 'response']);
+  assert.ok(events.every(event => event.revision === h.session.revision && event.requestId === calls[0].requestId));
+  assert.equal(events.at(-1).response.tool_events[0].status, 'completed');
+});
+
+test('assistant interruption after execution begins never replays prior command audio or stale progress and response', async t => {
+  const pending = deferred(), calls = [];
+  const h = harness(t, { respond: async (text, context) => {
+    calls.push({ text, ...context });
+    return calls.length === 1 ? await pending.promise : { reply: 'Here is the next answer.' };
+  } });
+  h.transcripts.push('Merlin, start a timer.', 'How many timers are running?');
+  await h.session.start(assistantContext); await h.wakeAndSpeak(); await flush();
+  const oldWork = h.session.work;
+  assert.equal(h.session.state, 'processing');
+  assert.equal(h.session.pendingPcm, null);
+  await h.speech({ value: 47 });
+  await h.session.work;
+  assert.equal(calls[0].signal.aborted, true);
+  calls[0].onProgress({ stage: 'PRIVATE STALE PROGRESS' });
+  pending.resolve({ reply: 'PRIVATE STALE RESPONSE' }); await oldWork;
+  assert.equal(calls.length, 2);
+  assert.notEqual(calls[0].requestId, calls[1].requestId);
+  for (let offset = 44; offset < h.uploads[1].wav.length; offset += 2) assert.equal(h.uploads[1].wav.readInt16LE(offset), 47);
+  assert.equal(JSON.stringify(h.sent).includes('PRIVATE'), false);
+  assert.deepEqual(h.synthesis.map(item => item.text), ['Here is the next answer.']);
+});
+
+test('assistant interruption while synthesizing starts a new turn instead of replaying an executed request', async t => {
+  const pending = deferred(), calls = [];
+  const h = harness(t, { respond: async text => { calls.push(text); return { reply: `Answered: ${text}` }; } });
+  h.transcripts.push('Merlin, set a timer.', 'Cancel that timer.');
+  h.voices.push(pending.promise);
+  await h.session.start(assistantContext); await h.wakeAndSpeak(); await flush();
+  const oldWork = h.session.work;
+  assert.equal(h.session.state, 'generating');
+  await h.speech({ value: 29 }); await h.session.work;
+  pending.resolve(Buffer.alloc(48044)); await oldWork;
+  assert.deepEqual(calls, ['set a timer.', 'Cancel that timer.']);
+  for (let offset = 44; offset < h.uploads[1].wav.length; offset += 2) assert.equal(h.uploads[1].wav.readInt16LE(offset), 29);
+  assert.equal(h.synthesis[0].signal.aborted, true);
+  assert.equal(h.audio.length, 1);
+});
+
+test('assistant continuation during transcription still combines unfinished audio before any execution', async t => {
+  const pending = deferred(), calls = [];
+  const h = harness(t, { respond: async text => { calls.push(text); return { reply: 'Done.' }; } });
+  h.transcripts.push(pending.promise, 'Merlin, set a five minute timer.');
+  await h.session.start(assistantContext); await h.wakeAndSpeak();
+  const oldWork = h.session.work;
+  await h.speech({ value: 7 }); await h.session.work;
+  pending.resolve({ text: 'Merlin, set a five' }); await oldWork;
+  assert.deepEqual(calls, ['set a five minute timer.']);
+  assert.equal(h.uploads[1].wav.readInt16LE(44), 2);
+  assert.equal(h.uploads[0].signal.aborted, true);
+});
+
+test('explicit voice interruption cancels assistant work and preserves the bounded follow-up window', async t => {
+  const pending = deferred(), calls = [];
+  const h = harness(t, { respond: async (_text, context) => { calls.push(context); return await pending.promise; } });
+  await h.session.start(assistantContext); await h.wakeAndSpeak(); await flush();
+  const oldWork = h.session.work;
+  h.session.interrupt();
+  assert.equal(calls[0].signal.aborted, true);
+  assert.equal(h.session.state, 'followup');
+  assert.equal(h.session.deadline, 15_000 - VOICE_SESSION_LIMITS.onsetGraceMs);
+  pending.resolve({ reply: 'Late reply.' }); await oldWork;
+  assert.equal(h.synthesis.length, 0);
+  assert.equal(h.sent.some(event => event.type === 'response'), false);
+});
+
+test('long assistant answers remain on screen without silently changing their checked spoken wording', async t => {
+  const reply = 'A'.repeat(2001);
+  const h = harness(t, { respond: async () => ({ reply }) });
+  await h.session.start(assistantContext); await h.wakeAndSpeak(); await h.session.work;
+  assert.equal(h.sent.find(event => event.type === 'response').response.reply, reply);
+  assert.equal(h.synthesis.length, 0);
+  assert.equal(h.session.state, 'followup');
+  assert.match(h.sent.find(event => event.type === 'error').message, /on screen/);
+});
+
+test('timer notification speaks a checked body-mode receipt without transcription, reasoning, or follow-up activation', async t => {
+  const calls = [], h = harness(t, { respond: (...args) => calls.push(args) });
+  await h.session.start(assistantContext);
+  const panel = { type: 'timer', id: 'synthetic', status: 'completed' };
+  assert.equal(h.session.announce('Your tea timer is finished.', [panel]), true);
+  await h.session.work;
+  assert.equal(h.uploads.length, 0);
+  assert.equal(calls.length, 0);
+  assert.equal(h.synthesis[0].text, 'Your tea timer is finished.');
+  assert.equal(h.sent.find(event => event.type === 'notification').response.presentation[0], panel);
+  assert.equal(h.sent.find(event => event.type === 'audio').presentationMode, 'body');
+  assert.equal(h.sent.find(event => event.type === 'interrupt').reason, 'notification');
+  h.finishPlayback();
+  assert.equal(h.session.state, 'wake');
+  await h.speech();
+  assert.equal(h.uploads.length, 0);
+});
+
+test('timer notification pauses the existing follow-up quiet budget without restarting it', async t => {
+  const h = harness(t);
+  h.transcripts.push('Merlin.');
+  await h.session.start(); await h.wakeOnly(); await h.session.work;
+  h.now(2000);
+  assert.equal(h.session.announce('Your timer is finished.', []), true);
+  await h.session.work;
+  h.now(5000); h.finishPlayback();
+  assert.equal(h.session.state, 'followup');
+  assert.equal(h.session.deadline + VOICE_SESSION_LIMITS.onsetGraceMs, 13_000);
+  h.now(12_999); h.session.tick(); assert.equal(h.session.state, 'followup');
+  h.now(13_000); h.session.tick(); assert.equal(h.session.state, 'wake');
+  assert.equal(h.uploads.length, 1, 'the alert made no new transcription request');
+});
+
+test('timer notifications defer silently during active listening or assistant processing', async t => {
+  const pending = deferred(), h = harness(t, { respond: async () => await pending.promise });
+  await h.session.start(assistantContext); await h.wakeStart();
+  assert.equal(h.session.announce('Your timer is finished.', []), false);
+  await h.frame(8000, (_from, end) => [{ type: 'speech_end', sample: end, endSample: end }]); await flush();
+  assert.equal(h.session.state, 'processing');
+  assert.equal(h.session.announce('Your timer is finished.', []), false);
+  assert.equal(h.sent.some(event => event.type === 'notification'), false);
+  pending.resolve({ reply: 'Current reply.' }); await h.session.work;
+  assert.equal(h.synthesis.length, 1);
+});
+
+test('unrelated speech interrupts a wake-origin timer alert but never becomes a cloud utterance', async t => {
+  const pending = deferred(), h = harness(t);
+  h.voices.push(pending.promise);
+  await h.session.start(); h.session.announce('Your timer is finished.', []);
+  const oldWork = h.session.work;
+  await h.speech();
+  assert.equal(h.session.state, 'wake');
+  assert.equal(h.synthesis[0].signal.aborted, true);
+  assert.equal(h.listenerCalls[0].keywordEnabled, true);
+  assert.equal(h.uploads.length, 0);
+  pending.resolve(Buffer.alloc(48044)); await oldWork;
+  assert.equal(h.audio.length, 0);
+});
+
+test('MERLIN can interrupt a timer alert into a fresh directed request without losing wake audio', async t => {
+  const pending = deferred(), h = harness(t);
+  h.voices.push(pending.promise);
+  h.transcripts.push('Merlin, hello.');
+  await h.session.start(); h.session.announce('Your timer is finished.', []);
+  const oldWork = h.session.work;
+  await h.wakeAndSpeak(); await h.session.work;
+  pending.resolve(Buffer.alloc(48044)); await oldWork;
+  assert.equal(h.uploads.length, 1);
+  assert.equal(h.synthesis[1].text, 'hello.');
+  assert.equal(h.audio.length, 1);
+  assert.equal(h.session.state, 'speaking');
+});
+
+test('explicit Stop and close cancel pending timer speech without permitting a late clip or ambient follow-up', async t => {
+  for (const close of [false, true]) {
+    const pending = deferred(), h = harness(t); h.voices.push(pending.promise);
+    await h.session.start(); h.session.announce('Your timer is finished.', []);
+    const oldWork = h.session.work;
+    if (close) h.session.close(); else h.session.interrupt();
+    assert.equal(h.synthesis[0].signal.aborted, true);
+    pending.resolve(Buffer.alloc(48044)); await oldWork;
+    assert.equal(h.audio.length, 0);
+    assert.equal(h.session.state, close ? 'off' : 'wake');
+    assert.equal(h.uploads.length, 0);
+  }
 });

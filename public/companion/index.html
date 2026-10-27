@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#081326"><title>MERLIN · At home</title>
+  <link rel="icon" href="/companion/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/companion/companion.css">
+  <link rel="stylesheet" href="/character/viewer/scene-clock.css">
+  <script type="importmap">{"imports":{"three":"/character/viewer/vendor/three/build/three.module.min.js","three/addons/":"/character/viewer/vendor/three/examples/jsm/"}}</script>
+  <script type="module" src="/companion/app.js"></script>
+</head>
+<body>
+  <header class="masthead"><a class="wordmark" href="/companion/" aria-label="MERLIN home">MERLIN<span class="brand-bars" aria-hidden="true"><i></i><i></i><i></i></span></a><span id="connection" role="status">Finding your home assistant…</span><button id="activity-toggle" aria-expanded="false" aria-controls="activity">Activity &amp; services</button></header>
+  <main>
+    <section class="presence" aria-label="MERLIN home assistant">
+      <div id="stage" class="stage"><div id="scene-frame" class="scene-frame"><canvas id="scene" aria-label="Animated MERLIN character"></canvas><div id="loading" role="status">MERLIN is getting ready…</div><div id="scene-error" hidden><p>The character couldn’t load. You can still talk or type below.</p><button id="reload-scene">Reload character</button></div></div><section id="pinned-left" class="pinned-action" hidden aria-label="Left action panel"><canvas id="canvas-left" width="900" height="1080" aria-hidden="true"></canvas><p id="description-left" class="sr-only"></p></section><section id="pinned-right" class="pinned-action" hidden aria-label="Right action panel"><canvas id="canvas-right" width="900" height="1080" aria-hidden="true"></canvas><p id="description-right" class="sr-only"></p></section></div>
+      <div class="conversation"><div id="action-controls" class="action-controls"></div>
+        <div class="state-line"><span id="phase" role="status">Here when you need me</span><span id="mic-state">Microphone off</span><button id="stop" hidden>Stop reply</button><button id="close-panel" hidden>Back to MERLIN</button></div>
+        <p id="heard" class="heard" hidden></p><p id="reply" class="reply" aria-live="polite">A little help, right here.</p>
+        <ul id="sources" class="sources" aria-label="Answer sources" hidden></ul>
+        <p id="notice" role="status" hidden></p>
+        <form id="chat-form"><label class="sr-only" for="message">Ask MERLIN</label><input id="message" name="message" placeholder="Ask MERLIN something…" maxlength="4000" autocomplete="off" required><button id="send" type="submit">Send</button><button id="microphone" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></svg><span>Enable microphone</span></button></form>
+        <div class="preferences"><label><input id="read-aloud" type="checkbox"> Read typed replies aloud</label><span id="voice-help">When enabled, say “MERLIN.” Standby audio stays local.</span></div>
+      </div>
+    </section>
+    <aside id="activity" class="activity" hidden aria-label="Activity and services">
+      <div class="section-title"><h1>At home</h1><button id="activity-close" aria-label="Close activity and services">Close</button></div>
+      <section aria-labelledby="timers-title"><h2 id="timers-title">Timers <span id="timer-count"></span></h2><p id="timers-empty">No timers running. Just ask me to start one.</p><div id="timers"></div></section>
+      <section aria-labelledby="services-title"><h2 id="services-title">Your services</h2><p class="section-note">Connections are managed in your companion app.</p>
+        <button class="service" data-service="music"><span>Spotify</span><span id="spotify-state">Checking…</span></button>
+        <div id="spotify-controls" hidden><p id="track">Nothing playing</p><p id="artist" class="section-note"></p><label for="spotify-device">Playback device</label><select id="spotify-device"><option value="">Choose a device</option></select><div class="playback-controls"><button id="previous">Previous</button><button id="play-pause">Play</button><button id="next">Next</button></div><button id="refresh-music">Refresh playback</button><p id="music-notice" role="status"></p><p class="section-note">Use typing or these controls for Spotify.</p></div>
+        <button class="service" data-service="lights"><span>Lights</span><span>Not connected</span></button>
+        <button class="service" data-service="oven"><span>Oven</span><span>Not connected</span></button>
+        <button class="service" data-service="schedule"><span>Schedules</span><span>Not available yet</span></button>
+      </section>
+      <section aria-labelledby="recent-title"><h2 id="recent-title">This request</h2><p id="actions-empty">Completed actions will appear here.</p><ul id="actions"></ul></section>
+      <details><summary>Privacy &amp; testing</summary><p>Direct conversations use Meta and your saved household memory. Audio is sent for transcription only after activation. Speech plays through local Fenrir.</p><p><a href="/" target="_blank" rel="noopener">Open memory and testing controls</a></p><button id="clear-conversation">Clear this conversation</button></details>
+    </aside>
+  </main>
+  <audio id="voice-audio" controls hidden></audio><audio id="typed-audio" controls hidden></audio>
+</body>
+</html>

@@ -22,6 +22,10 @@ The owner requested typed input → Meta understanding and tool selection → ex
 
 The owner requested a separate, simple local browser interface to type words or speak, transcribe speech using a Meta model, and hear those same words spoken by the linked Kokoro model specifically in **Fenrir**. This authorizes the voice test surface and its intentional microphone capture. It is an echo/transcription development lab, not a request to route speech into assistant reasoning, household memory, routines, or Spotify. Implementation uses optional local wake sessions or push-to-talk, standard `muse-voice-transcribe-1.0`, and local official Kokoro-82M with `am_fenrir`. The existing assistant UI remains separate. Production voice hosting and integration into the full assistant remain open. See [voice lab](VOICE.md).
 
+## Combined character and assistant confirmed October 27, 2026
+
+The owner requested planning first, then joining the 3D character to the existing assistant, memory, tools, and voice. Full-face mode is the main listening/talking presentation; starting an action uses body mode. The owner clarified that action panels stay visible alongside the face, and a timer finishing can use a body-mode spoken alert. Retain independent left and right panels, support two screens at once, and consume direct left/right-to-face routes as their animations are added. Sweeping, walking/whistling, and ball tossing are waiting activities. Background learning remains quiet. Service connection setup belongs to a different app; the home surface only shows truthful availability, activity, and controls. No live light/oven provider or production platform was chosen. The local implementation and transition plan are in [ORCHESTRATION.md](ORCHESTRATION.md).
+
 ## Ten feature areas
 
 **Compound requests confirmed October 26, 2026:** the owner requested multiple tool operations in one message: multiple searches, multiple simultaneous timers, and especially timer creation plus web search in the same ask. The assistant should complete the requested parts together rather than requiring separate messages. Search content remains data, not permission to perform actions the user did not request.
@@ -68,7 +72,7 @@ The screen must sit **flush within the head**, without a protruding face panel. 
 
 **Scene clock requested October 27, 2026:** add a large time-and-date overlay inside the 3D scene, with five designated resting positions: the four corners and upper middle. Move smoothly and quickly when character animation or panels would cover it; account for the full activity path, including walking back the other way, rather than reacting only to the current pose. Hide the clock throughout full-face mode. This is a presentation request for the character preview; it does not select a device platform or schedule assistant behavior.
 
-The character and room work does not select an application framework, establish a complete assistant interface, or define an MVP. Character integration and its listening, processing, speaking, and automatic idle-state behavior remain TBD.
+The character and room work does not select an application framework, establish a complete assistant interface, or define an MVP. The later combined-character request above authorizes local listening, processing, speaking, action-panel and automatic idle orchestration; final production hardware and deployment remain TBD.
 
 ### 3. Background memory and personalization
 
@@ -158,7 +162,7 @@ Validate device targets and parameters and respect actual device capabilities. K
 
 - Home display/hardware, companion-app platforms, actual device inventory, and other service providers, including calendar, cameras, doorbell, and music beyond the selected local Spotify integration.
 - App framework, device protocols/home hub, hosting, storage, authentication, and local/cloud split.
-- Production wake accuracy, conversation timing tuning, assistant voice integration, and final voice deployment/model routing.
+- Production wake accuracy, conversation timing tuning, production assistant voice integration, and final voice deployment/model routing.
 - Household permission management, production memory retention/storage, and audio/image policies beyond the confirmed local retention and privacy decisions.
 - Additional rule handlers and ambiguous wording/channel handling; deterministic compilation, semantic guidance, and deferred conflict clarification are confirmed.
 - Location access, ETA source, remote-access implementation, and specific device-supported controls.

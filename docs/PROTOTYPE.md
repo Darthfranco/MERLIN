@@ -4,7 +4,7 @@ This is the local application slice requested by the owner on October 26, 2026: 
 
 ## Run locally
 
-Requires **Node.js 22.16+**. No third-party runtime or test packages are required.
+Requires **Node.js 22.16+**. Run `npm ci` for the pinned WebSocket dependency shared with the companion voice transport. Tests use Node’s built-in runner.
 
 ```sh
 cp .env.example .env
@@ -28,7 +28,7 @@ Try:
 
 One message can include multiple searches, multiple timers, or both together. The model can return a batch of timer calls, and MERLIN executes each validated call and returns all results before the next model round. Individual tool failures are reported alongside successful results.
 
-Timers show running, finished, and cancelled states with local-time deadlines and an explicit time zone. Cancel and Dismiss buttons work directly; dismissal hides a finished/cancelled timer. Keep the server running and page open for visible completion. There is no alarm sound, background browser notification, wake lock, or delivery while the machine sleeps. Overdue timers reconcile when the server resumes/restarts.
+Timers show running, finished, and cancelled states with local-time deadlines and an explicit time zone. Cancel and Dismiss buttons work directly; dismissal hides a finished/cancelled timer. Keep the server running and page open for visible completion. This original test page has no alarm sound, background browser notification, wake lock, or delivery while the machine sleeps. The separate `/companion/` surface can speak a checked timer completion while open and voice is enabled; see [orchestration](ORCHESTRATION.md). Overdue timers reconcile when the server resumes/restarts.
 
 ## MERLIN's personality
 
