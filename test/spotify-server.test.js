@@ -9,6 +9,23 @@ import { createApp } from '../src/server.js';
 import { AppError } from '../src/errors.js';
 import { RequestLedger } from '../src/requests.js';
 
+const CROSS_SITE_NAVIGATION = {
+  'Sec-Fetch-Site': 'cross-site',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Dest': 'document',
+};
+
+async function followOAuthLanding(app, redirect) {
+  const url = new URL(redirect.headers.location, `http://127.0.0.1:${app.port}`);
+  // The browser keeps cross-site metadata through the OAuth redirect chain.
+  const landing = await app.request(url.pathname + url.search, { headers: CROSS_SITE_NAVIGATION });
+  assert.equal(landing.status, 200);
+  assert.match(landing.headers['content-type'], /text\/html/);
+  assert.match(landing.body, /id="spotify-title"/);
+  assert.equal(landing.headers['cache-control'], 'no-store');
+  assert.match(landing.headers['content-security-policy'], /frame-ancestors 'none'/);
+}
+
 async function fixture(t) {
   const directory = await mkdtemp(join(tmpdir(), 'merlin-spotify-http-'));
   const state = 'a'.repeat(43);
@@ -66,20 +83,42 @@ test('Spotify setup exposes public configuration, uses canonical callback and br
   assert.equal((await app.request(callback, { headers: { 'Sec-Fetch-Site': 'cross-site' } })).status, 403);
   assert.equal((await app.request(callback, { headers: { Cookie: 'merlin_spotify_oauth=' + 'b'.repeat(43) } })).status, 403);
   assert.equal(app.spotify.calls.filter(call => call[0] === 'callback').length, 0);
-  const success = await app.request(callback, { headers: { Cookie: cookie.split(';')[0], 'Sec-Fetch-Site': 'cross-site' } });
+  const success = await app.request(callback, { headers: { Cookie: cookie.split(';')[0], ...CROSS_SITE_NAVIGATION } });
   assert.equal(success.status, 303);
   assert.equal(success.headers.location, '/?spotify=connected#spotify-title');
   assert.match(success.headers['set-cookie'][0], /Max-Age=0/);
   assert.equal(success.headers['referrer-policy'], 'no-referrer');
   assert.equal(success.headers['cache-control'], 'no-store');
+  await followOAuthLanding(app, success);
+  assert.equal((await app.request('/api/spotify/status')).body.connected, true);
   const replay = await app.request(callback, { headers: { Cookie: cookie.split(';')[0] } });
   assert.match(replay.headers.location, /spotify=error/);
+  await followOAuthLanding(app, replay);
 });
 
-test('OAuth exception is GET callback only; normal Spotify mutations retain origin protection', async t => {
+test('Cross-site navigation opens only the public root document', async t => {
+  const app = await fixture(t);
+  assert.equal((await app.request('/', { headers: CROSS_SITE_NAVIGATION })).status, 200);
+  for (const headers of [
+    { 'Sec-Fetch-Site': 'cross-site' },
+    { ...CROSS_SITE_NAVIGATION, 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Dest': 'empty' },
+    { ...CROSS_SITE_NAVIGATION, 'Sec-Fetch-Mode': 'no-cors' },
+    { ...CROSS_SITE_NAVIGATION, 'Sec-Fetch-Dest': 'iframe' },
+    { ...CROSS_SITE_NAVIGATION, Origin: 'https://untrusted.example' },
+    { ...CROSS_SITE_NAVIGATION, Host: `untrusted.example:${app.port}` },
+  ]) assert.equal((await app.request('/', { headers })).status, 403);
+  assert.equal((await app.post('/', {}, CROSS_SITE_NAVIGATION)).status, 403);
+  for (const path of ['/app.js', '/api/state', '/api/memory', '/api/personality', '/api/documents/synthetic', '/api/trace', '/api/spotify', '/api/spotify/status']) {
+    assert.equal((await app.request(path, { headers: CROSS_SITE_NAVIGATION })).status, 403, path);
+  }
+  assert.equal((await app.request('/api/personality', { method: 'PUT', body: {}, headers: CROSS_SITE_NAVIGATION })).status, 403);
+  assert.deepEqual(app.spotify.calls, []);
+});
+
+test('Cross-site navigation exceptions keep normal Spotify mutations and origin protection intact', async t => {
   const app = await fixture(t);
   for (const path of ['/api/spotify/connect', '/api/spotify/config', '/api/spotify/control', '/api/spotify/disconnect', '/api/spotify/callback']) {
-    assert.equal((await app.post(path, {}, { 'Sec-Fetch-Site': 'cross-site' })).status, 403);
+    assert.equal((await app.post(path, {}, CROSS_SITE_NAVIGATION)).status, 403);
   }
   assert.equal((await app.request('/api/spotify/status', { headers: { Origin: 'https://untrusted.example' } })).status, 403);
   assert.equal((await app.post('/api/spotify/connect', {}, { Host: `localhost:${app.port}` })).status, 400);
@@ -94,6 +133,7 @@ test('OAuth denial redirects with generic status and never echoes the code or pr
   assert.match(denied.headers.location, /spotify=cancelled/);
   assert.equal(JSON.stringify(denied).includes('private'), false);
   assert.equal(app.spotify.connected, false);
+  await followOAuthLanding(app, denied);
 });
 
 test('Spotify actions use durable duplicate protection and browser-only results', async t => {

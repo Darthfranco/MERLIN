@@ -105,11 +105,15 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       const url = new URL(req.url, 'http://localhost');
       const path = url.pathname;
       const callback = req.method === 'GET' && path === '/api/spotify/callback';
+      // Spotify's redirect chain remains cross-site when it returns to the UI.
+      // Allow only the static entry document; private API requests stay blocked.
+      const entryNavigation = req.method === 'GET' && path === '/'
+        && req.headers['sec-fetch-mode'] === 'navigate' && req.headers['sec-fetch-dest'] === 'document';
       if (req.headers.origin && !hosts.map(host => `http://${host}`).includes(req.headers.origin)) throw new AppError('Cross-origin requests are not allowed.', 403);
-      if (req.headers['sec-fetch-site'] === 'cross-site' && !callback) throw new AppError('Cross-site requests are not allowed.', 403);
+      if (req.headers['sec-fetch-site'] === 'cross-site' && !callback && !entryNavigation) throw new AppError('Cross-site requests are not allowed.', 403);
       const spotifyRedirect = `http://127.0.0.1:${port}/api/spotify/callback`;
       if (callback) {
-        // Only this OAuth GET permits cross-site navigation. The state must
+        // Only this API GET permits cross-site requests. The state must
         // match both this browser's HttpOnly cookie and the service's PKCE job.
         const state = url.searchParams.get('state') || '';
         const cookie = (req.headers.cookie || '').split(';').map(part => part.trim()).find(part => part.startsWith('merlin_spotify_oauth='))?.slice('merlin_spotify_oauth='.length) || '';
