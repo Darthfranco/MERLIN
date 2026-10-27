@@ -1,0 +1,56 @@
+/* Short versions of MERLIN's white timer/music panels. Explicitly mounted only. */
+.floating-overlay {
+  --overlay-paper: #ffffff;
+  --overlay-ink: #16334b;
+  --overlay-muted: #546d7f;
+  --overlay-blue: #246ca7;
+  --overlay-ice: #eaf5fc;
+  --overlay-line: #dae7ef;
+  position: absolute;
+  inset: 0 auto auto 0;
+  box-sizing: border-box;
+  width: clamp(148px, 28cqw, 300px);
+  padding: clamp(10px, 1.4cqw, 16px);
+  border-radius: 16px;
+  background: var(--overlay-paper);
+  color: var(--overlay-ink);
+  box-shadow: 0 8px 24px #02081438;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  opacity: 1;
+  transition: opacity 130ms ease-out;
+}
+.floating-overlay[data-visible="false"] { opacity: 0; visibility: hidden; pointer-events: none; }
+.floating-overlay p { margin: 0; }
+.floating-content { display: flex; align-items: center; gap: clamp(8px, 1.2cqw, 12px); }
+.floating-copy { flex: 1; min-width: 0; }
+.floating-title { font-size: clamp(12px, 1.8cqw, 18px); font-weight: 650; line-height: 1.3; }
+.floating-title, .floating-artist { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.floating-countdown { font-size: clamp(23px, 4.2cqw, 42px); font-weight: 450; letter-spacing: -.025em; line-height: 1.2; white-space: nowrap; }
+.floating-overlay[data-long="true"] .floating-countdown { font-size: clamp(16px, 3cqw, 32px); }
+.floating-overlay .floating-status, .floating-overlay .floating-artist { color: var(--overlay-muted); font-size: clamp(11px, 1.35cqw, 14px); line-height: 1.4; }
+.floating-overlay .floating-artist { margin-top: 3px; }
+.floating-overlay[data-type="music"] .floating-status { margin-top: 6px; }
+.floating-record { width: clamp(30px, 5cqw, 52px); flex: 0 0 auto; }
+.floating-overlay .floating-action {
+  display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px;
+  min-height: 44px; padding: 10px; border: 0; border-radius: 50%;
+  background: var(--overlay-ice); color: var(--overlay-blue); cursor: pointer;
+}
+.floating-overlay .floating-action svg { width: 24px; height: 24px; }
+.floating-overlay .floating-action:hover { background: #d5eaf8; }
+.floating-overlay .floating-action:focus-visible { outline: 3px solid var(--overlay-blue); outline-offset: 3px; }
+.floating-overlay .floating-action:disabled { color: var(--overlay-muted); background: #f3f7fa; cursor: default; }
+.floating-overlay [hidden] { display: none; }
+.floating-progress { display: block; appearance: none; width: 100%; height: 3px; margin-top: 12px; border: 0; border-radius: 2px; overflow: hidden; background: var(--overlay-line); color: var(--overlay-blue); }
+.floating-progress::-webkit-progress-bar { background: var(--overlay-line); }
+.floating-progress::-webkit-progress-value { background: var(--overlay-blue); }
+.floating-progress::-moz-progress-bar { background: var(--overlay-blue); }
+.floating-overlay[data-status="finished"] .floating-countdown { color: #27715c; }
+.floating-overlay::selection, .floating-overlay ::selection { background: #8bd9f2; color: var(--overlay-ink); }
+@container (max-width: 720px) {
+  .floating-record { display: none; }
+  .floating-overlay .floating-content { gap: 6px; }
+}
+@media (prefers-reduced-motion: reduce) { .floating-overlay { transition: none; } }

@@ -7,6 +7,7 @@ export class SceneClock {
     this.states = states;
     this.routes = routes;
     this.footprints = footprints;
+    this.layoutListeners = new Set();
     this.reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     this.element = document.createElement('div');
     this.element.className = 'scene-clock';
@@ -52,6 +53,10 @@ export class SceneClock {
     if (!width || !height || !clockWidth || !clockHeight) return;
     const obstacles = this.plan.occlusionClips.flatMap(clip => this.footprints.get(clip) || []);
     const target = chooseClockSpot({width, height, clockWidth, clockHeight, obstacles, current: this.spot?.id});
+    // Optional overlays yield to the clock. Publish even when its anchor stays put:
+    // the motion reserve or full-face visibility may have changed underneath it.
+    this.layout = {width, height, obstacles, clock: target, hidden: this.plan.hidden, resize};
+    for (const listener of this.layoutListeners) listener(this.layout);
     if (!resize && this.spot?.x === target.x && this.spot?.y === target.y) return;
     const from = getComputedStyle(this.element).transform;
     this.movement?.cancel();
@@ -66,9 +71,16 @@ export class SceneClock {
     this.element.dataset.spot = target.id;
   }
 
+  subscribeLayout(listener) {
+    this.layoutListeners.add(listener);
+    if (this.layout) listener(this.layout);
+    return () => this.layoutListeners.delete(listener);
+  }
+
   destroy() {
     clearTimeout(this.timer);
     this.movement?.cancel();
+    this.layoutListeners.clear();
     this.observer.disconnect();
     document.removeEventListener('visibilitychange', this.onVisibility);
     this.element.remove();

@@ -2,7 +2,7 @@
 version: 1
 slug: "index-html"
 primary_target: "index.html"
-related_targets: ["studio.css","studio.js","screens.js","motion.js","motion-routes.js","scene-clock.js","clock-layout.js","screen-layout.js"]
+related_targets: ["studio.css","studio.js","screens.js","motion.js","motion-routes.js","scene-clock.js","clock-layout.js","screen-layout.js","overlays/overlays.css","overlays/scene-overlays.js","overlays/model.js","overlays/layout.js"]
 ---
 
 # MERLIN character studio
@@ -28,3 +28,13 @@ The actual asset supplies paired screens, contextual thinking, reversible full-f
 The October 27 paired/ceiling-screen finish review returned **ship**, with no material fixes. All eight native browser captures were independently inspected: five desktop views at 1096px and three mobile views at 390px, with a 358 × 268.5px stage. The accepted character identity, editable screen composition, retained pair, selective dismissal, and existing utility layout remain coherent. All 92 focused motion, screen, actual-asset footprint, shared-driver, and companion tests pass against the final 113-clip / 30-state asset. The [review and evidence](../../../../../.impeccable/review/character-screens/review.md) record the exact scope. This does not establish production-device performance or live assistant integration. Connecting events and services, device benchmarking, and browser whistle playback remain outside this preview.
 
 Time remains visible in seated idles and selective dismissals. The complete paired pull and simultaneous dismissal hide it until their clear endpoint, because their swept paths cover all five anchors.
+
+## Optional floating card extension
+
+The inherited direction contract remains Operate and code-led: short timer/music cards extend the existing [panel family](../../panels/DESIGN.md) beside the authored scene. White surfaces, navy text, blue actions, native fluid type, a (16px) card radius, optional (44 × 44px) controls, and original inline record/transport SVG preserve that family. No raster asset or replacement visual identity is introduced. The decorative record hides at stage-container widths of (720px) or less.
+
+The **Floating timer & music previews** disclosure follows Screen content. Startup is empty; explicit buttons alone create synthetic samples. Preview pause/resume changes appearance without running a countdown or audio. No live integration, persistence, polling, or extra frame loop is added. Reusable cards receive caller-supplied updates and expose request-only action callbacks; unsupported/missing state remains explicit. See the [API guide](../../overlays/README.md).
+
+Placement reserves the clock first, then earlier cards, using the same five anchors and complete motion footprints. Safe anchors stay fixed; relocation follows the clock's (320ms) easing and becomes immediate for resize/reduced motion. No safe anchor means retained data is concealed, inert, and excluded from accessibility until room returns. Full-face, ceiling, and busy paired-screen transitions share the clock's concealment policy. At the reviewed (390px) viewport both cards wait out of view to preserve the character and clock.
+
+The independent [finish review](../../../../../.impeccable/review/floating-overlays/finish-review.md) returned **ship**, with no material fixes. Required evidence is [wide desktop at 1365px](../../../../../.impeccable/review/floating-overlays/desktop-wide.png), [desktop capture at its actual 614px width](../../../../../.impeccable/review/floating-overlays/desktop.png), and [mobile at 390px](../../../../../.impeccable/review/floating-overlays/mobile.png). The [detector](../../../../../.impeccable/review/floating-overlays/detector.json) used a degraded regex fallback and reported only advisory type/color/radius additions; the scoped design reference now records them. This verifies presentation only; the companion keeps its existing physical-panel behavior.

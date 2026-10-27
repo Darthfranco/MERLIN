@@ -6,6 +6,7 @@
   <title>MERLIN character studio</title>
   <link rel="stylesheet" href="./studio.css">
   <link rel="stylesheet" href="./scene-clock.css">
+  <link rel="stylesheet" href="./overlays/overlays.css">
   <script type="module" src="./studio.js"></script>
 </head>
 <body>
@@ -109,6 +110,18 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         <p class="help">Images stay in this browser. Nothing is uploaded.</p>
         <p id="content-status" class="help" role="status"></p>
       </form>
+      <details id="overlay-previews">
+        <summary>Floating timer &amp; music previews</summary>
+        <p class="help">Compact versions of the panel designs. Off by default. These samples don’t start a timer or play audio.</p>
+        <div class="content-actions">
+          <button id="preview-timer" type="button" disabled>Preview timer</button>
+          <button id="preview-music" type="button" disabled>Preview music</button>
+          <button id="clear-overlays" type="button" disabled>Clear overlays</button>
+        </div>
+        <p class="help">Cards move between the clock’s five positions. They wait out of view when a panel leaves no clear space, and hide in full-face mode.</p>
+        <p id="overlay-status" class="help" role="status">No floating overlays.</p>
+        <a class="panel-gallery-link" href="./overlays/README.md">Optional overlay API</a>
+      </details>
       <details>
         <summary>Use the screens from code</summary>
         <p class="help">Each surface accepts a canvas, image, or video element. The content moves with the panel and its fragments.</p>

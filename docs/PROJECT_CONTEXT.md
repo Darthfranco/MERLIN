@@ -78,6 +78,8 @@ The screen must sit **flush within the head**, without a protruding face panel. 
 
 **Scene clock requested October 27, 2026:** add a large time-and-date overlay inside the 3D scene, with five designated resting positions: the four corners and upper middle. Move smoothly and quickly when character animation or panels would cover it; account for the full activity path, including walking back the other way, rather than reacting only to the current pose. Hide the clock throughout full-face mode. This is a presentation request for the character preview; it does not select a device platform or schedule assistant behavior.
 
+**Optional floating cards requested October 27, 2026:** create compact timer and music overlays, similar in scale to the clock, using shorter versions of the existing panel designs with backgrounds. The owner explicitly requested assets and code only, **not enabled by default**. Keep them opt-in and separate from normal physical panels and live-service orchestration. The reusable module and explicitly selected synthetic studio previews are documented in the [floating overlay API](../assets/merlin-character/viewer/overlays/README.md).
+
 The character and room work does not select an application framework, establish a complete assistant interface, or define an MVP. The later combined-character request above authorizes local listening, processing, speaking, action-panel and automatic idle orchestration; final production hardware and deployment remain TBD.
 
 ### 3. Background memory and personalization

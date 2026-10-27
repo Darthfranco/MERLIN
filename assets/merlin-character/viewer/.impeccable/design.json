@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-27T18:42:36.458Z",
+  "generatedAt": "2026-10-27T23:06:07.940Z",
   "title": "Design System: MERLIN character studio",
   "extensions": {
     "colorMeta": {
@@ -269,6 +269,132 @@
           "oklch(83.57% 0.04209 232.57)",
           "oklch(95.00% 0.04209 232.57)"
         ]
+      },
+      "overlay-ink": {
+        "role": "neutral",
+        "displayName": "Panel navy ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.05568 245.89)",
+          "oklch(26.43% 0.05568 245.89)",
+          "oklch(37.86% 0.05568 245.89)",
+          "oklch(49.29% 0.05568 245.89)",
+          "oklch(60.71% 0.05568 245.89)",
+          "oklch(72.14% 0.05568 245.89)",
+          "oklch(83.57% 0.05568 245.89)",
+          "oklch(95.00% 0.05568 245.89)"
+        ]
+      },
+      "overlay-muted": {
+        "role": "neutral",
+        "displayName": "Panel muted blue-grey",
+        "tonalRamp": [
+          "oklch(15.00% 0.04103 239.85)",
+          "oklch(26.43% 0.04103 239.85)",
+          "oklch(37.86% 0.04103 239.85)",
+          "oklch(49.29% 0.04103 239.85)",
+          "oklch(60.71% 0.04103 239.85)",
+          "oklch(72.14% 0.04103 239.85)",
+          "oklch(83.57% 0.04103 239.85)",
+          "oklch(95.00% 0.04103 239.85)"
+        ]
+      },
+      "overlay-blue": {
+        "role": "primary",
+        "displayName": "Panel action blue",
+        "tonalRamp": [
+          "oklch(15.00% 0.11669 247.53)",
+          "oklch(26.43% 0.11669 247.53)",
+          "oklch(37.86% 0.11669 247.53)",
+          "oklch(49.29% 0.11669 247.53)",
+          "oklch(60.71% 0.11669 247.53)",
+          "oklch(72.14% 0.11669 247.53)",
+          "oklch(83.57% 0.11669 247.53)",
+          "oklch(95.00% 0.11669 247.53)"
+        ]
+      },
+      "overlay-ice": {
+        "role": "neutral",
+        "displayName": "Panel ice fill",
+        "tonalRamp": [
+          "oklch(15.00% 0.01501 235.38)",
+          "oklch(26.43% 0.01501 235.38)",
+          "oklch(37.86% 0.01501 235.38)",
+          "oklch(49.29% 0.01501 235.38)",
+          "oklch(60.71% 0.01501 235.38)",
+          "oklch(72.14% 0.01501 235.38)",
+          "oklch(83.57% 0.01501 235.38)",
+          "oklch(95.00% 0.01501 235.38)"
+        ]
+      },
+      "overlay-line": {
+        "role": "neutral",
+        "displayName": "Panel progress track",
+        "tonalRamp": [
+          "oklch(15.00% 0.01769 234.51)",
+          "oklch(26.43% 0.01769 234.51)",
+          "oklch(37.86% 0.01769 234.51)",
+          "oklch(49.29% 0.01769 234.51)",
+          "oklch(60.71% 0.01769 234.51)",
+          "oklch(72.14% 0.01769 234.51)",
+          "oklch(83.57% 0.01769 234.51)",
+          "oklch(95.00% 0.01769 234.51)"
+        ]
+      },
+      "overlay-hover": {
+        "role": "primary",
+        "displayName": "Floating action hover",
+        "tonalRamp": [
+          "oklch(15.00% 0.02935 236.91)",
+          "oklch(26.43% 0.02935 236.91)",
+          "oklch(37.86% 0.02935 236.91)",
+          "oklch(49.29% 0.02935 236.91)",
+          "oklch(60.71% 0.02935 236.91)",
+          "oklch(72.14% 0.02935 236.91)",
+          "oklch(83.57% 0.02935 236.91)",
+          "oklch(95.00% 0.02935 236.91)"
+        ]
+      },
+      "overlay-quiet": {
+        "role": "neutral",
+        "displayName": "Quiet disabled fill",
+        "tonalRamp": [
+          "oklch(15.00% 0.00586 239.82)",
+          "oklch(26.43% 0.00586 239.82)",
+          "oklch(37.86% 0.00586 239.82)",
+          "oklch(49.29% 0.00586 239.82)",
+          "oklch(60.71% 0.00586 239.82)",
+          "oklch(72.14% 0.00586 239.82)",
+          "oklch(83.57% 0.00586 239.82)",
+          "oklch(95.00% 0.00586 239.82)"
+        ]
+      },
+      "overlay-green": {
+        "role": "secondary",
+        "displayName": "Finished timer green",
+        "tonalRamp": [
+          "oklch(15.00% 0.08049 170.90)",
+          "oklch(26.43% 0.08049 170.90)",
+          "oklch(37.86% 0.08049 170.90)",
+          "oklch(49.29% 0.08049 170.90)",
+          "oklch(60.71% 0.08049 170.90)",
+          "oklch(72.14% 0.08049 170.90)",
+          "oklch(83.57% 0.08049 170.90)",
+          "oklch(95.00% 0.08049 170.90)"
+        ]
+      },
+      "overlay-cyan": {
+        "role": "secondary",
+        "displayName": "Record cyan",
+        "tonalRamp": [
+          "oklch(15.00% 0.08420 220.28)",
+          "oklch(26.43% 0.08420 220.28)",
+          "oklch(37.86% 0.08420 220.28)",
+          "oklch(49.29% 0.08420 220.28)",
+          "oklch(60.71% 0.08420 220.28)",
+          "oklch(72.14% 0.08420 220.28)",
+          "oklch(83.57% 0.08420 220.28)",
+          "oklch(95.00% 0.08420 220.28)"
+        ]
       }
     },
     "typographyMeta": {
@@ -291,6 +417,22 @@
       "clock-date": {
         "displayName": "Scene date",
         "purpose": "Small localized weekday, month, and day beneath the time."
+      },
+      "overlay-title": {
+        "displayName": "Floating title",
+        "purpose": "Single-line timer or track title; full text remains accessible."
+      },
+      "overlay-countdown": {
+        "displayName": "Floating countdown",
+        "purpose": "Tabular remaining duration scaled to the stage."
+      },
+      "overlay-countdown-long": {
+        "displayName": "Long floating countdown",
+        "purpose": "Smaller size for durations longer than five characters."
+      },
+      "overlay-support": {
+        "displayName": "Floating supporting text",
+        "purpose": "Artist and explicit state beneath the primary content."
       }
     },
     "motion": [
@@ -308,6 +450,16 @@
         "name": "clock-visibility",
         "value": "130ms ease-out",
         "purpose": "Opacity transition for the scene clock; visibility and aria-hidden suppress it throughout full-face entry, substates, and exit. Reduced motion disables the transition."
+      },
+      {
+        "name": "floating-anchor-move",
+        "value": "320ms cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Clock-first placement among five anchors. First placement, resize, and reduced motion are immediate; no safe anchor conceals retained data."
+      },
+      {
+        "name": "floating-visibility",
+        "value": "130ms ease-out",
+        "purpose": "Optional card opacity; concealed cards are inert and aria-hidden. Reduced motion disables the transition."
       }
     ],
     "breakpoints": [
@@ -326,6 +478,11 @@
       {
         "name": "wide-page-min",
         "value": "1600px"
+      },
+      {
+        "name": "floating-record-container-max",
+        "value": "720px",
+        "purpose": "Stage container width: hide the decorative record and reduce content gap to 6px."
       }
     ],
     "shadows": [
@@ -333,6 +490,11 @@
         "name": "clock-text",
         "value": "0 2px 12px #060e1c66",
         "purpose": "Diffuse text-shadow for clock legibility over the scene; no card elevation."
+      },
+      {
+        "name": "floating-card",
+        "value": "0 8px 24px #02081438",
+        "purpose": "Soft separation between optional white panel cards and the midnight stage."
       }
     ]
   },
@@ -406,6 +568,22 @@
       "description": "Static specimen of the scene overlay. Runtime placement reserves planned character motion and panel shards; Full-face and ceiling presentations, the paired pull, and simultaneous dismissal hide it.",
       "html": "<div class=\"ds-clock-stage\"><div class=\"ds-clock\" aria-label=\"Tuesday, October 27, 2026 at 2:37 PM\"><time class=\"ds-clock-time\" datetime=\"2026-10-27T14:37:00\"><span>2:37</span><span class=\"ds-clock-period\">PM</span></time><span class=\"ds-clock-date\">Tue, Oct 27</span></div></div>",
       "css": ".ds-clock-stage{position:relative;width:100%;aspect-ratio:4/3;container-type:inline-size;background:#081326;border-radius:12px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif}.ds-clock{position:absolute;left:4.125%;top:5.5%;width:max-content;min-width:27cqw;color:#e4f4ff;pointer-events:none;user-select:none;text-align:center;font-variant-numeric:tabular-nums;text-shadow:0 2px 12px #060e1c66;opacity:1;transition:opacity 130ms ease-out}.ds-clock[data-visible=\"false\"]{opacity:0;visibility:hidden}.ds-clock-time{display:flex;align-items:baseline;justify-content:center;gap:.1em;white-space:nowrap;font-size:clamp(26px,8.6cqw,88px);font-weight:350;letter-spacing:-.035em;line-height:1.05}.ds-clock-period{font-size:.2em;font-weight:550;letter-spacing:.01em;color:#b9d9ee}.ds-clock-period:empty{display:none}.ds-clock-date{display:block;margin-top:.55em;font-size:clamp(10px,1.85cqw,19px);font-weight:450;line-height:1.35;letter-spacing:.015em;color:#bbdbed;white-space:nowrap}@media(prefers-reduced-motion:reduce){.ds-clock{transition:none}}"
+    },
+    {
+      "name": "Floating timer",
+      "kind": "card",
+      "refersTo": "floating-card",
+      "description": "Static synthetic specimen of an optional compact panel. Runtime starts empty; controls require a callback and caller-confirmed updates. Cards yield to the clock and conceal retained data when space is unavailable.",
+      "html": "<div class=\"ds-overlay-specimen\"><section class=\"ds-floating-overlay\" data-type=\"timer\" data-status=\"running\" aria-label=\"Synthetic timer specimen\"><div class=\"ds-floating-content\"><div class=\"ds-floating-copy\"><p class=\"ds-floating-title\">Tea timer</p><p class=\"ds-floating-countdown\">4:02</p><p class=\"ds-floating-status\">Counting down</p></div><button class=\"ds-floating-action\" type=\"button\" aria-label=\"Pause sample\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M9 6v12M15 6v12\"/></svg></button></div><progress class=\"ds-floating-progress\" max=\"1\" value=\".8067\" aria-label=\"Sample progress\"></progress></section></div>",
+      "css": ".ds-overlay-specimen{container-type:inline-size;width:100%;padding:24px;background:#081326;border-radius:12px}.ds-floating-overlay {\n  --overlay-paper: #ffffff;\n  --overlay-ink: #16334b;\n  --overlay-muted: #546d7f;\n  --overlay-blue: #246ca7;\n  --overlay-ice: #eaf5fc;\n  --overlay-line: #dae7ef;\n  position: absolute;\n  inset: 0 auto auto 0;\n  box-sizing: border-box;\n  width: clamp(148px, 28cqw, 300px);\n  padding: clamp(10px, 1.4cqw, 16px);\n  border-radius: 16px;\n  background: var(--overlay-paper);\n  color: var(--overlay-ink);\n  box-shadow: 0 8px 24px #02081438;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;\n  font-variant-numeric: tabular-nums;\n  text-align: left;\n  opacity: 1;\n  transition: opacity 130ms ease-out;\n}\n.ds-floating-overlay[data-visible=\"false\"] { opacity: 0; visibility: hidden; pointer-events: none; }\n.ds-floating-overlay p { margin: 0; }\n.ds-floating-content { display: flex; align-items: center; gap: clamp(8px, 1.2cqw, 12px); }\n.ds-floating-copy { flex: 1; min-width: 0; }\n.ds-floating-title { font-size: clamp(12px, 1.8cqw, 18px); font-weight: 650; line-height: 1.3; }\n.ds-floating-title, .ds-floating-artist { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.ds-floating-countdown { font-size: clamp(23px, 4.2cqw, 42px); font-weight: 450; letter-spacing: -.025em; line-height: 1.2; white-space: nowrap; }\n.ds-floating-overlay[data-long=\"true\"] .ds-floating-countdown { font-size: clamp(16px, 3cqw, 32px); }\n.ds-floating-overlay .ds-floating-status, .ds-floating-overlay .ds-floating-artist { color: var(--overlay-muted); font-size: clamp(11px, 1.35cqw, 14px); line-height: 1.4; }\n.ds-floating-overlay .ds-floating-artist { margin-top: 3px; }\n.ds-floating-overlay[data-type=\"music\"] .ds-floating-status { margin-top: 6px; }\n.ds-floating-record { width: clamp(30px, 5cqw, 52px); flex: 0 0 auto; }\n.ds-floating-overlay .ds-floating-action {\n  display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px;\n  min-height: 44px; padding: 10px; border: 0; border-radius: 50%;\n  background: var(--overlay-ice); color: var(--overlay-blue); cursor: pointer;\n}\n.ds-floating-overlay .ds-floating-action svg { width: 24px; height: 24px; }\n.ds-floating-overlay .ds-floating-action:hover { background: #d5eaf8; }\n.ds-floating-overlay .ds-floating-action:focus-visible { outline: 3px solid var(--overlay-blue); outline-offset: 3px; }\n.ds-floating-overlay .ds-floating-action:disabled { color: var(--overlay-muted); background: #f3f7fa; cursor: default; }\n.ds-floating-overlay [hidden] { display: none; }\n.ds-floating-progress { display: block; appearance: none; width: 100%; height: 3px; margin-top: 12px; border: 0; border-radius: 2px; overflow: hidden; background: var(--overlay-line); color: var(--overlay-blue); }\n.ds-floating-progress::-webkit-progress-bar { background: var(--overlay-line); }\n.ds-floating-progress::-webkit-progress-value { background: var(--overlay-blue); }\n.ds-floating-progress::-moz-progress-bar { background: var(--overlay-blue); }\n.ds-floating-overlay[data-status=\"finished\"] .ds-floating-countdown { color: #27715c; }\n.ds-floating-overlay::selection, .ds-floating-overlay ::selection { background: #8bd9f2; color: var(--overlay-ink); }\n@container (max-width: 720px) {\n  .ds-floating-record { display: none; }\n  .ds-floating-overlay .ds-floating-content { gap: 6px; }\n}\n@media (prefers-reduced-motion: reduce) { .ds-floating-overlay { transition: none; } } .ds-floating-overlay{position:relative;inset:auto}"
+    },
+    {
+      "name": "Floating music",
+      "kind": "card",
+      "refersTo": "floating-card",
+      "description": "Static synthetic specimen of an optional compact panel. Runtime starts empty; controls require a callback and caller-confirmed updates. Cards yield to the clock and conceal retained data when space is unavailable.",
+      "html": "<div class=\"ds-overlay-specimen\"><section class=\"ds-floating-overlay\" data-type=\"music\" data-status=\"playing\" aria-label=\"Synthetic music specimen\"><div class=\"ds-floating-content\"><svg class=\"ds-floating-record\" viewBox=\"0 0 64 64\" aria-hidden=\"true\"><circle cx=\"32\" cy=\"32\" r=\"31\" fill=\"#16334b\"/><g fill=\"none\" stroke=\"#546d7f\"><circle cx=\"32\" cy=\"32\" r=\"24\"/><circle cx=\"32\" cy=\"32\" r=\"19\"/></g><circle cx=\"32\" cy=\"32\" r=\"12\" fill=\"#8bd9f2\"/><circle cx=\"32\" cy=\"32\" r=\"3\" fill=\"#16334b\"/></svg><div class=\"ds-floating-copy\"><p class=\"ds-floating-title\">Slow mornings</p><p class=\"ds-floating-artist\">MERLIN sessions</p><p class=\"ds-floating-status\">Playing</p></div><button class=\"ds-floating-action\" type=\"button\" aria-label=\"Pause sample\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M9 6v12M15 6v12\"/></svg></button></div><progress class=\"ds-floating-progress\" max=\"1\" value=\".3853\" aria-label=\"Sample progress\"></progress></section></div>",
+      "css": ".ds-overlay-specimen{container-type:inline-size;width:100%;padding:24px;background:#081326;border-radius:12px}.ds-floating-overlay {\n  --overlay-paper: #ffffff;\n  --overlay-ink: #16334b;\n  --overlay-muted: #546d7f;\n  --overlay-blue: #246ca7;\n  --overlay-ice: #eaf5fc;\n  --overlay-line: #dae7ef;\n  position: absolute;\n  inset: 0 auto auto 0;\n  box-sizing: border-box;\n  width: clamp(148px, 28cqw, 300px);\n  padding: clamp(10px, 1.4cqw, 16px);\n  border-radius: 16px;\n  background: var(--overlay-paper);\n  color: var(--overlay-ink);\n  box-shadow: 0 8px 24px #02081438;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;\n  font-variant-numeric: tabular-nums;\n  text-align: left;\n  opacity: 1;\n  transition: opacity 130ms ease-out;\n}\n.ds-floating-overlay[data-visible=\"false\"] { opacity: 0; visibility: hidden; pointer-events: none; }\n.ds-floating-overlay p { margin: 0; }\n.ds-floating-content { display: flex; align-items: center; gap: clamp(8px, 1.2cqw, 12px); }\n.ds-floating-copy { flex: 1; min-width: 0; }\n.ds-floating-title { font-size: clamp(12px, 1.8cqw, 18px); font-weight: 650; line-height: 1.3; }\n.ds-floating-title, .ds-floating-artist { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.ds-floating-countdown { font-size: clamp(23px, 4.2cqw, 42px); font-weight: 450; letter-spacing: -.025em; line-height: 1.2; white-space: nowrap; }\n.ds-floating-overlay[data-long=\"true\"] .ds-floating-countdown { font-size: clamp(16px, 3cqw, 32px); }\n.ds-floating-overlay .ds-floating-status, .ds-floating-overlay .ds-floating-artist { color: var(--overlay-muted); font-size: clamp(11px, 1.35cqw, 14px); line-height: 1.4; }\n.ds-floating-overlay .ds-floating-artist { margin-top: 3px; }\n.ds-floating-overlay[data-type=\"music\"] .ds-floating-status { margin-top: 6px; }\n.ds-floating-record { width: clamp(30px, 5cqw, 52px); flex: 0 0 auto; }\n.ds-floating-overlay .ds-floating-action {\n  display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px;\n  min-height: 44px; padding: 10px; border: 0; border-radius: 50%;\n  background: var(--overlay-ice); color: var(--overlay-blue); cursor: pointer;\n}\n.ds-floating-overlay .ds-floating-action svg { width: 24px; height: 24px; }\n.ds-floating-overlay .ds-floating-action:hover { background: #d5eaf8; }\n.ds-floating-overlay .ds-floating-action:focus-visible { outline: 3px solid var(--overlay-blue); outline-offset: 3px; }\n.ds-floating-overlay .ds-floating-action:disabled { color: var(--overlay-muted); background: #f3f7fa; cursor: default; }\n.ds-floating-overlay [hidden] { display: none; }\n.ds-floating-progress { display: block; appearance: none; width: 100%; height: 3px; margin-top: 12px; border: 0; border-radius: 2px; overflow: hidden; background: var(--overlay-line); color: var(--overlay-blue); }\n.ds-floating-progress::-webkit-progress-bar { background: var(--overlay-line); }\n.ds-floating-progress::-webkit-progress-value { background: var(--overlay-blue); }\n.ds-floating-progress::-moz-progress-bar { background: var(--overlay-blue); }\n.ds-floating-overlay[data-status=\"finished\"] .ds-floating-countdown { color: #27715c; }\n.ds-floating-overlay::selection, .ds-floating-overlay ::selection { background: #8bd9f2; color: var(--overlay-ink); }\n@container (max-width: 720px) {\n  .ds-floating-record { display: none; }\n  .ds-floating-overlay .ds-floating-content { gap: 6px; }\n}\n@media (prefers-reduced-motion: reduce) { .ds-floating-overlay { transition: none; } } .ds-floating-overlay{position:relative;inset:auto}"
     }
   ],
   "narrative": {
@@ -416,12 +594,18 @@
       "A fixed landscape stage that preserves the authored camera composition.",
       "Explicit animation status, playback controls, and editable screen content.",
       "A large local time and small date that keep clear of the character and pulled panels.",
+      "Optional compact timer and music cards borrow the existing white panel family and yield to the clock and character.",
       "A separate local preview with honest boundaries around unconnected services."
     ],
     "rules": [
       {
         "name": "The Clear Slot Rule",
         "body": "Keep the current resting anchor whenever its measured text bounds remain clear across the planned motion. Replan on motion-route or size changes; do not chase each rendered pose. Precomputed [motion footprints](motion-footprints.json) reserve the full destination loop and the active route segment, including the walk back in the opposite direction, return transitions, and panel dismissal shards. When moving between opposite panels, retain clearance for the old panel through dismissal, then replan at the shared ready pose before the next pull. If all anchors overlap, choose the least-obstructed anchor with a small stability tolerance.",
+        "section": "components"
+      },
+      {
+        "name": "The Optional Space Rule",
+        "body": "Reserve the clock before floating cards, preserve a safe anchor, and conceal a card with retained data whenever no clear anchor remains. Full-face entry, substates, and exit, ceiling presentations, and busy paired-screen transitions share the clock's concealment policy. Concealed cards are inert and removed from accessibility APIs; clearing them while concealed prevents restoration.",
         "section": "components"
       }
     ],
@@ -431,13 +615,16 @@
       "**Do** keep screen editing separate from animation selection and preserve content on the correct surface and fragments.",
       "**Do** label the browser lighting as an approximation and use Blender as the visual reference.",
       "**Do** retain a clear clock anchor across the complete planned motion, including reverse walking and panel dismissal, and hide the clock throughout full-face and ceiling entry, substates, and exit.",
-      "**Do** keep clock movement brief and use immediate placement when reduced motion is requested."
+      "**Do** keep clock movement brief and use immediate placement when reduced motion is requested.",
+      "**Do** keep floating cards optional, reserve the clock first, and retain concealed card data until space returns or the caller removes it.",
+      "**Do** keep floating controls at (44 × 44px), expose clear state text, and wait for caller-confirmed updates."
     ],
     "donts": [
       "**Don't** treat camera, searching, or music gestures as proof of live camera, search, or music integration.",
       "**Don't** turn a textured screen into a claim of clickable DOM, persisted content, or uploaded images.",
       "**Don't** expand this local preview into a product-platform decision or claim tested production-device performance.",
-      "**Don't** replace the original authored asset with stock or generated substitute artwork. The six Blender state stills carry embedded provenance; owner reference screenshots are not redistributed."
+      "**Don't** replace the original authored asset with stock or generated substitute artwork. The six Blender state stills carry embedded provenance; owner reference screenshots are not redistributed.",
+      "**Don't** turn a floating sample into automatic timer execution, audible music, saved state, or live companion integration."
     ]
   }
 }

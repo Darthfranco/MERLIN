@@ -9,19 +9,21 @@ import {ScreenHandoff,beginScreenEdit} from './screen-layout.js';
 import { MotionController } from './motion.js';
 import {visibleScreens,stateScreens,contentDestination,isFaceState} from './motion-routes.js';
 import { SceneClock } from './scene-clock.js';
+import { SceneOverlays } from './overlays/scene-overlays.js';
 import { PANEL_TYPES,createDemoState,paintPanel,loadPanelArt } from './panels/render.js';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene'),stage=$('stage');
 let controller,screens,renderer,composer,stateDefinitions,handoff,panelArt={};
 const contentRevision={right:0,left:0,camera:0};
-let sceneClock;
+let sceneClock, sceneOverlays;
 const dismissals=['dismiss-left','dismiss-right','dismiss-both'];
-const controls=['mode','play','apply','canvas-demo','pause','ready','body','dock-left','dock-right','screen-image','panel-design','panel-side','show-panel',...dismissals];
+const controls=['mode','play','apply','canvas-demo','pause','ready','body','dock-left','dock-right','screen-image','panel-design','panel-side','show-panel','preview-timer','preview-music','clear-overlays',...dismissals];
 controls.forEach(id=>$(id).disabled=true);
 for(const {id,label} of PANEL_TYPES)$('panel-design').add(new Option(label,id));
 $('retry').addEventListener('click',()=>location.reload());
 function fail(error){
+  sceneOverlays?.destroy();
   sceneClock?.destroy();
   $('loading').hidden=true;$('stage-error').hidden=false;
   $('error-detail').textContent=error.message||'Try reloading, or open the Blender file.';
@@ -75,9 +77,11 @@ async function start(){
   }
   const mixer=new THREE.AnimationMixer(gltf.scene);
   sceneClock=new SceneClock(stage,manifest.states,new Map(Object.entries(footprintData.clips)),manifest.routes);
+  sceneOverlays=new SceneOverlays(stage,{clock:sceneClock,onChange:updateOverlayStatus});
   controller=new MotionController(mixer,gltf.animations,manifest,info=>{
     handoff.sync(info.clip);
     sceneClock.sync({...info,current:info.state});
+    updateOverlayStatus();
     const label=manifest.states[info.phase==='idle'?info.state:info.desired].label;
     const message=info.phase==='finishLoop'?'Finishing '+manifest.states[info.state].label.toLowerCase()+'…':info.phase==='idle'?label:'Moving to '+label.toLowerCase()+'…';
     $('motion-status').textContent=(info.paused?'Paused · ':'')+message;
@@ -100,6 +104,7 @@ async function start(){
   });
   canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();renderer.setAnimationLoop(null);fail(new Error('The graphics context was interrupted. Reload to resume.'));});
   Object.defineProperty(window,'merlin',{value:{
+    overlays:sceneOverlays,
     screens,showPanel,dismissScreen,dockScreen,go:state=>controller.go(state),body:()=>controller.body(),ready:()=>controller.ready(),pause:()=>controller.pause(),resume:()=>controller.resume(),
     get state(){return controller.current;},get desired(){return controller.desired;},get phase(){return controller.phase;},get clip(){return controller.clip;},
     get bodyContext(){return controller.bodyContext;},
@@ -135,6 +140,26 @@ $('panel-form').addEventListener('submit',event=>{
   try{showPanel($('panel-design').value,{},$('panel-side').value);}
   catch(error){$('panel-status').textContent=error.message;}
 });
+$('preview-timer').addEventListener('click',()=>previewOverlay('timer'));
+$('preview-music').addEventListener('click',()=>previewOverlay('music'));
+$('clear-overlays').addEventListener('click',()=>{sceneOverlays?.clear();updateOverlayStatus();});
+function previewOverlay(type){
+  const data=type==='timer'
+    ? {title:'Tea timer',status:'running',remainingSeconds:242,durationSeconds:300}
+    : {title:'Slow mornings',artist:'MERLIN sessions',status:'playing',positionSeconds:84,durationSeconds:218};
+  sceneOverlays.show(type,data,{onAction:({id,action})=>{
+    sceneOverlays.update(id,{status:action==='pause'?'paused':type==='timer'?'running':'playing'});
+    updateOverlayStatus();
+  }});
+  updateOverlayStatus();
+}
+function updateOverlayStatus(){
+  const cards=sceneOverlays?.status||[];
+  if(!cards.length){$('overlay-status').textContent='No floating overlays.';return;}
+  const visible=cards.filter(card=>card.visible).length;
+  const text=`${cards.length} sample${cards.length===1?'':'s'} added. ${visible} visible${visible<cards.length?'; the rest will return when the scene has room':''}.`;
+  if($('overlay-status').textContent!==text)$('overlay-status').textContent=text;
+}
 $('ready').addEventListener('click',()=>{controller.ready();$('mode').value='ready';});
 $('body').addEventListener('click',()=>{controller.body();selectMode(controller.desired);});
 $('pause').addEventListener('click',()=>controller.paused?controller.resume():controller.pause());

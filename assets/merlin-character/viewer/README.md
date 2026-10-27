@@ -118,6 +118,8 @@ Reduced-motion preference starts the character paused. An explicit Play action r
 
 ## Scene clock
 
+Optional compact timer/music cards are also available through `merlin.overlays`. Expand **Floating timer & music previews** to try them explicitly. They start empty, share the clock's five positions and concealment rules, and never replace the physical panels or enable a live service. See the [overlay assets and API](overlays/README.md).
+
 The stage displays the browser's current local time and date in large pale numerals. It follows the browser's locale and time zone, including 12/24-hour formatting and daylight saving; pausing the character does not pause wall time. It updates at minute boundaries, checks for clock changes within 15 seconds, and refreshes when returning to the tab. This clock is a browser overlay, not baked into the Blender export.
 
 Its five resting positions are **upper left, upper middle, upper right, lower left, and lower right**. `clock-layout.js` chooses a clear position using projected swept bounds from the actual GLB meshes, including skinning, props and panel fragments. It reserves the entire active loop and upcoming entry/exit, so walking back in the opposite direction cannot invalidate the chosen corner. It holds a clear position instead of chasing each frame. When switching opposite standing panels it reserves the current panel through dismissal, then replans at the ready hub before the next panel pulls in. The large ceiling presentation and its docking routes use the same actual-geometry prediction. The paired layout reserves both simultaneous panels, the actual selective-dismissal route, and the remaining seated idle together. Prediction uses the same transition graph as playback.

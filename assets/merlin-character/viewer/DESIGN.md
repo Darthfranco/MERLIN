@@ -21,6 +21,15 @@ colors:
   clock-digits: "#e4f4ff"
   clock-period: "#b9d9ee"
   clock-date: "#bbdbed"
+  overlay-ink: "#16334b"
+  overlay-muted: "#546d7f"
+  overlay-blue: "#246ca7"
+  overlay-ice: "#eaf5fc"
+  overlay-line: "#dae7ef"
+  overlay-hover: "#d5eaf8"
+  overlay-quiet: "#f3f7fa"
+  overlay-green: "#27715c"
+  overlay-cyan: "#8bd9f2"
 typography:
   body:
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
@@ -60,10 +69,27 @@ typography:
     fontWeight: 450
     lineHeight: 1.35
     letterSpacing: "0.015em"
+  overlay-title:
+    fontSize: "clamp(12px, 1.8cqw, 18px)"
+    fontWeight: 650
+    lineHeight: 1.3
+  overlay-countdown:
+    fontSize: "clamp(23px, 4.2cqw, 42px)"
+    fontWeight: 450
+    lineHeight: 1.2
+    letterSpacing: "-0.025em"
+  overlay-countdown-long:
+    fontSize: "clamp(16px, 3cqw, 32px)"
+  overlay-support:
+    fontSize: "clamp(11px, 1.35cqw, 14px)"
+    lineHeight: 1.4
 rounded:
   control: "6px"
   stage: "12px"
   stage-small: "10px"
+  overlay-card: "16px"
+  overlay-action: "50%"
+  overlay-progress: "2px"
 spacing:
   compact: "8px"
   action-gap: "10px"
@@ -110,6 +136,24 @@ components:
   scene-clock-date:
     textColor: "{colors.clock-date}"
     typography: "{typography.clock-date}"
+  floating-card:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.overlay-ink}"
+    rounded: "{rounded.overlay-card}"
+    padding: "clamp(10px, 1.4cqw, 16px)"
+    width: "clamp(148px, 28cqw, 300px)"
+  floating-action:
+    backgroundColor: "{colors.overlay-ice}"
+    textColor: "{colors.overlay-blue}"
+    rounded: "{rounded.overlay-action}"
+    padding: "10px"
+    width: "44px"
+    height: "44px"
+  floating-action-hover:
+    backgroundColor: "{colors.overlay-hover}"
+  floating-action-disabled:
+    backgroundColor: "{colors.overlay-quiet}"
+    textColor: "{colors.overlay-muted}"
 ---
 
 # Design System: MERLIN character studio
@@ -128,6 +172,7 @@ The authored midnight scene supplies the visual character. MERLIN retains the or
 - A fixed landscape stage that preserves the authored camera composition.
 - Explicit animation status, playback controls, and editable screen content.
 - A large local time and small date that keep clear of the character and pulled panels.
+- Optional compact timer and music cards borrow the existing white panel family and yield to the clock and character.
 - A separate local preview with honest boundaries around unconnected services.
 
 ## Colors
@@ -138,6 +183,7 @@ Action blue provides the only application accent; the midnight scene and luminou
 - **Neutral:** dark ink carries headings and fields; muted ink carries captions and help. White fields, pale page fill, and cool borders separate controls without cards or ornamental backgrounds.
 - **Stage:** the dark backdrop covers loading, while the runtime uses the scene-midnight color for its background and fog. Pale stage messages remain legible over the dark canvas; failed loading uses a solid dark overlay.
 - **Clock:** pale cyan digits lead, with separate softer cyan tints for the period and date. These scoped scene colors extend the character's luminous display language without changing the surrounding utility controls.
+- **Floating cards:** white paper, navy ink, muted blue-grey support text, blue progress/actions, and ice action fills come from the existing [panel family](panels/DESIGN.md). Cyan marks the authored record center and selection; green accompanies the finished timer's text. The lighter hover and quiet disabled fills belong only to these optional cards.
 - **State:** disabled controls use the muted disabled pair. Motion and content outcomes are written in text, so color does not carry their meaning alone.
 
 ## Typography
@@ -147,6 +193,8 @@ Use the native system stack for the interface and screen-message textures. The c
 Paragraphs use a comfortable line height (1.5); captions and help stop at a readable measure (72ch). The headline reduces to (1.15rem) at the narrow layout and wraps within (16ch). Motion status uses tabular numerals. Screen-message text is painted into a texture and fitted to its available bounds; it is not browser-selectable interface text.
 
 The scene clock inherits the native system stack. Its time and date use the fluid `clock-time` and `clock-date` tokens, sized against the stage's inline container rather than the viewport. Those fluid endpoints and the separate cyan tints are intentional additions to this scoped system. Tabular numerals keep time changes steady; the optional locale-specific period sits on the digits' baseline at one fifth of their size. The date sits below with a gap of (0.55em). Both rows remain on one line; no display font is introduced.
+
+Floating cards use the same native stack and tabular numerals. The scoped overlay tokens scale title, countdown, and supporting state against the stage container. Countdowns longer than five characters use the smaller long-countdown token. Titles and artists truncate visually on one line while retaining their complete accessible text and title tooltip; missing timing shows an em dash.
 
 ## Layout
 
@@ -158,17 +206,23 @@ At (960px), page padding and the column gap reduce to (20px), and the rail narro
 
 The clock is a DOM overlay inside the same clipped stage, with a minimum width of (27cqw). It has exactly five resting anchors: upper left, upper middle, upper right, lower left, and lower right. Corner anchors sit inward by (5.5% of the shorter stage dimension); upper middle shares their top inset and centers the measured clock. Placement adds clearance of (1.8% of the shorter stage dimension) around the measured text bounds. The same anchors and proportional sizing apply on desktop and narrow layouts.
 
+Floating cards share these five anchors and motion footprints. Placement reserves the clock first, then earlier cards; a clear current anchor stays fixed. If no safe anchor remains, the card retains its data out of view until room returns. At the reviewed (390px) viewport, the narrow stage conceals both samples. This is an intentional space constraint, not a breakpoint that deletes content. At stage widths of (720px) or less, the decorative record disappears and the content gap reduces to (6px). The native **Floating timer & music previews** disclosure follows Screen content and precedes the code example.
+
 ## Elevation & Depth
 
 The HTML interface is flat: no card shadows or decorative motion. White controls, cool borders, and space establish groups. The 3D scene owns depth through the authored geometry, runtime shadows, matte floor, and restrained bloom. Its lighting is an approximation, not a pixel match to Cycles. Do not compensate for a runtime lighting difference by changing the accepted Blender proportions or material direction.
 
 The scene clock has only a diffuse text shadow (`0 2px 12px #060e1c66`) to preserve legibility over the midnight scene. It adds no card surface or raised container.
 
+Optional floating cards use one soft shadow (`0 8px 24px #02081438`) to separate their white panel surfaces from the scene. The surrounding editor remains flat.
+
 ## Shapes
 
 Controls have gently rounded corners and visible one-pixel borders. The stage uses the larger radius, reducing to the small-stage radius in the stacked layout, and clips the renderer to its bounds. Buttons, selects, image selection, and the disclosure summary have minimum interaction height (44px). Textareas resize vertically and keep a minimum height (88px).
 
 The clock is unboxed, with centered time and date. It has no pointer interaction and does not intercept the stage.
+
+Floating cards use the overlay-card radius with a thin progress track (3px high). Optional transport controls are circular (44 × 44px), with authored inline SVG at (24 × 24px). The record is also authored SVG; this extension adds no raster artwork.
 
 ## Components
 
@@ -194,6 +248,18 @@ Anchor changes use a quick easing-out movement (320ms, `cubic-bezier(.16, 1, .3,
 
 The scene clock is separate from the existing [panel design system](panels/DESIGN.md) and its countdown timer. It does not alter panel styling or imply installed timers, schedules, or device behavior. Finish review returned **ship**, with no material fixes, against the precisely specified local extension and incumbent midnight scene; no approved concept comp or separate QUALITY BAR applied. Review evidence: [desktop](../../../.impeccable/review/clock/desktop.png), [mobile](../../../.impeccable/review/clock/mobile.png), [left panel](../../../.impeccable/review/clock/desktop-left-panel.png), [right panel](../../../.impeccable/review/clock/desktop-right-panel.png), and [full face](../../../.impeccable/review/clock/full-face.png).
 
+### Optional floating timer and music cards
+
+The [overlay styles](overlays/overlays.css), [runtime](overlays/scene-overlays.js), [data model](overlays/model.js), and [layout coordinator](overlays/layout.js) make short DOM versions of the timer/music panel designs. The timer leads with remaining duration; music leads with title/artist and a small record where space allows. Both include textual status and show progress only when valid timing is supplied. Unknown state is explicit; it does not fabricate zero time or successful playback.
+
+**The Optional Space Rule.** Reserve the clock before floating cards, preserve a safe anchor, and conceal a card with retained data whenever no clear anchor remains. Full-face entry, substates, and exit, ceiling presentations, and busy paired-screen transitions share the clock's concealment policy. Concealed cards are inert and removed from accessibility APIs; clearing them while concealed prevents restoration.
+
+Visible anchor changes use the clock's (320ms) easing; first placement, resize, and reduced motion place immediately. Opacity uses (130ms ease-out), disabled for reduced motion. The countdown is not live-announced each second. Controls appear only when the caller supplies an action callback, have descriptive labels and a blue focus outline (3px, offset 3px), and remain disabled outside supported active/paused states. Requests wait for caller-confirmed updates; the component does not execute or optimistically claim an action.
+
+The manager starts empty. Only explicit preview buttons create synthetic samples; preview pause/resume changes their appearance without countdown execution or audio. No live service integration, persistence, polling, or additional render loop is added. The caller supplies authoritative countdown/progress updates. The [API guide](overlays/README.md) covers reuse and cleanup; the companion's physical panels remain separate.
+
+The independent [finish review](../../../.impeccable/review/floating-overlays/finish-review.md) returned **ship**, with no material fixes, for this inherited Operate surface and code-led local extension. Evidence: [wide desktop, 1365px](../../../.impeccable/review/floating-overlays/desktop-wide.png), [desktop capture, 614px actual width](../../../.impeccable/review/floating-overlays/desktop.png), and [mobile, 390px](../../../.impeccable/review/floating-overlays/mobile.png). The [detector](../../../.impeccable/review/floating-overlays/detector.json) used a degraded regex fallback and reported only advisory additions to type, color, and radius tokens; those scoped additions are recorded here.
+
 ## Do's and Don'ts
 
 - **Do** preserve the original character proportions, matte materials, pale cyan display detail, and 4:3 composition.
@@ -202,9 +268,12 @@ The scene clock is separate from the existing [panel design system](panels/DESIG
 - **Do** label the browser lighting as an approximation and use Blender as the visual reference.
 - **Do** retain a clear clock anchor across the complete planned motion, including reverse walking and panel dismissal, and hide the clock throughout full-face entry, substates, and exit.
 - **Do** keep clock movement brief and use immediate placement when reduced motion is requested.
+- **Do** keep floating cards optional, reserve the clock first, and retain concealed card data until space returns or the caller removes it.
+- **Do** keep floating controls at (44 × 44px), expose clear state text, and wait for caller-confirmed updates.
 - **Don't** treat camera, searching, or music gestures as proof of live camera, search, or music integration.
 - **Don't** turn a textured screen into a claim of clickable DOM, persisted content, or uploaded images.
 - **Don't** expand this local preview into a product-platform decision or claim tested production-device performance.
+- **Don't** turn a floating sample into automatic timer execution, audible music, saved state, or live companion integration.
 - **Don't** replace the original authored asset with stock or generated substitute artwork. The six Blender state stills carry embedded provenance; owner reference screenshots are not redistributed.
 
 The complete paired pull and simultaneous dismissal temporarily hide time: their full swept paths leave no clear resting anchor. Time returns at the seated or ready endpoint. Selective dismissals keep time visible and replan from the remaining seated pose before another exit.
