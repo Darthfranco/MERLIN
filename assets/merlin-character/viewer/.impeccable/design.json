@@ -1,0 +1,347 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-27T18:04:31.519Z",
+  "title": "Design System: MERLIN character studio",
+  "extensions": {
+    "colorMeta": {
+      "action-blue": {
+        "role": "primary",
+        "displayName": "Action blue",
+        "tonalRamp": [
+          "oklch(15.00% 0.12518 252.04)",
+          "oklch(26.43% 0.12518 252.04)",
+          "oklch(37.86% 0.12518 252.04)",
+          "oklch(49.29% 0.12518 252.04)",
+          "oklch(60.71% 0.12518 252.04)",
+          "oklch(72.14% 0.12518 252.04)",
+          "oklch(83.57% 0.12518 252.04)",
+          "oklch(95.00% 0.12518 252.04)"
+        ]
+      },
+      "action-hover": {
+        "role": "primary",
+        "displayName": "Deep action blue",
+        "tonalRamp": [
+          "oklch(15.00% 0.09962 250.29)",
+          "oklch(26.43% 0.09962 250.29)",
+          "oklch(37.86% 0.09962 250.29)",
+          "oklch(49.29% 0.09962 250.29)",
+          "oklch(60.71% 0.09962 250.29)",
+          "oklch(72.14% 0.09962 250.29)",
+          "oklch(83.57% 0.09962 250.29)",
+          "oklch(95.00% 0.09962 250.29)"
+        ]
+      },
+      "action-soft": {
+        "role": "primary",
+        "displayName": "Pale action blue",
+        "tonalRamp": [
+          "oklch(15.00% 0.01272 244.25)",
+          "oklch(26.43% 0.01272 244.25)",
+          "oklch(37.86% 0.01272 244.25)",
+          "oklch(49.29% 0.01272 244.25)",
+          "oklch(60.71% 0.01272 244.25)",
+          "oklch(72.14% 0.01272 244.25)",
+          "oklch(83.57% 0.01272 244.25)",
+          "oklch(95.00% 0.01272 244.25)"
+        ]
+      },
+      "focus-blue": {
+        "role": "primary",
+        "displayName": "Focus blue",
+        "tonalRamp": [
+          "oklch(15.00% 0.13588 251.09)",
+          "oklch(26.43% 0.13588 251.09)",
+          "oklch(37.86% 0.13588 251.09)",
+          "oklch(49.29% 0.13588 251.09)",
+          "oklch(60.71% 0.13588 251.09)",
+          "oklch(72.14% 0.13588 251.09)",
+          "oklch(83.57% 0.13588 251.09)",
+          "oklch(95.00% 0.13588 251.09)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Dark ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.04030 246.83)",
+          "oklch(26.43% 0.04030 246.83)",
+          "oklch(37.86% 0.04030 246.83)",
+          "oklch(49.29% 0.04030 246.83)",
+          "oklch(60.71% 0.04030 246.83)",
+          "oklch(72.14% 0.04030 246.83)",
+          "oklch(83.57% 0.04030 246.83)",
+          "oklch(95.00% 0.04030 246.83)"
+        ]
+      },
+      "muted-ink": {
+        "role": "neutral",
+        "displayName": "Muted ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.03399 245.42)",
+          "oklch(26.43% 0.03399 245.42)",
+          "oklch(37.86% 0.03399 245.42)",
+          "oklch(49.29% 0.03399 245.42)",
+          "oklch(60.71% 0.03399 245.42)",
+          "oklch(72.14% 0.03399 245.42)",
+          "oklch(83.57% 0.03399 245.42)",
+          "oklch(95.00% 0.03399 245.42)"
+        ]
+      },
+      "page": {
+        "role": "neutral",
+        "displayName": "Pale page",
+        "tonalRamp": [
+          "oklch(15.00% 0.00342 247.86)",
+          "oklch(26.43% 0.00342 247.86)",
+          "oklch(37.86% 0.00342 247.86)",
+          "oklch(49.29% 0.00342 247.86)",
+          "oklch(60.71% 0.00342 247.86)",
+          "oklch(72.14% 0.00342 247.86)",
+          "oklch(83.57% 0.00342 247.86)",
+          "oklch(95.00% 0.00342 247.86)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "White surface",
+        "tonalRamp": [
+          "oklch(15.00% 0.00000 0.00)",
+          "oklch(26.43% 0.00000 0.00)",
+          "oklch(37.86% 0.00000 0.00)",
+          "oklch(49.29% 0.00000 0.00)",
+          "oklch(60.71% 0.00000 0.00)",
+          "oklch(72.14% 0.00000 0.00)",
+          "oklch(83.57% 0.00000 0.00)",
+          "oklch(95.00% 0.00000 0.00)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Cool border",
+        "tonalRamp": [
+          "oklch(15.00% 0.01479 244.74)",
+          "oklch(26.43% 0.01479 244.74)",
+          "oklch(37.86% 0.01479 244.74)",
+          "oklch(49.29% 0.01479 244.74)",
+          "oklch(60.71% 0.01479 244.74)",
+          "oklch(72.14% 0.01479 244.74)",
+          "oklch(83.57% 0.01479 244.74)",
+          "oklch(95.00% 0.01479 244.74)"
+        ]
+      },
+      "input-border": {
+        "role": "neutral",
+        "displayName": "Field border",
+        "tonalRamp": [
+          "oklch(15.00% 0.03194 243.61)",
+          "oklch(26.43% 0.03194 243.61)",
+          "oklch(37.86% 0.03194 243.61)",
+          "oklch(49.29% 0.03194 243.61)",
+          "oklch(60.71% 0.03194 243.61)",
+          "oklch(72.14% 0.03194 243.61)",
+          "oklch(83.57% 0.03194 243.61)",
+          "oklch(95.00% 0.03194 243.61)"
+        ]
+      },
+      "disabled-surface": {
+        "role": "neutral",
+        "displayName": "Disabled surface",
+        "tonalRamp": [
+          "oklch(15.00% 0.00866 247.92)",
+          "oklch(26.43% 0.00866 247.92)",
+          "oklch(37.86% 0.00866 247.92)",
+          "oklch(49.29% 0.00866 247.92)",
+          "oklch(60.71% 0.00866 247.92)",
+          "oklch(72.14% 0.00866 247.92)",
+          "oklch(83.57% 0.00866 247.92)",
+          "oklch(95.00% 0.00866 247.92)"
+        ]
+      },
+      "disabled-ink": {
+        "role": "neutral",
+        "displayName": "Disabled ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.03307 246.90)",
+          "oklch(26.43% 0.03307 246.90)",
+          "oklch(37.86% 0.03307 246.90)",
+          "oklch(49.29% 0.03307 246.90)",
+          "oklch(60.71% 0.03307 246.90)",
+          "oklch(72.14% 0.03307 246.90)",
+          "oklch(83.57% 0.03307 246.90)",
+          "oklch(95.00% 0.03307 246.90)"
+        ]
+      },
+      "stage-backdrop": {
+        "role": "neutral",
+        "displayName": "Stage backdrop",
+        "tonalRamp": [
+          "oklch(15.00% 0.03253 259.72)",
+          "oklch(26.43% 0.03253 259.72)",
+          "oklch(37.86% 0.03253 259.72)",
+          "oklch(49.29% 0.03253 259.72)",
+          "oklch(60.71% 0.03253 259.72)",
+          "oklch(72.14% 0.03253 259.72)",
+          "oklch(83.57% 0.03253 259.72)",
+          "oklch(95.00% 0.03253 259.72)"
+        ]
+      },
+      "scene-midnight": {
+        "role": "neutral",
+        "displayName": "Scene midnight",
+        "tonalRamp": [
+          "oklch(15.00% 0.04217 260.46)",
+          "oklch(26.43% 0.04217 260.46)",
+          "oklch(37.86% 0.04217 260.46)",
+          "oklch(49.29% 0.04217 260.46)",
+          "oklch(60.71% 0.04217 260.46)",
+          "oklch(72.14% 0.04217 260.46)",
+          "oklch(83.57% 0.04217 260.46)",
+          "oklch(95.00% 0.04217 260.46)"
+        ]
+      },
+      "stage-message": {
+        "role": "neutral",
+        "displayName": "Pale stage message",
+        "tonalRamp": [
+          "oklch(15.00% 0.03627 241.80)",
+          "oklch(26.43% 0.03627 241.80)",
+          "oklch(37.86% 0.03627 241.80)",
+          "oklch(49.29% 0.03627 241.80)",
+          "oklch(60.71% 0.03627 241.80)",
+          "oklch(72.14% 0.03627 241.80)",
+          "oklch(83.57% 0.03627 241.80)",
+          "oklch(95.00% 0.03627 241.80)"
+        ]
+      },
+      "stage-error": {
+        "role": "neutral",
+        "displayName": "Stage error overlay",
+        "tonalRamp": [
+          "oklch(15.00% 0.03317 254.85)",
+          "oklch(26.43% 0.03317 254.85)",
+          "oklch(37.86% 0.03317 254.85)",
+          "oklch(49.29% 0.03317 254.85)",
+          "oklch(60.71% 0.03317 254.85)",
+          "oklch(72.14% 0.03317 254.85)",
+          "oklch(83.57% 0.03317 254.85)",
+          "oklch(95.00% 0.03317 254.85)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Studio title",
+        "purpose": "Compact tool identity above the working stage."
+      },
+      "help": {
+        "displayName": "Help and captions",
+        "purpose": "Subordinate explanations and explicit preview limits."
+      }
+    },
+    "motion": [
+      {
+        "name": "clip-crossfade",
+        "value": "180ms",
+        "purpose": "Blend from an interrupted loop into its authored exit; walking and tossing first finish their current cycle."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-desktop-max",
+        "value": "960px"
+      },
+      {
+        "name": "stacked-stage-max",
+        "value": "720px"
+      },
+      {
+        "name": "single-form-max",
+        "value": "480px"
+      },
+      {
+        "name": "wide-page-min",
+        "value": "1600px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Full-width action for animation or screen content.",
+      "html": "<button class=\"ds-primary\" type=\"button\">Play animation</button>",
+      "css": ".ds-primary{min-height:44px;padding:9px 13px;border:1px solid #ccd5dd;border-radius:6px;color:#185c9e;background:#fff;cursor:pointer;font:600 .9rem -apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;background:#185c9e;color:#fff;border-color:#185c9e;width:100%;margin-top:14px}.ds-primary:hover{background:#104778}.ds-primary:focus-visible{outline:3px solid #1264ac;outline-offset:3px;}.ds-primary:disabled{color:#526373;background:#e3e8ed;cursor:wait}"
+    },
+    {
+      "name": "Secondary action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Playback and other local utility actions.",
+      "html": "<button class=\"ds-secondary\" type=\"button\">Return to ready</button>",
+      "css": ".ds-secondary{min-height:44px;padding:9px 13px;border:1px solid #ccd5dd;border-radius:6px;color:#185c9e;background:#fff;cursor:pointer;font:600 .9rem -apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;}.ds-secondary:hover{background:#eaf2f9}.ds-secondary:focus-visible{outline:3px solid #1264ac;outline-offset:3px;}.ds-secondary:disabled{color:#526373;background:#e3e8ed;cursor:wait}"
+    },
+    {
+      "name": "Labeled text field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Persistent label above a full-width editor field.",
+      "html": "<label class=\"ds-label\" for=\"ds-screen-title\">Title</label><input class=\"ds-field\" id=\"ds-screen-title\" value=\"Hello, world.\" maxlength=\"70\">",
+      "css": ".ds-label{display:block;color:#172a3b;font-size:.86rem;font-weight:600;margin:12px 0 6px}.ds-field{width:100%;padding:10px 11px;border:1px solid #8b9eae;border-radius:6px;color:#172a3b;background:#fff;font:inherit;caret-color:#185c9e;}.ds-field:focus{outline:2px solid #1264ac;outline-offset:2px}"
+    },
+    {
+      "name": "Animation selection",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Native selection; the separate Play action starts the chosen destination.",
+      "html": "<label class=\"ds-select-label\" for=\"ds-mode\">Choose a mood or action</label><select class=\"ds-select\" id=\"ds-mode\"><optgroup label=\"Body\"><option>Ready to help</option><option>Music &amp; dance</option><option>Deep thought</option></optgroup><optgroup label=\"Screens\"><option>Pull a screen from the right</option><option>Pull a screen from the left</option></optgroup></select>",
+      "css": ".ds-select-label{display:block;color:#172a3b;font-size:.86rem;font-weight:600;margin:12px 0 6px}.ds-select{width:100%;padding:10px 11px;border:1px solid #8b9eae;border-radius:6px;color:#172a3b;background:#fff;font:inherit;caret-color:#185c9e;min-height:44px}.ds-select:focus{outline:2px solid #1264ac;outline-offset:2px}"
+    },
+    {
+      "name": "Local image picker",
+      "kind": "input",
+      "description": "A styled label retains a native file input and its keyboard focus.",
+      "html": "<label class=\"ds-file\">Choose an image<input type=\"file\" accept=\"image/png,image/jpeg,image/webp\"></label>",
+      "css": ".ds-file{min-height:44px;padding:9px 13px;border:1px solid #ccd5dd;border-radius:6px;color:#185c9e;background:#fff;cursor:pointer;font:600 .9rem -apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;position:relative;display:flex;align-items:center;justify-content:center;text-align:center}.ds-file:hover{background:#eaf2f9}.ds-file:focus-within{outline:3px solid #1264ac;outline-offset:3px;}.ds-file input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;padding:0}"
+    },
+    {
+      "name": "Stage loading state",
+      "kind": "custom",
+      "refersTo": "stage",
+      "description": "The fixed 4:3 frame before the live WebGL asset is ready; this snippet does not simulate the 3D character.",
+      "html": "<div class=\"ds-stage\"><p class=\"ds-loading\" role=\"status\">Loading MERLIN…</p></div>",
+      "css": ".ds-stage{width:100%;aspect-ratio:4/3;background:#060e1c;position:relative;overflow:hidden;border-radius:12px}.ds-loading{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;text-align:center;color:#d4ecff;margin:0;padding:32px;line-height:1.5}@media(max-width:720px){.ds-stage{border-radius:10px}}"
+    },
+    {
+      "name": "Code disclosure",
+      "kind": "custom",
+      "description": "A native disclosure keeps API examples below the ordinary controls.",
+      "html": "<details class=\"ds-details\"><summary>Use the screens from code</summary><p class=\"ds-help\">Each surface accepts a canvas, image, or video element.</p><pre><code>merlin.go('right');</code></pre></details>",
+      "css": ".ds-details{margin-top:26px;padding-top:18px;border-top:1px solid #ccd5dd;font-size:.86rem;color:#172a3b}.ds-details summary{cursor:pointer;min-height:44px;line-height:1.5;font-weight:600;color:#185c9e}.ds-details summary:focus-visible{outline:3px solid #1264ac;outline-offset:3px;}.ds-help{font-size:.82rem;line-height:1.5;color:#4e6070;margin:10px 0 0;max-width:72ch}.ds-details pre{overflow:auto;max-width:100%;padding:14px;background:#eaf2f9;border-radius:6px;color:#163f64;font-size:.75rem;line-height:1.65;tab-size:2}.ds-details code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Inspect the real Blender character.",
+    "overview": "This scoped reference records the implemented [character studio](index.html), its [stylesheet](studio.css), and its [runtime](studio.js). It inherits the blue actions, native typography, clear labels, and flat utility surfaces of the root [design system](../../../DESIGN.md). It does not replace that system or choose MERLIN's final application platform.\n\nThe authored midnight scene supplies the visual character. MERLIN retains the original rounded proportions, matte/satin blue surfaces, flush dark display, pale cyan face details, and lit feet. The surrounding interface stays compact so the animated character and editable physical screens remain easy to inspect. Blender is the visual lighting reference; the browser's floor, lights, shadows, and bloom approximate it.\n",
+    "keyCharacteristics": [
+      "Native controls and restrained blue actions on a pale neutral page.",
+      "A fixed landscape stage that preserves the authored camera composition.",
+      "Explicit animation status, playback controls, and editable screen content.",
+      "A separate local preview with honest boundaries around unconnected services."
+    ],
+    "rules": [],
+    "dos": [
+      "**Do** preserve the original character proportions, matte materials, pale cyan display detail, and 4:3 composition.",
+      "**Do** retain labeled native controls, visible keyboard focus, textual status, and explicit playback control.",
+      "**Do** keep screen editing separate from animation selection and preserve content on the correct surface and fragments.",
+      "**Do** label the browser lighting as an approximation and use Blender as the visual reference."
+    ],
+    "donts": [
+      "**Don't** treat camera, searching, or music gestures as proof of live camera, search, or music integration.",
+      "**Don't** turn a textured screen into a claim of clickable DOM, persisted content, or uploaded images.",
+      "**Don't** expand this local preview into a product-platform decision or claim tested production-device performance.",
+      "**Don't** replace the original authored asset with stock or generated substitute artwork. The six Blender state stills carry embedded provenance; owner reference screenshots are not redistributed."
+    ]
+  }
+}

@@ -43,7 +43,7 @@ def _compact_copy(action):
     return copy
 
 
-def export_interactions(export_names,filepath):
+def export_interactions(export_names,filepath,controller=None,collection_names=None):
     """Export all synchronized owners; retain the original authored actions.
 
     Run after the scene is built/saved. No unrelated NLA tracks are discarded.
@@ -52,13 +52,17 @@ def export_interactions(export_names,filepath):
     sampler value throughout the remainder of that same named clip.
     """
     export_names=list(export_names)
-    owned=owners();scene=bpy.context.scene
+    if controller is None:
+        import interaction_support as controller
+    if collection_names is None:
+        collection_names=('MERLIN • Character','MERLIN • Display mode')
+    owned=controller.owners();scene=bpy.context.scene
     for owner,data in owned:
         data.animation_data_create()
         if data.animation_data.nla_tracks:
             raise ValueError('Export requires a clean authoring scene; existing NLA tracks on '+owner)
         for name in export_names:
-            if action_for(name,owner) is None:raise ValueError('Missing synchronized action: '+name+', '+owner)
+            if controller.action_for(name,owner) is None:raise ValueError('Missing synchronized action: '+name+', '+owner)
     saved_actions={owner:data.animation_data.action for owner,data in owned}
     saved_nla={owner:data.animation_data.use_nla for owner,data in owned}
     saved_frame=scene.frame_current+scene.frame_subframe
@@ -72,13 +76,13 @@ def export_interactions(export_names,filepath):
     copies=[];created=[]
     statistics={'constant_companions':0,'dynamic_or_rig_tracks':0,'owner_frames_before':0,'owner_frames_exported':0}
     try:
-        apply_activity(scene,'ReadyIdle',1)
+        controller.apply_activity(scene,'ReadyIdle',1)
         for owner,data in owned:
             data.animation_data.action=None
             data.animation_data.use_nla=True
             driven=bool(data.animation_data.drivers)
             for name in export_names:
-                source=action_for(name,owner)
+                source=controller.action_for(name,owner)
                 original_length=round(source.frame_range[1]-source.frame_range[0])+1
                 statistics['owner_frames_before']+=original_length
                 if owner!='rig' and not driven and _constant(source):
@@ -94,7 +98,7 @@ def export_interactions(export_names,filepath):
                 strip.action_frame_end=action.frame_range[1]
                 track.mute=True
         bpy.ops.object.select_all(action='DESELECT')
-        for collname in ('MERLIN • Character','MERLIN • Display mode'):
+        for collname in collection_names:
             for obj in bpy.data.collections[collname].objects:obj.select_set(True)
         bpy.context.view_layer.objects.active=bpy.data.objects['MERLIN_Rig']
         scene.frame_set(1)

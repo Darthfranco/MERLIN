@@ -1,10 +1,50 @@
-# MERLIN character — first design study
+# MERLIN character and animation studio
 
-An original Blender model built from the owner's visual brief: a clean, cute robot with matte cornflower-blue surfaces, rounded head and body forms, a flush dark display, restrained cyan lighting, and a visible pool of light beneath its feet. Its matte/satin finish uses gentle diffuse shading and minimal reflections. The eyes grade from cyan-blue above to pale ice below. Two fine, muted-blue panel joins mark the rear head cap and curve around the chest. The proportions and simplified mitten hands are deliberately softer than the mechanical detail in the supplied references. This is a character asset; live assistant-state selection and application integration have not been implemented.
+An original Blender model built from the owner's visual brief: a clean, cute robot with matte cornflower-blue surfaces, rounded head and body forms, a flush dark display, restrained cyan lighting, and a visible pool of light beneath its feet. Its matte/satin finish uses gentle diffuse shading and minimal reflections. The eyes grade from cyan-blue above to pale ice below. Two fine, muted-blue panel joins mark the rear head cap and curve around the chest. The proportions and simplified mitten hands are deliberately softer than the mechanical detail in the supplied references. This is a character asset with a separate local browser studio; integration with the live assistant is still open.
 
-## Latest: expressive acting, panel interaction, and full-frame face
+## Latest: editable screens and expressive states
 
-The new [merlin-interactions.blend](merlin-interactions.blend) and [merlin-interactions.glb](merlin-interactions.glb) extend the previous animation set with a more natural supported wake-up, purposeful eye glances and eyelid acting, a physical panel pull, clean tap dismissal, and coherent expansion into the same character's full-frame face. Original proportions, matte blue surfaces, cyan gradient, and room lighting are preserved. Earlier `.blend`, `.glb`, and preview files remain available as prior versions; this file is the latest animation study.
+Open [merlin-states.blend](merlin-states.blend) for the latest editable Blender scene, or run the [browser studio](viewer/README.md):
+
+```sh
+node assets/merlin-character/viewer/serve.mjs
+# Open http://127.0.0.1:3310/viewer/
+```
+
+The new [merlin-states.glb](merlin-states.glb) contains **37 synchronized clips**: the previous 19 plus 18 new entry, loop, and exit clips. [states.json](states.json) defines twelve connected destinations and stable screen IDs. `StatesShowcase` in Blender plays a continuous **1,384-frame** presentation at 24 fps. Original robot proportions, matte blue finish, cyan gradient, and Blender lighting are retained.
+
+| New family | Clips | Visual behavior |
+| --- | --- | --- |
+| Dance | `ReadyToDance`, `Dance`, `DanceToReady` | Grounded swaying, head nods, arm motion, and floating cyan music notes |
+| Body thought | `ReadyToThink`, `BodyThink`, `ThinkToReady` | Hand near chin, head tilt, glances and changing weight |
+| Left screen | `ReadyToLeftPanel`, `LeftPanelIdle`, `LeftPanelToReady` | Mirrored pull with effort, idle beside the screen, tap/shatter and return |
+| Camera face | `FaceToCamera`, `CameraIdle`, `CameraToFace` | Lens eyes, disappearing mouth, programmable synthetic viewfinder |
+| Thinking face | `FaceToThink`, `FaceThink`, `ThinkToFace` | Focused eyelids, thoughtful glances, sequenced cyan mouth bars |
+| Searching face | `FaceToSearch`, `FaceSearch`, `SearchToFace` | Sweeping magnifying-glass eyes and lively mouth motion |
+
+Both physical panels and the camera viewfinder are real image-texture surfaces. Replace content from Blender using `screen_content.set_screen_image()` / `set_screen_pixels()`, or from JavaScript using `merlin.screens.right`, `.left`, and `.camera`. The browser editor demonstrates text, local images, and animated canvas content. Content stays attached to the fragments during dismissal. Full API examples and limitations are in [viewer/README.md](viewer/README.md).
+
+The browser can route between any of its twelve destinations through the shared ready/full-face poses, pause and resume, and retain the newest selection during an active transition. It uses approximation lighting around the exported asset; Blender remains the rendering reference. These are presentation states, not connected camera, web-search, or music services. The viewer does not play the older whistle audio, and textured content does not embed a clickable DOM browser. No real-device performance claim is made.
+
+The final asset passes **107 scene/export checks** and an independent **111-pose GLB re-import comparison** across all 37 clips and 98 owners. No tracks are missing; face weights, all three screen images, and the cyan gradient match exactly. Maximum bone-position error is 1.34 × 10⁻⁶ scene units. All clip durations, screen UVs, and both shatter samples pass. See [state validation](previews/states-validation.json) and [roundtrip validation](previews/states-roundtrip-validation.json). Six controller tests pass every ordered pair of the twelve browser destinations plus interruption/pause/cycle-completion behavior.
+
+Six Cycles stills: [dance](previews/merlin-state-dance.png), [deep thought](previews/merlin-state-body-think.png), [left screen](previews/merlin-state-left-panel.png), [camera](previews/merlin-state-camera.png), [thinking face](previews/merlin-state-face-think.png), [searching face](previews/merlin-state-face-search.png). Each is 1000 × 750, 32 samples with denoising. Their PNG metadata records the original Blender source and rendering provenance.
+
+Rebuild and verify with Blender 4.0.2 (use its full executable path if it is not on PATH):
+
+```sh
+blender --background --python-exit-code 1 --python assets/merlin-character/scripts/build_screen_states.py
+blender --background --python-exit-code 1 --python assets/merlin-character/scripts/verify_screen_states.py
+blender --background --python-exit-code 1 --python assets/merlin-character/scripts/verify_states_roundtrip.py
+blender --background --python-exit-code 1 --python assets/merlin-character/scripts/render_screen_states.py
+node --test assets/merlin-character/viewer/motion.test.mjs
+```
+
+To select a clip in Blender, import `apply_activity` from `screen_state_support` and call `apply_activity(bpy.context.scene, 'CameraIdle', 1)`. It synchronizes every rig, expression, screen, note, and fragment track. A rig-only action selection is insufficient. Earlier assets and helpers remain available for their original scope.
+
+## Previous: expressive acting, panel interaction, and full-frame face
+
+The new [merlin-interactions.blend](merlin-interactions.blend) and [merlin-interactions.glb](merlin-interactions.glb) extend the previous animation set with a more natural supported wake-up, purposeful eye glances and eyelid acting, a physical panel pull, clean tap dismissal, and coherent expansion into the same character's full-frame face. Original proportions, matte blue surfaces, cyan gradient, and room lighting are preserved. Earlier `.blend`, `.glb`, and preview files remain available as prior versions; this file is the prior 19-clip animation study.
 
 The wake-up brings the hands down for support, leads with the head and torso, gathers the feet, and makes a small hop followed by a cushioned landing and the existing welcome wave. Expressions follow the action: groggy eyes wake before the body, glances anticipate travel, the panel pull shows focus and effort, and returns soften into a friendly smile. Every facial channel is baked; a tiny corrective morph keeps combined eye shapes on the curved display.
 
@@ -63,7 +103,7 @@ The full-resolution stills use Cycles with compositor bloom. The motion preview 
 
 The panel and full-frame modes use their fixed entry/exit routes at the documented endpoints. The earlier `transition_support.build_return_from_activity` helper below is scoped to the prior casual/transition assets: it synchronizes the body, face, and ball only and does not author panel or full-frame returns.
 
-The full-frame presentation is authored for the saved landscape camera's transform and **4:3 orthographic composition**. The GLB contains animation assets, not a configured application camera or renderer; a runtime must reproduce that framing, lighting, and bloom. The white panel has no live content, and its dismissal is authored geometry animation. The mouth movement is authored animation, not audio analysis or speech synchronization. Application state selection and device performance remain unimplemented and unbenchmarked.
+The full-frame presentation is authored for the saved landscape camera's transform and **4:3 orthographic composition**. The GLB contains animation assets, not a configured application camera or renderer; a runtime must reproduce that framing, lighting, and bloom. In this prior 19-clip asset the white panel has no live content; the newer state asset below adds programmable textures. Dismissal is authored geometry animation. The mouth movement is authored animation, not audio analysis or speech synchronization. Application state selection and device performance remain unimplemented and unbenchmarked.
 
 ## Central ready pose and two-way transitions
 

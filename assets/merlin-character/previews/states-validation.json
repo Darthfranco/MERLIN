@@ -1,0 +1,1044 @@
+{
+  "schema_version": 1,
+  "blend_file": "merlin-states.blend",
+  "blend_sha256": "757bcde24cd6f124444f4dbaf6a9e302e5f4e3b4529600dd599a14b2940525e4",
+  "checked_at_utc": "2026-10-27T17:37:33.168019+00:00",
+  "checks": [
+    {
+      "name": "ReadyToDance_source_continuity",
+      "passed": true,
+      "maximum_error": 5.960464477539063e-08,
+      "errors": []
+    },
+    {
+      "name": "ReadyToDance_target_continuity",
+      "passed": true,
+      "maximum_error": 2.0996637850059467e-33,
+      "errors": []
+    },
+    {
+      "name": "Dance_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "Dance_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "DanceToReady_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "DanceToReady_target_continuity",
+      "passed": true,
+      "maximum_error": 5.960464477539063e-08,
+      "errors": []
+    },
+    {
+      "name": "ReadyToThink_source_continuity",
+      "passed": true,
+      "maximum_error": 5.960464477539063e-08,
+      "errors": []
+    },
+    {
+      "name": "ReadyToThink_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "BodyThink_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "BodyThink_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "ThinkToReady_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "ThinkToReady_target_continuity",
+      "passed": true,
+      "maximum_error": 5.960464477539063e-08,
+      "errors": []
+    },
+    {
+      "name": "ReadyToLeftPanel_source_continuity",
+      "passed": true,
+      "maximum_error": 5.960464477539063e-08,
+      "errors": []
+    },
+    {
+      "name": "ReadyToLeftPanel_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "LeftPanelIdle_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "LeftPanelIdle_target_continuity",
+      "passed": true,
+      "maximum_error": 1.4695762106944922e-18,
+      "errors": []
+    },
+    {
+      "name": "LeftPanelToReady_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "LeftPanelToReady_target_continuity",
+      "passed": true,
+      "maximum_error": 5.960464477539063e-08,
+      "errors": []
+    },
+    {
+      "name": "FaceToCamera_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "FaceToCamera_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "CameraIdle_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "CameraIdle_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "CameraToFace_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "CameraToFace_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "FaceToThink_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "FaceToThink_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "FaceThink_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "FaceThink_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "ThinkToFace_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "ThinkToFace_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "FaceToSearch_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "FaceToSearch_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "FaceSearch_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "FaceSearch_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "SearchToFace_source_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "SearchToFace_target_continuity",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "Dance_loop_seam",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "BodyThink_loop_seam",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "LeftPanelIdle_loop_seam",
+      "passed": true,
+      "maximum_error": 1.4695762106944922e-18,
+      "errors": []
+    },
+    {
+      "name": "CameraIdle_loop_seam",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "FaceThink_loop_seam",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "FaceSearch_loop_seam",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "all_helpers_explicitly_hidden_outside_family",
+      "passed": true,
+      "helper_owners": 89,
+      "errors": []
+    },
+    {
+      "name": "Dance_intended_helpers_visible",
+      "passed": true,
+      "visible": [
+        "Music note 01",
+        "Music note 02",
+        "Music note 03",
+        "Music note 04"
+      ],
+      "expected_count": 4
+    },
+    {
+      "name": "LeftPanelIdle_intended_helpers_visible",
+      "passed": true,
+      "visible": [
+        "MERLIN_LeftPanel"
+      ],
+      "expected_count": 1
+    },
+    {
+      "name": "PanelIdle_intended_helpers_visible",
+      "passed": true,
+      "visible": [
+        "Panel \u2022 white card"
+      ],
+      "expected_count": 1
+    },
+    {
+      "name": "CameraIdle_intended_helpers_visible",
+      "passed": true,
+      "visible": [
+        "Face state \u2022 camera lens L",
+        "Face state \u2022 camera aperture L",
+        "Face state \u2022 camera lens R",
+        "Face state \u2022 camera aperture R",
+        "Face state \u2022 camera screen",
+        "Face state \u2022 viewfinder corners",
+        "Face state \u2022 viewfinder focus"
+      ],
+      "expected_count": 7
+    },
+    {
+      "name": "FaceSearch_intended_helpers_visible",
+      "passed": true,
+      "visible": [
+        "Face state \u2022 search lens L",
+        "Face state \u2022 search glint L",
+        "Face state \u2022 search lens R",
+        "Face state \u2022 search glint R"
+      ],
+      "expected_count": 4
+    },
+    {
+      "name": "three_editable_screen_ids",
+      "passed": true,
+      "nodes": {
+        "right": [
+          "Panel \u2022 white card",
+          "Panel \u2022 fragment 01",
+          "Panel \u2022 fragment 02",
+          "Panel \u2022 fragment 03",
+          "Panel \u2022 fragment 04",
+          "Panel \u2022 fragment 05",
+          "Panel \u2022 fragment 06",
+          "Panel \u2022 fragment 07",
+          "Panel \u2022 fragment 08",
+          "Panel \u2022 fragment 09",
+          "Panel \u2022 fragment 10",
+          "Panel \u2022 fragment 11",
+          "Panel \u2022 fragment 12",
+          "Panel \u2022 fragment 13",
+          "Panel \u2022 fragment 14",
+          "Panel \u2022 fragment 15",
+          "Panel \u2022 fragment 16",
+          "Panel \u2022 fragment 17",
+          "Panel \u2022 fragment 18",
+          "Panel \u2022 fragment 19",
+          "Panel \u2022 fragment 20",
+          "Panel \u2022 fragment 21",
+          "Panel \u2022 fragment 22",
+          "Panel \u2022 fragment 23",
+          "Panel \u2022 fragment 24",
+          "Panel \u2022 fragment 25",
+          "Panel \u2022 fragment 26",
+          "Panel \u2022 fragment 27",
+          "Panel \u2022 fragment 28",
+          "Panel \u2022 fragment 29",
+          "Panel \u2022 fragment 30"
+        ],
+        "left": [
+          "MERLIN_LeftFragment_01",
+          "MERLIN_LeftFragment_02",
+          "MERLIN_LeftFragment_03",
+          "MERLIN_LeftFragment_04",
+          "MERLIN_LeftFragment_05",
+          "MERLIN_LeftFragment_06",
+          "MERLIN_LeftFragment_07",
+          "MERLIN_LeftFragment_08",
+          "MERLIN_LeftFragment_09",
+          "MERLIN_LeftFragment_10",
+          "MERLIN_LeftFragment_11",
+          "MERLIN_LeftFragment_12",
+          "MERLIN_LeftFragment_13",
+          "MERLIN_LeftFragment_14",
+          "MERLIN_LeftFragment_15",
+          "MERLIN_LeftFragment_16",
+          "MERLIN_LeftFragment_17",
+          "MERLIN_LeftFragment_18",
+          "MERLIN_LeftFragment_19",
+          "MERLIN_LeftFragment_20",
+          "MERLIN_LeftFragment_21",
+          "MERLIN_LeftFragment_22",
+          "MERLIN_LeftFragment_23",
+          "MERLIN_LeftFragment_24",
+          "MERLIN_LeftFragment_25",
+          "MERLIN_LeftFragment_26",
+          "MERLIN_LeftFragment_27",
+          "MERLIN_LeftFragment_28",
+          "MERLIN_LeftFragment_29",
+          "MERLIN_LeftFragment_30",
+          "MERLIN_LeftPanel"
+        ],
+        "camera": [
+          "Face state \u2022 camera screen"
+        ]
+      }
+    },
+    {
+      "name": "all_screen_front_materials_uvs_and_embedded_images_valid",
+      "passed": true,
+      "errors": [],
+      "error_count": 0
+    },
+    {
+      "name": "screen_node_counts",
+      "passed": true,
+      "counts": {
+        "right": 31,
+        "left": 31,
+        "camera": 1
+      }
+    },
+    {
+      "name": "manifest_screen_ids_match_scene",
+      "passed": true
+    },
+    {
+      "name": "ReadyToDance_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03299989083097912,
+      "minimum_arm_head_implicit_volume": 1.6102464555163603,
+      "x_extent": [
+        -1.2827651979063823,
+        1.2867942729207793
+      ],
+      "maximum_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "ReadyToDance_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "Dance_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.034999752752485014,
+      "minimum_arm_head_implicit_volume": 1.4624583531663573,
+      "x_extent": [
+        -1.3226231393177184,
+        1.3626693405828039
+      ],
+      "maximum_scale_error": 2.980232238769531e-07
+    },
+    {
+      "name": "Dance_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "DanceToReady_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03299989083097912,
+      "minimum_arm_head_implicit_volume": 1.6102464555163603,
+      "x_extent": [
+        -1.2827651979063823,
+        1.2867942729207793
+      ],
+      "maximum_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "DanceToReady_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "ReadyToThink_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03299992548026298,
+      "minimum_arm_head_implicit_volume": 1.17107539522735,
+      "x_extent": [
+        -1.2955560229901089,
+        1.1490000486373901
+      ],
+      "maximum_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "ReadyToThink_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "BodyThink_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03499974429607211,
+      "minimum_arm_head_implicit_volume": 1.0336657890440595,
+      "x_extent": [
+        -1.4540245396733804,
+        1.1854448698547717
+      ],
+      "maximum_scale_error": 4.76837158203125e-07
+    },
+    {
+      "name": "BodyThink_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "ThinkToReady_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03299991060289639,
+      "minimum_arm_head_implicit_volume": 1.17107539522735,
+      "x_extent": [
+        -1.2955560229901089,
+        1.1490000486373901
+      ],
+      "maximum_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "ThinkToReady_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "ReadyToLeftPanel_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03299962310059962,
+      "minimum_arm_head_implicit_volume": 1.5426969588733643,
+      "x_extent": [
+        -4.475000636719075,
+        2.6990000009536743
+      ],
+      "maximum_scale_error": 1.7881393432617188e-07
+    },
+    {
+      "name": "ReadyToLeftPanel_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "LeftPanelIdle_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03499998897314072,
+      "minimum_arm_head_implicit_volume": 1.3907784324951025,
+      "x_extent": [
+        0.40099990367889404,
+        2.7638737186944438
+      ],
+      "maximum_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "LeftPanelIdle_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "LeftPanelToReady_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03299967260534428,
+      "minimum_arm_head_implicit_volume": 1.5463226423065308,
+      "x_extent": [
+        -1.1733900011340619,
+        2.71772628738473
+      ],
+      "maximum_scale_error": 1.7881393432617188e-07
+    },
+    {
+      "name": "LeftPanelToReady_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "FaceToCamera_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.6102464555163603,
+      "x_extent": [
+        -1.1490000486373901,
+        1.1490000486373901
+      ],
+      "maximum_scale_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "FaceToCamera_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "CameraIdle_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.6102464555163603,
+      "x_extent": [
+        -1.1490000486373901,
+        1.1490000486373901
+      ],
+      "maximum_scale_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "CameraIdle_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "CameraToFace_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.6102464555163603,
+      "x_extent": [
+        -1.1490000486373901,
+        1.1490000486373901
+      ],
+      "maximum_scale_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "CameraToFace_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "FaceToThink_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.6102464555163603,
+      "x_extent": [
+        -1.1490000486373901,
+        1.1490000486373901
+      ],
+      "maximum_scale_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "FaceToThink_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "FaceThink_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.6102464555163603,
+      "x_extent": [
+        -1.1490000486373901,
+        1.1490000486373901
+      ],
+      "maximum_scale_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "FaceThink_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "ThinkToFace_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.6102464555163603,
+      "x_extent": [
+        -1.1490000486373901,
+        1.1490000486373901
+      ],
+      "maximum_scale_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "ThinkToFace_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "FaceToSearch_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.6102464555163603,
+      "x_extent": [
+        -1.1490000486373901,
+        1.1490000486373901
+      ],
+      "maximum_scale_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "FaceToSearch_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "FaceSearch_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.6102464555163603,
+      "x_extent": [
+        -1.1490000486373901,
+        1.1490000486373901
+      ],
+      "maximum_scale_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "FaceSearch_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "SearchToFace_body_clearance_and_unit_scale",
+      "passed": true,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.6102464555163603,
+      "x_extent": [
+        -1.1490000486373901,
+        1.1490000486373901
+      ],
+      "maximum_scale_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "SearchToFace_music_notes_inside_camera",
+      "passed": true,
+      "violations": []
+    },
+    {
+      "name": "exactly_37_manifest_clips",
+      "passed": true,
+      "actual": 37,
+      "missing": [],
+      "extra": []
+    },
+    {
+      "name": "unique_owner_ids",
+      "passed": true,
+      "owners": 98
+    },
+    {
+      "name": "all_owner_actions_present",
+      "passed": true,
+      "missing": []
+    },
+    {
+      "name": "all_companion_lengths_match",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "all_expected_channels_present",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "all_animation_values_finite_and_morphs_bounded",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "original_15_bones_unit_scale_and_24fps",
+      "passed": true
+    },
+    {
+      "name": "baseline_bones_preserved",
+      "passed": true
+    },
+    {
+      "name": "baseline_meshes_preserved",
+      "passed": true
+    },
+    {
+      "name": "baseline_lights_preserved",
+      "passed": true
+    },
+    {
+      "name": "baseline_world_preserved",
+      "passed": true
+    },
+    {
+      "name": "baseline_view_preserved",
+      "passed": true
+    },
+    {
+      "name": "baseline_camera_preserved",
+      "passed": true
+    },
+    {
+      "name": "baseline_character_materials_and_gradients_preserved",
+      "passed": true,
+      "missing": [],
+      "changed": []
+    },
+    {
+      "name": "glb_exactly_37_clips",
+      "passed": true,
+      "missing": [],
+      "extra": []
+    },
+    {
+      "name": "glb_complete_finite_channels_and_durations",
+      "passed": true,
+      "errors": [],
+      "channels": {
+        "Idle": 325,
+        "Wave": 325,
+        "Jump": 325,
+        "WalkWhistle": 325,
+        "WallToss": 325,
+        "Nap": 325,
+        "ReadyIdle": 325,
+        "ReadyToNap": 325,
+        "NapToReady": 325,
+        "ReadyToWallToss": 325,
+        "WallTossToReady": 325,
+        "ReadyToWalkWhistle": 325,
+        "WalkWhistleToReady": 325,
+        "ReadyToPanel": 325,
+        "PanelIdle": 325,
+        "PanelToReady": 325,
+        "ReadyToFace": 325,
+        "FullFaceIdle": 325,
+        "FaceToReady": 325,
+        "ReadyToDance": 325,
+        "Dance": 325,
+        "DanceToReady": 325,
+        "ReadyToThink": 325,
+        "BodyThink": 325,
+        "ThinkToReady": 325,
+        "LeftPanelIdle": 325,
+        "ReadyToLeftPanel": 325,
+        "LeftPanelToReady": 325,
+        "FaceToCamera": 325,
+        "CameraIdle": 325,
+        "CameraToFace": 325,
+        "FaceToThink": 325,
+        "FaceThink": 325,
+        "ThinkToFace": 325,
+        "FaceToSearch": 325,
+        "FaceSearch": 325,
+        "SearchToFace": 325
+      }
+    },
+    {
+      "name": "glb_new_state_endpoint_continuity",
+      "passed": true,
+      "maximum_error": 7.450580596923828e-08,
+      "errors": []
+    },
+    {
+      "name": "glb_all_resources_embedded",
+      "passed": true,
+      "external": []
+    },
+    {
+      "name": "glb_three_screen_ids_exported",
+      "passed": true,
+      "nodes": {
+        "right": [
+          "Panel \u2022 white card",
+          "Panel \u2022 fragment 01",
+          "Panel \u2022 fragment 02",
+          "Panel \u2022 fragment 03",
+          "Panel \u2022 fragment 04",
+          "Panel \u2022 fragment 05",
+          "Panel \u2022 fragment 06",
+          "Panel \u2022 fragment 07",
+          "Panel \u2022 fragment 08",
+          "Panel \u2022 fragment 09",
+          "Panel \u2022 fragment 10",
+          "Panel \u2022 fragment 11",
+          "Panel \u2022 fragment 12",
+          "Panel \u2022 fragment 13",
+          "Panel \u2022 fragment 14",
+          "Panel \u2022 fragment 15",
+          "Panel \u2022 fragment 16",
+          "Panel \u2022 fragment 17",
+          "Panel \u2022 fragment 18",
+          "Panel \u2022 fragment 19",
+          "Panel \u2022 fragment 20",
+          "Panel \u2022 fragment 21",
+          "Panel \u2022 fragment 22",
+          "Panel \u2022 fragment 23",
+          "Panel \u2022 fragment 24",
+          "Panel \u2022 fragment 25",
+          "Panel \u2022 fragment 26",
+          "Panel \u2022 fragment 27",
+          "Panel \u2022 fragment 28",
+          "Panel \u2022 fragment 29",
+          "Panel \u2022 fragment 30"
+        ],
+        "left": [
+          "MERLIN_LeftFragment_01",
+          "MERLIN_LeftFragment_02",
+          "MERLIN_LeftFragment_03",
+          "MERLIN_LeftFragment_04",
+          "MERLIN_LeftFragment_05",
+          "MERLIN_LeftFragment_06",
+          "MERLIN_LeftFragment_07",
+          "MERLIN_LeftFragment_08",
+          "MERLIN_LeftFragment_09",
+          "MERLIN_LeftFragment_10",
+          "MERLIN_LeftFragment_11",
+          "MERLIN_LeftFragment_12",
+          "MERLIN_LeftFragment_13",
+          "MERLIN_LeftFragment_14",
+          "MERLIN_LeftFragment_15",
+          "MERLIN_LeftFragment_16",
+          "MERLIN_LeftFragment_17",
+          "MERLIN_LeftFragment_18",
+          "MERLIN_LeftFragment_19",
+          "MERLIN_LeftFragment_20",
+          "MERLIN_LeftFragment_21",
+          "MERLIN_LeftFragment_22",
+          "MERLIN_LeftFragment_23",
+          "MERLIN_LeftFragment_24",
+          "MERLIN_LeftFragment_25",
+          "MERLIN_LeftFragment_26",
+          "MERLIN_LeftFragment_27",
+          "MERLIN_LeftFragment_28",
+          "MERLIN_LeftFragment_29",
+          "MERLIN_LeftFragment_30",
+          "MERLIN_LeftPanel"
+        ],
+        "camera": [
+          "Face state \u2022 camera screen"
+        ]
+      }
+    }
+  ],
+  "measurements": {
+    "visible_helpers": {
+      "Dance": [
+        "Music note 01",
+        "Music note 02",
+        "Music note 03",
+        "Music note 04"
+      ],
+      "LeftPanelIdle": [
+        "MERLIN_LeftPanel"
+      ],
+      "PanelIdle": [
+        "Panel \u2022 white card"
+      ],
+      "CameraIdle": [
+        "Face state \u2022 camera lens L",
+        "Face state \u2022 camera aperture L",
+        "Face state \u2022 camera lens R",
+        "Face state \u2022 camera aperture R",
+        "Face state \u2022 camera screen",
+        "Face state \u2022 viewfinder corners",
+        "Face state \u2022 viewfinder focus"
+      ],
+      "FaceSearch": [
+        "Face state \u2022 search lens L",
+        "Face state \u2022 search glint L",
+        "Face state \u2022 search lens R",
+        "Face state \u2022 search glint R"
+      ]
+    },
+    "baseline": {
+      "blend": "merlin-interactions.blend",
+      "sha256": "d26c58de38b08d1292b5b7a2a901f211677047f8ed1394db5e7bf36884faf1b7",
+      "rigged_meshes": 49
+    },
+    "geometry": {
+      "ReadyToDance": {
+        "frames_checked": 36,
+        "floor_min": 0.03299989083097912,
+        "arm_head_minimum_implicit_volume": 1.6102464555163603
+      },
+      "Dance": {
+        "frames_checked": 144,
+        "floor_min": 0.034999752752485014,
+        "arm_head_minimum_implicit_volume": 1.4624583531663573
+      },
+      "DanceToReady": {
+        "frames_checked": 36,
+        "floor_min": 0.03299989083097912,
+        "arm_head_minimum_implicit_volume": 1.6102464555163603
+      },
+      "ReadyToThink": {
+        "frames_checked": 36,
+        "floor_min": 0.03299992548026298,
+        "arm_head_minimum_implicit_volume": 1.17107539522735
+      },
+      "BodyThink": {
+        "frames_checked": 144,
+        "floor_min": 0.03499974429607211,
+        "arm_head_minimum_implicit_volume": 1.0336657890440595
+      },
+      "ThinkToReady": {
+        "frames_checked": 36,
+        "floor_min": 0.03299991060289639,
+        "arm_head_minimum_implicit_volume": 1.17107539522735
+      },
+      "ReadyToLeftPanel": {
+        "frames_checked": 180,
+        "floor_min": 0.03299962310059962,
+        "arm_head_minimum_implicit_volume": 1.5426969588733643
+      },
+      "LeftPanelIdle": {
+        "frames_checked": 96,
+        "floor_min": 0.03499998897314072,
+        "arm_head_minimum_implicit_volume": 1.3907784324951025
+      },
+      "LeftPanelToReady": {
+        "frames_checked": 144,
+        "floor_min": 0.03299967260534428,
+        "arm_head_minimum_implicit_volume": 1.5463226423065308
+      },
+      "FaceToCamera": {
+        "frames_checked": 3,
+        "floor_min": 0.03499992936849594,
+        "arm_head_minimum_implicit_volume": 1.6102464555163603
+      },
+      "CameraIdle": {
+        "frames_checked": 3,
+        "floor_min": 0.03499992936849594,
+        "arm_head_minimum_implicit_volume": 1.6102464555163603
+      },
+      "CameraToFace": {
+        "frames_checked": 3,
+        "floor_min": 0.03499992936849594,
+        "arm_head_minimum_implicit_volume": 1.6102464555163603
+      },
+      "FaceToThink": {
+        "frames_checked": 3,
+        "floor_min": 0.03499992936849594,
+        "arm_head_minimum_implicit_volume": 1.6102464555163603
+      },
+      "FaceThink": {
+        "frames_checked": 3,
+        "floor_min": 0.03499992936849594,
+        "arm_head_minimum_implicit_volume": 1.6102464555163603
+      },
+      "ThinkToFace": {
+        "frames_checked": 3,
+        "floor_min": 0.03499992936849594,
+        "arm_head_minimum_implicit_volume": 1.6102464555163603
+      },
+      "FaceToSearch": {
+        "frames_checked": 3,
+        "floor_min": 0.03499992936849594,
+        "arm_head_minimum_implicit_volume": 1.6102464555163603
+      },
+      "FaceSearch": {
+        "frames_checked": 3,
+        "floor_min": 0.03499992936849594,
+        "arm_head_minimum_implicit_volume": 1.6102464555163603
+      },
+      "SearchToFace": {
+        "frames_checked": 3,
+        "floor_min": 0.03499992936849594,
+        "arm_head_minimum_implicit_volume": 1.6102464555163603
+      }
+    },
+    "glb": {
+      "bytes": 13846236,
+      "nodes": 155,
+      "clips": 37
+    }
+  },
+  "glb_checked": true,
+  "limitations": [
+    "Integer-frame geometry checks cover new body/left-screen motion; held full-face body poses use three samples per clip.",
+    "Numerical validation complements visual review; no live camera/music/search execution is claimed."
+  ],
+  "passed": true,
+  "failed_checks": [],
+  "completed_at_utc": "2026-10-27T17:52:04.817064+00:00",
+  "glb_sha256": "cd5bb14bcad90e82d2c4c69b6d917d7f02bc64588f5fdbe9fe82f2bb055d3ddc"
+}

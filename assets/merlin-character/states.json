@@ -1,0 +1,856 @@
+{
+  "version": 1,
+  "fps": 24,
+  "initial": "ready",
+  "states": {
+    "ready": {
+      "label": "Ready",
+      "idle": "ReadyIdle",
+      "parent": null
+    },
+    "right": {
+      "label": "Right screen",
+      "enter": "ReadyToPanel",
+      "idle": "PanelIdle",
+      "exit": "PanelToReady",
+      "parent": "ready"
+    },
+    "left": {
+      "label": "Left screen",
+      "enter": "ReadyToLeftPanel",
+      "idle": "LeftPanelIdle",
+      "exit": "LeftPanelToReady",
+      "parent": "ready"
+    },
+    "dance": {
+      "label": "Music & dance",
+      "enter": "ReadyToDance",
+      "idle": "Dance",
+      "exit": "DanceToReady",
+      "parent": "ready"
+    },
+    "bodyThink": {
+      "label": "Deep thought",
+      "enter": "ReadyToThink",
+      "idle": "BodyThink",
+      "exit": "ThinkToReady",
+      "parent": "ready"
+    },
+    "face": {
+      "label": "Full face",
+      "enter": "ReadyToFace",
+      "idle": "FullFaceIdle",
+      "exit": "FaceToReady",
+      "parent": "ready"
+    },
+    "camera": {
+      "label": "Camera viewfinder",
+      "enter": "FaceToCamera",
+      "idle": "CameraIdle",
+      "exit": "CameraToFace",
+      "parent": "face"
+    },
+    "faceThink": {
+      "label": "Thinking face",
+      "enter": "FaceToThink",
+      "idle": "FaceThink",
+      "exit": "ThinkToFace",
+      "parent": "face"
+    },
+    "search": {
+      "label": "Searching face",
+      "enter": "FaceToSearch",
+      "idle": "FaceSearch",
+      "exit": "SearchToFace",
+      "parent": "face"
+    },
+    "nap": {
+      "label": "Nap",
+      "enter": "ReadyToNap",
+      "idle": "Nap",
+      "exit": "NapToReady",
+      "parent": "ready"
+    },
+    "toss": {
+      "label": "Ball toss",
+      "enter": "ReadyToWallToss",
+      "idle": "WallToss",
+      "exit": "WallTossToReady",
+      "parent": "ready"
+    },
+    "walk": {
+      "label": "Walk & whistle",
+      "enter": "ReadyToWalkWhistle",
+      "idle": "WalkWhistle",
+      "exit": "WalkWhistleToReady",
+      "parent": "ready"
+    }
+  },
+  "clips": {
+    "Idle": {
+      "frames": 96,
+      "source": null,
+      "source_frame": 1,
+      "target": null,
+      "target_frame": 1
+    },
+    "Wave": {
+      "frames": 96,
+      "source": null,
+      "source_frame": 1,
+      "target": null,
+      "target_frame": 1
+    },
+    "Jump": {
+      "frames": 72,
+      "source": null,
+      "source_frame": 1,
+      "target": null,
+      "target_frame": 1
+    },
+    "WalkWhistle": {
+      "frames": 192,
+      "source": null,
+      "source_frame": 1,
+      "target": null,
+      "target_frame": 1
+    },
+    "WallToss": {
+      "frames": 240,
+      "source": null,
+      "source_frame": 1,
+      "target": null,
+      "target_frame": 1
+    },
+    "Nap": {
+      "frames": 192,
+      "source": null,
+      "source_frame": 1,
+      "target": null,
+      "target_frame": 1
+    },
+    "ReadyIdle": {
+      "frames": 96,
+      "source": "Idle",
+      "source_frame": 1,
+      "target": "Idle",
+      "target_frame": 96
+    },
+    "ReadyToNap": {
+      "frames": 96,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "Nap",
+      "target_frame": 1
+    },
+    "NapToReady": {
+      "frames": 108,
+      "source": "Nap",
+      "source_frame": 192,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "ReadyToWallToss": {
+      "frames": 96,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "WallToss",
+      "target_frame": 1
+    },
+    "WallTossToReady": {
+      "frames": 108,
+      "source": "WallToss",
+      "source_frame": 240,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "ReadyToWalkWhistle": {
+      "frames": 96,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "WalkWhistle",
+      "target_frame": 1
+    },
+    "WalkWhistleToReady": {
+      "frames": 108,
+      "source": "WalkWhistle",
+      "source_frame": 192,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "ReadyToPanel": {
+      "frames": 180,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "PanelIdle",
+      "target_frame": 1
+    },
+    "PanelIdle": {
+      "frames": 96,
+      "source": "PanelIdle",
+      "source_frame": 1,
+      "target": "PanelIdle",
+      "target_frame": 1
+    },
+    "PanelToReady": {
+      "frames": 144,
+      "source": "PanelIdle",
+      "source_frame": 1,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "ReadyToFace": {
+      "frames": 40,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FullFaceIdle": {
+      "frames": 96,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToReady": {
+      "frames": 36,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "ReadyToDance": {
+      "frames": 36,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "Dance",
+      "target_frame": 1
+    },
+    "Dance": {
+      "frames": 144,
+      "source": "Dance",
+      "source_frame": 1,
+      "target": "Dance",
+      "target_frame": 1
+    },
+    "DanceToReady": {
+      "frames": 36,
+      "source": "Dance",
+      "source_frame": 1,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "ReadyToThink": {
+      "frames": 36,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "BodyThink",
+      "target_frame": 1
+    },
+    "BodyThink": {
+      "frames": 144,
+      "source": "BodyThink",
+      "source_frame": 1,
+      "target": "BodyThink",
+      "target_frame": 1
+    },
+    "ThinkToReady": {
+      "frames": 36,
+      "source": "BodyThink",
+      "source_frame": 1,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "LeftPanelIdle": {
+      "frames": 96,
+      "source": "LeftPanelIdle",
+      "source_frame": 1,
+      "target": "LeftPanelIdle",
+      "target_frame": 1
+    },
+    "ReadyToLeftPanel": {
+      "frames": 180,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "LeftPanelIdle",
+      "target_frame": 1
+    },
+    "LeftPanelToReady": {
+      "frames": 144,
+      "source": "LeftPanelIdle",
+      "source_frame": 1,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "FaceToCamera": {
+      "frames": 24,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "CameraIdle",
+      "target_frame": 1
+    },
+    "CameraIdle": {
+      "frames": 96,
+      "source": "CameraIdle",
+      "source_frame": 1,
+      "target": "CameraIdle",
+      "target_frame": 1
+    },
+    "CameraToFace": {
+      "frames": 24,
+      "source": "CameraIdle",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToThink": {
+      "frames": 24,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "FaceThink",
+      "target_frame": 1
+    },
+    "FaceThink": {
+      "frames": 96,
+      "source": "FaceThink",
+      "source_frame": 1,
+      "target": "FaceThink",
+      "target_frame": 1
+    },
+    "ThinkToFace": {
+      "frames": 24,
+      "source": "FaceThink",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToSearch": {
+      "frames": 24,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "FaceSearch",
+      "target_frame": 1
+    },
+    "FaceSearch": {
+      "frames": 96,
+      "source": "FaceSearch",
+      "source_frame": 1,
+      "target": "FaceSearch",
+      "target_frame": 1
+    },
+    "SearchToFace": {
+      "frames": 24,
+      "source": "FaceSearch",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    }
+  },
+  "showcase": [
+    {
+      "clip": "ReadyIdle",
+      "start": 1,
+      "end": 12,
+      "source_start": 1,
+      "source_end": 1
+    },
+    {
+      "clip": "ReadyToDance",
+      "start": 13,
+      "end": 48,
+      "source_start": 1,
+      "source_end": 36
+    },
+    {
+      "clip": "Dance",
+      "start": 49,
+      "end": 192,
+      "source_start": 1,
+      "source_end": 144
+    },
+    {
+      "clip": "DanceToReady",
+      "start": 193,
+      "end": 228,
+      "source_start": 1,
+      "source_end": 36
+    },
+    {
+      "clip": "ReadyToThink",
+      "start": 229,
+      "end": 264,
+      "source_start": 1,
+      "source_end": 36
+    },
+    {
+      "clip": "BodyThink",
+      "start": 265,
+      "end": 408,
+      "source_start": 1,
+      "source_end": 144
+    },
+    {
+      "clip": "ThinkToReady",
+      "start": 409,
+      "end": 444,
+      "source_start": 1,
+      "source_end": 36
+    },
+    {
+      "clip": "ReadyToLeftPanel",
+      "start": 445,
+      "end": 624,
+      "source_start": 1,
+      "source_end": 180
+    },
+    {
+      "clip": "LeftPanelIdle",
+      "start": 625,
+      "end": 720,
+      "source_start": 1,
+      "source_end": 96
+    },
+    {
+      "clip": "LeftPanelToReady",
+      "start": 721,
+      "end": 864,
+      "source_start": 1,
+      "source_end": 144
+    },
+    {
+      "clip": "ReadyToFace",
+      "start": 865,
+      "end": 904,
+      "source_start": 1,
+      "source_end": 40
+    },
+    {
+      "clip": "FaceToCamera",
+      "start": 905,
+      "end": 928,
+      "source_start": 1,
+      "source_end": 24
+    },
+    {
+      "clip": "CameraIdle",
+      "start": 929,
+      "end": 1024,
+      "source_start": 1,
+      "source_end": 96
+    },
+    {
+      "clip": "CameraToFace",
+      "start": 1025,
+      "end": 1048,
+      "source_start": 1,
+      "source_end": 24
+    },
+    {
+      "clip": "FaceToThink",
+      "start": 1049,
+      "end": 1072,
+      "source_start": 1,
+      "source_end": 24
+    },
+    {
+      "clip": "FaceThink",
+      "start": 1073,
+      "end": 1168,
+      "source_start": 1,
+      "source_end": 96
+    },
+    {
+      "clip": "ThinkToFace",
+      "start": 1169,
+      "end": 1192,
+      "source_start": 1,
+      "source_end": 24
+    },
+    {
+      "clip": "FaceToSearch",
+      "start": 1193,
+      "end": 1216,
+      "source_start": 1,
+      "source_end": 24
+    },
+    {
+      "clip": "FaceSearch",
+      "start": 1217,
+      "end": 1312,
+      "source_start": 1,
+      "source_end": 96
+    },
+    {
+      "clip": "SearchToFace",
+      "start": 1313,
+      "end": 1336,
+      "source_start": 1,
+      "source_end": 24
+    },
+    {
+      "clip": "FaceToReady",
+      "start": 1337,
+      "end": 1372,
+      "source_start": 1,
+      "source_end": 36
+    },
+    {
+      "clip": "ReadyIdle",
+      "start": 1373,
+      "end": 1384,
+      "source_start": 1,
+      "source_end": 1
+    }
+  ],
+  "camera": {
+    "type": "orthographic",
+    "matrix_world": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.30669379234313965,
+        -0.9518082141876221,
+        -18.0
+      ],
+      [
+        0.0,
+        0.9518082141876221,
+        0.30669379234313965,
+        8.300000190734863
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "orthographic_width": 10.199999809265137,
+    "aspect_ratio": 1.3333333333333333
+  },
+  "screens": {
+    "camera": {
+      "nodes": [
+        "Face state \u2022 camera screen"
+      ],
+      "materials": [
+        "MERLIN_Screen_camera"
+      ]
+    },
+    "left": {
+      "nodes": [
+        "MERLIN_LeftFragment_01",
+        "MERLIN_LeftFragment_02",
+        "MERLIN_LeftFragment_03",
+        "MERLIN_LeftFragment_04",
+        "MERLIN_LeftFragment_05",
+        "MERLIN_LeftFragment_06",
+        "MERLIN_LeftFragment_07",
+        "MERLIN_LeftFragment_08",
+        "MERLIN_LeftFragment_09",
+        "MERLIN_LeftFragment_10",
+        "MERLIN_LeftFragment_11",
+        "MERLIN_LeftFragment_12",
+        "MERLIN_LeftFragment_13",
+        "MERLIN_LeftFragment_14",
+        "MERLIN_LeftFragment_15",
+        "MERLIN_LeftFragment_16",
+        "MERLIN_LeftFragment_17",
+        "MERLIN_LeftFragment_18",
+        "MERLIN_LeftFragment_19",
+        "MERLIN_LeftFragment_20",
+        "MERLIN_LeftFragment_21",
+        "MERLIN_LeftFragment_22",
+        "MERLIN_LeftFragment_23",
+        "MERLIN_LeftFragment_24",
+        "MERLIN_LeftFragment_25",
+        "MERLIN_LeftFragment_26",
+        "MERLIN_LeftFragment_27",
+        "MERLIN_LeftFragment_28",
+        "MERLIN_LeftFragment_29",
+        "MERLIN_LeftFragment_30",
+        "MERLIN_LeftPanel"
+      ],
+      "materials": [
+        "MERLIN_Screen_left"
+      ]
+    },
+    "right": {
+      "nodes": [
+        "Panel \u2022 fragment 01",
+        "Panel \u2022 fragment 02",
+        "Panel \u2022 fragment 03",
+        "Panel \u2022 fragment 04",
+        "Panel \u2022 fragment 05",
+        "Panel \u2022 fragment 06",
+        "Panel \u2022 fragment 07",
+        "Panel \u2022 fragment 08",
+        "Panel \u2022 fragment 09",
+        "Panel \u2022 fragment 10",
+        "Panel \u2022 fragment 11",
+        "Panel \u2022 fragment 12",
+        "Panel \u2022 fragment 13",
+        "Panel \u2022 fragment 14",
+        "Panel \u2022 fragment 15",
+        "Panel \u2022 fragment 16",
+        "Panel \u2022 fragment 17",
+        "Panel \u2022 fragment 18",
+        "Panel \u2022 fragment 19",
+        "Panel \u2022 fragment 20",
+        "Panel \u2022 fragment 21",
+        "Panel \u2022 fragment 22",
+        "Panel \u2022 fragment 23",
+        "Panel \u2022 fragment 24",
+        "Panel \u2022 fragment 25",
+        "Panel \u2022 fragment 26",
+        "Panel \u2022 fragment 27",
+        "Panel \u2022 fragment 28",
+        "Panel \u2022 fragment 29",
+        "Panel \u2022 fragment 30",
+        "Panel \u2022 white card"
+      ],
+      "materials": [
+        "MERLIN_Screen_right"
+      ]
+    }
+  },
+  "runtime_note": "Authored animations and local screen preview. No automatic camera, microphone, web search or music playback.",
+  "lighting": {
+    "world_color": [
+      0.008,
+      0.016,
+      0.033
+    ],
+    "exposure": 0.3499999940395355,
+    "lights": [
+      {
+        "name": "Key \u2022 long silk",
+        "type": "AREA",
+        "color": [
+          0.7799999713897705,
+          0.8600000143051147,
+          1.0
+        ],
+        "energy": 380.0,
+        "matrix_world": [
+          [
+            0.7808687686920166,
+            0.35620614886283875,
+            -0.5131872296333313,
+            -3.5999999046325684
+          ],
+          [
+            -0.6246950626373291,
+            0.4452577531337738,
+            -0.6414839029312134,
+            -4.5
+          ],
+          [
+            6.149757325601968e-08,
+            0.821500301361084,
+            0.5702080726623535,
+            6.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size": 3.0
+      },
+      {
+        "name": "Fill \u2022 cool card",
+        "type": "AREA",
+        "color": [
+          0.4300000071525574,
+          0.6700000166893005,
+          1.0
+        ],
+        "energy": 220.0,
+        "matrix_world": [
+          [
+            0.44721344113349915,
+            -0.3339637517929077,
+            0.8297399282455444,
+            4.0
+          ],
+          [
+            0.8944272398948669,
+            0.16698172688484192,
+            -0.4148698151111603,
+            -2.0
+          ],
+          [
+            7.399219725812145e-08,
+            0.9276773929595947,
+            0.3733827471733093,
+            3.799999952316284
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size": 2.4000000953674316
+      },
+      {
+        "name": "Rim \u2022 pearl",
+        "type": "AREA",
+        "color": [
+          0.550000011920929,
+          0.7300000190734863,
+          1.0
+        ],
+        "energy": 380.0,
+        "matrix_world": [
+          [
+            -0.6770566701889038,
+            0.4871448874473572,
+            -0.5516195893287659,
+            -2.5
+          ],
+          [
+            -0.7359309196472168,
+            -0.44817325472831726,
+            0.507490336894989,
+            2.299999952316284
+          ],
+          [
+            1.79649020992656e-07,
+            0.7495536208152771,
+            0.6619436740875244,
+            5.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size": 2.5999999046325684
+      },
+      {
+        "name": "Top \u2022 highlight",
+        "type": "AREA",
+        "color": [
+          0.8500000238418579,
+          0.9200000166893005,
+          1.0
+        ],
+        "energy": 160.0,
+        "matrix_world": [
+          [
+            -1.0,
+            1.5450582679932268e-07,
+            -7.800032286731096e-10,
+            0.0
+          ],
+          [
+            -1.5099580252808664e-07,
+            -0.9761870503425598,
+            0.21693040430545807,
+            1.0
+          ],
+          [
+            3.2755583134758126e-08,
+            0.21693040430545807,
+            0.9761870503425598,
+            6.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size": 3.0
+      },
+      {
+        "name": "Sole L \u2022 floor bounce",
+        "type": "AREA",
+        "color": [
+          0.02500000037252903,
+          0.5199999809265137,
+          1.0
+        ],
+        "energy": 8.0,
+        "matrix_world": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.3400000035762787
+          ],
+          [
+            0.0,
+            1.0,
+            -7.549790126404332e-08,
+            -0.550000011920929
+          ],
+          [
+            0.0,
+            7.549789415861596e-08,
+            0.9999999403953552,
+            0.12000006437301636
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size": 0.41999998688697815
+      },
+      {
+        "name": "Sole R \u2022 floor bounce",
+        "type": "AREA",
+        "color": [
+          0.02500000037252903,
+          0.5199999809265137,
+          1.0
+        ],
+        "energy": 8.0,
+        "matrix_world": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            -0.3400000035762787
+          ],
+          [
+            0.0,
+            0.9999999403953552,
+            -7.549789415861596e-08,
+            -0.5499999523162842
+          ],
+          [
+            0.0,
+            7.549790126404332e-08,
+            1.0,
+            0.1199999451637268
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size": 0.41999998688697815
+      }
+    ]
+  }
+}

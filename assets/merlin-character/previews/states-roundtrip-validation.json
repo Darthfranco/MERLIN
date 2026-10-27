@@ -1,0 +1,3758 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-10-27T17:52:46.363622+00:00",
+  "blender_version": "4.0.2",
+  "source_blend": "merlin-states.blend",
+  "imported_glb": "merlin-states.glb",
+  "glb_sha256": "cd5bb14bcad90e82d2c4c69b6d917d7f02bc64588f5fdbe9fe82f2bb055d3ddc",
+  "blend_sha256": "757bcde24cd6f124444f4dbaf6a9e302e5f4e3b4529600dd599a14b2940525e4",
+  "expected_clips": [
+    "Idle",
+    "Wave",
+    "Jump",
+    "WalkWhistle",
+    "WallToss",
+    "Nap",
+    "ReadyIdle",
+    "ReadyToNap",
+    "NapToReady",
+    "ReadyToWallToss",
+    "WallTossToReady",
+    "ReadyToWalkWhistle",
+    "WalkWhistleToReady",
+    "ReadyToPanel",
+    "PanelIdle",
+    "PanelToReady",
+    "ReadyToFace",
+    "FullFaceIdle",
+    "FaceToReady",
+    "ReadyToDance",
+    "Dance",
+    "DanceToReady",
+    "ReadyToThink",
+    "BodyThink",
+    "ThinkToReady",
+    "LeftPanelIdle",
+    "ReadyToLeftPanel",
+    "LeftPanelToReady",
+    "FaceToCamera",
+    "CameraIdle",
+    "CameraToFace",
+    "FaceToThink",
+    "FaceThink",
+    "ThinkToFace",
+    "FaceToSearch",
+    "FaceSearch",
+    "SearchToFace"
+  ],
+  "owner_count": 98,
+  "scope": {
+    "owners": [
+      {
+        "owner": "rig",
+        "kind": "object",
+        "name": "MERLIN_Rig"
+      },
+      {
+        "owner": "Eye \u2022 L",
+        "kind": "shape",
+        "name": "Eye \u2022 L",
+        "key_names": [
+          "Basis",
+          "Blink",
+          "Sleep",
+          "Sleepy",
+          "GazeLeft",
+          "GazeRight",
+          "GazeUp",
+          "GazeDown",
+          "Happy",
+          "Focus",
+          "DisplayConform"
+        ]
+      },
+      {
+        "owner": "Eye \u2022 R",
+        "kind": "shape",
+        "name": "Eye \u2022 R",
+        "key_names": [
+          "Basis",
+          "Blink",
+          "Sleep",
+          "Sleepy",
+          "GazeLeft",
+          "GazeRight",
+          "GazeUp",
+          "GazeDown",
+          "Happy",
+          "Focus",
+          "DisplayConform"
+        ]
+      },
+      {
+        "owner": "Face \u2022 luminous smile",
+        "kind": "shape",
+        "name": "Face \u2022 luminous smile",
+        "key_names": [
+          "Basis",
+          "Whistle",
+          "SleepSmile",
+          "SmileWide",
+          "Concentrate",
+          "SoftSmile",
+          "DisplayConform"
+        ]
+      },
+      {
+        "owner": "ball",
+        "kind": "object",
+        "name": "Prop \u2022 cyan play ball"
+      },
+      {
+        "owner": "Panel \u2022 fragment 01",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 01"
+      },
+      {
+        "owner": "Panel \u2022 fragment 02",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 02"
+      },
+      {
+        "owner": "Panel \u2022 fragment 03",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 03"
+      },
+      {
+        "owner": "Panel \u2022 fragment 04",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 04"
+      },
+      {
+        "owner": "Panel \u2022 fragment 05",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 05"
+      },
+      {
+        "owner": "Panel \u2022 fragment 06",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 06"
+      },
+      {
+        "owner": "Panel \u2022 fragment 07",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 07"
+      },
+      {
+        "owner": "Panel \u2022 fragment 08",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 08"
+      },
+      {
+        "owner": "Panel \u2022 fragment 09",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 09"
+      },
+      {
+        "owner": "Panel \u2022 fragment 10",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 10"
+      },
+      {
+        "owner": "Panel \u2022 fragment 11",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 11"
+      },
+      {
+        "owner": "Panel \u2022 fragment 12",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 12"
+      },
+      {
+        "owner": "Panel \u2022 fragment 13",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 13"
+      },
+      {
+        "owner": "Panel \u2022 fragment 14",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 14"
+      },
+      {
+        "owner": "Panel \u2022 fragment 15",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 15"
+      },
+      {
+        "owner": "Panel \u2022 fragment 16",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 16"
+      },
+      {
+        "owner": "Panel \u2022 fragment 17",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 17"
+      },
+      {
+        "owner": "Panel \u2022 fragment 18",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 18"
+      },
+      {
+        "owner": "Panel \u2022 fragment 19",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 19"
+      },
+      {
+        "owner": "Panel \u2022 fragment 20",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 20"
+      },
+      {
+        "owner": "Panel \u2022 fragment 21",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 21"
+      },
+      {
+        "owner": "Panel \u2022 fragment 22",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 22"
+      },
+      {
+        "owner": "Panel \u2022 fragment 23",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 23"
+      },
+      {
+        "owner": "Panel \u2022 fragment 24",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 24"
+      },
+      {
+        "owner": "Panel \u2022 fragment 25",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 25"
+      },
+      {
+        "owner": "Panel \u2022 fragment 26",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 26"
+      },
+      {
+        "owner": "Panel \u2022 fragment 27",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 27"
+      },
+      {
+        "owner": "Panel \u2022 fragment 28",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 28"
+      },
+      {
+        "owner": "Panel \u2022 fragment 29",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 29"
+      },
+      {
+        "owner": "Panel \u2022 fragment 30",
+        "kind": "object",
+        "name": "Panel \u2022 fragment 30"
+      },
+      {
+        "owner": "Panel \u2022 white card",
+        "kind": "object",
+        "name": "Panel \u2022 white card"
+      },
+      {
+        "owner": "DisplayHead",
+        "kind": "object",
+        "name": "Display mode \u2022 expanding head"
+      },
+      {
+        "owner": "DisplayHeadShape",
+        "kind": "shape",
+        "name": "Display mode \u2022 expanding head",
+        "key_names": [
+          "Basis",
+          "Expand"
+        ]
+      },
+      {
+        "owner": "DisplayEyeL",
+        "kind": "object",
+        "name": "Display mode \u2022 Eye \u2022 L"
+      },
+      {
+        "owner": "DisplayEyeLShape",
+        "kind": "shape",
+        "name": "Display mode \u2022 Eye \u2022 L",
+        "key_names": [
+          "Basis",
+          "Expand",
+          "FullBlink",
+          "FullLookLeft",
+          "FullLookRight",
+          "FullHappy"
+        ]
+      },
+      {
+        "owner": "DisplayEyeR",
+        "kind": "object",
+        "name": "Display mode \u2022 Eye \u2022 R"
+      },
+      {
+        "owner": "DisplayEyeRShape",
+        "kind": "shape",
+        "name": "Display mode \u2022 Eye \u2022 R",
+        "key_names": [
+          "Basis",
+          "Expand",
+          "FullBlink",
+          "FullLookLeft",
+          "FullLookRight",
+          "FullHappy"
+        ]
+      },
+      {
+        "owner": "DisplaySmile",
+        "kind": "object",
+        "name": "Display mode \u2022 Face \u2022 luminous smile"
+      },
+      {
+        "owner": "DisplaySmileShape",
+        "kind": "shape",
+        "name": "Display mode \u2022 Face \u2022 luminous smile",
+        "key_names": [
+          "Basis",
+          "Expand"
+        ]
+      },
+      {
+        "owner": "DisplayBackdrop",
+        "kind": "object",
+        "name": "Display mode \u2022 full frame backing"
+      },
+      {
+        "owner": "DisplayBar1",
+        "kind": "object",
+        "name": "Display mode \u2022 mouth bar 01"
+      },
+      {
+        "owner": "DisplayBar2",
+        "kind": "object",
+        "name": "Display mode \u2022 mouth bar 02"
+      },
+      {
+        "owner": "DisplayBar3",
+        "kind": "object",
+        "name": "Display mode \u2022 mouth bar 03"
+      },
+      {
+        "owner": "DisplayBar4",
+        "kind": "object",
+        "name": "Display mode \u2022 mouth bar 04"
+      },
+      {
+        "owner": "DisplayBar5",
+        "kind": "object",
+        "name": "Display mode \u2022 mouth bar 05"
+      },
+      {
+        "owner": "DisplayBar6",
+        "kind": "object",
+        "name": "Display mode \u2022 mouth bar 06"
+      },
+      {
+        "owner": "DisplayBar7",
+        "kind": "object",
+        "name": "Display mode \u2022 mouth bar 07"
+      },
+      {
+        "owner": "MusicNote01",
+        "kind": "object",
+        "name": "Music note 01"
+      },
+      {
+        "owner": "MusicNote02",
+        "kind": "object",
+        "name": "Music note 02"
+      },
+      {
+        "owner": "MusicNote03",
+        "kind": "object",
+        "name": "Music note 03"
+      },
+      {
+        "owner": "MusicNote04",
+        "kind": "object",
+        "name": "Music note 04"
+      },
+      {
+        "owner": "CamFrame",
+        "kind": "object",
+        "name": "Face state \u2022 viewfinder corners"
+      },
+      {
+        "owner": "CamIrisL",
+        "kind": "object",
+        "name": "Face state \u2022 camera aperture L"
+      },
+      {
+        "owner": "CamIrisR",
+        "kind": "object",
+        "name": "Face state \u2022 camera aperture R"
+      },
+      {
+        "owner": "CamLensL",
+        "kind": "object",
+        "name": "Face state \u2022 camera lens L"
+      },
+      {
+        "owner": "CamLensR",
+        "kind": "object",
+        "name": "Face state \u2022 camera lens R"
+      },
+      {
+        "owner": "CamReticle",
+        "kind": "object",
+        "name": "Face state \u2022 viewfinder focus"
+      },
+      {
+        "owner": "CamScreen",
+        "kind": "object",
+        "name": "Face state \u2022 camera screen"
+      },
+      {
+        "owner": "SearchGlassL",
+        "kind": "object",
+        "name": "Face state \u2022 search glint L"
+      },
+      {
+        "owner": "SearchGlassR",
+        "kind": "object",
+        "name": "Face state \u2022 search glint R"
+      },
+      {
+        "owner": "SearchL",
+        "kind": "object",
+        "name": "Face state \u2022 search lens L"
+      },
+      {
+        "owner": "SearchR",
+        "kind": "object",
+        "name": "Face state \u2022 search lens R"
+      },
+      {
+        "owner": "LeftFragment01",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_01"
+      },
+      {
+        "owner": "LeftFragment02",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_02"
+      },
+      {
+        "owner": "LeftFragment03",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_03"
+      },
+      {
+        "owner": "LeftFragment04",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_04"
+      },
+      {
+        "owner": "LeftFragment05",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_05"
+      },
+      {
+        "owner": "LeftFragment06",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_06"
+      },
+      {
+        "owner": "LeftFragment07",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_07"
+      },
+      {
+        "owner": "LeftFragment08",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_08"
+      },
+      {
+        "owner": "LeftFragment09",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_09"
+      },
+      {
+        "owner": "LeftFragment10",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_10"
+      },
+      {
+        "owner": "LeftFragment11",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_11"
+      },
+      {
+        "owner": "LeftFragment12",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_12"
+      },
+      {
+        "owner": "LeftFragment13",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_13"
+      },
+      {
+        "owner": "LeftFragment14",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_14"
+      },
+      {
+        "owner": "LeftFragment15",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_15"
+      },
+      {
+        "owner": "LeftFragment16",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_16"
+      },
+      {
+        "owner": "LeftFragment17",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_17"
+      },
+      {
+        "owner": "LeftFragment18",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_18"
+      },
+      {
+        "owner": "LeftFragment19",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_19"
+      },
+      {
+        "owner": "LeftFragment20",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_20"
+      },
+      {
+        "owner": "LeftFragment21",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_21"
+      },
+      {
+        "owner": "LeftFragment22",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_22"
+      },
+      {
+        "owner": "LeftFragment23",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_23"
+      },
+      {
+        "owner": "LeftFragment24",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_24"
+      },
+      {
+        "owner": "LeftFragment25",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_25"
+      },
+      {
+        "owner": "LeftFragment26",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_26"
+      },
+      {
+        "owner": "LeftFragment27",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_27"
+      },
+      {
+        "owner": "LeftFragment28",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_28"
+      },
+      {
+        "owner": "LeftFragment29",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_29"
+      },
+      {
+        "owner": "LeftFragment30",
+        "kind": "object",
+        "name": "MERLIN_LeftFragment_30"
+      },
+      {
+        "owner": "LeftPanel",
+        "kind": "object",
+        "name": "MERLIN_LeftPanel"
+      }
+    ],
+    "bone_joints": [
+      "root",
+      "body",
+      "head",
+      "upper_arm.L",
+      "forearm.L",
+      "hand.L",
+      "upper_arm.R",
+      "forearm.R",
+      "hand.R",
+      "thigh.L",
+      "shin.L",
+      "foot.L",
+      "thigh.R",
+      "shin.R",
+      "foot.R"
+    ],
+    "geometry_objects": [
+      "Display mode \u2022 Eye \u2022 L",
+      "Display mode \u2022 Eye \u2022 R",
+      "Display mode \u2022 Face \u2022 luminous smile",
+      "Display mode \u2022 expanding head",
+      "Display mode \u2022 full frame backing",
+      "Display mode \u2022 mouth bar 01",
+      "Display mode \u2022 mouth bar 02",
+      "Display mode \u2022 mouth bar 03",
+      "Display mode \u2022 mouth bar 04",
+      "Display mode \u2022 mouth bar 05",
+      "Display mode \u2022 mouth bar 06",
+      "Display mode \u2022 mouth bar 07",
+      "Face state \u2022 camera aperture L",
+      "Face state \u2022 camera aperture R",
+      "Face state \u2022 camera lens L",
+      "Face state \u2022 camera lens R",
+      "Face state \u2022 camera screen",
+      "Face state \u2022 search glint L",
+      "Face state \u2022 search glint R",
+      "Face state \u2022 search lens L",
+      "Face state \u2022 search lens R",
+      "Face state \u2022 viewfinder corners",
+      "Face state \u2022 viewfinder focus",
+      "MERLIN_LeftFragment_01",
+      "MERLIN_LeftFragment_02",
+      "MERLIN_LeftFragment_03",
+      "MERLIN_LeftFragment_04",
+      "MERLIN_LeftFragment_05",
+      "MERLIN_LeftFragment_06",
+      "MERLIN_LeftFragment_07",
+      "MERLIN_LeftFragment_08",
+      "MERLIN_LeftFragment_09",
+      "MERLIN_LeftFragment_10",
+      "MERLIN_LeftFragment_11",
+      "MERLIN_LeftFragment_12",
+      "MERLIN_LeftFragment_13",
+      "MERLIN_LeftFragment_14",
+      "MERLIN_LeftFragment_15",
+      "MERLIN_LeftFragment_16",
+      "MERLIN_LeftFragment_17",
+      "MERLIN_LeftFragment_18",
+      "MERLIN_LeftFragment_19",
+      "MERLIN_LeftFragment_20",
+      "MERLIN_LeftFragment_21",
+      "MERLIN_LeftFragment_22",
+      "MERLIN_LeftFragment_23",
+      "MERLIN_LeftFragment_24",
+      "MERLIN_LeftFragment_25",
+      "MERLIN_LeftFragment_26",
+      "MERLIN_LeftFragment_27",
+      "MERLIN_LeftFragment_28",
+      "MERLIN_LeftFragment_29",
+      "MERLIN_LeftFragment_30",
+      "MERLIN_LeftPanel",
+      "Music note 01",
+      "Music note 02",
+      "Music note 03",
+      "Music note 04",
+      "Panel \u2022 fragment 01",
+      "Panel \u2022 fragment 02",
+      "Panel \u2022 fragment 03",
+      "Panel \u2022 fragment 04",
+      "Panel \u2022 fragment 05",
+      "Panel \u2022 fragment 06",
+      "Panel \u2022 fragment 07",
+      "Panel \u2022 fragment 08",
+      "Panel \u2022 fragment 09",
+      "Panel \u2022 fragment 10",
+      "Panel \u2022 fragment 11",
+      "Panel \u2022 fragment 12",
+      "Panel \u2022 fragment 13",
+      "Panel \u2022 fragment 14",
+      "Panel \u2022 fragment 15",
+      "Panel \u2022 fragment 16",
+      "Panel \u2022 fragment 17",
+      "Panel \u2022 fragment 18",
+      "Panel \u2022 fragment 19",
+      "Panel \u2022 fragment 20",
+      "Panel \u2022 fragment 21",
+      "Panel \u2022 fragment 22",
+      "Panel \u2022 fragment 23",
+      "Panel \u2022 fragment 24",
+      "Panel \u2022 fragment 25",
+      "Panel \u2022 fragment 26",
+      "Panel \u2022 fragment 27",
+      "Panel \u2022 fragment 28",
+      "Panel \u2022 fragment 29",
+      "Panel \u2022 fragment 30",
+      "Panel \u2022 white card",
+      "Prop \u2022 cyan play ball"
+    ]
+  },
+  "samples": [
+    {
+      "clip": "Idle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.371387720108032e-07
+      }
+    },
+    {
+      "clip": "Idle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 3.9990952313898927e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 4.76837158203125e-07
+      }
+    },
+    {
+      "clip": "Idle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.371387720108032e-07
+      }
+    },
+    {
+      "clip": "Wave",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.371387720108032e-07
+      }
+    },
+    {
+      "clip": "Wave",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 5.256224877970597e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 5.364418029785156e-07
+      }
+    },
+    {
+      "clip": "Wave",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.371387720108032e-07
+      }
+    },
+    {
+      "clip": "Jump",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.371387720108032e-07
+      }
+    },
+    {
+      "clip": "Jump",
+      "source_frame": 36,
+      "imported_frame": 35.0,
+      "errors": {
+        "bones": 5.105823128349661e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 5.364418029785156e-07
+      }
+    },
+    {
+      "clip": "Jump",
+      "source_frame": 72,
+      "imported_frame": 71.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.371387720108032e-07
+      }
+    },
+    {
+      "clip": "WalkWhistle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 6.419616707723741e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 5.364418029785156e-07
+      }
+    },
+    {
+      "clip": "WalkWhistle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.951133646320149e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 4.470348358154297e-07
+      }
+    },
+    {
+      "clip": "WalkWhistle",
+      "source_frame": 192,
+      "imported_frame": 191.0,
+      "errors": {
+        "bones": 7.90744969929552e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 7.599592208862305e-07
+      }
+    },
+    {
+      "clip": "WallToss",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.215700987241932e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 1.4901161193847656e-08,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "WallToss",
+      "source_frame": 120,
+      "imported_frame": 119.0,
+      "errors": {
+        "bones": 1.1325862804448523e-06,
+        "face": 0.0,
+        "objects": 1.1920928955078125e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 1.4901161193847656e-08,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "WallToss",
+      "source_frame": 240,
+      "imported_frame": 239.0,
+      "errors": {
+        "bones": 1.215700987241932e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "Nap",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.335463315392022e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.4901161193847656e-06
+      }
+    },
+    {
+      "clip": "Nap",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 1.296315382178518e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.7881393432617188e-06
+      }
+    },
+    {
+      "clip": "Nap",
+      "source_frame": 192,
+      "imported_frame": 191.0,
+      "errors": {
+        "bones": 1.335463315392022e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.4901161193847656e-06
+      }
+    },
+    {
+      "clip": "ReadyIdle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyIdle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 4.0157177979385453e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 4.76837158203125e-07
+      }
+    },
+    {
+      "clip": "ReadyIdle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToNap",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToNap",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 7.348554137908192e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "ReadyToNap",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 1.2976849709199214e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.6763806343078613e-06
+      }
+    },
+    {
+      "clip": "NapToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.2976849709199214e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.6763806343078613e-06
+      }
+    },
+    {
+      "clip": "NapToReady",
+      "source_frame": 54,
+      "imported_frame": 53.0,
+      "errors": {
+        "bones": 3.7527561961004223e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 5.364418029785156e-07
+      }
+    },
+    {
+      "clip": "NapToReady",
+      "source_frame": 108,
+      "imported_frame": 107.0,
+      "errors": {
+        "bones": 4.920636455222808e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 2.4028122425079346e-07
+      }
+    },
+    {
+      "clip": "ReadyToWallToss",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToWallToss",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 1.1980385328675377e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.1920928955078125e-06
+      }
+    },
+    {
+      "clip": "ReadyToWallToss",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 1.1561611140531793e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 1.4901161193847656e-08,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "WallTossToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.1561611140531793e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "WallTossToReady",
+      "source_frame": 54,
+      "imported_frame": 53.0,
+      "errors": {
+        "bones": 6.107658604359387e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 6.556510925292969e-07
+      }
+    },
+    {
+      "clip": "WallTossToReady",
+      "source_frame": 108,
+      "imported_frame": 107.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToWalkWhistle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToWalkWhistle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 6.529361695112778e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 5.364418029785156e-07
+      }
+    },
+    {
+      "clip": "ReadyToWalkWhistle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 7.725644944200349e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 5.662441253662109e-07
+      }
+    },
+    {
+      "clip": "WalkWhistleToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.591411304263389e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 4.917383193969727e-07
+      }
+    },
+    {
+      "clip": "WalkWhistleToReady",
+      "source_frame": 54,
+      "imported_frame": 53.0,
+      "errors": {
+        "bones": 6.251387883246848e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 6.556510925292969e-07
+      }
+    },
+    {
+      "clip": "WalkWhistleToReady",
+      "source_frame": 108,
+      "imported_frame": 107.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToPanel",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToPanel",
+      "source_frame": 90,
+      "imported_frame": 89.0,
+      "errors": {
+        "bones": 6.70148559088717e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "ReadyToPanel",
+      "source_frame": 180,
+      "imported_frame": 179.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.600733518600464e-07
+      }
+    },
+    {
+      "clip": "PanelIdle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.600733518600464e-07
+      }
+    },
+    {
+      "clip": "PanelIdle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 6.761536585780436e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.76837158203125e-07
+      }
+    },
+    {
+      "clip": "PanelIdle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.600733518600464e-07
+      }
+    },
+    {
+      "clip": "PanelToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.600733518600464e-07
+      }
+    },
+    {
+      "clip": "PanelToReady",
+      "source_frame": 72,
+      "imported_frame": 71.0,
+      "errors": {
+        "bones": 5.448611169690556e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 4.76837158203125e-07
+      }
+    },
+    {
+      "clip": "PanelToReady",
+      "source_frame": 144,
+      "imported_frame": 143.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToFace",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 2.9802322387695312e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToFace",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FullFaceIdle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FullFaceIdle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FullFaceIdle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToReady",
+      "source_frame": 18,
+      "imported_frame": 17.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToReady",
+      "source_frame": 36,
+      "imported_frame": 35.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToDance",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToDance",
+      "source_frame": 18,
+      "imported_frame": 17.0,
+      "errors": {
+        "bones": 7.162258915301377e-07,
+        "face": 0.0,
+        "objects": 1.043081283569336e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 2.9802322387695312e-08,
+        "bone_deformation": 4.3958425521850586e-07
+      }
+    },
+    {
+      "clip": "ReadyToDance",
+      "source_frame": 36,
+      "imported_frame": 35.0,
+      "errors": {
+        "bones": 5.535535699429127e-07,
+        "face": 0.0,
+        "objects": 3.8743019104003906e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 1.1920928955078125e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "Dance",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.535535699429127e-07,
+        "face": 0.0,
+        "objects": 3.8743019104003906e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 1.1920928955078125e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "Dance",
+      "source_frame": 72,
+      "imported_frame": 71.0,
+      "errors": {
+        "bones": 5.067047460068415e-07,
+        "face": 0.0,
+        "objects": 1.7881393432617188e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 1.1920928955078125e-07,
+        "bone_deformation": 7.301568984985352e-07
+      }
+    },
+    {
+      "clip": "Dance",
+      "source_frame": 144,
+      "imported_frame": 143.0,
+      "errors": {
+        "bones": 5.535535699429127e-07,
+        "face": 0.0,
+        "objects": 3.8743019104003906e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 1.1920928955078125e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "DanceToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.535535699429127e-07,
+        "face": 0.0,
+        "objects": 3.8743019104003906e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 1.1920928955078125e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "DanceToReady",
+      "source_frame": 18,
+      "imported_frame": 17.0,
+      "errors": {
+        "bones": 4.881141539112321e-07,
+        "face": 0.0,
+        "objects": 5.21540641784668e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 1.1920928955078125e-07,
+        "bone_deformation": 4.76837158203125e-07
+      }
+    },
+    {
+      "clip": "DanceToReady",
+      "source_frame": 36,
+      "imported_frame": 35.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToThink",
+      "source_frame": 18,
+      "imported_frame": 17.0,
+      "errors": {
+        "bones": 3.816559456248789e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.0728836059570312e-06
+      }
+    },
+    {
+      "clip": "ReadyToThink",
+      "source_frame": 36,
+      "imported_frame": 35.0,
+      "errors": {
+        "bones": 6.314998895054189e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "BodyThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 6.314998895054189e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "BodyThink",
+      "source_frame": 72,
+      "imported_frame": 71.0,
+      "errors": {
+        "bones": 4.805480091749757e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "BodyThink",
+      "source_frame": 144,
+      "imported_frame": 143.0,
+      "errors": {
+        "bones": 6.314998895054189e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "ThinkToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 6.314998895054189e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "ThinkToReady",
+      "source_frame": 18,
+      "imported_frame": 17.0,
+      "errors": {
+        "bones": 5.181234672878298e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "ThinkToReady",
+      "source_frame": 36,
+      "imported_frame": 35.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "LeftPanelIdle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.146836054077906e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 5.802139639854431e-07
+      }
+    },
+    {
+      "clip": "LeftPanelIdle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 6.774934858746668e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.76837158203125e-07
+      }
+    },
+    {
+      "clip": "LeftPanelIdle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 5.146836054077906e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 5.802139639854431e-07
+      }
+    },
+    {
+      "clip": "ReadyToLeftPanel",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToLeftPanel",
+      "source_frame": 90,
+      "imported_frame": 89.0,
+      "errors": {
+        "bones": 8.301966355552744e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "ReadyToLeftPanel",
+      "source_frame": 180,
+      "imported_frame": 179.0,
+      "errors": {
+        "bones": 5.146836054077906e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 5.802139639854431e-07
+      }
+    },
+    {
+      "clip": "LeftPanelToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.146836054077906e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 5.802139639854431e-07
+      }
+    },
+    {
+      "clip": "LeftPanelToReady",
+      "source_frame": 72,
+      "imported_frame": 71.0,
+      "errors": {
+        "bones": 5.084312485091148e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "LeftPanelToReady",
+      "source_frame": 144,
+      "imported_frame": 143.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToCamera",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToCamera",
+      "source_frame": 12,
+      "imported_frame": 11.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToCamera",
+      "source_frame": 24,
+      "imported_frame": 23.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 2.384185791015625e-07,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "CameraIdle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 2.384185791015625e-07,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "CameraIdle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 1.4901161193847656e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "CameraIdle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 2.384185791015625e-07,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "CameraToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 2.384185791015625e-07,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "CameraToFace",
+      "source_frame": 12,
+      "imported_frame": 11.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "CameraToFace",
+      "source_frame": 24,
+      "imported_frame": 23.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToThink",
+      "source_frame": 12,
+      "imported_frame": 11.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToThink",
+      "source_frame": 24,
+      "imported_frame": 23.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 1.1920928955078125e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 1.1920928955078125e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceThink",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 1.1920928955078125e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceThink",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 1.1920928955078125e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ThinkToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 1.1920928955078125e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ThinkToFace",
+      "source_frame": 12,
+      "imported_frame": 11.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ThinkToFace",
+      "source_frame": 24,
+      "imported_frame": 23.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToSearch",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToSearch",
+      "source_frame": 12,
+      "imported_frame": 11.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToSearch",
+      "source_frame": 24,
+      "imported_frame": 23.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceSearch",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceSearch",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 1.1920928955078125e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceSearch",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "SearchToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "SearchToFace",
+      "source_frame": 12,
+      "imported_frame": 11.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "SearchToFace",
+      "source_frame": 24,
+      "imported_frame": 23.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    }
+  ],
+  "missing_tracks": [],
+  "extra_geometry_poses": [
+    {
+      "clip": "ReadyToFace",
+      "source_frame": 23,
+      "imported_frame": 22.0,
+      "world_vertex_errors": {
+        "Display mode \u2022 Eye \u2022 L": 0.0,
+        "Display mode \u2022 Eye \u2022 R": 0.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 expanding head": 0.0,
+        "Display mode \u2022 full frame backing": 0.0,
+        "Display mode \u2022 mouth bar 01": 0.0,
+        "Display mode \u2022 mouth bar 02": 9.5367431640625e-07,
+        "Display mode \u2022 mouth bar 03": 0.0,
+        "Display mode \u2022 mouth bar 04": 0.0,
+        "Display mode \u2022 mouth bar 05": 0.0,
+        "Display mode \u2022 mouth bar 06": 9.5367431640625e-07,
+        "Display mode \u2022 mouth bar 07": 0.0,
+        "Face state \u2022 camera aperture L": 0.0,
+        "Face state \u2022 camera aperture R": 0.0,
+        "Face state \u2022 camera lens L": 0.0,
+        "Face state \u2022 camera lens R": 0.0,
+        "Face state \u2022 camera screen": 0.0,
+        "Face state \u2022 search glint L": 0.0,
+        "Face state \u2022 search glint R": 0.0,
+        "Face state \u2022 search lens L": 0.0,
+        "Face state \u2022 search lens R": 0.0,
+        "Face state \u2022 viewfinder corners": 0.0,
+        "Face state \u2022 viewfinder focus": 0.0,
+        "MERLIN_LeftFragment_01": 0.0,
+        "MERLIN_LeftFragment_02": 0.0,
+        "MERLIN_LeftFragment_03": 0.0,
+        "MERLIN_LeftFragment_04": 0.0,
+        "MERLIN_LeftFragment_05": 0.0,
+        "MERLIN_LeftFragment_06": 0.0,
+        "MERLIN_LeftFragment_07": 0.0,
+        "MERLIN_LeftFragment_08": 0.0,
+        "MERLIN_LeftFragment_09": 0.0,
+        "MERLIN_LeftFragment_10": 0.0,
+        "MERLIN_LeftFragment_11": 0.0,
+        "MERLIN_LeftFragment_12": 0.0,
+        "MERLIN_LeftFragment_13": 0.0,
+        "MERLIN_LeftFragment_14": 0.0,
+        "MERLIN_LeftFragment_15": 0.0,
+        "MERLIN_LeftFragment_16": 0.0,
+        "MERLIN_LeftFragment_17": 0.0,
+        "MERLIN_LeftFragment_18": 0.0,
+        "MERLIN_LeftFragment_19": 0.0,
+        "MERLIN_LeftFragment_20": 0.0,
+        "MERLIN_LeftFragment_21": 0.0,
+        "MERLIN_LeftFragment_22": 0.0,
+        "MERLIN_LeftFragment_23": 0.0,
+        "MERLIN_LeftFragment_24": 0.0,
+        "MERLIN_LeftFragment_25": 0.0,
+        "MERLIN_LeftFragment_26": 0.0,
+        "MERLIN_LeftFragment_27": 0.0,
+        "MERLIN_LeftFragment_28": 0.0,
+        "MERLIN_LeftFragment_29": 0.0,
+        "MERLIN_LeftFragment_30": 0.0,
+        "MERLIN_LeftPanel": 0.0,
+        "Music note 01": 0.0,
+        "Music note 02": 0.0,
+        "Music note 03": 0.0,
+        "Music note 04": 0.0,
+        "Panel \u2022 fragment 01": 0.0,
+        "Panel \u2022 fragment 02": 0.0,
+        "Panel \u2022 fragment 03": 0.0,
+        "Panel \u2022 fragment 04": 0.0,
+        "Panel \u2022 fragment 05": 0.0,
+        "Panel \u2022 fragment 06": 0.0,
+        "Panel \u2022 fragment 07": 0.0,
+        "Panel \u2022 fragment 08": 0.0,
+        "Panel \u2022 fragment 09": 0.0,
+        "Panel \u2022 fragment 10": 0.0,
+        "Panel \u2022 fragment 11": 0.0,
+        "Panel \u2022 fragment 12": 0.0,
+        "Panel \u2022 fragment 13": 0.0,
+        "Panel \u2022 fragment 14": 0.0,
+        "Panel \u2022 fragment 15": 0.0,
+        "Panel \u2022 fragment 16": 0.0,
+        "Panel \u2022 fragment 17": 0.0,
+        "Panel \u2022 fragment 18": 0.0,
+        "Panel \u2022 fragment 19": 0.0,
+        "Panel \u2022 fragment 20": 0.0,
+        "Panel \u2022 fragment 21": 0.0,
+        "Panel \u2022 fragment 22": 0.0,
+        "Panel \u2022 fragment 23": 0.0,
+        "Panel \u2022 fragment 24": 0.0,
+        "Panel \u2022 fragment 25": 0.0,
+        "Panel \u2022 fragment 26": 0.0,
+        "Panel \u2022 fragment 27": 0.0,
+        "Panel \u2022 fragment 28": 0.0,
+        "Panel \u2022 fragment 29": 0.0,
+        "Panel \u2022 fragment 30": 0.0,
+        "Panel \u2022 white card": 0.0,
+        "Prop \u2022 cyan play ball": 0.0
+      },
+      "passed": true
+    },
+    {
+      "clip": "PanelToReady",
+      "source_frame": 42,
+      "imported_frame": 41.0,
+      "world_vertex_errors": {
+        "Display mode \u2022 Eye \u2022 L": 0.0,
+        "Display mode \u2022 Eye \u2022 R": 0.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 expanding head": 0.0,
+        "Display mode \u2022 full frame backing": 0.0,
+        "Display mode \u2022 mouth bar 01": 0.0,
+        "Display mode \u2022 mouth bar 02": 0.0,
+        "Display mode \u2022 mouth bar 03": 0.0,
+        "Display mode \u2022 mouth bar 04": 0.0,
+        "Display mode \u2022 mouth bar 05": 0.0,
+        "Display mode \u2022 mouth bar 06": 0.0,
+        "Display mode \u2022 mouth bar 07": 0.0,
+        "Face state \u2022 camera aperture L": 0.0,
+        "Face state \u2022 camera aperture R": 0.0,
+        "Face state \u2022 camera lens L": 0.0,
+        "Face state \u2022 camera lens R": 0.0,
+        "Face state \u2022 camera screen": 0.0,
+        "Face state \u2022 search glint L": 0.0,
+        "Face state \u2022 search glint R": 0.0,
+        "Face state \u2022 search lens L": 0.0,
+        "Face state \u2022 search lens R": 0.0,
+        "Face state \u2022 viewfinder corners": 0.0,
+        "Face state \u2022 viewfinder focus": 0.0,
+        "MERLIN_LeftFragment_01": 0.0,
+        "MERLIN_LeftFragment_02": 0.0,
+        "MERLIN_LeftFragment_03": 0.0,
+        "MERLIN_LeftFragment_04": 0.0,
+        "MERLIN_LeftFragment_05": 0.0,
+        "MERLIN_LeftFragment_06": 0.0,
+        "MERLIN_LeftFragment_07": 0.0,
+        "MERLIN_LeftFragment_08": 0.0,
+        "MERLIN_LeftFragment_09": 0.0,
+        "MERLIN_LeftFragment_10": 0.0,
+        "MERLIN_LeftFragment_11": 0.0,
+        "MERLIN_LeftFragment_12": 0.0,
+        "MERLIN_LeftFragment_13": 0.0,
+        "MERLIN_LeftFragment_14": 0.0,
+        "MERLIN_LeftFragment_15": 0.0,
+        "MERLIN_LeftFragment_16": 0.0,
+        "MERLIN_LeftFragment_17": 0.0,
+        "MERLIN_LeftFragment_18": 0.0,
+        "MERLIN_LeftFragment_19": 0.0,
+        "MERLIN_LeftFragment_20": 0.0,
+        "MERLIN_LeftFragment_21": 0.0,
+        "MERLIN_LeftFragment_22": 0.0,
+        "MERLIN_LeftFragment_23": 0.0,
+        "MERLIN_LeftFragment_24": 0.0,
+        "MERLIN_LeftFragment_25": 0.0,
+        "MERLIN_LeftFragment_26": 0.0,
+        "MERLIN_LeftFragment_27": 0.0,
+        "MERLIN_LeftFragment_28": 0.0,
+        "MERLIN_LeftFragment_29": 0.0,
+        "MERLIN_LeftFragment_30": 0.0,
+        "MERLIN_LeftPanel": 0.0,
+        "Music note 01": 0.0,
+        "Music note 02": 0.0,
+        "Music note 03": 0.0,
+        "Music note 04": 0.0,
+        "Panel \u2022 fragment 01": 1.0323827126512697e-07,
+        "Panel \u2022 fragment 02": 1.6858739115832577e-07,
+        "Panel \u2022 fragment 03": 5.960464477539063e-08,
+        "Panel \u2022 fragment 04": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 05": 8.429369557916289e-08,
+        "Panel \u2022 fragment 06": 1.4901161193847656e-08,
+        "Panel \u2022 fragment 07": 1.8431718729061686e-07,
+        "Panel \u2022 fragment 08": 1.4901161193847656e-07,
+        "Panel \u2022 fragment 09": 2.3853496600168e-07,
+        "Panel \u2022 fragment 10": 1.212866607147589e-07,
+        "Panel \u2022 fragment 11": 2.384185791015625e-07,
+        "Panel \u2022 fragment 12": 2.9802322387695312e-08,
+        "Panel \u2022 fragment 13": 2.5463114639023843e-07,
+        "Panel \u2022 fragment 14": 2.425733214295178e-07,
+        "Panel \u2022 fragment 15": 2.602375843707705e-07,
+        "Panel \u2022 fragment 16": 5.960464477539063e-08,
+        "Panel \u2022 fragment 17": 5.960464477539063e-08,
+        "Panel \u2022 fragment 18": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 19": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 20": 4.805480102731963e-07,
+        "Panel \u2022 fragment 21": 0.0,
+        "Panel \u2022 fragment 22": 2.731428025981586e-07,
+        "Panel \u2022 fragment 23": 4.915124804938387e-07,
+        "Panel \u2022 fragment 24": 5.960464477539063e-08,
+        "Panel \u2022 fragment 25": 1.7881393432617188e-07,
+        "Panel \u2022 fragment 26": 1.2013700256829907e-07,
+        "Panel \u2022 fragment 27": 1.1920928955078125e-07,
+        "Panel \u2022 fragment 28": 0.0,
+        "Panel \u2022 fragment 29": 1.1920928955078125e-07,
+        "Panel \u2022 fragment 30": 1.1920928955078125e-07,
+        "Panel \u2022 white card": 0.0,
+        "Prop \u2022 cyan play ball": 0.0
+      },
+      "passed": true
+    },
+    {
+      "clip": "LeftPanelToReady",
+      "source_frame": 42,
+      "imported_frame": 41.0,
+      "world_vertex_errors": {
+        "Display mode \u2022 Eye \u2022 L": 0.0,
+        "Display mode \u2022 Eye \u2022 R": 0.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 expanding head": 0.0,
+        "Display mode \u2022 full frame backing": 0.0,
+        "Display mode \u2022 mouth bar 01": 0.0,
+        "Display mode \u2022 mouth bar 02": 0.0,
+        "Display mode \u2022 mouth bar 03": 0.0,
+        "Display mode \u2022 mouth bar 04": 0.0,
+        "Display mode \u2022 mouth bar 05": 0.0,
+        "Display mode \u2022 mouth bar 06": 0.0,
+        "Display mode \u2022 mouth bar 07": 0.0,
+        "Face state \u2022 camera aperture L": 0.0,
+        "Face state \u2022 camera aperture R": 0.0,
+        "Face state \u2022 camera lens L": 0.0,
+        "Face state \u2022 camera lens R": 0.0,
+        "Face state \u2022 camera screen": 0.0,
+        "Face state \u2022 search glint L": 0.0,
+        "Face state \u2022 search glint R": 0.0,
+        "Face state \u2022 search lens L": 0.0,
+        "Face state \u2022 search lens R": 0.0,
+        "Face state \u2022 viewfinder corners": 0.0,
+        "Face state \u2022 viewfinder focus": 0.0,
+        "MERLIN_LeftFragment_01": 1.0323827126512697e-07,
+        "MERLIN_LeftFragment_02": 1.6858739115832577e-07,
+        "MERLIN_LeftFragment_03": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_04": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_05": 8.429369557916289e-08,
+        "MERLIN_LeftFragment_06": 1.4901161193847656e-08,
+        "MERLIN_LeftFragment_07": 1.8431718729061686e-07,
+        "MERLIN_LeftFragment_08": 1.4901161193847656e-07,
+        "MERLIN_LeftFragment_09": 2.3853496600168e-07,
+        "MERLIN_LeftFragment_10": 1.212866607147589e-07,
+        "MERLIN_LeftFragment_11": 2.384185791015625e-07,
+        "MERLIN_LeftFragment_12": 2.9802322387695312e-08,
+        "MERLIN_LeftFragment_13": 2.5463114639023843e-07,
+        "MERLIN_LeftFragment_14": 2.425733214295178e-07,
+        "MERLIN_LeftFragment_15": 2.602375843707705e-07,
+        "MERLIN_LeftFragment_16": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_17": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_18": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_19": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_20": 4.805480102731963e-07,
+        "MERLIN_LeftFragment_21": 0.0,
+        "MERLIN_LeftFragment_22": 2.731428025981586e-07,
+        "MERLIN_LeftFragment_23": 4.915124804938387e-07,
+        "MERLIN_LeftFragment_24": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_25": 1.7881393432617188e-07,
+        "MERLIN_LeftFragment_26": 1.2013700256829907e-07,
+        "MERLIN_LeftFragment_27": 1.1920928955078125e-07,
+        "MERLIN_LeftFragment_28": 0.0,
+        "MERLIN_LeftFragment_29": 1.1920928955078125e-07,
+        "MERLIN_LeftFragment_30": 1.1920928955078125e-07,
+        "MERLIN_LeftPanel": 0.0,
+        "Music note 01": 0.0,
+        "Music note 02": 0.0,
+        "Music note 03": 0.0,
+        "Music note 04": 0.0,
+        "Panel \u2022 fragment 01": 0.0,
+        "Panel \u2022 fragment 02": 0.0,
+        "Panel \u2022 fragment 03": 0.0,
+        "Panel \u2022 fragment 04": 0.0,
+        "Panel \u2022 fragment 05": 0.0,
+        "Panel \u2022 fragment 06": 0.0,
+        "Panel \u2022 fragment 07": 0.0,
+        "Panel \u2022 fragment 08": 0.0,
+        "Panel \u2022 fragment 09": 0.0,
+        "Panel \u2022 fragment 10": 0.0,
+        "Panel \u2022 fragment 11": 0.0,
+        "Panel \u2022 fragment 12": 0.0,
+        "Panel \u2022 fragment 13": 0.0,
+        "Panel \u2022 fragment 14": 0.0,
+        "Panel \u2022 fragment 15": 0.0,
+        "Panel \u2022 fragment 16": 0.0,
+        "Panel \u2022 fragment 17": 0.0,
+        "Panel \u2022 fragment 18": 0.0,
+        "Panel \u2022 fragment 19": 0.0,
+        "Panel \u2022 fragment 20": 0.0,
+        "Panel \u2022 fragment 21": 0.0,
+        "Panel \u2022 fragment 22": 0.0,
+        "Panel \u2022 fragment 23": 0.0,
+        "Panel \u2022 fragment 24": 0.0,
+        "Panel \u2022 fragment 25": 0.0,
+        "Panel \u2022 fragment 26": 0.0,
+        "Panel \u2022 fragment 27": 0.0,
+        "Panel \u2022 fragment 28": 0.0,
+        "Panel \u2022 fragment 29": 0.0,
+        "Panel \u2022 fragment 30": 0.0,
+        "Panel \u2022 white card": 0.0,
+        "Prop \u2022 cyan play ball": 0.0
+      },
+      "passed": true
+    }
+  ],
+  "max_errors": {
+    "bones": 1.335463315392022e-06,
+    "face": 0.0,
+    "objects": 3.8743019104003906e-07,
+    "display_morphs": 0.0,
+    "display_geometry": 9.5367431640625e-07,
+    "bone_deformation": 1.7881393432617188e-06
+  },
+  "tolerances": {
+    "bones": 0.0002,
+    "face": 2e-06,
+    "objects": 0.0002,
+    "display_morphs": 2e-06,
+    "display_geometry": 0.0002,
+    "bone_deformation": 0.0002
+  },
+  "materials": {
+    "passed": true,
+    "shared_robot_and_fullscreen_gradient": true,
+    "gradient_records": [
+      {
+        "material": "08 \u2022 Display / cyan to ice gradient",
+        "embedded_png": true,
+        "bytes": 830,
+        "users": [
+          "Eye \u2022 L",
+          "Eye \u2022 R",
+          "Music note 01",
+          "Music note 02",
+          "Music note 03",
+          "Music note 04",
+          "Display mode \u2022 Eye \u2022 L",
+          "Display mode \u2022 Eye \u2022 R",
+          "Display mode \u2022 mouth bar 01",
+          "Display mode \u2022 mouth bar 02",
+          "Display mode \u2022 mouth bar 03",
+          "Display mode \u2022 mouth bar 04",
+          "Display mode \u2022 mouth bar 05",
+          "Display mode \u2022 mouth bar 06",
+          "Display mode \u2022 mouth bar 07",
+          "Face state \u2022 camera lens L",
+          "Face state \u2022 camera aperture L",
+          "Face state \u2022 search lens L",
+          "Face state \u2022 camera lens R",
+          "Face state \u2022 camera aperture R",
+          "Face state \u2022 search lens R",
+          "Face state \u2022 viewfinder corners",
+          "Face state \u2022 viewfinder focus"
+        ]
+      }
+    ],
+    "panel_white_material": true,
+    "blue_border_and_black_display_materials": true,
+    "imported_gradient_pixels": {
+      "passed": true,
+      "maximum_channel_error": 0.0,
+      "source_size": [
+        64,
+        256
+      ],
+      "imported_size": [
+        64,
+        256
+      ],
+      "tolerance": 0.00784313725490196
+    }
+  },
+  "screens": {
+    "passed": true,
+    "screens": {
+      "camera": {
+        "passed": true,
+        "nodes": {
+          "Face state \u2022 camera screen": {
+            "passed": true,
+            "role": "surface",
+            "front_vertices": 53,
+            "uv_range": [
+              0.0,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 0.0,
+            "issues": []
+          }
+        },
+        "issues": [],
+        "material": "MERLIN_Screen_camera",
+        "embedded_png": true,
+        "embedded_bytes": 9673,
+        "emission_strength": 1.0,
+        "black_diffuse": true,
+        "emissive_factor": [
+          1,
+          1,
+          1
+        ],
+        "imported_pixels": {
+          "passed": true,
+          "source_size": [
+            320,
+            160
+          ],
+          "imported_size": [
+            320,
+            160
+          ],
+          "maximum_channel_error": 0.0,
+          "tolerance": 0.00784313725490196
+        }
+      },
+      "left": {
+        "passed": true,
+        "nodes": {
+          "MERLIN_LeftFragment_01": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 12,
+            "uv_range": [
+              0.7653860449790955,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.7939677238464355e-08,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_02": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.5906336903572083,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.137086568294478e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_03": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.3874675929546356,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 1.6731128482661006e-08,
+            "full_panel_mapping_error": 2.6665235797196374e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_04": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.1705082356929779,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.5553647803610033e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_05": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 12,
+            "uv_range": [
+              0.0,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.7939677238464355e-08,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_06": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.6471529603004456,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.1959605911447966e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_07": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.5885842442512512,
+              0.8345578908920288
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.346225674327741e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_08": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.38109448552131653,
+              0.8344739675521851
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.346225674327741e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_09": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.1764126569032669,
+              0.8162180185317993
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 4.3919211933918234e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_10": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.0,
+              0.8497065901756287
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.5553647803610033e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_11": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 4,
+            "uv_range": [
+              0.5123953819274902,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 4.182782087358561e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_12": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 7,
+            "uv_range": [
+              0.48748868703842163,
+              0.8311325907707214
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.346225674327741e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_13": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.35482290387153625,
+              0.6808900833129883
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.764503875292036e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_14": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.19047541916370392,
+              0.6629258990287781
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.5553647803610033e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_15": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.0,
+              0.6742510795593262
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.718808356227953e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_16": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.35283589363098145,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 4.182782087358561e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_17": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.3065635561943054,
+              0.8099393248558044
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_18": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.33967941999435425,
+              0.5925262570381165
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.3528149206697435e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_19": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 7,
+            "uv_range": [
+              0.15473692119121552,
+              0.4898107051849365
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.6142388032113217e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_20": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 4,
+            "uv_range": [
+              0.0,
+              0.5294536352157593
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.0913910492303955e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_21": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.18361163139343262,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.5096692501946904e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_22": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.18438315391540527,
+              0.8277794718742371
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.9279474622612156e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_23": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 7,
+            "uv_range": [
+              0.15501916408538818,
+              0.6192899346351624
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_24": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.13011467456817627,
+              0.42380428314208984
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_25": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.0,
+              0.32683897018432617
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.300530149712543e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_26": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 12,
+            "uv_range": [
+              0.0,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.9279474622612156e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_27": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.0,
+              0.8544456362724304
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.1959605911447966e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_28": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.0,
+              0.6201614141464233
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.300530149712543e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_29": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 4,
+            "uv_range": [
+              0.0,
+              0.38016027212142944
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.300530149712543e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_30": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 13,
+            "uv_range": [
+              0.0,
+              0.21540604531764984
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "MERLIN_LeftPanel": {
+            "passed": true,
+            "role": "surface",
+            "front_vertices": 36,
+            "uv_range": [
+              0.0024561285972595215,
+              0.9975438714027405
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.9279474622612156e-08,
+            "issues": []
+          }
+        },
+        "issues": [],
+        "material": "MERLIN_Screen_left",
+        "embedded_png": true,
+        "embedded_bytes": 5453,
+        "emission_strength": 1.0,
+        "black_diffuse": true,
+        "emissive_factor": [
+          1,
+          1,
+          1
+        ],
+        "imported_pixels": {
+          "passed": true,
+          "source_size": [
+            400,
+            480
+          ],
+          "imported_size": [
+            400,
+            480
+          ],
+          "maximum_channel_error": 0.0,
+          "tolerance": 0.00784313725490196
+        }
+      },
+      "right": {
+        "passed": true,
+        "nodes": {
+          "Panel \u2022 fragment 01": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 12,
+            "uv_range": [
+              0.0,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.7939677238464355e-08,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 02": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.20414623618125916,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.137086568294478e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 03": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.40899956226348877,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 1.6731128482661006e-08,
+            "full_panel_mapping_error": 2.6665235797196374e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 04": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.5845629572868347,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.5553647803610033e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 05": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 12,
+            "uv_range": [
+              0.7928975820541382,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.7939677238464355e-08,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 06": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.0,
+              0.8467408418655396
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 1.882251943197133e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 07": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.20870156586170197,
+              0.8345578908920288
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.346225674327741e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 08": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.4112335741519928,
+              0.8344739675521851
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.346225674327741e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 09": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.6074466705322266,
+              0.8235873579978943
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 4.3919211933918234e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 10": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.6427626609802246,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.5553647803610033e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 11": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 4,
+            "uv_range": [
+              0.0,
+              0.6982208490371704
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 4.182782087358561e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 12": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 7,
+            "uv_range": [
+              0.16886739432811737,
+              0.6718816757202148
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.346225674327741e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 13": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.4032210409641266,
+              0.6808900833129883
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.764503875292036e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 14": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.4796583652496338,
+              0.8095245957374573
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.5553647803610033e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 15": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.47458159923553467,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.718808356227953e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 16": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.0,
+              0.5274157524108887
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 4.182782087358561e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 17": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.19006066024303436,
+              0.5135742425918579
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.300530149712543e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 18": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.33967941999435425,
+              0.6374011039733887
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.6665235797196374e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 19": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 7,
+            "uv_range": [
+              0.29612672328948975,
+              0.8452630639076233
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 20": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 4,
+            "uv_range": [
+              0.3257097601890564,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.0913910492303955e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 21": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.0,
+              0.3590540885925293
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 1.6731128371638704e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 22": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.17222055792808533,
+              0.3938453495502472
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.9279474622612156e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 23": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 7,
+            "uv_range": [
+              0.15501916408538818,
+              0.6263993382453918
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.718808361779068e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 24": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.13011467456817627,
+              0.8120520710945129
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 25": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.15095335245132446,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.300530149712543e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 26": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 12,
+            "uv_range": [
+              0.0,
+              0.20400285720825195
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.9279474622612156e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 27": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.0,
+              0.40957650542259216
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 1.6731128371638704e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 28": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.0,
+              0.6213012933731079
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.300530149712543e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 29": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 4,
+            "uv_range": [
+              0.0,
+              0.8458350300788879
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.300530149712543e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 30": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 13,
+            "uv_range": [
+              0.0,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "Panel \u2022 white card": {
+            "passed": true,
+            "role": "surface",
+            "front_vertices": 36,
+            "uv_range": [
+              0.0024561285972595215,
+              0.9975438714027405
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.9279474622612156e-08,
+            "issues": []
+          }
+        },
+        "issues": [],
+        "material": "MERLIN_Screen_right",
+        "embedded_png": true,
+        "embedded_bytes": 5453,
+        "emission_strength": 1.0,
+        "black_diffuse": true,
+        "emissive_factor": [
+          1,
+          1,
+          1
+        ],
+        "imported_pixels": {
+          "passed": true,
+          "source_size": [
+            400,
+            480
+          ],
+          "imported_size": [
+            400,
+            480
+          ],
+          "maximum_channel_error": 0.0,
+          "tolerance": 0.00784313725490196
+        }
+      }
+    }
+  },
+  "clip_durations": {
+    "Idle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "Wave": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "Jump": {
+      "seconds": 2.9583332538604736,
+      "expected_seconds": 2.9583333333333335,
+      "passed": true
+    },
+    "WalkWhistle": {
+      "seconds": 7.958333492279053,
+      "expected_seconds": 7.958333333333333,
+      "passed": true
+    },
+    "WallToss": {
+      "seconds": 9.958333015441895,
+      "expected_seconds": 9.958333333333334,
+      "passed": true
+    },
+    "Nap": {
+      "seconds": 7.958333492279053,
+      "expected_seconds": 7.958333333333333,
+      "passed": true
+    },
+    "ReadyIdle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "ReadyToNap": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "NapToReady": {
+      "seconds": 4.458333492279053,
+      "expected_seconds": 4.458333333333333,
+      "passed": true
+    },
+    "ReadyToWallToss": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "WallTossToReady": {
+      "seconds": 4.458333492279053,
+      "expected_seconds": 4.458333333333333,
+      "passed": true
+    },
+    "ReadyToWalkWhistle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "WalkWhistleToReady": {
+      "seconds": 4.458333492279053,
+      "expected_seconds": 4.458333333333333,
+      "passed": true
+    },
+    "ReadyToPanel": {
+      "seconds": 7.458333492279053,
+      "expected_seconds": 7.458333333333333,
+      "passed": true
+    },
+    "PanelIdle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "PanelToReady": {
+      "seconds": 5.958333492279053,
+      "expected_seconds": 5.958333333333333,
+      "passed": true
+    },
+    "ReadyToFace": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "FullFaceIdle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "FaceToReady": {
+      "seconds": 1.4583333730697632,
+      "expected_seconds": 1.4583333333333333,
+      "passed": true
+    },
+    "ReadyToDance": {
+      "seconds": 1.4583333730697632,
+      "expected_seconds": 1.4583333333333333,
+      "passed": true
+    },
+    "Dance": {
+      "seconds": 5.958333492279053,
+      "expected_seconds": 5.958333333333333,
+      "passed": true
+    },
+    "DanceToReady": {
+      "seconds": 1.4583333730697632,
+      "expected_seconds": 1.4583333333333333,
+      "passed": true
+    },
+    "ReadyToThink": {
+      "seconds": 1.4583333730697632,
+      "expected_seconds": 1.4583333333333333,
+      "passed": true
+    },
+    "BodyThink": {
+      "seconds": 5.958333492279053,
+      "expected_seconds": 5.958333333333333,
+      "passed": true
+    },
+    "ThinkToReady": {
+      "seconds": 1.4583333730697632,
+      "expected_seconds": 1.4583333333333333,
+      "passed": true
+    },
+    "LeftPanelIdle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "ReadyToLeftPanel": {
+      "seconds": 7.458333492279053,
+      "expected_seconds": 7.458333333333333,
+      "passed": true
+    },
+    "LeftPanelToReady": {
+      "seconds": 5.958333492279053,
+      "expected_seconds": 5.958333333333333,
+      "passed": true
+    },
+    "FaceToCamera": {
+      "seconds": 0.9583333134651184,
+      "expected_seconds": 0.9583333333333334,
+      "passed": true
+    },
+    "CameraIdle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "CameraToFace": {
+      "seconds": 0.9583333134651184,
+      "expected_seconds": 0.9583333333333334,
+      "passed": true
+    },
+    "FaceToThink": {
+      "seconds": 0.9583333134651184,
+      "expected_seconds": 0.9583333333333334,
+      "passed": true
+    },
+    "FaceThink": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "ThinkToFace": {
+      "seconds": 0.9583333134651184,
+      "expected_seconds": 0.9583333333333334,
+      "passed": true
+    },
+    "FaceToSearch": {
+      "seconds": 0.9583333134651184,
+      "expected_seconds": 0.9583333333333334,
+      "passed": true
+    },
+    "FaceSearch": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "SearchToFace": {
+      "seconds": 0.9583333134651184,
+      "expected_seconds": 0.9583333333333334,
+      "passed": true
+    }
+  },
+  "limitations": [
+    "Representative frames verify exported samples, not every fractional runtime blend.",
+    "Pixel, material and geometry checks do not benchmark browser lighting, rendering speed or live camera access."
+  ],
+  "imported_clips": [
+    "BodyThink",
+    "CameraIdle",
+    "CameraToFace",
+    "Dance",
+    "DanceToReady",
+    "FaceSearch",
+    "FaceThink",
+    "FaceToCamera",
+    "FaceToReady",
+    "FaceToSearch",
+    "FaceToThink",
+    "FullFaceIdle",
+    "Idle",
+    "Jump",
+    "LeftPanelIdle",
+    "LeftPanelToReady",
+    "Nap",
+    "NapToReady",
+    "PanelIdle",
+    "PanelToReady",
+    "ReadyIdle",
+    "ReadyToDance",
+    "ReadyToFace",
+    "ReadyToLeftPanel",
+    "ReadyToNap",
+    "ReadyToPanel",
+    "ReadyToThink",
+    "ReadyToWalkWhistle",
+    "ReadyToWallToss",
+    "SearchToFace",
+    "ThinkToFace",
+    "ThinkToReady",
+    "WalkWhistle",
+    "WalkWhistleToReady",
+    "WallToss",
+    "WallTossToReady",
+    "Wave"
+  ],
+  "resolved_imported_objects": {
+    "Eye \u2022 L": "Eye \u2022 L.001",
+    "Eye \u2022 R": "Eye \u2022 R.001",
+    "Face \u2022 luminous smile": "Smile \u2022 screen pixels",
+    "Prop \u2022 cyan play ball": "Prop \u2022 cyan play ball",
+    "Panel \u2022 fragment 01": "Panel \u2022 fragment 01",
+    "Panel \u2022 fragment 02": "Panel \u2022 fragment 02",
+    "Panel \u2022 fragment 03": "Panel \u2022 fragment 03",
+    "Panel \u2022 fragment 04": "Panel \u2022 fragment 04",
+    "Panel \u2022 fragment 05": "Panel \u2022 fragment 05",
+    "Panel \u2022 fragment 06": "Panel \u2022 fragment 06",
+    "Panel \u2022 fragment 07": "Panel \u2022 fragment 07",
+    "Panel \u2022 fragment 08": "Panel \u2022 fragment 08",
+    "Panel \u2022 fragment 09": "Panel \u2022 fragment 09",
+    "Panel \u2022 fragment 10": "Panel \u2022 fragment 10",
+    "Panel \u2022 fragment 11": "Panel \u2022 fragment 11",
+    "Panel \u2022 fragment 12": "Panel \u2022 fragment 12",
+    "Panel \u2022 fragment 13": "Panel \u2022 fragment 13",
+    "Panel \u2022 fragment 14": "Panel \u2022 fragment 14",
+    "Panel \u2022 fragment 15": "Panel \u2022 fragment 15",
+    "Panel \u2022 fragment 16": "Panel \u2022 fragment 16",
+    "Panel \u2022 fragment 17": "Panel \u2022 fragment 17",
+    "Panel \u2022 fragment 18": "Panel \u2022 fragment 18",
+    "Panel \u2022 fragment 19": "Panel \u2022 fragment 19",
+    "Panel \u2022 fragment 20": "Panel \u2022 fragment 20",
+    "Panel \u2022 fragment 21": "Panel \u2022 fragment 21",
+    "Panel \u2022 fragment 22": "Panel \u2022 fragment 22",
+    "Panel \u2022 fragment 23": "Panel \u2022 fragment 23",
+    "Panel \u2022 fragment 24": "Panel \u2022 fragment 24",
+    "Panel \u2022 fragment 25": "Panel \u2022 fragment 25",
+    "Panel \u2022 fragment 26": "Panel \u2022 fragment 26",
+    "Panel \u2022 fragment 27": "Panel \u2022 fragment 27",
+    "Panel \u2022 fragment 28": "Panel \u2022 fragment 28",
+    "Panel \u2022 fragment 29": "Panel \u2022 fragment 29",
+    "Panel \u2022 fragment 30": "Panel \u2022 fragment 30",
+    "Panel \u2022 white card": "Panel \u2022 white card",
+    "Display mode \u2022 expanding head": "Display mode \u2022 expanding head",
+    "Display mode \u2022 Eye \u2022 L": "Display mode \u2022 Eye \u2022 L",
+    "Display mode \u2022 Eye \u2022 R": "Display mode \u2022 Eye \u2022 R",
+    "Display mode \u2022 Face \u2022 luminous smile": "Display mode \u2022 Face \u2022 luminous smile",
+    "Display mode \u2022 full frame backing": "Display mode \u2022 full frame backing",
+    "Display mode \u2022 mouth bar 01": "Display mode \u2022 mouth bar 01",
+    "Display mode \u2022 mouth bar 02": "Display mode \u2022 mouth bar 02",
+    "Display mode \u2022 mouth bar 03": "Display mode \u2022 mouth bar 03",
+    "Display mode \u2022 mouth bar 04": "Display mode \u2022 mouth bar 04",
+    "Display mode \u2022 mouth bar 05": "Display mode \u2022 mouth bar 05",
+    "Display mode \u2022 mouth bar 06": "Display mode \u2022 mouth bar 06",
+    "Display mode \u2022 mouth bar 07": "Display mode \u2022 mouth bar 07",
+    "Music note 01": "Music note 01",
+    "Music note 02": "Music note 02",
+    "Music note 03": "Music note 03",
+    "Music note 04": "Music note 04",
+    "Face state \u2022 viewfinder corners": "Face state \u2022 viewfinder corners",
+    "Face state \u2022 camera aperture L": "Face state \u2022 camera aperture L",
+    "Face state \u2022 camera aperture R": "Face state \u2022 camera aperture R",
+    "Face state \u2022 camera lens L": "Face state \u2022 camera lens L",
+    "Face state \u2022 camera lens R": "Face state \u2022 camera lens R",
+    "Face state \u2022 viewfinder focus": "Face state \u2022 viewfinder focus",
+    "Face state \u2022 camera screen": "Face state \u2022 camera screen",
+    "Face state \u2022 search glint L": "Face state \u2022 search glint L",
+    "Face state \u2022 search glint R": "Face state \u2022 search glint R",
+    "Face state \u2022 search lens L": "Face state \u2022 search lens L",
+    "Face state \u2022 search lens R": "Face state \u2022 search lens R",
+    "MERLIN_LeftFragment_01": "MERLIN_LeftFragment_01",
+    "MERLIN_LeftFragment_02": "MERLIN_LeftFragment_02",
+    "MERLIN_LeftFragment_03": "MERLIN_LeftFragment_03",
+    "MERLIN_LeftFragment_04": "MERLIN_LeftFragment_04",
+    "MERLIN_LeftFragment_05": "MERLIN_LeftFragment_05",
+    "MERLIN_LeftFragment_06": "MERLIN_LeftFragment_06",
+    "MERLIN_LeftFragment_07": "MERLIN_LeftFragment_07",
+    "MERLIN_LeftFragment_08": "MERLIN_LeftFragment_08",
+    "MERLIN_LeftFragment_09": "MERLIN_LeftFragment_09",
+    "MERLIN_LeftFragment_10": "MERLIN_LeftFragment_10",
+    "MERLIN_LeftFragment_11": "MERLIN_LeftFragment_11",
+    "MERLIN_LeftFragment_12": "MERLIN_LeftFragment_12",
+    "MERLIN_LeftFragment_13": "MERLIN_LeftFragment_13",
+    "MERLIN_LeftFragment_14": "MERLIN_LeftFragment_14",
+    "MERLIN_LeftFragment_15": "MERLIN_LeftFragment_15",
+    "MERLIN_LeftFragment_16": "MERLIN_LeftFragment_16",
+    "MERLIN_LeftFragment_17": "MERLIN_LeftFragment_17",
+    "MERLIN_LeftFragment_18": "MERLIN_LeftFragment_18",
+    "MERLIN_LeftFragment_19": "MERLIN_LeftFragment_19",
+    "MERLIN_LeftFragment_20": "MERLIN_LeftFragment_20",
+    "MERLIN_LeftFragment_21": "MERLIN_LeftFragment_21",
+    "MERLIN_LeftFragment_22": "MERLIN_LeftFragment_22",
+    "MERLIN_LeftFragment_23": "MERLIN_LeftFragment_23",
+    "MERLIN_LeftFragment_24": "MERLIN_LeftFragment_24",
+    "MERLIN_LeftFragment_25": "MERLIN_LeftFragment_25",
+    "MERLIN_LeftFragment_26": "MERLIN_LeftFragment_26",
+    "MERLIN_LeftFragment_27": "MERLIN_LeftFragment_27",
+    "MERLIN_LeftFragment_28": "MERLIN_LeftFragment_28",
+    "MERLIN_LeftFragment_29": "MERLIN_LeftFragment_29",
+    "MERLIN_LeftFragment_30": "MERLIN_LeftFragment_30",
+    "MERLIN_LeftPanel": "MERLIN_LeftPanel"
+  },
+  "sample_count": 111,
+  "passed": true
+}

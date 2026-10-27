@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MERLIN character studio</title>
+  <link rel="stylesheet" href="./studio.css">
+  <script type="module" src="./studio.js"></script>
+</head>
+<body>
+<!-- THESIS: Inspect the real Blender character and put working content on its screens.
+OWN-WORLD: Inherit MERLIN's blue, native system type and clear controls. The authored midnight 4:3 scene owns the canvas.
+STORY: Choose an expression, watch its transition, edit a screen, then use the same API in code.
+FIRST VIEWPORT: A large character stage left; compact animation and screen controls right. Primary action: Play animation.
+FORM: A narrowly specified asset preview in the established MERLIN world; code-led, no new visual identity or concept roll.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance -->
+<main>
+  <header class="page-header">
+    <h1>MERLIN character studio</h1>
+    <a href="../merlin-states.blend" download>Download Blender file</a>
+  </header>
+  <div class="studio">
+    <section class="performance" aria-label="Character preview">
+      <div class="stage" id="stage">
+        <canvas id="scene" aria-label="Animated MERLIN robot and editable screens"></canvas>
+        <p id="loading" class="loading" role="status">Loading MERLIN…</p>
+        <div id="stage-error" class="stage-error" hidden>
+          <p>The 3D preview couldn’t load.</p>
+          <p id="error-detail"></p>
+          <button id="retry" type="button">Try again</button>
+        </div>
+      </div>
+      <div class="playback">
+        <p id="motion-status" role="status">Preparing the character</p>
+        <button id="pause" type="button" disabled>Pause</button>
+        <button id="ready" type="button" disabled>Return to ready</button>
+      </div>
+      <p class="caption">An interactive preview of the Blender animations. Camera, search, and music gestures don’t start those services.</p>
+    </section>
+    <aside class="controls" aria-label="Preview controls">
+      <form id="animation-form">
+        <h2>Animation</h2>
+        <label for="mode">Choose a mood or action</label>
+        <select id="mode" disabled>
+          <optgroup label="Body">
+            <option value="ready">Ready to help</option>
+            <option value="dance">Music &amp; dance</option>
+            <option value="bodyThink">Deep thought</option>
+          </optgroup>
+          <optgroup label="Screens">
+            <option value="right">Pull a screen from the right</option>
+            <option value="left">Pull a screen from the left</option>
+          </optgroup>
+          <optgroup label="Full face">
+            <option value="face">Friendly face</option>
+            <option value="camera">Camera viewfinder</option>
+            <option value="faceThink">Thinking</option>
+            <option value="search">Searching</option>
+          </optgroup>
+          <optgroup label="Casual">
+            <option value="nap">Nap</option><option value="toss">Ball toss</option><option value="walk">Walk &amp; whistle</option>
+          </optgroup>
+        </select>
+        <button class="primary" type="submit" id="play" disabled>Play animation</button>
+      </form>
+      <form id="screen-form">
+        <h2>Screen content</h2>
+        <label for="screen-target">Screen</label>
+        <select id="screen-target"><option value="right">Right panel</option><option value="left">Left panel</option><option value="camera">Camera viewfinder</option></select>
+        <label for="screen-title">Title</label>
+        <input id="screen-title" value="Hello, world." maxlength="70">
+        <label for="screen-body">Message</label>
+        <textarea id="screen-body" rows="3" maxlength="600">This screen is yours. Put something useful here.</textarea>
+        <button class="primary" type="submit" id="apply" disabled>Show on screen</button>
+        <div class="content-actions">
+          <label class="file-button" for="screen-image">Choose an image<input id="screen-image" type="file" accept="image/png,image/jpeg,image/webp"></label>
+          <button id="canvas-demo" type="button" disabled>Animated canvas</button>
+        </div>
+        <p class="help">Images stay in this browser. Nothing is uploaded.</p>
+        <p id="content-status" class="help" role="status"></p>
+      </form>
+      <details>
+        <summary>Use the screens from code</summary>
+        <p class="help">Each surface accepts a canvas, image, or video element. The content moves with the panel and its fragments.</p>
+        <pre><code>const screen = merlin.screens.right;
+screen.draw((ctx, width, height) =&gt; {
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = '#172a3b';
+  ctx.font = '56px sans-serif';
+  ctx.fillText('Hello, MERLIN.', 60, 110);
+});
+merlin.go('right');
+
+// Also: screens.left / screens.camera
+// screen.setSource(canvasOrVideo);</code></pre>
+        <a href="./README.md">Screen API and integration notes</a>
+      </details>
+    </aside>
+  </div>
+</main>
+</body>
+</html>
