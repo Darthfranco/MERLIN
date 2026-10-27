@@ -1,6 +1,6 @@
 # MERLIN text prototype
 
-This is the local application slice requested by the owner on October 26, 2026: **typed request → Meta chooses a tool → execution → text reply**. It implements web search, multiple labeled countdown timers, and the subsequently requested [memory system and keyword routines](MEMORY.md). It does not replace the full product scope or select the final app platform.
+This is the local application slice requested by the owner on October 26, 2026: **typed request → Meta chooses a tool → execution → text reply**. It implements web search, multiple labeled countdown timers, the subsequently requested [memory system and keyword routines](MEMORY.md), and [Spotify controls](SPOTIFY.md). It does not replace the full product scope or select the final app platform.
 
 ## Run locally
 
@@ -49,7 +49,8 @@ The public repository contains code and synthetic tests only. `.env`, `data/`, a
 - Exact conversation and memory records persist locally until deleted. Reloading restores the browser's session; **New conversation** starts another session while retaining household records. Active model history uses at most 12 whole turns with a size budget; older exact text remains searchable. **Delete this conversation** removes that transcript; **Delete all memory** clears conversations, household records, rules, documents, routines, queued learning, and response/trace caches. Individual deletion/correction invalidates dependent recall. No conversation text is written to the hash-only request ledger.
 - `data/timers.json` stores labels, times, status, and operation IDs locally. Dismissed records remain for retry protection. `data/requests.jsonl` stores request-ID and payload hashes, not message text or keys; treat even these hashes as private. There is no automatic on-disk retention limit. To erase all local runtime data, stop the server and remove `data/`; this also removes timers and retry protection.
 - `data/memory.json`, `data/memory-learning.json`, and `data/routines.json` hold private local records. Clear-all memory deliberately preserves existing timers and hash-only retry receipts; stop the server and remove `data/` only to erase every runtime file including timers and retry protection.
-- Voice, timer images, device control, remote access, and authentication remain unimplemented. Semantic guidance is model context, not guaranteed enforcement. Routines expand user-defined prompts into currently available tools; they do not add missing integrations or create recurring schedules.
+- Spotify connection uses PKCE and local tokens; retrieved Spotify metadata is rendered only in its panel and never sent to Meta or household learning. Disconnect removes tokens and transient Spotify data; clear-all memory preserves the separate connection. See [Spotify privacy](SPOTIFY.md#data-and-privacy).
+- Voice, timer images, general home-device control, remote access, and household authentication remain unimplemented. Semantic guidance is model context, not guaranteed enforcement. Routines expand user-defined prompts into currently available tools; they do not add missing integrations or create recurring schedules.
 
 ## Verification
 
@@ -64,4 +65,4 @@ Official implementation references checked October 26, 2026: [Responses API](htt
 
 ## Contributions and dependencies
 
-New application work dated October 26, 2026: local browser interface, Meta adapter/orchestration, timer persistence, request receipts, server boundary, and automated tests. Runtime/test dependencies: Node.js standard library and browser APIs; external service: Meta Model API. No downloaded UI assets or additional package licenses are introduced. The existing hackathon build-start ambiguity and repository license decision remain open; see [HACKATHON.md](HACKATHON.md).
+New application work dated October 26, 2026: local browser interface, Meta adapter/orchestration, timer persistence, request receipts, server boundary, and automated tests. Runtime/test dependencies: Node.js standard library and browser APIs; external services: Meta Model API and Spotify Web API. The subsequent Spotify work adds PKCE connection, typed command routing, local playback controls, and tests. No downloaded UI assets or additional package licenses are introduced. The existing hackathon build-start ambiguity and repository license decision remain open; see [HACKATHON.md](HACKATHON.md).

@@ -18,6 +18,32 @@ test('compiler accepts only known kinds, matching scopes, and bounded data', () 
   assert.equal(rule('avoid_word', 'cafe\u0301').value, 'cafe\u0301');
 });
 
+test('Spotify restrictions apply to their precise implemented operation without blocking unrelated tools', () => {
+  for (const name of ['spotify_control', 'spotify_search', 'spotify_playlists', 'spotify_status']) {
+    const restriction = rule('tool_deny', name);
+    assert.equal(checkTool([restriction], { name, args: { action: 'play' } }).ok, false);
+    assert.equal(checkTool([restriction], { name: 'create_timer', args: { label: 'Tea', duration_seconds: 30 } }).ok, true);
+    assert.equal(checkTool([restriction], { name: 'web_search', args: {} }).ok, true);
+    const other = name === 'spotify_control' ? 'spotify_search' : 'spotify_control';
+    assert.equal(checkTool([restriction], { name: other, args: {} }).ok, true);
+  }
+  assert.throws(() => rule('tool_deny', 'spotify_specific_song'), /not available/);
+});
+
+test('a Spotify search restriction also blocks query resolution inside playback or queue without blocking direct controls', () => {
+  const restriction = rule('tool_deny', 'spotify_search');
+  for (const action of ['play', 'queue']) {
+    const gate = checkTool([restriction], { name: 'spotify_control', args: { action, query: 'Synthetic song', type: 'track' } });
+    assert.equal(gate.ok, false);
+    assert.deepEqual(gate.applied_rule_ids, [restriction.id]);
+    assert.equal(gate.violations[0].code, 'TOOL_DENIED');
+  }
+  for (const args of [{ action: 'pause' }, { action: 'play' }, { action: 'play', uri: 'spotify:track:1234567890123456789012' }]) {
+    assert.equal(checkTool([restriction], { name: 'spotify_control', args }).ok, true);
+  }
+  assert.equal(checkTool([rule('tool_deny', 'spotify_status')], { name: 'spotify_control', args: { action: 'pause' } }).ok, true);
+});
+
 test('conflicting defaults have stable identifiers and neither value wins', () => {
   const a = rule('timer_default_unit', 'seconds', 'rule-a');
   const b = rule('timer_default_unit', 'minutes', 'rule-b');

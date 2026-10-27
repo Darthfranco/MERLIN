@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { timingSafeEqual } from 'node:crypto';
 import { readFile, mkdir, open, unlink } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -13,12 +14,14 @@ import { RoutinesStore, RoutineService } from './routines.js';
 import { normalizeRule, checkOutput, checkTool, findConflicts, safeClarification } from './memory-rules.js';
 import { AppError, objectArgs, timeZone, uuid } from './errors.js';
 import { MAX_MODEL_ROUNDS, MODEL_TIMEOUT_MS } from './limits.js';
+import { SpotifyService } from './spotify.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_FILES = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/memory.js', ['memory.js', 'text/javascript; charset=utf-8']],
+  ['/spotify.js', ['spotify.js', 'text/javascript; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
 ]);
 
@@ -47,15 +50,16 @@ function publicError(error) {
 export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaClient({
   apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY,
   model: process.env.META_MODEL || 'muse-spark-1.3',
-}), timers: suppliedTimers, ledger: suppliedLedger, memoryStore: suppliedMemory, learningDelayMs = 750 } = {}) {
+}), timers: suppliedTimers, ledger: suppliedLedger, memoryStore: suppliedMemory, spotify: suppliedSpotify, learningDelayMs = 750 } = {}) {
   const timers = suppliedTimers || await new TimerStore({ filePath: join(dataDir, 'timers.json') }).init();
   const ledger = suppliedLedger || await new RequestLedger(join(dataDir, 'requests.jsonl')).init();
   const store = suppliedMemory || await new MemoryStore({ filePath: join(dataDir, 'memory.json') }).init();
   const memory = new MemoryService(store);
+  const spotify = suppliedSpotify || await new SpotifyService({ filePath: join(dataDir, 'spotify.json'), clientId: process.env.SPOTIFY_CLIENT_ID || '' }).init();
   const routineStore = await new RoutinesStore({ filePath: join(dataDir, 'routines.json') }).init();
   const routines = new RoutineService({ store: routineStore, memoryStore: store });
   const learning = await new MemoryLearning({ store, meta, filePath: join(dataDir, 'memory-learning.json'), delayMs: learningDelayMs }).init();
-  const assistant = new Assistant({ meta, timers, memory, routines });
+  const assistant = new Assistant({ meta, timers, memory, routines, spotify });
   const traces = new Map();
   const inspect = sessionId => ({ ...memory.inspect(sessionId), ...routines.inspect(sessionId), learning: learning.status(), retention: 'Kept locally until you delete it. Clear all memory also removes transcripts, documents, routines, and learning jobs. Timers are separate.' });
   const clearCaches = () => { traces.clear(); ledger.live.clear(); };
@@ -66,7 +70,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
   };
   const requireTool = (name, args) => {
     const gate = checkTool(memory.rules(), { name, args });
-    if (!gate.ok) throw new AppError(gate.conflicts.length ? 'Resolve the flagged timer instructions in Memory lab before this action.' : gate.violations.map(item => item.message).join(' '));
+    if (!gate.ok) throw new AppError(gate.conflicts.length ? 'Resolve the flagged instructions in Memory lab before this action.' : gate.violations.map(item => item.message).join(' '));
     return gate.args;
   };
   const sessions = new Map();
@@ -98,10 +102,26 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       const port = server.address()?.port;
       const hosts = [`127.0.0.1:${port}`, `localhost:${port}`];
       if (!hosts.includes(req.headers.host)) throw new AppError('Only local access is allowed.', 403);
-      if (req.headers.origin && !hosts.map(host => `http://${host}`).includes(req.headers.origin)) throw new AppError('Cross-origin requests are not allowed.', 403);
-      if (req.headers['sec-fetch-site'] === 'cross-site') throw new AppError('Cross-site requests are not allowed.', 403);
       const url = new URL(req.url, 'http://localhost');
       const path = url.pathname;
+      const callback = req.method === 'GET' && path === '/api/spotify/callback';
+      if (req.headers.origin && !hosts.map(host => `http://${host}`).includes(req.headers.origin)) throw new AppError('Cross-origin requests are not allowed.', 403);
+      if (req.headers['sec-fetch-site'] === 'cross-site' && !callback) throw new AppError('Cross-site requests are not allowed.', 403);
+      const spotifyRedirect = `http://127.0.0.1:${port}/api/spotify/callback`;
+      if (callback) {
+        // Only this OAuth GET permits cross-site navigation. The state must
+        // match both this browser's HttpOnly cookie and the service's PKCE job.
+        const state = url.searchParams.get('state') || '';
+        const cookie = (req.headers.cookie || '').split(';').map(part => part.trim()).find(part => part.startsWith('merlin_spotify_oauth='))?.slice('merlin_spotify_oauth='.length) || '';
+        if (!/^[A-Za-z0-9_-]{32,128}$/.test(state) || !/^[A-Za-z0-9_-]{32,128}$/.test(cookie) || state.length !== cookie.length || !timingSafeEqual(Buffer.from(state), Buffer.from(cookie))) throw new AppError('Spotify connection expired or belongs to another browser. Connect again.', 403);
+        res.setHeader('Set-Cookie', 'merlin_spotify_oauth=; Path=/api/spotify/callback; HttpOnly; SameSite=Lax; Max-Age=0');
+        let outcome = 'connected';
+        try {
+          await spotify.completeAuthorization({ code: url.searchParams.get('error') ? '' : url.searchParams.get('code') || '', state, redirectUri: spotifyRedirect });
+        } catch { outcome = url.searchParams.get('error') === 'access_denied' ? 'cancelled' : 'error'; }
+        res.writeHead(303, { Location: `/?spotify=${outcome}#spotify-title` });
+        res.end(); return;
+      }
       if (req.method === 'GET' && PUBLIC_FILES.has(path)) {
         const [file, type] = PUBLIC_FILES.get(path);
         res.writeHead(200, { 'Content-Type': type });
@@ -116,6 +136,13 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
           ...await state(),
         });
         return;
+      }
+      if (req.method === 'GET' && path === '/api/spotify/status') {
+        json(200, { ...spotify.status(), redirect_uri: spotifyRedirect }); return;
+      }
+      if (req.method === 'GET' && path === '/api/spotify') {
+        requireTool('spotify_status', {});
+        json(200, await spotify.snapshot({ refresh: url.searchParams.get('refresh') === '1' })); return;
       }
       if (req.method === 'GET' && path === '/api/memory') {
         const sessionId = url.searchParams.get('session_id'); if (sessionId) uuid(sessionId);
@@ -133,6 +160,37 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       }
       if (req.method !== 'POST') throw new AppError('Not found.', 404);
       const body = await bodyOf(req, path === '/api/documents' ? 650_000 : path === '/api/routines' ? 90_000 : 16_384);
+      if (path === '/api/spotify/config') {
+        objectArgs(body, ['client_id']);
+        await spotify.configure(body.client_id);
+        json(200, { ...spotify.status(), redirect_uri: spotifyRedirect }); return;
+      }
+      if (path === '/api/spotify/connect') {
+        objectArgs(body, []);
+        if (req.headers.host !== `127.0.0.1:${port}`) throw new AppError(`Open http://127.0.0.1:${port} before connecting Spotify.`);
+        const auth = spotify.beginAuthorization(spotifyRedirect);
+        res.setHeader('Set-Cookie', `merlin_spotify_oauth=${auth.state}; Path=/api/spotify/callback; HttpOnly; SameSite=Lax; Max-Age=600`);
+        json(200, { url: auth.url }); return;
+      }
+      if (path === '/api/spotify/disconnect') {
+        objectArgs(body, []); await spotify.disconnect();
+        json(200, spotify.status()); return;
+      }
+      if (path === '/api/spotify/search') {
+        objectArgs(body, ['query', 'type']);
+        json(200, await spotify.search(requireTool('spotify_search', body))); return;
+      }
+      if (path === '/api/spotify/playlists') {
+        objectArgs(body, []); requireTool('spotify_playlists', {});
+        json(200, await spotify.playlists()); return;
+      }
+      if (path === '/api/spotify/control') {
+        objectArgs(body, ['request_id', 'action', 'uri', 'query', 'type', 'device_id', 'device_name', 'volume_percent', 'state']);
+        uuid(body.request_id);
+        const { request_id: requestId, ...args } = body;
+        const result = await ledger.run(`spotify:${requestId}`, body, () => spotify.control(requireTool('spotify_control', args)));
+        json(200, result); return;
+      }
       if (path.startsWith('/api/memory/') || path === '/api/documents' || path === '/api/routines' || path === '/api/routines/delete') {
         if ([...sessions.values()].some(session => session.busy)) throw new AppError('Wait for the current reply before editing memory.', 409);
         const beforeEpoch = store.epoch;
@@ -279,7 +337,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
     }
   });
   server.on('close', () => { clearInterval(interval); learning.close().catch(() => {}); });
-  return { server, timers, meta, store, memory, learning, routines, routineStore };
+  return { server, timers, meta, store, memory, learning, routines, routineStore, spotify };
 }
 
 async function main() {

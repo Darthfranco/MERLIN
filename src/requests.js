@@ -30,7 +30,7 @@ export class RequestLedger {
     const reserve = this.queue.then(async () => {
       if (this.seen.has(key)) {
         if (this.seen.get(key) !== fingerprint) throw new AppError('This request ID was already used for different input.', 409);
-        if (!this.live.has(key)) throw new AppError('This request was already attempted before a server restart or cache expiry. Check the timers before sending a new request.', 409);
+        if (!this.live.has(key)) throw new AppError('This request was already attempted before a server restart or cache expiry. Check current timers and playback before sending a new request.', 409);
         return;
       }
       await appendFile(this.filePath, `${JSON.stringify({ id: key, fingerprint })}\n`, { mode: 0o600, flush: true });

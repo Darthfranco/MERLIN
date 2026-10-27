@@ -348,7 +348,7 @@ window.createMemoryLab = function createMemoryLab({ request, getSessionId, isCha
       avoid_phrase: "The exact phrase to exclude. This does not block paraphrases or related ideas.",
       response_prefix: "Exact text required at the beginning of a response.",
       response_suffix: "Exact text required at the end of a response.",
-      tool_deny: "Use create_timer, cancel_timer, or web_search.",
+      tool_deny: "Use create_timer, cancel_timer, web_search, spotify_control, spotify_search, spotify_playlists, or spotify_status. spotify_control blocks all Spotify playback changes.",
       timer_max_seconds: "A positive whole number of seconds. Longer timer actions will be blocked.",
     };
     $("rule-value-help").textContent = help[kind];

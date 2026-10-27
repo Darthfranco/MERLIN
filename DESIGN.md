@@ -104,6 +104,7 @@ Controls use the smallest corner token, notices the middle token, and main panel
 - **Fields:** visible labels, full-width inputs, and a vertically resizable message field. Enter sends a message; Shift + Enter inserts a line break. Busy requests make their fields read-only and show a working label.
 - **Conversation:** plain text entries identify the speaker. Tool results and safe source links accompany replies. Failed and uncertain requests preserve entered text and display distinct recovery guidance.
 - **Timers:** rows show a label, textual status, tabular countdown, explicit end time and time zone, and a Cancel or Dismiss action. Polling updates existing rows so keyboard focus is not discarded. Completion announcements use a separate polite live region rather than announcing every countdown tick.
+- **Spotify:** the local panel follows the same labeled fields, blue primary actions, and bordered secondary controls. App setup and shuffle/repeat use disclosures; playback, device selection, and music search remain distinct groups. The displayed playback state comes from Spotify, while action feedback describes acceptance separately. Device selection does not itself start playback. Music and device details stay in this panel; the privacy note distinguishes that boundary from text entered into chat.
 - **Notices:** configuration guidance, connection state, errors, and persistence warnings are explicit. The expandable manual timer form states that it bypasses Meta.
 
 ## Do's and Don'ts

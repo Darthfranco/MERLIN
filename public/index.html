@@ -8,12 +8,13 @@
     <link rel="stylesheet" href="/styles.css">
     <script src="/memory.js" defer></script>
     <script src="/app.js" defer></script>
+    <script src="/spotify.js" defer></script>
   </head>
   <body>
     <header class="page-header">
       <div>
         <h1>MERLIN</h1>
-        <p>Text prototype · Memory, web search, and timers</p>
+        <p>Text prototype · Memory, search, timers, and Spotify</p>
       </div>
       <p id="connection" class="connection" role="status">Connecting to the local server…</p>
     </header>
@@ -85,6 +86,93 @@
               <button type="submit" id="create-timer">Start test timer</button>
             </form>
           </details>
+        </section>
+
+        <section id="spotify-panel" class="spotify" aria-labelledby="spotify-title">
+          <div class="section-heading">
+            <h2 id="spotify-title">Spotify</h2>
+            <button type="button" id="spotify-refresh" class="secondary" disabled>Refresh</button>
+          </div>
+          <p id="spotify-status" class="help" role="status">Checking Spotify connection…</p>
+          <p id="spotify-error" class="error" role="alert" hidden></p>
+          <p id="spotify-feedback" class="help" role="status"></p>
+          <button type="button" id="spotify-retry" class="secondary" hidden>Retry same action</button>
+
+          <div id="spotify-connect-view" hidden>
+            <p class="spotify-intro">Connect your account to choose music and control an open Spotify app.</p>
+            <button type="button" id="spotify-connect" disabled>Connect Spotify</button>
+          </div>
+
+          <details id="spotify-setup" class="spotify-details">
+            <summary>Spotify app setup</summary>
+            <p class="help">In the <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener noreferrer">Spotify developer dashboard</a>, open your app’s settings and add this exact redirect URI. Then save the public client ID below. Do not enter a client secret.</p>
+            <label for="spotify-redirect">Redirect URI</label>
+            <div class="spotify-inline">
+              <input id="spotify-redirect" readonly aria-describedby="spotify-redirect-help" placeholder="Loading redirect URI…">
+              <button type="button" id="spotify-copy-redirect" class="secondary" disabled>Copy</button>
+            </div>
+            <p id="spotify-redirect-help" class="help">Copy the whole value, including the address, port, and path.</p>
+            <form id="spotify-config-form">
+              <label for="spotify-client-id">Public client ID</label>
+              <input id="spotify-client-id" name="client_id" maxlength="128" autocomplete="off" autocapitalize="none" spellcheck="false" required>
+              <button type="submit" id="spotify-save-config">Save client ID</button>
+            </form>
+          </details>
+          <p class="help spotify-requirements">Playback control needs Spotify Premium and an open Spotify app on a device.</p>
+
+          <div id="spotify-connected-view" hidden>
+            <div class="spotify-now-playing">
+              <h3 id="spotify-track-name">Nothing playing</h3>
+              <p id="spotify-track-artists" class="help"></p>
+              <p id="spotify-playback-state" class="help"></p>
+              <a id="spotify-track-link" target="_blank" rel="noopener noreferrer" hidden>Open in Spotify</a>
+            </div>
+
+            <label for="spotify-device">Playback device</label>
+            <div class="spotify-inline">
+              <select id="spotify-device" aria-describedby="spotify-device-help"><option value="">Choose a device</option></select>
+              <button type="button" id="spotify-transfer" class="secondary" disabled>Use device</button>
+            </div>
+            <p id="spotify-device-help" class="help">Open Spotify on a device, then refresh. Selecting a device does not start playback.</p>
+
+            <div class="spotify-transport" role="group" aria-label="Spotify playback">
+              <button type="button" id="spotify-previous" class="secondary" disabled>Previous</button>
+              <button type="button" id="spotify-play-pause" disabled>Play</button>
+              <button type="button" id="spotify-next" class="secondary" disabled>Next</button>
+            </div>
+            <form id="spotify-volume-form" class="spotify-volume-form">
+              <div><label for="spotify-volume">Volume (%)</label><input id="spotify-volume" type="number" min="0" max="100" step="1" inputmode="numeric" placeholder="0–100" required aria-describedby="spotify-volume-help"></div>
+              <button type="submit" id="spotify-set-volume" class="secondary" disabled>Set volume</button>
+            </form>
+            <p id="spotify-volume-help" class="help">Volume depends on the selected device’s support.</p>
+
+            <details class="spotify-details">
+              <summary>Shuffle and repeat</summary>
+              <div class="form-pair">
+                <form id="spotify-shuffle-form"><label for="spotify-shuffle">Shuffle</label><select id="spotify-shuffle"><option value="">Choose…</option><option value="true">On</option><option value="false">Off</option></select><button type="submit" id="spotify-set-shuffle" class="secondary" disabled>Set shuffle</button></form>
+                <form id="spotify-repeat-form"><label for="spotify-repeat">Repeat</label><select id="spotify-repeat"><option value="">Choose…</option><option value="off">Off</option><option value="track">Current track</option><option value="context">Current album or playlist</option></select><button type="submit" id="spotify-set-repeat" class="secondary" disabled>Set repeat</button></form>
+              </div>
+            </details>
+
+            <div class="spotify-browse">
+              <h3>Find music</h3>
+              <form id="spotify-search-form">
+                <label for="spotify-query">Search Spotify</label><input id="spotify-query" type="search" maxlength="200" placeholder="Song, artist, album, or playlist" required>
+                <div class="spotify-inline spotify-search-options">
+                  <div><label for="spotify-search-type">Search for</label><select id="spotify-search-type"><option value="track">Tracks</option><option value="album">Albums</option><option value="artist">Artists</option><option value="playlist">Playlists</option></select></div>
+                  <button type="submit" id="spotify-search">Search</button>
+                  <button type="button" id="spotify-playlists" class="secondary">My playlists</button>
+                </div>
+              </form>
+              <div id="spotify-results-area" hidden>
+                <h3 id="spotify-results-title" tabindex="-1">Search results</h3>
+                <p id="spotify-results-empty" class="help" hidden></p>
+                <ul id="spotify-results" aria-labelledby="spotify-results-title"></ul>
+              </div>
+            </div>
+            <button type="button" id="spotify-disconnect" class="secondary">Disconnect Spotify</button>
+          </div>
+          <p class="privacy">Spotify returns music and device details to this local panel, not to Meta. Anything you type in chat is still sent to Meta. <a href="https://github.com/Darthfranco/MERLIN/blob/main/docs/SPOTIFY.md" target="_blank" rel="noopener noreferrer">Spotify privacy and setup</a></p>
         </section>
         </div>
 
@@ -186,7 +274,7 @@
                   <label for="routine-aliases">Other trigger phrases <span class="help">(optional)</span></label><textarea id="routine-aliases" rows="2" maxlength="1500" placeholder="Time for tea" aria-describedby="routine-aliases-help"></textarea>
                   <p id="routine-aliases-help" class="help">One phrase per line, up to 12 phrases of 120 characters each. The name itself is also a trigger.</p>
                   <label for="routine-prompt">Request to run</label><textarea id="routine-prompt" rows="5" maxlength="12000" placeholder="Set a 3-minute tea timer and search for the weather forecast." aria-describedby="routine-prompt-help" required></textarea>
-                  <p id="routine-prompt-help" class="help">Write the exact request the phrase should stand for. Saving does not run it or create a recurring schedule. Device and music integrations remain unavailable in this prototype.</p>
+                  <p id="routine-prompt-help" class="help">Write the exact request the phrase should stand for. Saving does not run it or create a recurring schedule. Spotify requires a connected account; other home-device integrations remain unavailable.</p>
                   <div class="form-actions"><button type="submit">Save routine</button><button type="button" class="secondary" id="cancel-routine-edit">Reset form</button></div>
                 </form>
               </details>

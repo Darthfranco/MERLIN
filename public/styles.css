@@ -41,7 +41,7 @@ h3 { font-size: 1rem; }
 .connection[data-state="offline"] { color: #963d12; }
 .workspace { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(360px, 1fr); gap: 24px; align-items: start; }
 .interaction-column { display: grid; gap: 24px; min-width: 0; }
-.conversation, .timers { min-width: 0; padding: 22px; border: 1px solid var(--border); border-radius: 12px; background: white; }
+.conversation, .timers, .spotify { min-width: 0; padding: 22px; border: 1px solid var(--border); border-radius: 12px; background: white; }
 .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 .section-heading button { font-size: .82rem; padding: 8px 10px; }
 .help { color: var(--muted); font-size: .86rem; }
@@ -156,6 +156,43 @@ button.danger:hover:not(:disabled) { background: #fff2ec; border-color: #c58f7f;
 .trace-event { padding: 8px 0; border-top: 1px solid #e4e9ee; font-size: .79rem; }
 .trace-stage { font-weight: 600; font-variant-numeric: tabular-nums; margin-bottom: 3px; overflow-wrap: anywhere; }
 
+.spotify-intro { margin: 16px 0 12px; font-size: .93rem; }
+#spotify-feedback:empty { display: none; }
+#spotify-feedback, #spotify-retry { margin-top: 12px; }
+.spotify-details { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 8px; }
+.spotify-details > summary { min-height: 44px; padding: 9px 0; cursor: pointer; font-size: .9rem; font-weight: 600; }
+.spotify-details > .help { margin: 6px 0 14px; }
+.spotify-details label { margin-top: 14px; }
+.spotify-details form > button { margin-top: 12px; }
+.spotify-inline { display: flex; align-items: center; gap: 8px; }
+.spotify-inline > input, .spotify-inline > select, .spotify-inline > div { flex: 1; min-width: 0; }
+.spotify-inline > button { flex-shrink: 0; }
+#spotify-redirect { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .78rem; background: #f4f6f8; }
+#spotify-redirect-help, #spotify-device-help, #spotify-volume-help { margin-top: 6px; }
+.spotify-requirements { margin-top: 16px; }
+.spotify-now-playing { padding: 22px 0 18px; border-top: 1px solid var(--border); margin-top: 18px; }
+.spotify-now-playing h3 { overflow-wrap: anywhere; }
+.spotify-now-playing > p { margin-top: 5px; }
+.spotify-now-playing > a { display: inline-block; margin-top: 8px; font-size: .85rem; }
+.spotify-transport { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
+.spotify-transport > button { flex: 1; }
+.spotify-volume-form { display: flex; gap: 10px; align-items: flex-end; }
+.spotify-volume-form > div { max-width: 140px; min-width: 0; }
+.spotify-browse { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--border); }
+.spotify-browse > h3 { margin-bottom: 16px; }
+.spotify-search-options { align-items: flex-end; flex-wrap: wrap; margin-top: 12px; }
+.spotify-search-options > div { flex-basis: 130px; }
+#spotify-results-area { margin-top: 22px; }
+#spotify-results-empty { margin-top: 12px; }
+#spotify-results { list-style: none; padding: 0; margin: 8px 0 0; }
+.spotify-result { padding: 16px 0; border-bottom: 1px solid #e4e9ee; }
+.spotify-result:last-child { border-bottom: 0; }
+.spotify-result h4 { margin: 0 0 5px; font-size: .94rem; overflow-wrap: anywhere; }
+.spotify-result > a { display: inline-block; font-size: .82rem; margin-top: 6px; }
+.spotify-result-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.spotify-result-actions button { font-size: .83rem; padding: 8px 12px; }
+#spotify-disconnect { margin-top: 22px; }
+
 @media (max-width: 760px) {
   body { padding: 20px 16px; }
   .page-header { align-items: flex-start; gap: 12px; }
@@ -165,11 +202,12 @@ button.danger:hover:not(:disabled) { background: #fff2ec; border-color: #c58f7f;
   .interaction-column { display: contents; }
   .memory-lab { grid-row: 2; }
   .timers { grid-row: 3; }
+  .spotify { grid-row: 4; }
   .memory-lab > summary { padding: 18px; }
   .memory-content { padding: 0 18px 18px; }
   .memory-list { max-height: 400px; }
   .memory-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; }
-  .conversation, .timers { padding: 18px; }
+  .conversation, .timers, .spotify { padding: 18px; }
   .chat-area { min-height: 150px; max-height: 42vh; }
   .privacy { margin-top: 15px; }
 }

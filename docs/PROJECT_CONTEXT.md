@@ -8,7 +8,7 @@ Updated **October 26, 2026** from the owner's initial brief, detailed ten-area o
 
 MERLIN is being built in a public GitHub repository for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Cerebral Valley. See [hackathon requirements](HACKATHON.md) and the [model reference](MODELS.md). The proposed primary theme is **Build for Your World**; physical-device coordination may also support **Push the Frontier**. Track and final submission theme remain undecided.
 
-The owner wants MERLIN to be accessible to as many people as possible. Exact home hardware, companion-app platforms, service providers, and device integrations are **TBD**. An iPad, Spotify, and Ring are examples or candidate integrations, not finalized platform commitments or claims of working support.
+The owner wants MERLIN to be accessible to as many people as possible. Exact home hardware, companion-app platforms, service providers, and device integrations are **TBD**. An iPad and Ring remain examples or candidate integrations. The owner subsequently requested Spotify for the local typed prototype; its account and device access must be connected and verified separately from the implementation.
 
 ## First application slice confirmed October 26, 2026
 
@@ -70,13 +70,13 @@ Apply each instruction according to its wording, context, and intended output ch
 
 ### 5. Everyday assistant tools
 
-- Play music through connected speakers and services, with Spotify as an example. Speaker brands and connection protocols remain TBD.
+- Play music through connected speakers and services. **Spotify integration requested October 26, 2026:** add Spotify API capabilities to the current local typed prototype. OAuth connection, search, playlists, available-device selection, playback and queue controls are implemented; live account playback requires owner connection and verification. Spotify metadata stays in the panel rather than entering Meta or household learning. Current Spotify policy restricts voice assistants and alarms; this integration adds neither. See [setup, privacy, and boundaries](SPOTIFY.md). Speaker brands and other connection protocols remain TBD.
 - Connect to a calendar; provider and the supported calendar operations remain TBD.
 - Search the internet and summarize useful findings in response to requests.
 - Support multiple simultaneous timers with descriptive labels.
 - Generate quick images to help identify timers, such as a coffee image for a coffee timer.
 
-The user should be able to request these tasks naturally through voice or the app. Providers and account access have not been selected or tested.
+The broader product goal is natural requests through voice or the app. Spotify is implemented for typed requests and manual controls only, subject to its platform restrictions. Other providers and account access remain undecided or unverified.
 
 ### 6. Home cameras and doorbell
 
@@ -132,7 +132,7 @@ Validate device targets and parameters and respect actual device capabilities. K
 
 ## Decisions still needed
 
-- Home display/hardware, companion-app platforms, actual device inventory, and service providers, including calendar, music, cameras, and doorbell.
+- Home display/hardware, companion-app platforms, actual device inventory, and other service providers, including calendar, cameras, doorbell, and music beyond the selected local Spotify integration.
 - App framework, device protocols/home hub, hosting, storage, authentication, and local/cloud split.
 - Exact wake phrase, detection implementation, conversation-session behavior, and voice pipeline/model selection.
 - Household permission management, production memory retention/storage, and audio/image policies beyond the confirmed local retention and privacy decisions.

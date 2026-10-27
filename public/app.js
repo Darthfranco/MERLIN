@@ -245,12 +245,16 @@ function renderReply(entry, data, error = "") {
   const body = entry.querySelector(".message-body");
   body.textContent = error || data.reply || "I couldn’t complete the reply. Check any action results below before trying again.";
   for (const existing of entry.querySelectorAll(":scope > .tool-results, :scope > .sources, :scope > .sources-label")) existing.remove();
-  const actionNames = { create_timer: "Timer", cancel_timer: "Timer cancellation", list_timers: "Timer list", web_search: "Web search" };
+  const actionNames = { create_timer: "Timer", cancel_timer: "Timer cancellation", list_timers: "Timer list", web_search: "Web search", spotify_control: "Spotify request", spotify_search: "Spotify search", spotify_playlists: "Spotify playlists", spotify_status: "Spotify player" };
   const actionFailures = {
     create_timer: "The timer could not be started.",
     cancel_timer: "The timer cancellation could not be completed.",
     list_timers: "I couldn’t check the timers.",
     web_search: "I couldn’t finish the web search.",
+    spotify_control: "Spotify did not confirm the request. Check playback in the Spotify panel before trying again.",
+    spotify_search: "I couldn’t retrieve the Spotify results. Check the Spotify panel.",
+    spotify_playlists: "I couldn’t retrieve your Spotify playlists. Check the Spotify panel.",
+    spotify_status: "I couldn’t check Spotify playback. Refresh the Spotify panel.",
   };
   const actionResults = (Array.isArray(data.tool_events) ? data.tool_events : []).filter((event) =>
     Object.hasOwn(actionNames, event.tool) && (error || !data.reply || event.status !== "completed"));
@@ -262,7 +266,8 @@ function renderReply(entry, data, error = "") {
     list.setAttribute("aria-label", "Action results");
     for (const event of actionResults) {
       const item = document.createElement("li");
-      item.append(textElement("strong", "", `${actionNames[event.tool]} · ${event.status === "completed" ? "Completed" : "Not completed"}`));
+      const outcome = event.status === "completed" ? event.tool === "spotify_control" ? "Response received" : "Completed" : "Not completed";
+      item.append(textElement("strong", "", `${actionNames[event.tool]} · ${outcome}`));
       const message = event.status === "completed" ? event.message : actionFailures[event.tool];
       if (message) item.append(document.createTextNode(` — ${message}`));
       list.append(item);
@@ -329,6 +334,7 @@ elements["chat-form"].addEventListener("submit", async (event) => {
   } finally {
     chatBusy = false;
     memoryLab?.finish(attempt.entry, responseData);
+    window.dispatchEvent(new Event("merlin:chat-complete"));
     updateChatControls();
     elements.message.focus();
   }

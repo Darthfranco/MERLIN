@@ -4,7 +4,7 @@ A voice-first, Jarvis-inspired home assistant that learns about its household, m
 
 Built for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Cerebral Valley. MERLIN aims to make everyday home tasks useful, simple, and natural through Meta models and a polished companion interface.
 
-**Status:** Blender character and landscape room assets are available in [assets/merlin-character](assets/merlin-character/README.md), retaining the original proportions and lighting. The latest interaction extension adds a more natural wake-up, expressive face acting, a white panel pulled in from the right and dismissed with a tap, and matching transitions into and out of a full-frame face with a cyan seven-bar mouth. Its 19-clip Blender/GLB assets, four Cycles stills, and [31.17-second interaction movie](assets/merlin-character/previews/merlin-interactions.mp4) are complete and verified, including independent GLB re-import and review of the encoded movie. The earlier verified portrait, casual-room, and [41.75-second ready/activity transition movie](assets/merlin-character/previews/merlin-transitions.mp4) remain available. The text-only application prototype implements Meta-driven web search, local timers, persistent inspectable memory, compiled standing instructions, named documents, and user-defined keyword routines. Other features below remain product goals, not working integrations.
+**Status:** Blender character and landscape room assets are available in [assets/merlin-character](assets/merlin-character/README.md), retaining the original proportions and lighting. The latest interaction extension adds a more natural wake-up, expressive face acting, a white panel pulled in from the right and dismissed with a tap, and matching transitions into and out of a full-frame face with a cyan seven-bar mouth. Its 19-clip Blender/GLB assets, four Cycles stills, and [31.17-second interaction movie](assets/merlin-character/previews/merlin-interactions.mp4) are complete and verified, including independent GLB re-import and review of the encoded movie. The earlier verified portrait, casual-room, and [41.75-second ready/activity transition movie](assets/merlin-character/previews/merlin-transitions.mp4) remain available. The text-only application prototype implements Meta-driven web search, local timers, persistent inspectable memory, compiled standing instructions, named documents, user-defined keyword routines, and a Spotify connection with typed music requests and playback controls. Spotify needs your developer app and account connection; live account playback has not yet been verified. Other features below remain product goals, not working integrations.
 
 ## Product vision
 
@@ -21,7 +21,7 @@ Built for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Ce
 
 MERLIN is a home assistant, not an open-ended chat or autonomous coaching product. Privacy matters: wake-word availability does not authorize ambient conversation learning. The detailed requirements and unresolved decisions live in [project context](docs/PROJECT_CONTEXT.md).
 
-Meta models are a core product requirement. Kokoro is the tentative speech synthesis choice. The application stack, hardware, integrations, and final model routing remain open; iPad, Spotify, and Ring are examples or candidates, not selected dependencies.
+Meta models are a core product requirement. Kokoro is the tentative speech synthesis choice. The application stack, hardware, integrations, and final model routing remain open; iPad and Ring remain examples or candidates. Spotify is now selected for the local typed prototype; production and voice support remain separate decisions.
 
 ## Start here
 
@@ -33,6 +33,7 @@ Meta models are a core product requirement. Kokoro is the tentative speech synth
 | [Hackathon brief](docs/HACKATHON.md) | Rules from the supplied materials, schedule, judging, and submission checklist |
 | [Model reference](docs/MODELS.md) | Meta catalog, tentative model roles, pricing snapshot, and Kokoro reference |
 | [Project status](docs/STATUS.md) | Current implementation state, decisions, and next steps |
+| [Spotify setup and privacy](docs/SPOTIFY.md) | Connect an account, playback controls, data boundaries, and limitations |
 | [Memory and routines](docs/MEMORY.md) | Memory lab, rule scopes, retention, routine activation, and testing |
 | [Original event overview](docs/sources/event-overview.txt) and [participant guide](docs/sources/participant-guide.txt) | User-supplied source snapshots |
 

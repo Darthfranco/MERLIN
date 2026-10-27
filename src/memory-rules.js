@@ -10,11 +10,11 @@ export const RULE_KINDS = Object.freeze({
   avoid_phrase: Object.freeze({ scope: 'assistant_reply', value_type: 'text', description: 'Block this literal phrase, case-insensitively; this is not a semantic restriction.' }),
   response_prefix: Object.freeze({ scope: 'assistant_reply', value_type: 'text', description: 'Start replies with this literal text.' }),
   response_suffix: Object.freeze({ scope: 'assistant_reply', value_type: 'text', description: 'End replies with this literal text.' }),
-  tool_deny: Object.freeze({ scope: 'tools', value_type: 'tool', description: 'Block one implemented tool: create_timer, cancel_timer, or web_search.' }),
+  tool_deny: Object.freeze({ scope: 'tools', value_type: 'tool', description: 'Block one implemented operation: create_timer, cancel_timer, web_search, spotify_control, spotify_search, spotify_playlists, or spotify_status.' }),
 });
 
 const UNITS = Object.freeze({ seconds: 1, minutes: 60, hours: 3600 });
-const DENIABLE_TOOLS = new Set(['create_timer', 'cancel_timer', 'web_search']);
+const DENIABLE_TOOLS = new Set(['create_timer', 'cancel_timer', 'web_search', 'spotify_control', 'spotify_search', 'spotify_playlists', 'spotify_status']);
 const SINGLETONS = new Set(['timer_default_unit', 'timer_default_seconds', 'timer_max_seconds', 'address_as', 'response_prefix', 'response_suffix']);
 const AFFIXES = new Set(['address_as', 'response_prefix', 'response_suffix']);
 const LEXICAL = new Set(['avoid_word', 'avoid_phrase']);
@@ -179,7 +179,11 @@ export function checkTool(rules, { name, args = {}, message } = {}) {
     return result;
   }
   result.conflicts = relevantConflicts(active, { message, tool: { name, args } });
-  for (const rule of active.filter(rule => rule.kind === 'tool_deny' && rule.value === name)) {
+  // Resolving a named playback request performs the same catalog search as the
+  // dedicated search tool. A restriction on search also covers that dependency.
+  const operations = new Set([name]);
+  if (name === 'spotify_control' && Object.hasOwn(args, 'query')) operations.add('spotify_search');
+  for (const rule of active.filter(rule => rule.kind === 'tool_deny' && operations.has(rule.value))) {
     result.applied_rule_ids.push(rule.id);
     result.violations.push(violation(rule, 'TOOL_DENIED', 'A standing instruction blocks this tool.'));
   }
