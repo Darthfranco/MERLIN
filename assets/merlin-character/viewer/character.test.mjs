@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {AnimationMixer, AnimationClip, Object3D, NumberKeyframeTrack, Group, Box3, Vector3} from './vendor/three/build/three.module.min.js';
+import {AnimationMixer, AnimationClip, Object3D, NumberKeyframeTrack, Group, Box3, Vector3, Mesh, PlaneGeometry} from './vendor/three/build/three.module.min.js';
 import {MotionController} from './motion.js';
+import {surfaceBasis} from './screens.js';
 import {createCharacterDriver, createSpeechOverlay, createSweep, runtimeManifest, createRenderLoop, createHiddenMeshCuller, renderPixelRatio, RENDER_BUDGET} from './character.js';
 import {loadFootprintSource} from '../scripts/build_motion_footprints.mjs';
 import {chooseClockSpot} from './clock-layout.js';
@@ -19,8 +20,10 @@ function fixture({reducedMotion = false, dualPanels = false} = {}) {
     [new NumberKeyframeTrack('.position[x]', [0, (meta.frames - 1) / 24], [index, index])]));
   let driver;
   const controller = new MotionController(new AnimationMixer(model), clips, fixtureManifest, () => driver?.motionChanged());
-  const screens = Object.fromEntries(['left', 'right'].map(side => [side, {paints: 0,
-    draw(painter, options) {this.painter = painter; this.options = options;}, tick() {this.paints++;}, reset() {this.painter = null;}}]));
+  const screens = Object.fromEntries(['left', 'right'].map(side => [side, {paints: 0, version: 0,
+    draw(painter, options) {this.painter = painter; this.options = options; this.version++;}, tick() {this.paints++;},
+    copyFrom(other) {this.painter = other.painter; this.options = other.options; this.version++;},
+    setAspect(aspect) {this.aspect = aspect;}, reset() {this.painter = null; this.version++;}}]));
   driver = createCharacterDriver({controller, screens, reducedMotion});
   return {controller, driver, model, screens};
 }
@@ -243,6 +246,33 @@ test('available dual-panel state is selected from the manifest and panel records
   assert.equal(driver.panels.left.type, 'timer'); assert.equal(driver.panels.right.status, 'off');
   assert.equal(controller.bodyContext, 'both');
   driver.clearPanel('both'); assert.deepEqual(driver.panels, {left: null, right: null});
+});
+
+test('ceiling content keeps its aspect and live data through face return and left docking', () => {
+  for (const reducedMotion of [false, true]) {
+    const {driver, controller, screens} = fixture({reducedMotion}); let seconds = 40;
+    for (const side of ['right', 'left']) screens[side].basis = surfaceBasis(new Mesh(new PlaneGeometry(4.75, 5.7)));
+    screens.right.basis.mesh.scale.set(9.65 / 4.75, 6.8 / 5.7, 1);
+    driver.showPanel('timer', () => ({status:'running', label:'Carried timer', seconds, durationSeconds:60}), 'right', {navigate:false});
+    driver.go('ceiling', {pace:8}); advance(controller, 2); driver.syncScreens();
+    assert.equal(driver.state, 'ceiling'); assert.ok(Math.abs(screens.right.aspect - 9.65 / 6.8) < 1e-6);
+    assert.equal(screens.right.options.reflow, false, 'Portrait designs are contained rather than stretched into the wide card');
+    driver.go('face', {pace:8}); advance(controller, 2); assert.equal(controller.bodyContext, 'ceiling');
+    assert.equal(driver.panels.right.label, 'Carried timer');
+    driver.go('ceiling', {pace:8}); advance(controller, 2);
+    driver.go('left', {pace:8});
+    if (!reducedMotion) driver.updatePanel(() => ({status:'running',label:'Updated while carried',seconds,durationSeconds:60}), 'right');
+    advance(controller, 2); driver.syncScreens(); assert.equal(driver.state, 'left');
+    assert.ok(Math.abs(screens.left.aspect - 5 / 6) < 1e-6);
+    const carriedLabel = reducedMotion ? 'Carried timer' : 'Updated while carried';
+    seconds = 12; driver.refreshPanels(['left']); assert.equal(driver.panels.left.seconds, 12);
+    driver.updatePanel({label:'Independent right edit',seconds:99}, 'right');
+    assert.equal(driver.panels.left.label, carriedLabel); assert.equal(driver.panels.left.seconds, 12);
+    const texts = [], context = new Proxy({measureText: value => ({width: String(value).length * 12}), fillText: value => texts.push(String(value))},
+      {get: (target, name) => name in target ? target[name] : () => {}});
+    screens.left.painter(context, 900, 1080);
+    assert.ok(texts.includes(carriedLabel)); assert.ok(texts.includes('00:12')); assert.ok(!texts.includes('Independent right edit'));
+  }
 });
 
 test('settlement wakes on arrival, replacement, abort and destruction without stale continuations', async () => {

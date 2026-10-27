@@ -1,0 +1,36 @@
+{
+  "clips": 66,
+  "curves_compacted": 54856,
+  "keyframes_removed": 3402380,
+  "exact_constant_channels": true,
+  "durations_preserved": true,
+  "original_clips": 37,
+  "original_action_fingerprint_before": "19f7e7f57293aee3890614d5ffffc86ba75b5f227d54a6b3c9cdc82019bbbcc0",
+  "original_action_fingerprint_after": "19f7e7f57293aee3890614d5ffffc86ba75b5f227d54a6b3c9cdc82019bbbcc0",
+  "original_actions_unchanged": true,
+  "rebuilt_thought_clips": [
+    "BothToThink",
+    "BothThinking",
+    "BothThinkToBody",
+    "SeatedLeftToThink",
+    "SeatedLeftThinking",
+    "SeatedLeftThinkToBody",
+    "SeatedRightToThink",
+    "SeatedRightThinking",
+    "SeatedRightThinkToBody",
+    "WalkToThink",
+    "WalkThinking",
+    "WalkThinkToBody",
+    "NapToThink",
+    "NapThinking",
+    "NapThinkToBody"
+  ],
+  "post_rebuild_compaction": {
+    "clips": 66,
+    "curves_compacted": 15,
+    "keyframes_removed": 890,
+    "exact_constant_channels": true,
+    "durations_preserved": true
+  },
+  "final_original_action_fingerprint": "19f7e7f57293aee3890614d5ffffc86ba75b5f227d54a6b3c9cdc82019bbbcc0"
+}

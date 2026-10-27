@@ -16,6 +16,38 @@ sys.path.insert(0,str(HERE))
 from interaction_support import action_for,apply_activity,owners
 
 
+def _sample_baked_rig(gather, settings):
+    """Avoid recalculating unused mesh normals after geometry has been gathered.
+
+    This narrow Blender 4.0 hook only applies to a baked, unconstrained rig.
+    Animation sampling reads object/bone matrices and raw shape-key weights.
+    Meshes, morph targets and materials have already been fully exported.
+    Unknown dependencies use Blender's unmodified sampling path instead.
+    """
+    objects={node.blender_object for node in settings['vtree'].nodes.values()
+             if node.blender_object is not None}
+    supported={'ARMATURE','WEIGHTED_NORMAL','BEVEL','SUBSURF'}
+    unsafe=(bpy.app.version[:2]!=(4,0)
+        or bool(bpy.app.handlers.frame_change_pre or bpy.app.handlers.frame_change_post)
+        or bool(settings.get('gltf_user_extensions')))
+    for obj in objects:
+        blocks=[obj,getattr(obj,'data',None),getattr(getattr(obj,'data',None),'shape_keys',None)]
+        unsafe |= bool(obj.constraints) or obj.parent_type in ('VERTEX','VERTEX_3')
+        unsafe |= any(getattr(block,'animation_data',None) and block.animation_data.drivers for block in blocks if block)
+        unsafe |= obj.type=='ARMATURE' and any(bone.constraints for bone in obj.pose.bones)
+        unsafe |= obj.type=='MESH' and any(mod.type not in supported for mod in obj.modifiers)
+    if unsafe:
+        print('MERLIN_EXPORT_SAMPLING_MODIFIERS standard dependency-safe fallback',flush=True)
+        return gather(settings)
+    modifiers=[(mod,mod.show_viewport) for obj in objects if obj.type=='MESH' for mod in obj.modifiers]
+    try:
+        for mod,_ in modifiers:mod.show_viewport=False
+        print('MERLIN_EXPORT_SAMPLING_MODIFIERS',len(modifiers),'temporarily muted after geometry gathering',flush=True)
+        return gather(settings)
+    finally:
+        for mod,visible in modifiers:mod.show_viewport=visible
+
+
 def _constant(action):
     if not action.fcurves:return False
     for curve in action.fcurves:
@@ -57,12 +89,17 @@ def export_interactions(export_names,filepath,controller=None,collection_names=N
     if collection_names is None:
         collection_names=('MERLIN • Character','MERLIN • Display mode')
     owned=controller.owners();scene=bpy.context.scene
+    # Blender's name lookup scans the Action collection. Resolve the authored
+    # sources once before temporary export tracks are added (thousands here).
+    action_index={action.name:action for action in bpy.data.actions}
+    name_for=getattr(controller,'action_name',None) or controller.base.action_name
+    source_for=lambda clip,owner:action_index.get(name_for(clip,owner))
     for owner,data in owned:
         data.animation_data_create()
         if data.animation_data.nla_tracks:
             raise ValueError('Export requires a clean authoring scene; existing NLA tracks on '+owner)
         for name in export_names:
-            if controller.action_for(name,owner) is None:raise ValueError('Missing synchronized action: '+name+', '+owner)
+            if source_for(name,owner) is None:raise ValueError('Missing synchronized action: '+name+', '+owner)
     saved_actions={owner:data.animation_data.action for owner,data in owned}
     saved_nla={owner:data.animation_data.use_nla for owner,data in owned}
     saved_frame=scene.frame_current+scene.frame_subframe
@@ -74,6 +111,8 @@ def export_interactions(export_names,filepath,controller=None,collection_names=N
     fade=scene.node_tree.nodes.get('Presentation • scene transitions') if scene.use_nodes else None
     saved_fade=fade.mute if fade else None
     copies=[];created=[]
+    from io_scene_gltf2.blender.exp import gltf2_blender_gather as gather_module
+    original_gather=gather_module.gather_animations
     statistics={'constant_companions':0,'dynamic_or_rig_tracks':0,'owner_frames_before':0,'owner_frames_exported':0}
     try:
         controller.apply_activity(scene,'ReadyIdle',1)
@@ -82,7 +121,7 @@ def export_interactions(export_names,filepath,controller=None,collection_names=N
             data.animation_data.use_nla=True
             driven=bool(data.animation_data.drivers)
             for name in export_names:
-                source=controller.action_for(name,owner)
+                source=source_for(name,owner)
                 original_length=round(source.frame_range[1]-source.frame_range[0])+1
                 statistics['owner_frames_before']+=original_length
                 if owner!='rig' and not driven and _constant(source):
@@ -103,6 +142,7 @@ def export_interactions(export_names,filepath,controller=None,collection_names=N
         bpy.context.view_layer.objects.active=bpy.data.objects['MERLIN_Rig']
         scene.frame_set(1)
         print('MERLIN_EXPORT_SAMPLING '+json.dumps(statistics),flush=True)
+        gather_module.gather_animations=lambda settings:_sample_baked_rig(original_gather,settings)
         bpy.ops.export_scene.gltf(filepath=str(filepath),export_format='GLB',
             use_selection=True,export_animations=True,export_animation_mode='NLA_TRACKS',
             export_nla_strips=True,export_optimize_animation_size=False,
@@ -113,8 +153,11 @@ def export_interactions(export_names,filepath,controller=None,collection_names=N
         print('MERLIN_INTERACTIONS_EXPORTED '+str(filepath),flush=True)
         return statistics
     finally:
+        gather_module.gather_animations=original_gather
         for data,track in reversed(created):data.animation_data.nla_tracks.remove(track)
-        for action in copies:bpy.data.actions.remove(action,do_unlink=True)
+        # Remove only these temporary, detached datablocks in one remap pass.
+        # Individual removal rescans every authored Action for every copy.
+        if copies:bpy.data.batch_remove(ids=copies)
         for owner,data in owned:
             data.animation_data.action=saved_actions[owner]
             data.animation_data.use_nla=saved_nla[owner]

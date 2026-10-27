@@ -37,6 +37,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       <div class="playback">
         <p id="motion-status" role="status">Preparing the character</p>
         <button id="pause" type="button" disabled>Pause</button>
+        <button id="body" type="button" disabled>Return to body</button>
         <button id="ready" type="button" disabled>Return to ready</button>
       </div>
       <p class="caption">An interactive preview of the Blender animations. Camera, search, and music gestures don’t start those services.</p>
@@ -52,8 +53,12 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
             <option value="bodyThink">Deep thought</option>
           </optgroup>
           <optgroup label="Screens">
+            <option value="ceiling">Jump &amp; pull down a large screen</option>
+            <option value="both">Pull both screens &amp; sit between them</option>
             <option value="right">Pull a screen from the right</option>
             <option value="left">Pull a screen from the left</option>
+            <option value="seatedLeft">Sit beside the left screen</option>
+            <option value="seatedRight">Sit beside the right screen</option>
           </optgroup>
           <optgroup label="Full face">
             <option value="face">Friendly face</option>
@@ -62,17 +67,27 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
             <option value="search">Searching</option>
           </optgroup>
           <optgroup label="Casual">
-            <option value="nap">Nap</option><option value="toss">Ball toss</option><option value="walk">Walk &amp; whistle</option>
+            <option value="nap">Nap</option><option value="toss">Ball toss</option><option value="walk">Walk &amp; whistle</option><option value="walkReverse">Walk &amp; whistle back</option>
           </optgroup>
         </select>
         <button class="primary" type="submit" id="play" disabled>Play animation</button>
+        <div class="screen-dismissals" role="group" aria-label="Dismiss screens">
+          <button id="dismiss-left" type="button" disabled>Dismiss left</button>
+          <button id="dismiss-right" type="button" disabled>Dismiss right</button>
+          <button id="dismiss-both" type="button" disabled>Dismiss both</button>
+        </div>
+        <p class="help">Dismiss either screen while MERLIN stays seated, or dismiss both and return to ready.</p>
+        <div class="content-actions" role="group" aria-label="Move the large screen">
+          <button id="dock-left" type="button" disabled>Move screen left</button>
+          <button id="dock-right" type="button" disabled>Move screen right</button>
+        </div>
       </form>
       <form id="panel-form">
         <h2>MERLIN panels</h2>
         <label for="panel-design">Panel design</label>
         <select id="panel-design" disabled></select>
         <label for="panel-side">Show on</label>
-        <select id="panel-side" disabled><option value="right">Right panel</option><option value="left">Left panel</option></select>
+        <select id="panel-side" disabled><option value="right">Right panel</option><option value="left">Left panel</option><option value="ceiling">Large ceiling screen</option></select>
         <button class="primary" type="submit" id="show-panel" disabled>Show panel</button>
         <p class="help">Synthetic previews. These designs don’t control devices, play music, or save schedules and routines.</p>
         <p id="panel-status" class="help" role="status"></p>
@@ -81,7 +96,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       <form id="screen-form">
         <h2>Screen content</h2>
         <label for="screen-target">Screen</label>
-        <select id="screen-target"><option value="right">Right panel</option><option value="left">Left panel</option><option value="camera">Camera viewfinder</option></select>
+        <select id="screen-target"><option value="right">Right panel</option><option value="left">Left panel</option><option value="ceiling">Large ceiling screen</option><option value="camera">Camera viewfinder</option></select>
         <label for="screen-title">Title</label>
         <input id="screen-title" value="Hello, world." maxlength="70">
         <label for="screen-body">Message</label>
@@ -109,6 +124,13 @@ screen.draw((ctx, width, height) =&gt; {
   ctx.fillText('Hello, MERLIN.', 60, 110);
 });
 merlin.go('right');
+
+// Sit between two independently editable screens.
+merlin.go('both');
+merlin.dismissScreen('left'); // keep the right screen
+
+merlin.go('ceiling');
+merlin.dockScreen('left'); // carry its content to the left panel
 
 // Also: screens.left / screens.camera
 // screen.setSource(canvasOrVideo);</code></pre>

@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "changed": true,
+  "node": "Display mode \u2022 expanding head",
+  "primitive": 1,
+  "normal_count": 3073,
+  "changed_normal_count": 2,
+  "changed_component_count": 2,
+  "changes": [
+    {
+      "vertex": 673,
+      "axis": 1,
+      "baseline_bits": "0x80000000",
+      "exported_bits": "0x0"
+    },
+    {
+      "vertex": 2017,
+      "axis": 1,
+      "baseline_bits": "0x0",
+      "exported_bits": "0x80000000"
+    }
+  ],
+  "maximum_numeric_component_error": 0.0,
+  "maximum_numeric_vector_error": 0.0,
+  "normal_length_range": [
+    0.9999999286023191,
+    1.0000001187928582
+  ],
+  "scene_resources_identical": true,
+  "other_binary_bytes_unchanged": true,
+  "input_sha256": "0da72310d391383e1f547bae270ab663e6d1a8d22297008f68517cf2f2b50303",
+  "normalized_sha256": "6b86d4e196a5565fc2d83b4bb5cc267cf3aad4b94f49344ff9f0b07bde2a5cde"
+}

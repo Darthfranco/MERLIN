@@ -1,8 +1,46 @@
 # MERLIN character and animation studio
 
-An original Blender model built from the owner's visual brief: a clean, cute robot with matte cornflower-blue surfaces, rounded head and body forms, a flush dark display, restrained cyan lighting, and a visible pool of light beneath its feet. Its matte/satin finish uses gentle diffuse shading and minimal reflections. The eyes grade from cyan-blue above to pale ice below. Two fine, muted-blue panel joins mark the rear head cap and curve around the chest. The proportions and simplified mitten hands are deliberately softer than the mechanical detail in the supplied references. This is a character asset with a separate local browser studio; integration with the live assistant is still open.
+An original Blender model built from the owner's visual brief: a clean, cute robot with matte cornflower-blue surfaces, rounded head and body forms, a flush dark display, restrained cyan lighting, and a visible pool of light beneath its feet. Its matte/satin finish uses gentle diffuse shading and minimal reflections. The eyes grade from cyan-blue above to pale ice below. Two fine, muted-blue panel joins mark the rear head cap and curve around the chest. The proportions and simplified mitten hands are deliberately softer than the mechanical detail in the supplied references. This character has a separate local browser studio and is also used by the local assistant companion. Production-device deployment remains open.
 
-## Latest: editable screens and expressive states
+## Latest: ceiling and paired screens, remembered poses, and walking both ways
+
+[merlin-states.blend](merlin-states.blend) and [merlin-states.glb](merlin-states.glb) now contain **113 synchronized clips** and **30 connected presentation states**. Open the [browser studio](viewer/README.md) to try them. The accepted model, materials, camera and lighting remain unchanged.
+
+- **Pull both screens:** MERLIN brings in each independent 5:6 card, then sits between them. Each card is scaled uniformly to 68% in this arrangement. `BothPanelsIdle` is the seated loop.
+- **Cancel either side:** `BothToLeftPanel` dismisses the right screen; `BothToRightPanel` dismisses the left. The remaining screen and its content stay in place. `BothPanelsToReady` dismisses both, stands up, and returns to ready. The two seated single-screen states also have ready returns.
+- **Pull a ceiling screen:** a high jump, catch, loaded pull and soft landing bring down a landscape content surface. It fills almost the whole frame with MERLIN in front, then can move into either existing side-panel layout. The browser reflows text/code drawings and contains images/video without stretching; content follows the screen when it docks left.
+- **Think in place:** eleven body contexts have their own thinking entry, loop and return, retaining the lower-body pose and open screens. The original centered thought remains available.
+- **Expand without closing panels:** twelve body contexts have direct full-face entry/return clips. Existing panels are covered, then hidden only after the face fills the frame; their objects, textures and content persist. **Return to body** restores the remembered arrangement. **Return to ready** deliberately leaves that arrangement.
+- **Walk either direction:** the original left-to-right walk and a mirrored right-to-left walk have matching entry and return routes. Face/thought requests finish the current walking pass and restore a held endpoint, avoiding a jump to the other wall.
+
+The new animation set adds **76 clips** to the earlier 37: nine dual-screen clips, three reverse-walk clips, thirty-three contextual thinking clips, twenty-four contextual full-face clips, two held walk endpoints, and five ceiling-screen performances. [states.json](states.json) contains the exact routes. Use `merlin.go('both')`, `merlin.go('ceiling')`, `merlin.dockScreen('left' | 'right')`, `merlin.dismissScreen('left' | 'right' | 'both')`, and `merlin.body()` for the new behavior. See the [screen API](viewer/README.md).
+
+To rebuild from the earlier interaction scene, run these sequentially with Blender 4.0.2:
+
+```sh
+blender --background --python-exit-code 1 --python assets/merlin-character/scripts/build_screen_states.py -- --no-export
+blender --background --python-exit-code 1 --python assets/merlin-character/scripts/build_dual_states.py
+blender --background --python-exit-code 1 --python assets/merlin-character/scripts/build_context_states.py
+blender --background --python-exit-code 1 --python assets/merlin-character/scripts/build_ceiling_states.py
+blender --background --python-exit-code 1 --python assets/merlin-character/scripts/export_screen_states.py
+node assets/merlin-character/scripts/build_motion_footprints.mjs
+```
+
+For an existing 37-clip baseline, `export_added_states.py` can export only added clips and `merge_animation_glb.py` verifies identical scene resources before appending the animation data. It preserves the original GLB payload and rejects changed geometry, UVs, materials, image data or bind transforms. It is an optimization of the same full-export result, not a second asset format.
+
+Independent Blender evaluations can differ in the sign bit of an exactly zero normal. If that alone blocks an incremental merge, run `normalize_export_normals.py BASELINE_GLB ADDED_GLB --report REPORT_JSON` first. This optional helper accepts only numerically identical normals on the known expanding-head primitive, requires every other resource to match, and preserves every other binary byte. It does not relax the merger's exact comparison. The delivered addition needed two zero sign bits reconciled; [the proof](previews/normal-normalization-validation.json) records zero numerical error.
+
+Both export drivers preserve the ceiling-to-left card handoff automatically. A pair of adjacent float32 time keys retains Blender's held transform until the switch, avoiding a one-frame shrinking artifact from mixed constant/linear interpolation. The re-import check samples immediately before and at that switch. For this baked Blender 4.0 rig only, mesh modifiers are temporarily excluded from animation sampling after the complete geometry has been gathered; rig matrices and face weights still evaluate normally. Unsupported dependencies use the standard exporter path. All modifier flags and the exporter hook restore on completion or failure.
+
+Authored Blender pose previews: [seated between two screens](previews/merlin-dual-both-seated.png), [thinking in place](previews/merlin-dual-both-thinking.png), and [dismissing only the right screen](previews/merlin-dual-dismiss-right.png). These 800 × 600 Eevee renders carry source and rendering metadata.
+
+Ceiling poses: [full landscape screen](previews/ceiling-full.png), [hanging pull](previews/ceiling-hang.png), and [moving the screen right](previews/ceiling-dock-right.png). The full-screen image is a 24-sample denoised Cycles render; the two motion poses use Eevee. Lighting and character proportions remain the accepted originals.
+
+The final asset passes [71 scene/export checks](previews/dual-screen-validation.json), [225 contextual checks](previews/context-validation.json), and [48 ceiling checks](previews/ceiling-validation.json). Its [independent re-import comparison](previews/dual-roundtrip-validation.json) covers 228 poses across all 76 new clips and 98 owners, with no missing tracks and maximum bone error below 1.68 × 10⁻⁶ scene units. The [strict merge report](previews/dual-merge-validation.json) proves the original 37 clips and scene resources were retained. All 92 focused viewer, shared-driver, routing and actual-footprint tests pass, including all 900 ordered state pairs.
+
+Blender 4.0.2 re-import collapses the adjacent float32 timing keys used for the atomic left-screen handoff. The exact switch re-import passes; the fractional moment just before it is instead checked directly from the final GLB samplers and mesh geometry against the authored source. This importer limitation is explicit in the report. Edit the supplied `.blend`, rather than a re-imported GLB, to retain that authored constant interpolation.
+
+## Previous: editable screens and expressive states
 
 Open [merlin-states.blend](merlin-states.blend) for the latest editable Blender scene, or run the [browser studio](viewer/README.md):
 
@@ -11,7 +49,7 @@ node assets/merlin-character/viewer/serve.mjs
 # Open http://127.0.0.1:3310/viewer/
 ```
 
-The new [merlin-states.glb](merlin-states.glb) contains **37 synchronized clips**: the previous 19 plus 18 new entry, loop, and exit clips. [states.json](states.json) defines twelve connected destinations and stable screen IDs. `StatesShowcase` in Blender plays a continuous **1,384-frame** presentation at 24 fps. Original robot proportions, matte blue finish, cyan gradient, and Blender lighting are retained.
+The earlier screen-state revision contained **37 synchronized clips**: the previous 19 plus 18 new entry, loop, and exit clips. Its twelve destinations and stable screen IDs are retained in the latest asset. `StatesShowcase` in Blender plays that continuous **1,384-frame** presentation at 24 fps. Original robot proportions, matte blue finish, cyan gradient, and Blender lighting are retained.
 
 | New family | Clips | Visual behavior |
 | --- | --- | --- |
@@ -24,9 +62,9 @@ The new [merlin-states.glb](merlin-states.glb) contains **37 synchronized clips*
 
 Both physical panels and the camera viewfinder are real image-texture surfaces. Replace content from Blender using `screen_content.set_screen_image()` / `set_screen_pixels()`, or from JavaScript using `merlin.screens.right`, `.left`, and `.camera`. The browser editor demonstrates text, local images, and animated canvas content. Content stays attached to the fragments during dismissal. Full API examples and limitations are in [viewer/README.md](viewer/README.md).
 
-The browser can route between any of its twelve destinations through the shared ready/full-face poses, pause and resume, and retain the newest selection during an active transition. It uses approximation lighting around the exported asset; Blender remains the rendering reference. These are presentation states, not connected camera, web-search, or music services. The viewer does not play the older whistle audio, and textured content does not embed a clickable DOM browser. No real-device performance claim is made.
+That revision's browser routed between twelve destinations through the shared ready/full-face poses, paused and resumed, and retained the newest selection during an active transition. The latest browser extends these routes as described above. It uses approximation lighting around the exported asset; Blender remains the rendering reference. These are presentation states, not connected camera, web-search, or music services. The viewer does not play the older whistle audio, and textured content does not embed a clickable DOM browser. No real-device performance claim is made.
 
-The final asset passes **107 scene/export checks** and an independent **111-pose GLB re-import comparison** across all 37 clips and 98 owners. No tracks are missing; face weights, all three screen images, and the cyan gradient match exactly. Maximum bone-position error is 1.34 × 10⁻⁶ scene units. All clip durations, screen UVs, and both shatter samples pass. See [state validation](previews/states-validation.json) and [roundtrip validation](previews/states-roundtrip-validation.json). Six controller tests pass every ordered pair of the twelve browser destinations plus interruption/pause/cycle-completion behavior.
+That 37-clip revision passed **107 scene/export checks** and an independent **111-pose GLB re-import comparison** across its 98 owners. No tracks were missing; face weights, all three screen images, and the cyan gradient matched exactly. Maximum bone-position error was 1.34 × 10⁻⁶ scene units. All clip durations, screen UVs, and both shatter samples passed. See [state validation](previews/states-validation.json) and [roundtrip validation](previews/states-roundtrip-validation.json). Its six controller tests passed every ordered pair of the twelve browser destinations plus interruption/pause/cycle-completion behavior.
 
 Six Cycles stills: [dance](previews/merlin-state-dance.png), [deep thought](previews/merlin-state-body-think.png), [left screen](previews/merlin-state-left-panel.png), [camera](previews/merlin-state-camera.png), [thinking face](previews/merlin-state-face-think.png), [searching face](previews/merlin-state-face-search.png). Each is 1000 × 750, 32 samples with denoising. Their PNG metadata records the original Blender source and rendering provenance.
 

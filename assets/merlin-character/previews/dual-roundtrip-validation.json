@@ -1,0 +1,5260 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-10-27T20:21:01.694248+00:00",
+  "blender_version": "4.0.2",
+  "source_blend": "merlin-states.blend",
+  "imported_glb": "merlin-states.glb",
+  "new_clips": [
+    "ReadyToBothPanels",
+    "BothPanelsIdle",
+    "BothToLeftPanel",
+    "BothToRightPanel",
+    "SeatedLeftPanelIdle",
+    "SeatedRightPanelIdle",
+    "SeatedLeftToReady",
+    "SeatedRightToReady",
+    "BothPanelsToReady",
+    "ReadyToWalkWhistleReverse",
+    "WalkWhistleReverse",
+    "WalkWhistleReverseToReady",
+    "RightToThink",
+    "RightThinking",
+    "RightThinkToBody",
+    "RightToFace",
+    "FaceToRight",
+    "LeftToThink",
+    "LeftThinking",
+    "LeftThinkToBody",
+    "LeftToFace",
+    "FaceToLeft",
+    "BothToThink",
+    "BothThinking",
+    "BothThinkToBody",
+    "BothToFace",
+    "FaceToBoth",
+    "SeatedLeftToThink",
+    "SeatedLeftThinking",
+    "SeatedLeftThinkToBody",
+    "SeatedLeftToFace",
+    "FaceToSeatedLeft",
+    "SeatedRightToThink",
+    "SeatedRightThinking",
+    "SeatedRightThinkToBody",
+    "SeatedRightToFace",
+    "FaceToSeatedRight",
+    "DanceToThink",
+    "DanceThinking",
+    "DanceThinkToBody",
+    "DanceToFace",
+    "FaceToDance",
+    "NapToThink",
+    "NapThinking",
+    "NapThinkToBody",
+    "NapToFace",
+    "FaceToNap",
+    "TossToThink",
+    "TossThinking",
+    "TossThinkToBody",
+    "TossToFace",
+    "FaceToToss",
+    "WalkPaused",
+    "WalkToThink",
+    "WalkThinking",
+    "WalkThinkToBody",
+    "WalkToFace",
+    "FaceToWalk",
+    "WalkReversePaused",
+    "WalkReverseToThink",
+    "WalkReverseThinking",
+    "WalkReverseThinkToBody",
+    "WalkReverseToFace",
+    "FaceToWalkReverse",
+    "BodyThinkToFace",
+    "FaceToBodyThink",
+    "CeilingIdle",
+    "ReadyToCeiling",
+    "CeilingToLeftPanel",
+    "CeilingToRightPanel",
+    "CeilingToReady",
+    "CeilingToThink",
+    "CeilingThinking",
+    "CeilingThinkToBody",
+    "CeilingToFace",
+    "FaceToCeiling"
+  ],
+  "owner_count": 98,
+  "glb_sha256": "65123c9c5e1301ae3942678db16f56bbceabce0ddb1b51e879cfc3e4d338afa3",
+  "blend_sha256": "c2070a3d40cddab63988161b19a878402aa80d77c84720ec3ada6e0f7215f432",
+  "samples": [
+    {
+      "clip": "ReadyToBothPanels",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToBothPanels",
+      "source_frame": 144,
+      "imported_frame": 143.0,
+      "errors": {
+        "bones": 7.839767001846972e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "ReadyToBothPanels",
+      "source_frame": 288,
+      "imported_frame": 287.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "BothPanelsIdle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "BothPanelsIdle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 4.881263244075546e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 6.258487701416016e-07
+      }
+    },
+    {
+      "clip": "BothPanelsIdle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "BothToLeftPanel",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "BothToLeftPanel",
+      "source_frame": 36,
+      "imported_frame": 35.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 6.258487701416016e-07
+      }
+    },
+    {
+      "clip": "BothToLeftPanel",
+      "source_frame": 72,
+      "imported_frame": 71.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "BothToRightPanel",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "BothToRightPanel",
+      "source_frame": 36,
+      "imported_frame": 35.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "BothToRightPanel",
+      "source_frame": 72,
+      "imported_frame": 71.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftPanelIdle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftPanelIdle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 4.881263244075546e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 6.258487701416016e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftPanelIdle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedRightPanelIdle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedRightPanelIdle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 4.881263244075546e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 6.258487701416016e-07
+      }
+    },
+    {
+      "clip": "SeatedRightPanelIdle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftToReady",
+      "source_frame": 66,
+      "imported_frame": 65.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftToReady",
+      "source_frame": 132,
+      "imported_frame": 131.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "SeatedRightToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedRightToReady",
+      "source_frame": 66,
+      "imported_frame": 65.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 6.258487701416016e-07
+      }
+    },
+    {
+      "clip": "SeatedRightToReady",
+      "source_frame": 132,
+      "imported_frame": 131.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "BothPanelsToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "BothPanelsToReady",
+      "source_frame": 66,
+      "imported_frame": 65.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "BothPanelsToReady",
+      "source_frame": 132,
+      "imported_frame": 131.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToWalkWhistleReverse",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToWalkWhistleReverse",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 5.405651672845201e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 4.76837158203125e-07
+      }
+    },
+    {
+      "clip": "ReadyToWalkWhistleReverse",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 7.633118912497578e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 4.76837158203125e-07
+      }
+    },
+    {
+      "clip": "WalkWhistleReverse",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 8.018984822674817e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 4.917383193969727e-07
+      }
+    },
+    {
+      "clip": "WalkWhistleReverse",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 7.268637088825169e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.501772880554199e-07
+      }
+    },
+    {
+      "clip": "WalkWhistleReverse",
+      "source_frame": 192,
+      "imported_frame": 191.0,
+      "errors": {
+        "bones": 5.990192664337689e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 6.109476089477539e-07
+      }
+    },
+    {
+      "clip": "WalkWhistleReverseToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 6.76978629326853e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "WalkWhistleReverseToReady",
+      "source_frame": 54,
+      "imported_frame": 53.0,
+      "errors": {
+        "bones": 7.633118912497578e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 6.556510925292969e-07
+      }
+    },
+    {
+      "clip": "WalkWhistleReverseToReady",
+      "source_frame": 108,
+      "imported_frame": 107.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "RightToThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.600733518600464e-07
+      }
+    },
+    {
+      "clip": "RightToThink",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 7.49811269367285e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "RightToThink",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 7.777207106769019e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "RightThinking",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 7.777207106769019e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "RightThinking",
+      "source_frame": 60,
+      "imported_frame": 59.0,
+      "errors": {
+        "bones": 5.405651672845201e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 1.0728836059570312e-06
+      }
+    },
+    {
+      "clip": "RightThinking",
+      "source_frame": 120,
+      "imported_frame": 119.0,
+      "errors": {
+        "bones": 7.777207106769019e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "RightThinkToBody",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 7.777207106769019e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "RightThinkToBody",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 7.152557373046875e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "RightThinkToBody",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.600733518600464e-07
+      }
+    },
+    {
+      "clip": "RightToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.600733518600464e-07
+      }
+    },
+    {
+      "clip": "RightToFace",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.600733518600464e-07
+      }
+    },
+    {
+      "clip": "RightToFace",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToRight",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToRight",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.600733518600464e-07
+      }
+    },
+    {
+      "clip": "FaceToRight",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.600733518600464e-07
+      }
+    },
+    {
+      "clip": "LeftToThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.146836054077906e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 5.802139639854431e-07
+      }
+    },
+    {
+      "clip": "LeftToThink",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 7.152557373046875e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "LeftToThink",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 6.172750943067068e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 8.940696716308594e-07
+      }
+    },
+    {
+      "clip": "LeftThinking",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 6.172750943067068e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 8.940696716308594e-07
+      }
+    },
+    {
+      "clip": "LeftThinking",
+      "source_frame": 60,
+      "imported_frame": 59.0,
+      "errors": {
+        "bones": 5.972094663188382e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "LeftThinking",
+      "source_frame": 120,
+      "imported_frame": 119.0,
+      "errors": {
+        "bones": 6.172750943067068e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 8.940696716308594e-07
+      }
+    },
+    {
+      "clip": "LeftThinkToBody",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 6.172750943067068e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 8.940696716308594e-07
+      }
+    },
+    {
+      "clip": "LeftThinkToBody",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 6.056547591954939e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.76837158203125e-07
+      }
+    },
+    {
+      "clip": "LeftThinkToBody",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 5.146836054077906e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 5.802139639854431e-07
+      }
+    },
+    {
+      "clip": "LeftToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.146836054077906e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 5.802139639854431e-07
+      }
+    },
+    {
+      "clip": "LeftToFace",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 5.146836054077906e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 5.802139639854431e-07
+      }
+    },
+    {
+      "clip": "LeftToFace",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToLeft",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToLeft",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 5.146836054077906e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 5.802139639854431e-07
+      }
+    },
+    {
+      "clip": "FaceToLeft",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 5.146836054077906e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 5.802139639854431e-07
+      }
+    },
+    {
+      "clip": "BothToThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "BothToThink",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "BothToThink",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "BothThinking",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "BothThinking",
+      "source_frame": 60,
+      "imported_frame": 59.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "BothThinking",
+      "source_frame": 120,
+      "imported_frame": 119.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "BothThinkToBody",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "BothThinkToBody",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.748603820800781e-07
+      }
+    },
+    {
+      "clip": "BothThinkToBody",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "BothToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "BothToFace",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "BothToFace",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToBoth",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToBoth",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "FaceToBoth",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftToThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftToThink",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftToThink",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftThinking",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftThinking",
+      "source_frame": 60,
+      "imported_frame": 59.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftThinking",
+      "source_frame": 120,
+      "imported_frame": 119.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftThinkToBody",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftThinkToBody",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.748603820800781e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftThinkToBody",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftToFace",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedLeftToFace",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToSeatedLeft",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToSeatedLeft",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "FaceToSeatedLeft",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedRightToThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedRightToThink",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "SeatedRightToThink",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "SeatedRightThinking",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "SeatedRightThinking",
+      "source_frame": 60,
+      "imported_frame": 59.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedRightThinking",
+      "source_frame": 120,
+      "imported_frame": 119.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "SeatedRightThinkToBody",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "SeatedRightThinkToBody",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.748603820800781e-07
+      }
+    },
+    {
+      "clip": "SeatedRightThinkToBody",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedRightToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedRightToFace",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "SeatedRightToFace",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToSeatedRight",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToSeatedRight",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "FaceToSeatedRight",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 3.6532509076439263e-07,
+        "face": 0.0,
+        "objects": 7.450580596923828e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 5.960464477539062e-07
+      }
+    },
+    {
+      "clip": "DanceToThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.535535699429127e-07,
+        "face": 0.0,
+        "objects": 3.8743019104003906e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 1.1920928955078125e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "DanceToThink",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 4.81067551891742e-07,
+        "face": 0.0,
+        "objects": 1.9371509552001953e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 2.9802322387695312e-08,
+        "bone_deformation": 9.564682841300964e-07
+      }
+    },
+    {
+      "clip": "DanceToThink",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 4.77772966178899e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.430511474609375e-06
+      }
+    },
+    {
+      "clip": "DanceThinking",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.77772966178899e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.430511474609375e-06
+      }
+    },
+    {
+      "clip": "DanceThinking",
+      "source_frame": 60,
+      "imported_frame": 59.0,
+      "errors": {
+        "bones": 5.339525004377638e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "DanceThinking",
+      "source_frame": 120,
+      "imported_frame": 119.0,
+      "errors": {
+        "bones": 4.77772966178899e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.430511474609375e-06
+      }
+    },
+    {
+      "clip": "DanceThinkToBody",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.77772966178899e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.430511474609375e-06
+      }
+    },
+    {
+      "clip": "DanceThinkToBody",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 4.77772966178899e-07,
+        "face": 0.0,
+        "objects": 1.7881393432617188e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 5.960464477539063e-08,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "DanceThinkToBody",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 5.535535699429127e-07,
+        "face": 0.0,
+        "objects": 3.8743019104003906e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 1.1920928955078125e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "DanceToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.535535699429127e-07,
+        "face": 0.0,
+        "objects": 3.8743019104003906e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 1.1920928955078125e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "DanceToFace",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 5.535535699429127e-07,
+        "face": 0.0,
+        "objects": 3.8743019104003906e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "DanceToFace",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToDance",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToDance",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 5.535535699429127e-07,
+        "face": 0.0,
+        "objects": 3.8743019104003906e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 1.1920928955078125e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "FaceToDance",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 5.535535699429127e-07,
+        "face": 0.0,
+        "objects": 3.8743019104003906e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 1.1920928955078125e-07,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "NapToThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.335463315392022e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.4901161193847656e-06
+      }
+    },
+    {
+      "clip": "NapToThink",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 1.0712266418702262e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.0728836059570312e-06
+      }
+    },
+    {
+      "clip": "NapToThink",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 1.2976849709199214e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.6763806343078613e-06
+      }
+    },
+    {
+      "clip": "NapThinking",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.2976849709199214e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.6763806343078613e-06
+      }
+    },
+    {
+      "clip": "NapThinking",
+      "source_frame": 60,
+      "imported_frame": 59.0,
+      "errors": {
+        "bones": 1.2976849709199214e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.6763806343078613e-06
+      }
+    },
+    {
+      "clip": "NapThinking",
+      "source_frame": 120,
+      "imported_frame": 119.0,
+      "errors": {
+        "bones": 1.2976849709199214e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.6763806343078613e-06
+      }
+    },
+    {
+      "clip": "NapThinkToBody",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.2976849709199214e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.6763806343078613e-06
+      }
+    },
+    {
+      "clip": "NapThinkToBody",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 1.0494480646645432e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.519918441772461e-06
+      }
+    },
+    {
+      "clip": "NapThinkToBody",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 1.335463315392022e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.4901161193847656e-06
+      }
+    },
+    {
+      "clip": "NapToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.335463315392022e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.4901161193847656e-06
+      }
+    },
+    {
+      "clip": "NapToFace",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 1.335463315392022e-06,
+        "face": 0.0,
+        "objects": 2.9802322387695312e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 2.384185791015625e-07,
+        "bone_deformation": 1.4901161193847656e-06
+      }
+    },
+    {
+      "clip": "NapToFace",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToNap",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToNap",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 1.335463315392022e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 1.1920928955078125e-07,
+        "bone_deformation": 1.4901161193847656e-06
+      }
+    },
+    {
+      "clip": "FaceToNap",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 1.335463315392022e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.4901161193847656e-06
+      }
+    },
+    {
+      "clip": "TossToThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.215700987241932e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "TossToThink",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 6.743495761743046e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.1324882507324219e-06
+      }
+    },
+    {
+      "clip": "TossToThink",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 8.0023536575422e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "TossThinking",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 8.0023536575422e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "TossThinking",
+      "source_frame": 60,
+      "imported_frame": 59.0,
+      "errors": {
+        "bones": 8.616943535090066e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.430511474609375e-06
+      }
+    },
+    {
+      "clip": "TossThinking",
+      "source_frame": 120,
+      "imported_frame": 119.0,
+      "errors": {
+        "bones": 8.0023536575422e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "TossThinkToBody",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 8.0023536575422e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "TossThinkToBody",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 1.6657338872530604e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.430511474609375e-06
+      }
+    },
+    {
+      "clip": "TossThinkToBody",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 1.215700987241932e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "TossToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.215700987241932e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "TossToFace",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 1.215700987241932e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "TossToFace",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToToss",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToToss",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 1.215700987241932e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "FaceToToss",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 1.215700987241932e-06,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "WalkPaused",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 7.90744969929552e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 7.599592208862305e-07
+      }
+    },
+    {
+      "clip": "WalkPaused",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 7.90744969929552e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 7.599592208862305e-07
+      }
+    },
+    {
+      "clip": "WalkPaused",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 7.90744969929552e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 7.599592208862305e-07
+      }
+    },
+    {
+      "clip": "WalkToThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 7.90744969929552e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 7.599592208862305e-07
+      }
+    },
+    {
+      "clip": "WalkToThink",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 5.748063779469106e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 8.940696716308594e-07
+      }
+    },
+    {
+      "clip": "WalkToThink",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 5.257808793895647e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "WalkThinking",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.257808793895647e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "WalkThinking",
+      "source_frame": 60,
+      "imported_frame": 59.0,
+      "errors": {
+        "bones": 6.02714670185944e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "WalkThinking",
+      "source_frame": 120,
+      "imported_frame": 119.0,
+      "errors": {
+        "bones": 5.257808793895647e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "WalkThinkToBody",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.257808793895647e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "WalkThinkToBody",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 5.057621821307283e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 8.344650268554688e-07
+      }
+    },
+    {
+      "clip": "WalkThinkToBody",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 7.90744969929552e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 7.599592208862305e-07
+      }
+    },
+    {
+      "clip": "WalkToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 7.90744969929552e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 7.599592208862305e-07
+      }
+    },
+    {
+      "clip": "WalkToFace",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 7.90744969929552e-07,
+        "face": 0.0,
+        "objects": 4.470348358154297e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.599592208862305e-07
+      }
+    },
+    {
+      "clip": "WalkToFace",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToWalk",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToWalk",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 7.90744969929552e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 7.599592208862305e-07
+      }
+    },
+    {
+      "clip": "FaceToWalk",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 7.90744969929552e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 7.599592208862305e-07
+      }
+    },
+    {
+      "clip": "WalkReversePaused",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.990192664337689e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 6.109476089477539e-07
+      }
+    },
+    {
+      "clip": "WalkReversePaused",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 5.990192664337689e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 6.109476089477539e-07
+      }
+    },
+    {
+      "clip": "WalkReversePaused",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 5.990192664337689e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 6.109476089477539e-07
+      }
+    },
+    {
+      "clip": "WalkReverseToThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.990192664337689e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 6.109476089477539e-07
+      }
+    },
+    {
+      "clip": "WalkReverseToThink",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 5.591411304263389e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "WalkReverseToThink",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 1.0811303345690402e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.1920928955078125e-06
+      }
+    },
+    {
+      "clip": "WalkReverseThinking",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.0811303345690402e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.1920928955078125e-06
+      }
+    },
+    {
+      "clip": "WalkReverseThinking",
+      "source_frame": 60,
+      "imported_frame": 59.0,
+      "errors": {
+        "bones": 9.902267292640298e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "WalkReverseThinking",
+      "source_frame": 120,
+      "imported_frame": 119.0,
+      "errors": {
+        "bones": 1.0811303345690402e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.1920928955078125e-06
+      }
+    },
+    {
+      "clip": "WalkReverseThinkToBody",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 1.0811303345690402e-06,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 1.1920928955078125e-06
+      }
+    },
+    {
+      "clip": "WalkReverseThinkToBody",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 7.633118912497578e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "WalkReverseThinkToBody",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 5.990192664337689e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 6.109476089477539e-07
+      }
+    },
+    {
+      "clip": "WalkReverseToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.990192664337689e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 6.109476089477539e-07
+      }
+    },
+    {
+      "clip": "WalkReverseToFace",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 5.990192664337689e-07,
+        "face": 0.0,
+        "objects": 4.470348358154297e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 6.109476089477539e-07
+      }
+    },
+    {
+      "clip": "WalkReverseToFace",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToWalkReverse",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToWalkReverse",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 5.990192664337689e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 4.76837158203125e-07,
+        "bone_deformation": 6.109476089477539e-07
+      }
+    },
+    {
+      "clip": "FaceToWalkReverse",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 5.990192664337689e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 6.109476089477539e-07
+      }
+    },
+    {
+      "clip": "BodyThinkToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 6.314998895054189e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "BodyThinkToFace",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 6.314998895054189e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "BodyThinkToFace",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToBodyThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToBodyThink",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 6.314998895054189e-07,
+        "face": 0.0,
+        "objects": 8.940696716308594e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 1.1920928955078125e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "FaceToBodyThink",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 6.314998895054189e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "CeilingIdle",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.331201499700045e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 5.792826414108276e-07
+      }
+    },
+    {
+      "clip": "CeilingIdle",
+      "source_frame": 48,
+      "imported_frame": 47.0,
+      "errors": {
+        "bones": 9.610960183499514e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 1.430511474609375e-06
+      }
+    },
+    {
+      "clip": "CeilingIdle",
+      "source_frame": 96,
+      "imported_frame": 95.0,
+      "errors": {
+        "bones": 5.331201499700045e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 5.792826414108276e-07
+      }
+    },
+    {
+      "clip": "ReadyToCeiling",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "ReadyToCeiling",
+      "source_frame": 84,
+      "imported_frame": 83.0,
+      "errors": {
+        "bones": 9.000103992546499e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "ReadyToCeiling",
+      "source_frame": 168,
+      "imported_frame": 167.0,
+      "errors": {
+        "bones": 5.331201499700045e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 5.792826414108276e-07
+      }
+    },
+    {
+      "clip": "CeilingToLeftPanel",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.331201499700045e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 5.792826414108276e-07
+      }
+    },
+    {
+      "clip": "CeilingToLeftPanel",
+      "source_frame": 66,
+      "imported_frame": 65.0,
+      "errors": {
+        "bones": 4.76837158203125e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.5821070671081543e-07
+      }
+    },
+    {
+      "clip": "CeilingToLeftPanel",
+      "source_frame": 132,
+      "imported_frame": 131.0,
+      "errors": {
+        "bones": 5.146836054077906e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 5.802139639854431e-07
+      }
+    },
+    {
+      "clip": "CeilingToRightPanel",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.331201499700045e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 5.792826414108276e-07
+      }
+    },
+    {
+      "clip": "CeilingToRightPanel",
+      "source_frame": 66,
+      "imported_frame": 65.0,
+      "errors": {
+        "bones": 4.915124923727108e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.172325134277344e-07
+      }
+    },
+    {
+      "clip": "CeilingToRightPanel",
+      "source_frame": 132,
+      "imported_frame": 131.0,
+      "errors": {
+        "bones": 4.920961394861215e-07,
+        "face": 0.0,
+        "objects": 2.980232238769531e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 8.344650268554688e-07,
+        "bone_deformation": 4.600733518600464e-07
+      }
+    },
+    {
+      "clip": "CeilingToReady",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.331201499700045e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 5.792826414108276e-07
+      }
+    },
+    {
+      "clip": "CeilingToReady",
+      "source_frame": 72,
+      "imported_frame": 71.0,
+      "errors": {
+        "bones": 7.3787083644509e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 7.152557373046875e-07
+      }
+    },
+    {
+      "clip": "CeilingToReady",
+      "source_frame": 144,
+      "imported_frame": 143.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 0.0,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "CeilingToThink",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.331201499700045e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 5.792826414108276e-07
+      }
+    },
+    {
+      "clip": "CeilingToThink",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 1.0925711858167266e-06,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 1.430511474609375e-06
+      }
+    },
+    {
+      "clip": "CeilingToThink",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 6.419616707723741e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "CeilingThinking",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 6.419616707723741e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "CeilingThinking",
+      "source_frame": 60,
+      "imported_frame": 59.0,
+      "errors": {
+        "bones": 6.9510363278929e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 1.1920928955078125e-06
+      }
+    },
+    {
+      "clip": "CeilingThinking",
+      "source_frame": 120,
+      "imported_frame": 119.0,
+      "errors": {
+        "bones": 6.419616707723741e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "CeilingThinkToBody",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 6.419616707723741e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "CeilingThinkToBody",
+      "source_frame": 16,
+      "imported_frame": 15.0,
+      "errors": {
+        "bones": 7.839767001846972e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 9.5367431640625e-07
+      }
+    },
+    {
+      "clip": "CeilingThinkToBody",
+      "source_frame": 32,
+      "imported_frame": 31.0,
+      "errors": {
+        "bones": 5.331201499700045e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 5.792826414108276e-07
+      }
+    },
+    {
+      "clip": "CeilingToFace",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 5.331201499700045e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 5.792826414108276e-07
+      }
+    },
+    {
+      "clip": "CeilingToFace",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 5.331201499700045e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 5.792826414108276e-07
+      }
+    },
+    {
+      "clip": "CeilingToFace",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToCeiling",
+      "source_frame": 1,
+      "imported_frame": 0.0,
+      "errors": {
+        "bones": 4.830164225098213e-07,
+        "face": 0.0,
+        "objects": 5.960464477539063e-08,
+        "display_morphs": 0.0,
+        "display_geometry": 0.0,
+        "bone_deformation": 3.4365803003311157e-07
+      }
+    },
+    {
+      "clip": "FaceToCeiling",
+      "source_frame": 20,
+      "imported_frame": 19.0,
+      "errors": {
+        "bones": 5.331201499700045e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 5.792826414108276e-07
+      }
+    },
+    {
+      "clip": "FaceToCeiling",
+      "source_frame": 40,
+      "imported_frame": 39.0,
+      "errors": {
+        "bones": 5.331201499700045e-07,
+        "face": 0.0,
+        "objects": 3.2782554626464844e-07,
+        "display_morphs": 0.0,
+        "display_geometry": 9.5367431640625e-07,
+        "bone_deformation": 5.792826414108276e-07
+      }
+    }
+  ],
+  "missing_tracks": [],
+  "extra_geometry_poses": [
+    {
+      "clip": "BothToLeftPanel",
+      "source_frame": 31,
+      "imported_frame": 30.0,
+      "world_vertex_errors": {
+        "Display mode \u2022 Eye \u2022 L": 0.0,
+        "Display mode \u2022 Eye \u2022 R": 0.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 expanding head": 0.0,
+        "Display mode \u2022 full frame backing": 0.0,
+        "Display mode \u2022 mouth bar 01": 0.0,
+        "Display mode \u2022 mouth bar 02": 0.0,
+        "Display mode \u2022 mouth bar 03": 0.0,
+        "Display mode \u2022 mouth bar 04": 0.0,
+        "Display mode \u2022 mouth bar 05": 0.0,
+        "Display mode \u2022 mouth bar 06": 0.0,
+        "Display mode \u2022 mouth bar 07": 0.0,
+        "Face state \u2022 camera aperture L": 0.0,
+        "Face state \u2022 camera aperture R": 0.0,
+        "Face state \u2022 camera lens L": 0.0,
+        "Face state \u2022 camera lens R": 0.0,
+        "Face state \u2022 camera screen": 0.0,
+        "Face state \u2022 search glint L": 0.0,
+        "Face state \u2022 search glint R": 0.0,
+        "Face state \u2022 search lens L": 0.0,
+        "Face state \u2022 search lens R": 0.0,
+        "Face state \u2022 viewfinder corners": 0.0,
+        "Face state \u2022 viewfinder focus": 0.0,
+        "MERLIN_LeftFragment_01": 0.0,
+        "MERLIN_LeftFragment_02": 0.0,
+        "MERLIN_LeftFragment_03": 0.0,
+        "MERLIN_LeftFragment_04": 0.0,
+        "MERLIN_LeftFragment_05": 0.0,
+        "MERLIN_LeftFragment_06": 0.0,
+        "MERLIN_LeftFragment_07": 0.0,
+        "MERLIN_LeftFragment_08": 0.0,
+        "MERLIN_LeftFragment_09": 0.0,
+        "MERLIN_LeftFragment_10": 0.0,
+        "MERLIN_LeftFragment_11": 0.0,
+        "MERLIN_LeftFragment_12": 0.0,
+        "MERLIN_LeftFragment_13": 0.0,
+        "MERLIN_LeftFragment_14": 0.0,
+        "MERLIN_LeftFragment_15": 0.0,
+        "MERLIN_LeftFragment_16": 0.0,
+        "MERLIN_LeftFragment_17": 0.0,
+        "MERLIN_LeftFragment_18": 0.0,
+        "MERLIN_LeftFragment_19": 0.0,
+        "MERLIN_LeftFragment_20": 0.0,
+        "MERLIN_LeftFragment_21": 0.0,
+        "MERLIN_LeftFragment_22": 0.0,
+        "MERLIN_LeftFragment_23": 0.0,
+        "MERLIN_LeftFragment_24": 0.0,
+        "MERLIN_LeftFragment_25": 0.0,
+        "MERLIN_LeftFragment_26": 0.0,
+        "MERLIN_LeftFragment_27": 0.0,
+        "MERLIN_LeftFragment_28": 0.0,
+        "MERLIN_LeftFragment_29": 0.0,
+        "MERLIN_LeftFragment_30": 0.0,
+        "MERLIN_LeftPanel": 5.331201577973843e-07,
+        "Music note 01": 0.0,
+        "Music note 02": 0.0,
+        "Music note 03": 0.0,
+        "Music note 04": 0.0,
+        "Panel \u2022 fragment 01": 1.3412338262241974e-07,
+        "Panel \u2022 fragment 02": 1.2287812012345967e-07,
+        "Panel \u2022 fragment 03": 1.2383438274810032e-07,
+        "Panel \u2022 fragment 04": 1.2383438274810032e-07,
+        "Panel \u2022 fragment 05": 1.2798147963621886e-07,
+        "Panel \u2022 fragment 06": 1.2383438274810032e-07,
+        "Panel \u2022 fragment 07": 2.425733214295178e-07,
+        "Panel \u2022 fragment 08": 1.2731557319511921e-07,
+        "Panel \u2022 fragment 09": 1.2605580934632599e-07,
+        "Panel \u2022 fragment 10": 1.246198735316284e-07,
+        "Panel \u2022 fragment 11": 2.4027400513659813e-07,
+        "Panel \u2022 fragment 12": 2.425733214295178e-07,
+        "Panel \u2022 fragment 13": 2.4027400513659813e-07,
+        "Panel \u2022 fragment 14": 5.960464477539063e-08,
+        "Panel \u2022 fragment 15": 5.960464477539063e-08,
+        "Panel \u2022 fragment 16": 5.960464477539063e-08,
+        "Panel \u2022 fragment 17": 5.960464477539063e-08,
+        "Panel \u2022 fragment 18": 5.960464477539063e-08,
+        "Panel \u2022 fragment 19": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 20": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 21": 5.960464477539063e-08,
+        "Panel \u2022 fragment 22": 5.960464477539063e-08,
+        "Panel \u2022 fragment 23": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 24": 2.384185791015625e-07,
+        "Panel \u2022 fragment 25": 5.960464477539063e-08,
+        "Panel \u2022 fragment 26": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 27": 2.384185791015625e-07,
+        "Panel \u2022 fragment 28": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 29": 5.960464477539063e-08,
+        "Panel \u2022 fragment 30": 4.76837158203125e-07,
+        "Panel \u2022 white card": 0.0,
+        "Prop \u2022 cyan play ball": 0.0
+      },
+      "passed": true
+    },
+    {
+      "clip": "BothToRightPanel",
+      "source_frame": 31,
+      "imported_frame": 30.0,
+      "world_vertex_errors": {
+        "Display mode \u2022 Eye \u2022 L": 0.0,
+        "Display mode \u2022 Eye \u2022 R": 0.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 expanding head": 0.0,
+        "Display mode \u2022 full frame backing": 0.0,
+        "Display mode \u2022 mouth bar 01": 0.0,
+        "Display mode \u2022 mouth bar 02": 0.0,
+        "Display mode \u2022 mouth bar 03": 0.0,
+        "Display mode \u2022 mouth bar 04": 0.0,
+        "Display mode \u2022 mouth bar 05": 0.0,
+        "Display mode \u2022 mouth bar 06": 0.0,
+        "Display mode \u2022 mouth bar 07": 0.0,
+        "Face state \u2022 camera aperture L": 0.0,
+        "Face state \u2022 camera aperture R": 0.0,
+        "Face state \u2022 camera lens L": 0.0,
+        "Face state \u2022 camera lens R": 0.0,
+        "Face state \u2022 camera screen": 0.0,
+        "Face state \u2022 search glint L": 0.0,
+        "Face state \u2022 search glint R": 0.0,
+        "Face state \u2022 search lens L": 0.0,
+        "Face state \u2022 search lens R": 0.0,
+        "Face state \u2022 viewfinder corners": 0.0,
+        "Face state \u2022 viewfinder focus": 0.0,
+        "MERLIN_LeftFragment_01": 1.3412338262241974e-07,
+        "MERLIN_LeftFragment_02": 1.2287812012345967e-07,
+        "MERLIN_LeftFragment_03": 1.2383438274810032e-07,
+        "MERLIN_LeftFragment_04": 1.2383438274810032e-07,
+        "MERLIN_LeftFragment_05": 1.2798147963621886e-07,
+        "MERLIN_LeftFragment_06": 1.2383438274810032e-07,
+        "MERLIN_LeftFragment_07": 2.425733214295178e-07,
+        "MERLIN_LeftFragment_08": 1.2731557319511921e-07,
+        "MERLIN_LeftFragment_09": 1.2605580934632599e-07,
+        "MERLIN_LeftFragment_10": 1.246198735316284e-07,
+        "MERLIN_LeftFragment_11": 2.4027400513659813e-07,
+        "MERLIN_LeftFragment_12": 2.425733214295178e-07,
+        "MERLIN_LeftFragment_13": 2.4027400513659813e-07,
+        "MERLIN_LeftFragment_14": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_15": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_16": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_17": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_18": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_19": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_20": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_21": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_22": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_23": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_24": 2.384185791015625e-07,
+        "MERLIN_LeftFragment_25": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_26": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_27": 2.384185791015625e-07,
+        "MERLIN_LeftFragment_28": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_29": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_30": 4.76837158203125e-07,
+        "MERLIN_LeftPanel": 0.0,
+        "Music note 01": 0.0,
+        "Music note 02": 0.0,
+        "Music note 03": 0.0,
+        "Music note 04": 0.0,
+        "Panel \u2022 fragment 01": 0.0,
+        "Panel \u2022 fragment 02": 0.0,
+        "Panel \u2022 fragment 03": 0.0,
+        "Panel \u2022 fragment 04": 0.0,
+        "Panel \u2022 fragment 05": 0.0,
+        "Panel \u2022 fragment 06": 0.0,
+        "Panel \u2022 fragment 07": 0.0,
+        "Panel \u2022 fragment 08": 0.0,
+        "Panel \u2022 fragment 09": 0.0,
+        "Panel \u2022 fragment 10": 0.0,
+        "Panel \u2022 fragment 11": 0.0,
+        "Panel \u2022 fragment 12": 0.0,
+        "Panel \u2022 fragment 13": 0.0,
+        "Panel \u2022 fragment 14": 0.0,
+        "Panel \u2022 fragment 15": 0.0,
+        "Panel \u2022 fragment 16": 0.0,
+        "Panel \u2022 fragment 17": 0.0,
+        "Panel \u2022 fragment 18": 0.0,
+        "Panel \u2022 fragment 19": 0.0,
+        "Panel \u2022 fragment 20": 0.0,
+        "Panel \u2022 fragment 21": 0.0,
+        "Panel \u2022 fragment 22": 0.0,
+        "Panel \u2022 fragment 23": 0.0,
+        "Panel \u2022 fragment 24": 0.0,
+        "Panel \u2022 fragment 25": 0.0,
+        "Panel \u2022 fragment 26": 0.0,
+        "Panel \u2022 fragment 27": 0.0,
+        "Panel \u2022 fragment 28": 0.0,
+        "Panel \u2022 fragment 29": 0.0,
+        "Panel \u2022 fragment 30": 0.0,
+        "Panel \u2022 white card": 5.331201577973843e-07,
+        "Prop \u2022 cyan play ball": 0.0
+      },
+      "passed": true
+    },
+    {
+      "clip": "SeatedLeftToReady",
+      "source_frame": 31,
+      "imported_frame": 30.0,
+      "world_vertex_errors": {
+        "Display mode \u2022 Eye \u2022 L": 0.0,
+        "Display mode \u2022 Eye \u2022 R": 0.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 expanding head": 0.0,
+        "Display mode \u2022 full frame backing": 0.0,
+        "Display mode \u2022 mouth bar 01": 0.0,
+        "Display mode \u2022 mouth bar 02": 0.0,
+        "Display mode \u2022 mouth bar 03": 0.0,
+        "Display mode \u2022 mouth bar 04": 0.0,
+        "Display mode \u2022 mouth bar 05": 0.0,
+        "Display mode \u2022 mouth bar 06": 0.0,
+        "Display mode \u2022 mouth bar 07": 0.0,
+        "Face state \u2022 camera aperture L": 0.0,
+        "Face state \u2022 camera aperture R": 0.0,
+        "Face state \u2022 camera lens L": 0.0,
+        "Face state \u2022 camera lens R": 0.0,
+        "Face state \u2022 camera screen": 0.0,
+        "Face state \u2022 search glint L": 0.0,
+        "Face state \u2022 search glint R": 0.0,
+        "Face state \u2022 search lens L": 0.0,
+        "Face state \u2022 search lens R": 0.0,
+        "Face state \u2022 viewfinder corners": 0.0,
+        "Face state \u2022 viewfinder focus": 0.0,
+        "MERLIN_LeftFragment_01": 1.3412338262241974e-07,
+        "MERLIN_LeftFragment_02": 1.2287812012345967e-07,
+        "MERLIN_LeftFragment_03": 1.2383438274810032e-07,
+        "MERLIN_LeftFragment_04": 1.2383438274810032e-07,
+        "MERLIN_LeftFragment_05": 1.2798147963621886e-07,
+        "MERLIN_LeftFragment_06": 1.2383438274810032e-07,
+        "MERLIN_LeftFragment_07": 2.425733214295178e-07,
+        "MERLIN_LeftFragment_08": 1.2731557319511921e-07,
+        "MERLIN_LeftFragment_09": 1.2605580934632599e-07,
+        "MERLIN_LeftFragment_10": 1.246198735316284e-07,
+        "MERLIN_LeftFragment_11": 2.4027400513659813e-07,
+        "MERLIN_LeftFragment_12": 2.425733214295178e-07,
+        "MERLIN_LeftFragment_13": 2.4027400513659813e-07,
+        "MERLIN_LeftFragment_14": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_15": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_16": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_17": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_18": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_19": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_20": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_21": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_22": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_23": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_24": 2.384185791015625e-07,
+        "MERLIN_LeftFragment_25": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_26": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_27": 2.384185791015625e-07,
+        "MERLIN_LeftFragment_28": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_29": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_30": 4.76837158203125e-07,
+        "MERLIN_LeftPanel": 0.0,
+        "Music note 01": 0.0,
+        "Music note 02": 0.0,
+        "Music note 03": 0.0,
+        "Music note 04": 0.0,
+        "Panel \u2022 fragment 01": 0.0,
+        "Panel \u2022 fragment 02": 0.0,
+        "Panel \u2022 fragment 03": 0.0,
+        "Panel \u2022 fragment 04": 0.0,
+        "Panel \u2022 fragment 05": 0.0,
+        "Panel \u2022 fragment 06": 0.0,
+        "Panel \u2022 fragment 07": 0.0,
+        "Panel \u2022 fragment 08": 0.0,
+        "Panel \u2022 fragment 09": 0.0,
+        "Panel \u2022 fragment 10": 0.0,
+        "Panel \u2022 fragment 11": 0.0,
+        "Panel \u2022 fragment 12": 0.0,
+        "Panel \u2022 fragment 13": 0.0,
+        "Panel \u2022 fragment 14": 0.0,
+        "Panel \u2022 fragment 15": 0.0,
+        "Panel \u2022 fragment 16": 0.0,
+        "Panel \u2022 fragment 17": 0.0,
+        "Panel \u2022 fragment 18": 0.0,
+        "Panel \u2022 fragment 19": 0.0,
+        "Panel \u2022 fragment 20": 0.0,
+        "Panel \u2022 fragment 21": 0.0,
+        "Panel \u2022 fragment 22": 0.0,
+        "Panel \u2022 fragment 23": 0.0,
+        "Panel \u2022 fragment 24": 0.0,
+        "Panel \u2022 fragment 25": 0.0,
+        "Panel \u2022 fragment 26": 0.0,
+        "Panel \u2022 fragment 27": 0.0,
+        "Panel \u2022 fragment 28": 0.0,
+        "Panel \u2022 fragment 29": 0.0,
+        "Panel \u2022 fragment 30": 0.0,
+        "Panel \u2022 white card": 0.0,
+        "Prop \u2022 cyan play ball": 0.0
+      },
+      "passed": true
+    },
+    {
+      "clip": "SeatedRightToReady",
+      "source_frame": 31,
+      "imported_frame": 30.0,
+      "world_vertex_errors": {
+        "Display mode \u2022 Eye \u2022 L": 0.0,
+        "Display mode \u2022 Eye \u2022 R": 0.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 expanding head": 0.0,
+        "Display mode \u2022 full frame backing": 0.0,
+        "Display mode \u2022 mouth bar 01": 0.0,
+        "Display mode \u2022 mouth bar 02": 0.0,
+        "Display mode \u2022 mouth bar 03": 0.0,
+        "Display mode \u2022 mouth bar 04": 0.0,
+        "Display mode \u2022 mouth bar 05": 0.0,
+        "Display mode \u2022 mouth bar 06": 0.0,
+        "Display mode \u2022 mouth bar 07": 0.0,
+        "Face state \u2022 camera aperture L": 0.0,
+        "Face state \u2022 camera aperture R": 0.0,
+        "Face state \u2022 camera lens L": 0.0,
+        "Face state \u2022 camera lens R": 0.0,
+        "Face state \u2022 camera screen": 0.0,
+        "Face state \u2022 search glint L": 0.0,
+        "Face state \u2022 search glint R": 0.0,
+        "Face state \u2022 search lens L": 0.0,
+        "Face state \u2022 search lens R": 0.0,
+        "Face state \u2022 viewfinder corners": 0.0,
+        "Face state \u2022 viewfinder focus": 0.0,
+        "MERLIN_LeftFragment_01": 0.0,
+        "MERLIN_LeftFragment_02": 0.0,
+        "MERLIN_LeftFragment_03": 0.0,
+        "MERLIN_LeftFragment_04": 0.0,
+        "MERLIN_LeftFragment_05": 0.0,
+        "MERLIN_LeftFragment_06": 0.0,
+        "MERLIN_LeftFragment_07": 0.0,
+        "MERLIN_LeftFragment_08": 0.0,
+        "MERLIN_LeftFragment_09": 0.0,
+        "MERLIN_LeftFragment_10": 0.0,
+        "MERLIN_LeftFragment_11": 0.0,
+        "MERLIN_LeftFragment_12": 0.0,
+        "MERLIN_LeftFragment_13": 0.0,
+        "MERLIN_LeftFragment_14": 0.0,
+        "MERLIN_LeftFragment_15": 0.0,
+        "MERLIN_LeftFragment_16": 0.0,
+        "MERLIN_LeftFragment_17": 0.0,
+        "MERLIN_LeftFragment_18": 0.0,
+        "MERLIN_LeftFragment_19": 0.0,
+        "MERLIN_LeftFragment_20": 0.0,
+        "MERLIN_LeftFragment_21": 0.0,
+        "MERLIN_LeftFragment_22": 0.0,
+        "MERLIN_LeftFragment_23": 0.0,
+        "MERLIN_LeftFragment_24": 0.0,
+        "MERLIN_LeftFragment_25": 0.0,
+        "MERLIN_LeftFragment_26": 0.0,
+        "MERLIN_LeftFragment_27": 0.0,
+        "MERLIN_LeftFragment_28": 0.0,
+        "MERLIN_LeftFragment_29": 0.0,
+        "MERLIN_LeftFragment_30": 0.0,
+        "MERLIN_LeftPanel": 0.0,
+        "Music note 01": 0.0,
+        "Music note 02": 0.0,
+        "Music note 03": 0.0,
+        "Music note 04": 0.0,
+        "Panel \u2022 fragment 01": 1.3412338262241974e-07,
+        "Panel \u2022 fragment 02": 1.2287812012345967e-07,
+        "Panel \u2022 fragment 03": 1.2383438274810032e-07,
+        "Panel \u2022 fragment 04": 1.2383438274810032e-07,
+        "Panel \u2022 fragment 05": 1.2798147963621886e-07,
+        "Panel \u2022 fragment 06": 1.2383438274810032e-07,
+        "Panel \u2022 fragment 07": 2.425733214295178e-07,
+        "Panel \u2022 fragment 08": 1.2731557319511921e-07,
+        "Panel \u2022 fragment 09": 1.2605580934632599e-07,
+        "Panel \u2022 fragment 10": 1.246198735316284e-07,
+        "Panel \u2022 fragment 11": 2.4027400513659813e-07,
+        "Panel \u2022 fragment 12": 2.425733214295178e-07,
+        "Panel \u2022 fragment 13": 2.4027400513659813e-07,
+        "Panel \u2022 fragment 14": 5.960464477539063e-08,
+        "Panel \u2022 fragment 15": 5.960464477539063e-08,
+        "Panel \u2022 fragment 16": 5.960464477539063e-08,
+        "Panel \u2022 fragment 17": 5.960464477539063e-08,
+        "Panel \u2022 fragment 18": 5.960464477539063e-08,
+        "Panel \u2022 fragment 19": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 20": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 21": 5.960464477539063e-08,
+        "Panel \u2022 fragment 22": 5.960464477539063e-08,
+        "Panel \u2022 fragment 23": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 24": 2.384185791015625e-07,
+        "Panel \u2022 fragment 25": 5.960464477539063e-08,
+        "Panel \u2022 fragment 26": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 27": 2.384185791015625e-07,
+        "Panel \u2022 fragment 28": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 29": 5.960464477539063e-08,
+        "Panel \u2022 fragment 30": 4.76837158203125e-07,
+        "Panel \u2022 white card": 0.0,
+        "Prop \u2022 cyan play ball": 0.0
+      },
+      "passed": true
+    },
+    {
+      "clip": "BothPanelsToReady",
+      "source_frame": 31,
+      "imported_frame": 30.0,
+      "world_vertex_errors": {
+        "Display mode \u2022 Eye \u2022 L": 0.0,
+        "Display mode \u2022 Eye \u2022 R": 0.0,
+        "Display mode \u2022 Face \u2022 luminous smile": 0.0,
+        "Display mode \u2022 expanding head": 0.0,
+        "Display mode \u2022 full frame backing": 0.0,
+        "Display mode \u2022 mouth bar 01": 0.0,
+        "Display mode \u2022 mouth bar 02": 0.0,
+        "Display mode \u2022 mouth bar 03": 0.0,
+        "Display mode \u2022 mouth bar 04": 0.0,
+        "Display mode \u2022 mouth bar 05": 0.0,
+        "Display mode \u2022 mouth bar 06": 0.0,
+        "Display mode \u2022 mouth bar 07": 0.0,
+        "Face state \u2022 camera aperture L": 0.0,
+        "Face state \u2022 camera aperture R": 0.0,
+        "Face state \u2022 camera lens L": 0.0,
+        "Face state \u2022 camera lens R": 0.0,
+        "Face state \u2022 camera screen": 0.0,
+        "Face state \u2022 search glint L": 0.0,
+        "Face state \u2022 search glint R": 0.0,
+        "Face state \u2022 search lens L": 0.0,
+        "Face state \u2022 search lens R": 0.0,
+        "Face state \u2022 viewfinder corners": 0.0,
+        "Face state \u2022 viewfinder focus": 0.0,
+        "MERLIN_LeftFragment_01": 1.3412338262241974e-07,
+        "MERLIN_LeftFragment_02": 1.2287812012345967e-07,
+        "MERLIN_LeftFragment_03": 1.2383438274810032e-07,
+        "MERLIN_LeftFragment_04": 1.2383438274810032e-07,
+        "MERLIN_LeftFragment_05": 1.2798147963621886e-07,
+        "MERLIN_LeftFragment_06": 1.2383438274810032e-07,
+        "MERLIN_LeftFragment_07": 2.425733214295178e-07,
+        "MERLIN_LeftFragment_08": 1.2731557319511921e-07,
+        "MERLIN_LeftFragment_09": 1.2605580934632599e-07,
+        "MERLIN_LeftFragment_10": 1.246198735316284e-07,
+        "MERLIN_LeftFragment_11": 2.4027400513659813e-07,
+        "MERLIN_LeftFragment_12": 2.425733214295178e-07,
+        "MERLIN_LeftFragment_13": 2.4027400513659813e-07,
+        "MERLIN_LeftFragment_14": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_15": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_16": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_17": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_18": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_19": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_20": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_21": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_22": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_23": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_24": 2.384185791015625e-07,
+        "MERLIN_LeftFragment_25": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_26": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_27": 2.384185791015625e-07,
+        "MERLIN_LeftFragment_28": 2.4575624024691933e-07,
+        "MERLIN_LeftFragment_29": 5.960464477539063e-08,
+        "MERLIN_LeftFragment_30": 4.76837158203125e-07,
+        "MERLIN_LeftPanel": 0.0,
+        "Music note 01": 0.0,
+        "Music note 02": 0.0,
+        "Music note 03": 0.0,
+        "Music note 04": 0.0,
+        "Panel \u2022 fragment 01": 1.3412338262241974e-07,
+        "Panel \u2022 fragment 02": 1.2287812012345967e-07,
+        "Panel \u2022 fragment 03": 1.2383438274810032e-07,
+        "Panel \u2022 fragment 04": 1.2383438274810032e-07,
+        "Panel \u2022 fragment 05": 1.2798147963621886e-07,
+        "Panel \u2022 fragment 06": 1.2383438274810032e-07,
+        "Panel \u2022 fragment 07": 2.425733214295178e-07,
+        "Panel \u2022 fragment 08": 1.2731557319511921e-07,
+        "Panel \u2022 fragment 09": 1.2605580934632599e-07,
+        "Panel \u2022 fragment 10": 1.246198735316284e-07,
+        "Panel \u2022 fragment 11": 2.4027400513659813e-07,
+        "Panel \u2022 fragment 12": 2.425733214295178e-07,
+        "Panel \u2022 fragment 13": 2.4027400513659813e-07,
+        "Panel \u2022 fragment 14": 5.960464477539063e-08,
+        "Panel \u2022 fragment 15": 5.960464477539063e-08,
+        "Panel \u2022 fragment 16": 5.960464477539063e-08,
+        "Panel \u2022 fragment 17": 5.960464477539063e-08,
+        "Panel \u2022 fragment 18": 5.960464477539063e-08,
+        "Panel \u2022 fragment 19": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 20": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 21": 5.960464477539063e-08,
+        "Panel \u2022 fragment 22": 5.960464477539063e-08,
+        "Panel \u2022 fragment 23": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 24": 2.384185791015625e-07,
+        "Panel \u2022 fragment 25": 5.960464477539063e-08,
+        "Panel \u2022 fragment 26": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 27": 2.384185791015625e-07,
+        "Panel \u2022 fragment 28": 2.4575624024691933e-07,
+        "Panel \u2022 fragment 29": 5.960464477539063e-08,
+        "Panel \u2022 fragment 30": 4.76837158203125e-07,
+        "Panel \u2022 white card": 0.0,
+        "Prop \u2022 cyan play ball": 0.0
+      },
+      "passed": true
+    }
+  ],
+  "handoff_samples": [
+    {
+      "clip": "CeilingToLeftPanel",
+      "source_frame": 125.999,
+      "verification": "Final GLB sampler and mesh evaluation versus Blender source",
+      "gltf_seconds": 5.208291666666667,
+      "world_matrix_errors": {
+        "Panel \u2022 white card": 2.980232238769531e-07,
+        "MERLIN_LeftPanel": 0.0
+      },
+      "world_bounds_errors": {
+        "Panel \u2022 white card": 8.344650268554688e-07,
+        "MERLIN_LeftPanel": 0.0
+      },
+      "visible_cards": [
+        "Panel \u2022 white card"
+      ],
+      "passed": true
+    },
+    {
+      "clip": "CeilingToLeftPanel",
+      "source_frame": 126,
+      "verification": "Final GLB sampler and mesh evaluation versus Blender source",
+      "gltf_seconds": 5.208333492279053,
+      "world_matrix_errors": {
+        "Panel \u2022 white card": 0.0,
+        "MERLIN_LeftPanel": 2.980232238769531e-07
+      },
+      "world_bounds_errors": {
+        "Panel \u2022 white card": 0.0,
+        "MERLIN_LeftPanel": 8.344650268554688e-07
+      },
+      "visible_cards": [
+        "MERLIN_LeftPanel"
+      ],
+      "passed": true
+    }
+  ],
+  "importer_handoff_samples": [
+    {
+      "clip": "CeilingToLeftPanel",
+      "source_frame": 125.999,
+      "imported_frame": 124.999,
+      "world_matrix_errors": {
+        "Panel \u2022 white card": 5.044952869415283,
+        "MERLIN_LeftPanel": 0.9990005493164062
+      },
+      "visible_cards": [
+        "Panel \u2022 white card",
+        "MERLIN_LeftPanel"
+      ],
+      "supported_at_importer_precision": false,
+      "passed": false
+    },
+    {
+      "clip": "CeilingToLeftPanel",
+      "source_frame": 126,
+      "imported_frame": 125.0,
+      "world_matrix_errors": {
+        "Panel \u2022 white card": 0.0,
+        "MERLIN_LeftPanel": 2.980232238769531e-07
+      },
+      "visible_cards": [
+        "MERLIN_LeftPanel"
+      ],
+      "supported_at_importer_precision": true,
+      "passed": true
+    }
+  ],
+  "importer_precision_probe": {
+    "keys_before_update": [
+      [
+        124.0,
+        1.0
+      ],
+      [
+        124.99999237060547,
+        1.0
+      ],
+      [
+        125.0,
+        0.0
+      ]
+    ],
+    "keys_after_update": [
+      [
+        124.0,
+        1.0
+      ],
+      [
+        125.0,
+        0.0
+      ]
+    ],
+    "deduplicates_adjacent_keys": true,
+    "evaluated_fractional_scale_after_update": 0.00099945068359375
+  },
+  "max_errors": {
+    "bones": 1.6657338872530604e-06,
+    "face": 0.0,
+    "objects": 3.8743019104003906e-07,
+    "display_morphs": 0.0,
+    "display_geometry": 9.5367431640625e-07,
+    "bone_deformation": 1.6763806343078613e-06
+  },
+  "tolerances": {
+    "bones": 0.0002,
+    "face": 2e-06,
+    "objects": 0.0002,
+    "display_morphs": 2e-06,
+    "display_geometry": 0.0002,
+    "bone_deformation": 0.0002
+  },
+  "screens": {
+    "passed": true,
+    "screens": {
+      "camera": {
+        "passed": true,
+        "nodes": {
+          "Face state \u2022 camera screen": {
+            "passed": true,
+            "role": "surface",
+            "front_vertices": 53,
+            "uv_range": [
+              0.0,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 0.0,
+            "issues": []
+          }
+        },
+        "issues": [],
+        "material": "MERLIN_Screen_camera",
+        "embedded_png": true,
+        "embedded_bytes": 9673,
+        "emission_strength": 1.0,
+        "black_diffuse": true,
+        "emissive_factor": [
+          1,
+          1,
+          1
+        ],
+        "imported_pixels": {
+          "passed": true,
+          "source_size": [
+            320,
+            160
+          ],
+          "imported_size": [
+            320,
+            160
+          ],
+          "maximum_channel_error": 0.0,
+          "tolerance": 0.00784313725490196
+        }
+      },
+      "left": {
+        "passed": true,
+        "nodes": {
+          "MERLIN_LeftFragment_01": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 12,
+            "uv_range": [
+              0.7653860449790955,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.7939677238464355e-08,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_02": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.5906336903572083,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.137086568294478e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_03": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.3874675929546356,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 1.6731128482661006e-08,
+            "full_panel_mapping_error": 2.6665235797196374e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_04": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.1705082356929779,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.5553647803610033e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_05": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 12,
+            "uv_range": [
+              0.0,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.7939677238464355e-08,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_06": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.6471529603004456,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.1959605911447966e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_07": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.5885842442512512,
+              0.8345578908920288
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.346225674327741e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_08": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.38109448552131653,
+              0.8344739675521851
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.346225674327741e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_09": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.1764126569032669,
+              0.8162180185317993
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 4.3919211933918234e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_10": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.0,
+              0.8497065901756287
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.5553647803610033e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_11": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 4,
+            "uv_range": [
+              0.5123953819274902,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 4.182782087358561e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_12": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 7,
+            "uv_range": [
+              0.48748868703842163,
+              0.8311325907707214
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.346225674327741e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_13": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.35482290387153625,
+              0.6808900833129883
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.764503875292036e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_14": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.19047541916370392,
+              0.6629258990287781
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.5553647803610033e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_15": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.0,
+              0.6742510795593262
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.718808356227953e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_16": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.35283589363098145,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 4.182782087358561e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_17": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.3065635561943054,
+              0.8099393248558044
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_18": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.33967941999435425,
+              0.5925262570381165
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.3528149206697435e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_19": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 7,
+            "uv_range": [
+              0.15473692119121552,
+              0.4898107051849365
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.6142388032113217e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_20": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 4,
+            "uv_range": [
+              0.0,
+              0.5294536352157593
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.0913910492303955e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_21": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.18361163139343262,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.5096692501946904e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_22": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.18438315391540527,
+              0.8277794718742371
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.9279474622612156e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_23": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 7,
+            "uv_range": [
+              0.15501916408538818,
+              0.6192899346351624
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_24": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.13011467456817627,
+              0.42380428314208984
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_25": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.0,
+              0.32683897018432617
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.300530149712543e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_26": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 12,
+            "uv_range": [
+              0.0,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.9279474622612156e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_27": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.0,
+              0.8544456362724304
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.1959605911447966e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_28": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.0,
+              0.6201614141464233
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.300530149712543e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_29": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 4,
+            "uv_range": [
+              0.0,
+              0.38016027212142944
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.300530149712543e-08,
+            "issues": []
+          },
+          "MERLIN_LeftFragment_30": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 13,
+            "uv_range": [
+              0.0,
+              0.21540604531764984
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "MERLIN_LeftPanel": {
+            "passed": true,
+            "role": "surface",
+            "front_vertices": 36,
+            "uv_range": [
+              0.0024561285972595215,
+              0.9975438714027405
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.9279474622612156e-08,
+            "issues": []
+          }
+        },
+        "issues": [],
+        "material": "MERLIN_Screen_left",
+        "embedded_png": true,
+        "embedded_bytes": 5453,
+        "emission_strength": 1.0,
+        "black_diffuse": true,
+        "emissive_factor": [
+          1,
+          1,
+          1
+        ],
+        "imported_pixels": {
+          "passed": true,
+          "source_size": [
+            400,
+            480
+          ],
+          "imported_size": [
+            400,
+            480
+          ],
+          "maximum_channel_error": 0.0,
+          "tolerance": 0.00784313725490196
+        }
+      },
+      "right": {
+        "passed": true,
+        "nodes": {
+          "Panel \u2022 fragment 01": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 12,
+            "uv_range": [
+              0.0,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.7939677238464355e-08,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 02": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.20414623618125916,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.137086568294478e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 03": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.40899956226348877,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 1.6731128482661006e-08,
+            "full_panel_mapping_error": 2.6665235797196374e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 04": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.5845629572868347,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.5553647803610033e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 05": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 12,
+            "uv_range": [
+              0.7928975820541382,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.7939677238464355e-08,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 06": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.0,
+              0.8467408418655396
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 1.882251943197133e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 07": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.20870156586170197,
+              0.8345578908920288
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.346225674327741e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 08": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.4112335741519928,
+              0.8344739675521851
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.346225674327741e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 09": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.6074466705322266,
+              0.8235873579978943
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 4.3919211933918234e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 10": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.6427626609802246,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.5553647803610033e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 11": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 4,
+            "uv_range": [
+              0.0,
+              0.6982208490371704
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 4.182782087358561e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 12": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 7,
+            "uv_range": [
+              0.16886739432811737,
+              0.6718816757202148
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.346225674327741e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 13": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.4032210409641266,
+              0.6808900833129883
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.764503875292036e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 14": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.4796583652496338,
+              0.8095245957374573
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 3.5553647803610033e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 15": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.47458159923553467,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.718808356227953e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 16": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.0,
+              0.5274157524108887
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 4.182782087358561e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 17": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.19006066024303436,
+              0.5135742425918579
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.300530149712543e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 18": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.33967941999435425,
+              0.6374011039733887
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.6665235797196374e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 19": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 7,
+            "uv_range": [
+              0.29612672328948975,
+              0.8452630639076233
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 20": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 4,
+            "uv_range": [
+              0.3257097601890564,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.0913910492303955e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 21": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.0,
+              0.3590540885925293
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 1.6731128371638704e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 22": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.17222055792808533,
+              0.3938453495502472
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.9279474622612156e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 23": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 7,
+            "uv_range": [
+              0.15501916408538818,
+              0.6263993382453918
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.718808361779068e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 24": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.13011467456817627,
+              0.8120520710945129
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 25": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.15095335245132446,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.300530149712543e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 26": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 12,
+            "uv_range": [
+              0.0,
+              0.20400285720825195
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.9279474622612156e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 27": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 6,
+            "uv_range": [
+              0.0,
+              0.40957650542259216
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 1.6731128371638704e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 28": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 5,
+            "uv_range": [
+              0.0,
+              0.6213012933731079
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.300530149712543e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 29": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 4,
+            "uv_range": [
+              0.0,
+              0.8458350300788879
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.300530149712543e-08,
+            "issues": []
+          },
+          "Panel \u2022 fragment 30": {
+            "passed": true,
+            "role": "fragment",
+            "front_vertices": 13,
+            "uv_range": [
+              0.0,
+              1.0
+            ],
+            "position_error": 0.0,
+            "uv_error": 0.0,
+            "full_panel_mapping_error": 2.8233779092445843e-08,
+            "issues": []
+          },
+          "Panel \u2022 white card": {
+            "passed": true,
+            "role": "surface",
+            "front_vertices": 36,
+            "uv_range": [
+              0.0024561285972595215,
+              0.9975438714027405
+            ],
+            "position_error": 0.0,
+            "uv_error": 2.9802322387695312e-08,
+            "full_panel_mapping_error": 2.9279474622612156e-08,
+            "issues": []
+          }
+        },
+        "issues": [],
+        "material": "MERLIN_Screen_right",
+        "embedded_png": true,
+        "embedded_bytes": 5453,
+        "emission_strength": 1.0,
+        "black_diffuse": true,
+        "emissive_factor": [
+          1,
+          1,
+          1
+        ],
+        "imported_pixels": {
+          "passed": true,
+          "source_size": [
+            400,
+            480
+          ],
+          "imported_size": [
+            400,
+            480
+          ],
+          "maximum_channel_error": 0.0,
+          "tolerance": 0.00784313725490196
+        }
+      }
+    }
+  },
+  "clip_durations": {
+    "Idle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "Wave": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "Jump": {
+      "seconds": 2.9583332538604736,
+      "expected_seconds": 2.9583333333333335,
+      "passed": true
+    },
+    "WalkWhistle": {
+      "seconds": 7.958333492279053,
+      "expected_seconds": 7.958333333333333,
+      "passed": true
+    },
+    "WallToss": {
+      "seconds": 9.958333015441895,
+      "expected_seconds": 9.958333333333334,
+      "passed": true
+    },
+    "Nap": {
+      "seconds": 7.958333492279053,
+      "expected_seconds": 7.958333333333333,
+      "passed": true
+    },
+    "ReadyIdle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "ReadyToNap": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "NapToReady": {
+      "seconds": 4.458333492279053,
+      "expected_seconds": 4.458333333333333,
+      "passed": true
+    },
+    "ReadyToWallToss": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "WallTossToReady": {
+      "seconds": 4.458333492279053,
+      "expected_seconds": 4.458333333333333,
+      "passed": true
+    },
+    "ReadyToWalkWhistle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "WalkWhistleToReady": {
+      "seconds": 4.458333492279053,
+      "expected_seconds": 4.458333333333333,
+      "passed": true
+    },
+    "ReadyToPanel": {
+      "seconds": 7.458333492279053,
+      "expected_seconds": 7.458333333333333,
+      "passed": true
+    },
+    "PanelIdle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "PanelToReady": {
+      "seconds": 5.958333492279053,
+      "expected_seconds": 5.958333333333333,
+      "passed": true
+    },
+    "ReadyToFace": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "FullFaceIdle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "FaceToReady": {
+      "seconds": 1.4583333730697632,
+      "expected_seconds": 1.4583333333333333,
+      "passed": true
+    },
+    "ReadyToDance": {
+      "seconds": 1.4583333730697632,
+      "expected_seconds": 1.4583333333333333,
+      "passed": true
+    },
+    "Dance": {
+      "seconds": 5.958333492279053,
+      "expected_seconds": 5.958333333333333,
+      "passed": true
+    },
+    "DanceToReady": {
+      "seconds": 1.4583333730697632,
+      "expected_seconds": 1.4583333333333333,
+      "passed": true
+    },
+    "ReadyToThink": {
+      "seconds": 1.4583333730697632,
+      "expected_seconds": 1.4583333333333333,
+      "passed": true
+    },
+    "BodyThink": {
+      "seconds": 5.958333492279053,
+      "expected_seconds": 5.958333333333333,
+      "passed": true
+    },
+    "ThinkToReady": {
+      "seconds": 1.4583333730697632,
+      "expected_seconds": 1.4583333333333333,
+      "passed": true
+    },
+    "LeftPanelIdle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "ReadyToLeftPanel": {
+      "seconds": 7.458333492279053,
+      "expected_seconds": 7.458333333333333,
+      "passed": true
+    },
+    "LeftPanelToReady": {
+      "seconds": 5.958333492279053,
+      "expected_seconds": 5.958333333333333,
+      "passed": true
+    },
+    "FaceToCamera": {
+      "seconds": 0.9583333134651184,
+      "expected_seconds": 0.9583333333333334,
+      "passed": true
+    },
+    "CameraIdle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "CameraToFace": {
+      "seconds": 0.9583333134651184,
+      "expected_seconds": 0.9583333333333334,
+      "passed": true
+    },
+    "FaceToThink": {
+      "seconds": 0.9583333134651184,
+      "expected_seconds": 0.9583333333333334,
+      "passed": true
+    },
+    "FaceThink": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "ThinkToFace": {
+      "seconds": 0.9583333134651184,
+      "expected_seconds": 0.9583333333333334,
+      "passed": true
+    },
+    "FaceToSearch": {
+      "seconds": 0.9583333134651184,
+      "expected_seconds": 0.9583333333333334,
+      "passed": true
+    },
+    "FaceSearch": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "SearchToFace": {
+      "seconds": 0.9583333134651184,
+      "expected_seconds": 0.9583333333333334,
+      "passed": true
+    },
+    "ReadyToBothPanels": {
+      "seconds": 11.958333015441895,
+      "expected_seconds": 11.958333333333334,
+      "passed": true
+    },
+    "BothPanelsIdle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "BothToLeftPanel": {
+      "seconds": 2.9583332538604736,
+      "expected_seconds": 2.9583333333333335,
+      "passed": true
+    },
+    "BothToRightPanel": {
+      "seconds": 2.9583332538604736,
+      "expected_seconds": 2.9583333333333335,
+      "passed": true
+    },
+    "SeatedLeftPanelIdle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "SeatedRightPanelIdle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "SeatedLeftToReady": {
+      "seconds": 5.458333492279053,
+      "expected_seconds": 5.458333333333333,
+      "passed": true
+    },
+    "SeatedRightToReady": {
+      "seconds": 5.458333492279053,
+      "expected_seconds": 5.458333333333333,
+      "passed": true
+    },
+    "BothPanelsToReady": {
+      "seconds": 5.458333492279053,
+      "expected_seconds": 5.458333333333333,
+      "passed": true
+    },
+    "ReadyToWalkWhistleReverse": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "WalkWhistleReverse": {
+      "seconds": 7.958333492279053,
+      "expected_seconds": 7.958333333333333,
+      "passed": true
+    },
+    "WalkWhistleReverseToReady": {
+      "seconds": 4.458333492279053,
+      "expected_seconds": 4.458333333333333,
+      "passed": true
+    },
+    "RightToThink": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "RightThinking": {
+      "seconds": 4.958333492279053,
+      "expected_seconds": 4.958333333333333,
+      "passed": true
+    },
+    "RightThinkToBody": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "RightToFace": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "FaceToRight": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "LeftToThink": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "LeftThinking": {
+      "seconds": 4.958333492279053,
+      "expected_seconds": 4.958333333333333,
+      "passed": true
+    },
+    "LeftThinkToBody": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "LeftToFace": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "FaceToLeft": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "BothToThink": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "BothThinking": {
+      "seconds": 4.958333492279053,
+      "expected_seconds": 4.958333333333333,
+      "passed": true
+    },
+    "BothThinkToBody": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "BothToFace": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "FaceToBoth": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "SeatedLeftToThink": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "SeatedLeftThinking": {
+      "seconds": 4.958333492279053,
+      "expected_seconds": 4.958333333333333,
+      "passed": true
+    },
+    "SeatedLeftThinkToBody": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "SeatedLeftToFace": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "FaceToSeatedLeft": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "SeatedRightToThink": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "SeatedRightThinking": {
+      "seconds": 4.958333492279053,
+      "expected_seconds": 4.958333333333333,
+      "passed": true
+    },
+    "SeatedRightThinkToBody": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "SeatedRightToFace": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "FaceToSeatedRight": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "DanceToThink": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "DanceThinking": {
+      "seconds": 4.958333492279053,
+      "expected_seconds": 4.958333333333333,
+      "passed": true
+    },
+    "DanceThinkToBody": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "DanceToFace": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "FaceToDance": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "NapToThink": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "NapThinking": {
+      "seconds": 4.958333492279053,
+      "expected_seconds": 4.958333333333333,
+      "passed": true
+    },
+    "NapThinkToBody": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "NapToFace": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "FaceToNap": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "TossToThink": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "TossThinking": {
+      "seconds": 4.958333492279053,
+      "expected_seconds": 4.958333333333333,
+      "passed": true
+    },
+    "TossThinkToBody": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "TossToFace": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "FaceToToss": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "WalkPaused": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "WalkToThink": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "WalkThinking": {
+      "seconds": 4.958333492279053,
+      "expected_seconds": 4.958333333333333,
+      "passed": true
+    },
+    "WalkThinkToBody": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "WalkToFace": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "FaceToWalk": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "WalkReversePaused": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "WalkReverseToThink": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "WalkReverseThinking": {
+      "seconds": 4.958333492279053,
+      "expected_seconds": 4.958333333333333,
+      "passed": true
+    },
+    "WalkReverseThinkToBody": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "WalkReverseToFace": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "FaceToWalkReverse": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "BodyThinkToFace": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "FaceToBodyThink": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "CeilingIdle": {
+      "seconds": 3.9583332538604736,
+      "expected_seconds": 3.9583333333333335,
+      "passed": true
+    },
+    "ReadyToCeiling": {
+      "seconds": 6.958333492279053,
+      "expected_seconds": 6.958333333333333,
+      "passed": true
+    },
+    "CeilingToLeftPanel": {
+      "seconds": 5.458333492279053,
+      "expected_seconds": 5.458333333333333,
+      "passed": true
+    },
+    "CeilingToRightPanel": {
+      "seconds": 5.458333492279053,
+      "expected_seconds": 5.458333333333333,
+      "passed": true
+    },
+    "CeilingToReady": {
+      "seconds": 5.958333492279053,
+      "expected_seconds": 5.958333333333333,
+      "passed": true
+    },
+    "CeilingToThink": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "CeilingThinking": {
+      "seconds": 4.958333492279053,
+      "expected_seconds": 4.958333333333333,
+      "passed": true
+    },
+    "CeilingThinkToBody": {
+      "seconds": 1.2916666269302368,
+      "expected_seconds": 1.2916666666666667,
+      "passed": true
+    },
+    "CeilingToFace": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    },
+    "FaceToCeiling": {
+      "seconds": 1.625,
+      "expected_seconds": 1.625,
+      "passed": true
+    }
+  },
+  "limitations": [
+    "Representative first/middle/final poses and peak-fragment geometry verify Blender re-import; fractional blends are not exhaustively sampled.",
+    "Blender 4.0.2 fcurve.update deduplicates the adjacent float32 handoff keys. The 125.999 sample is therefore verified directly from final GLB samplers and mesh geometry against Blender source, not claimed as a successful Blender re-import. The exact 126 re-import is required to pass.",
+    "The unchanged original animation payload is verified by the separate dual-screen scene/export report."
+  ],
+  "imported_clips": [
+    "BodyThink",
+    "BodyThinkToFace",
+    "BothPanelsIdle",
+    "BothPanelsToReady",
+    "BothThinkToBody",
+    "BothThinking",
+    "BothToFace",
+    "BothToLeftPanel",
+    "BothToRightPanel",
+    "BothToThink",
+    "CameraIdle",
+    "CameraToFace",
+    "CeilingIdle",
+    "CeilingThinkToBody",
+    "CeilingThinking",
+    "CeilingToFace",
+    "CeilingToLeftPanel",
+    "CeilingToReady",
+    "CeilingToRightPanel",
+    "CeilingToThink",
+    "Dance",
+    "DanceThinkToBody",
+    "DanceThinking",
+    "DanceToFace",
+    "DanceToReady",
+    "DanceToThink",
+    "FaceSearch",
+    "FaceThink",
+    "FaceToBodyThink",
+    "FaceToBoth",
+    "FaceToCamera",
+    "FaceToCeiling",
+    "FaceToDance",
+    "FaceToLeft",
+    "FaceToNap",
+    "FaceToReady",
+    "FaceToRight",
+    "FaceToSearch",
+    "FaceToSeatedLeft",
+    "FaceToSeatedRight",
+    "FaceToThink",
+    "FaceToToss",
+    "FaceToWalk",
+    "FaceToWalkReverse",
+    "FullFaceIdle",
+    "Idle",
+    "Jump",
+    "LeftPanelIdle",
+    "LeftPanelToReady",
+    "LeftThinkToBody",
+    "LeftThinking",
+    "LeftToFace",
+    "LeftToThink",
+    "Nap",
+    "NapThinkToBody",
+    "NapThinking",
+    "NapToFace",
+    "NapToReady",
+    "NapToThink",
+    "PanelIdle",
+    "PanelToReady",
+    "ReadyIdle",
+    "ReadyToBothPanels",
+    "ReadyToCeiling",
+    "ReadyToDance",
+    "ReadyToFace",
+    "ReadyToLeftPanel",
+    "ReadyToNap",
+    "ReadyToPanel",
+    "ReadyToThink",
+    "ReadyToWalkWhistle",
+    "ReadyToWalkWhistleReverse",
+    "ReadyToWallToss",
+    "RightThinkToBody",
+    "RightThinking",
+    "RightToFace",
+    "RightToThink",
+    "SearchToFace",
+    "SeatedLeftPanelIdle",
+    "SeatedLeftThinkToBody",
+    "SeatedLeftThinking",
+    "SeatedLeftToFace",
+    "SeatedLeftToReady",
+    "SeatedLeftToThink",
+    "SeatedRightPanelIdle",
+    "SeatedRightThinkToBody",
+    "SeatedRightThinking",
+    "SeatedRightToFace",
+    "SeatedRightToReady",
+    "SeatedRightToThink",
+    "ThinkToFace",
+    "ThinkToReady",
+    "TossThinkToBody",
+    "TossThinking",
+    "TossToFace",
+    "TossToThink",
+    "WalkPaused",
+    "WalkReversePaused",
+    "WalkReverseThinkToBody",
+    "WalkReverseThinking",
+    "WalkReverseToFace",
+    "WalkReverseToThink",
+    "WalkThinkToBody",
+    "WalkThinking",
+    "WalkToFace",
+    "WalkToThink",
+    "WalkWhistle",
+    "WalkWhistleReverse",
+    "WalkWhistleReverseToReady",
+    "WalkWhistleToReady",
+    "WallToss",
+    "WallTossToReady",
+    "Wave"
+  ],
+  "sample_count": 228,
+  "passed": true
+}

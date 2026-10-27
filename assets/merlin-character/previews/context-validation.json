@@ -1,0 +1,1645 @@
+{
+  "passed": true,
+  "clips": 54,
+  "checks": [
+    {
+      "name": "context_owner_inventory",
+      "passed": true,
+      "count": 98
+    },
+    {
+      "name": "RightToThink_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "RightToThink_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "RightToThink_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "RightThinking_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "RightThinking_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "RightThinking_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "RightThinking_planted_body_and_unchanged_panels",
+      "passed": true,
+      "lower_body_error": 0.0,
+      "panel_error": 0.0
+    },
+    {
+      "name": "RightThinkToBody_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "RightThinkToBody_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "RightThinkToBody_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "RightToFace_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "RightToFace_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "RightToFace_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "RightToFace_panels_retained_until_covered",
+      "passed": true,
+      "maximum_panel_error": 0.0,
+      "covered_frame": 31
+    },
+    {
+      "name": "RightToFace_nonnegative_helper_scale",
+      "passed": true,
+      "minimum_scale": 0.0
+    },
+    {
+      "name": "FaceToRight_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "FaceToRight_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "FaceToRight_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "LeftToThink_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "LeftToThink_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "LeftToThink_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "LeftThinking_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "LeftThinking_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "LeftThinking_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "LeftThinking_planted_body_and_unchanged_panels",
+      "passed": true,
+      "lower_body_error": 0.0,
+      "panel_error": 0.0
+    },
+    {
+      "name": "LeftThinkToBody_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "LeftThinkToBody_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "LeftThinkToBody_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "LeftToFace_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "LeftToFace_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "LeftToFace_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "LeftToFace_panels_retained_until_covered",
+      "passed": true,
+      "maximum_panel_error": 0.0,
+      "covered_frame": 31
+    },
+    {
+      "name": "LeftToFace_nonnegative_helper_scale",
+      "passed": true,
+      "minimum_scale": 0.0
+    },
+    {
+      "name": "FaceToLeft_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "FaceToLeft_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "FaceToLeft_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "BothToThink_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "BothToThink_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "BothToThink_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "BothThinking_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "BothThinking_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "BothThinking_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "BothThinking_planted_body_and_unchanged_panels",
+      "passed": true,
+      "lower_body_error": 0.0,
+      "panel_error": 0.0
+    },
+    {
+      "name": "BothThinkToBody_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "BothThinkToBody_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "BothThinkToBody_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "BothToFace_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "BothToFace_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "BothToFace_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "BothToFace_panels_retained_until_covered",
+      "passed": true,
+      "maximum_panel_error": 0.0,
+      "covered_frame": 31
+    },
+    {
+      "name": "BothToFace_nonnegative_helper_scale",
+      "passed": true,
+      "minimum_scale": 0.0
+    },
+    {
+      "name": "FaceToBoth_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "FaceToBoth_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "FaceToBoth_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "SeatedLeftToThink_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "SeatedLeftToThink_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "SeatedLeftToThink_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "SeatedLeftThinking_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "SeatedLeftThinking_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "SeatedLeftThinking_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "SeatedLeftThinking_planted_body_and_unchanged_panels",
+      "passed": true,
+      "lower_body_error": 0.0,
+      "panel_error": 0.0
+    },
+    {
+      "name": "SeatedLeftThinkToBody_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "SeatedLeftThinkToBody_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "SeatedLeftThinkToBody_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "SeatedLeftToFace_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "SeatedLeftToFace_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "SeatedLeftToFace_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "SeatedLeftToFace_panels_retained_until_covered",
+      "passed": true,
+      "maximum_panel_error": 0.0,
+      "covered_frame": 31
+    },
+    {
+      "name": "SeatedLeftToFace_nonnegative_helper_scale",
+      "passed": true,
+      "minimum_scale": 0.0
+    },
+    {
+      "name": "FaceToSeatedLeft_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "FaceToSeatedLeft_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "FaceToSeatedLeft_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "SeatedRightToThink_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "SeatedRightToThink_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "SeatedRightToThink_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "SeatedRightThinking_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "SeatedRightThinking_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "SeatedRightThinking_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "SeatedRightThinking_planted_body_and_unchanged_panels",
+      "passed": true,
+      "lower_body_error": 0.0,
+      "panel_error": 0.0
+    },
+    {
+      "name": "SeatedRightThinkToBody_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "SeatedRightThinkToBody_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "SeatedRightThinkToBody_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "SeatedRightToFace_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "SeatedRightToFace_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "SeatedRightToFace_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "SeatedRightToFace_panels_retained_until_covered",
+      "passed": true,
+      "maximum_panel_error": 0.0,
+      "covered_frame": 31
+    },
+    {
+      "name": "SeatedRightToFace_nonnegative_helper_scale",
+      "passed": true,
+      "minimum_scale": 0.0
+    },
+    {
+      "name": "FaceToSeatedRight_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "FaceToSeatedRight_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "FaceToSeatedRight_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "DanceToThink_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "DanceToThink_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "DanceToThink_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "DanceThinking_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "DanceThinking_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "DanceThinking_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "DanceThinking_planted_body_and_unchanged_panels",
+      "passed": true,
+      "lower_body_error": 0.0,
+      "panel_error": 0.0
+    },
+    {
+      "name": "DanceThinkToBody_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "DanceThinkToBody_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "DanceThinkToBody_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "DanceToFace_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "DanceToFace_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "DanceToFace_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "DanceToFace_panels_retained_until_covered",
+      "passed": true,
+      "maximum_panel_error": 0.0,
+      "covered_frame": 31
+    },
+    {
+      "name": "DanceToFace_nonnegative_helper_scale",
+      "passed": true,
+      "minimum_scale": 0.0
+    },
+    {
+      "name": "FaceToDance_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "FaceToDance_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "FaceToDance_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "NapToThink_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "NapToThink_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "NapToThink_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "NapThinking_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "NapThinking_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "NapThinking_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "NapThinking_planted_body_and_unchanged_panels",
+      "passed": true,
+      "lower_body_error": 0.0,
+      "panel_error": 0.0
+    },
+    {
+      "name": "NapThinkToBody_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "NapThinkToBody_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "NapThinkToBody_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "NapToFace_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "NapToFace_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "NapToFace_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "NapToFace_panels_retained_until_covered",
+      "passed": true,
+      "maximum_panel_error": 0.0,
+      "covered_frame": 31
+    },
+    {
+      "name": "NapToFace_nonnegative_helper_scale",
+      "passed": true,
+      "minimum_scale": 0.0
+    },
+    {
+      "name": "FaceToNap_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "FaceToNap_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "FaceToNap_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "TossToThink_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "TossToThink_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "TossToThink_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "TossThinking_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "TossThinking_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "TossThinking_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "TossThinking_planted_body_and_unchanged_panels",
+      "passed": true,
+      "lower_body_error": 0.0,
+      "panel_error": 0.0
+    },
+    {
+      "name": "TossThinkToBody_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "TossThinkToBody_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "TossThinkToBody_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "TossToFace_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "TossToFace_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "TossToFace_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "TossToFace_panels_retained_until_covered",
+      "passed": true,
+      "maximum_panel_error": 0.0,
+      "covered_frame": 31
+    },
+    {
+      "name": "TossToFace_nonnegative_helper_scale",
+      "passed": true,
+      "minimum_scale": 0.0
+    },
+    {
+      "name": "FaceToToss_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "FaceToToss_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "FaceToToss_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "WalkPaused_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "WalkPaused_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "WalkPaused_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "WalkToThink_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "WalkToThink_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "WalkToThink_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "WalkThinking_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "WalkThinking_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "WalkThinking_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "WalkThinking_planted_body_and_unchanged_panels",
+      "passed": true,
+      "lower_body_error": 0.0,
+      "panel_error": 0.0
+    },
+    {
+      "name": "WalkThinkToBody_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "WalkThinkToBody_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "WalkThinkToBody_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "WalkToFace_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "WalkToFace_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "WalkToFace_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "WalkToFace_panels_retained_until_covered",
+      "passed": true,
+      "maximum_panel_error": 0.0,
+      "covered_frame": 31
+    },
+    {
+      "name": "WalkToFace_nonnegative_helper_scale",
+      "passed": true,
+      "minimum_scale": 0.0
+    },
+    {
+      "name": "FaceToWalk_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "FaceToWalk_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "FaceToWalk_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "WalkReversePaused_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "WalkReversePaused_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "WalkReversePaused_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "WalkReverseToThink_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "WalkReverseToThink_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "WalkReverseToThink_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "WalkReverseThinking_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "WalkReverseThinking_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "WalkReverseThinking_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "WalkReverseThinking_planted_body_and_unchanged_panels",
+      "passed": true,
+      "lower_body_error": 0.0,
+      "panel_error": 0.0
+    },
+    {
+      "name": "WalkReverseThinkToBody_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "WalkReverseThinkToBody_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "WalkReverseThinkToBody_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "WalkReverseToFace_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "WalkReverseToFace_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "WalkReverseToFace_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "WalkReverseToFace_panels_retained_until_covered",
+      "passed": true,
+      "maximum_panel_error": 0.0,
+      "covered_frame": 31
+    },
+    {
+      "name": "WalkReverseToFace_nonnegative_helper_scale",
+      "passed": true,
+      "minimum_scale": 0.0
+    },
+    {
+      "name": "FaceToWalkReverse_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "FaceToWalkReverse_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "FaceToWalkReverse_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "BodyThinkToFace_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "BodyThinkToFace_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "BodyThinkToFace_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "BodyThinkToFace_panels_retained_until_covered",
+      "passed": true,
+      "maximum_panel_error": 0.0,
+      "covered_frame": 31
+    },
+    {
+      "name": "BodyThinkToFace_nonnegative_helper_scale",
+      "passed": true,
+      "minimum_scale": 0.0
+    },
+    {
+      "name": "FaceToBodyThink_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "FaceToBodyThink_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "FaceToBodyThink_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "RightToThink_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.1710750270366799,
+      "x_extent": [
+        -2.758172086934617,
+        -0.40099990367889404
+      ],
+      "closest_arm_head_sample": {
+        "frame": 32,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 2.1979212760925293e-07
+    },
+    {
+      "name": "RightThinking_body_clearance",
+      "passed": true,
+      "frames_checked": 120,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.033665320604279,
+      "x_extent": [
+        -2.788260575159679,
+        -0.37263609702902656
+      ],
+      "closest_arm_head_sample": {
+        "frame": 34,
+        "bone": "forearm.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "RightThinkToBody_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.1710750270366799,
+      "x_extent": [
+        -2.758172086934617,
+        -0.40099990367889404
+      ],
+      "closest_arm_head_sample": {
+        "frame": 1,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "LeftToThink_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.03499998897314072,
+      "minimum_arm_head_implicit_volume": 1.1710750059972272,
+      "x_extent": [
+        0.3418279369072409,
+        2.6990000009536743
+      ],
+      "closest_arm_head_sample": {
+        "frame": 32,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 2.384185791015625e-07
+    },
+    {
+      "name": "LeftThinking_body_clearance",
+      "passed": true,
+      "frames_checked": 120,
+      "minimum_floor_z": 0.03499998897314072,
+      "minimum_arm_head_implicit_volume": 1.0336653203094648,
+      "x_extent": [
+        0.31173932947288896,
+        2.727363807603542
+      ],
+      "closest_arm_head_sample": {
+        "frame": 34,
+        "bone": "forearm.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "LeftThinkToBody_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.03499998897314072,
+      "minimum_arm_head_implicit_volume": 1.1710750059972272,
+      "x_extent": [
+        0.3418279369072409,
+        2.6990000009536743
+      ],
+      "closest_arm_head_sample": {
+        "frame": 1,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.1920928955078125e-07
+    },
+    {
+      "name": "BothToThink_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.033000117848816624,
+      "minimum_arm_head_implicit_volume": 1.211260734420307,
+      "x_extent": [
+        -1.2081720154090434,
+        1.1490000486373901
+      ],
+      "closest_arm_head_sample": {
+        "frame": 32,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.7881393432617188e-07
+    },
+    {
+      "name": "BothThinking_body_clearance",
+      "passed": true,
+      "frames_checked": 120,
+      "minimum_floor_z": 0.033000241491329296,
+      "minimum_arm_head_implicit_volume": 1.0999674515866797,
+      "x_extent": [
+        -1.23826062874097,
+        1.17736385038105
+      ],
+      "closest_arm_head_sample": {
+        "frame": 11,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.7881393432617188e-07
+    },
+    {
+      "name": "BothThinkToBody_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.033000117848816624,
+      "minimum_arm_head_implicit_volume": 1.211260734420307,
+      "x_extent": [
+        -1.2081720154090434,
+        1.1490000486373901
+      ],
+      "closest_arm_head_sample": {
+        "frame": 1,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.7881393432617188e-07
+    },
+    {
+      "name": "SeatedLeftToThink_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.033000117848816624,
+      "minimum_arm_head_implicit_volume": 1.211260734420307,
+      "x_extent": [
+        -1.2081720154090434,
+        1.1490000486373901
+      ],
+      "closest_arm_head_sample": {
+        "frame": 32,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.7881393432617188e-07
+    },
+    {
+      "name": "SeatedLeftThinking_body_clearance",
+      "passed": true,
+      "frames_checked": 120,
+      "minimum_floor_z": 0.033000241491329296,
+      "minimum_arm_head_implicit_volume": 1.0999674515866797,
+      "x_extent": [
+        -1.23826062874097,
+        1.17736385038105
+      ],
+      "closest_arm_head_sample": {
+        "frame": 11,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.7881393432617188e-07
+    },
+    {
+      "name": "SeatedLeftThinkToBody_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.033000117848816624,
+      "minimum_arm_head_implicit_volume": 1.211260734420307,
+      "x_extent": [
+        -1.2081720154090434,
+        1.1490000486373901
+      ],
+      "closest_arm_head_sample": {
+        "frame": 1,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.7881393432617188e-07
+    },
+    {
+      "name": "SeatedRightToThink_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.033000117848816624,
+      "minimum_arm_head_implicit_volume": 1.211260734420307,
+      "x_extent": [
+        -1.2081720154090434,
+        1.1490000486373901
+      ],
+      "closest_arm_head_sample": {
+        "frame": 32,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.7881393432617188e-07
+    },
+    {
+      "name": "SeatedRightThinking_body_clearance",
+      "passed": true,
+      "frames_checked": 120,
+      "minimum_floor_z": 0.033000241491329296,
+      "minimum_arm_head_implicit_volume": 1.0999674515866797,
+      "x_extent": [
+        -1.23826062874097,
+        1.17736385038105
+      ],
+      "closest_arm_head_sample": {
+        "frame": 11,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.7881393432617188e-07
+    },
+    {
+      "name": "SeatedRightThinkToBody_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.033000117848816624,
+      "minimum_arm_head_implicit_volume": 1.211260734420307,
+      "x_extent": [
+        -1.2081720154090434,
+        1.1490000486373901
+      ],
+      "closest_arm_head_sample": {
+        "frame": 1,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.7881393432617188e-07
+    },
+    {
+      "name": "DanceToThink_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.03500000275671944,
+      "minimum_arm_head_implicit_volume": 1.2625444343532402,
+      "x_extent": [
+        -1.2827650849414516,
+        1.2867942797594623
+      ],
+      "closest_arm_head_sample": {
+        "frame": 32,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 2.384185791015625e-07
+    },
+    {
+      "name": "DanceThinking_body_clearance",
+      "passed": true,
+      "frames_checked": 120,
+      "minimum_floor_z": 0.035000004582112165,
+      "minimum_arm_head_implicit_volume": 1.1040006013772892,
+      "x_extent": [
+        -1.2372345517444927,
+        1.1782919776449732
+      ],
+      "closest_arm_head_sample": {
+        "frame": 34,
+        "bone": "forearm.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 2.384185791015625e-07
+    },
+    {
+      "name": "DanceThinkToBody_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.03500000275671944,
+      "minimum_arm_head_implicit_volume": 1.2625444343532402,
+      "x_extent": [
+        -1.2827650849414516,
+        1.2867942797594623
+      ],
+      "closest_arm_head_sample": {
+        "frame": 1,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 2.384185791015625e-07
+    },
+    {
+      "name": "NapToThink_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.03299934450035305,
+      "minimum_arm_head_implicit_volume": 1.1050476580529827,
+      "x_extent": [
+        -1.9465552050317678,
+        1.6008889694922868
+      ],
+      "closest_arm_head_sample": {
+        "frame": 21,
+        "bone": "forearm.R"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.7881393432617188e-07
+    },
+    {
+      "name": "NapThinking_body_clearance",
+      "passed": true,
+      "frames_checked": 120,
+      "minimum_floor_z": 0.03299934450035305,
+      "minimum_arm_head_implicit_volume": 1.0984688527479172,
+      "x_extent": [
+        -1.9469776100938117,
+        1.6008888883574321
+      ],
+      "closest_arm_head_sample": {
+        "frame": 90,
+        "bone": "forearm.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.7881393432617188e-07
+    },
+    {
+      "name": "NapThinkToBody_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.03299934450035305,
+      "minimum_arm_head_implicit_volume": 1.1050476580529827,
+      "x_extent": [
+        -1.9465552050317678,
+        1.6008889694922868
+      ],
+      "closest_arm_head_sample": {
+        "frame": 1,
+        "bone": "forearm.R"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 2.384185791015625e-07
+    },
+    {
+      "name": "TossToThink_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.034999994696119974,
+      "minimum_arm_head_implicit_volume": 1.1775612589854183,
+      "x_extent": [
+        -4.474999935219686,
+        -1.82644001737275
+      ],
+      "closest_arm_head_sample": {
+        "frame": 32,
+        "bone": "hand.R"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 4.76837158203125e-07
+    },
+    {
+      "name": "TossThinking_body_clearance",
+      "passed": true,
+      "frames_checked": 120,
+      "minimum_floor_z": 0.03500002402812408,
+      "minimum_arm_head_implicit_volume": 1.0490248307372632,
+      "x_extent": [
+        -4.465375976843264,
+        -1.8264402674551146
+      ],
+      "closest_arm_head_sample": {
+        "frame": 13,
+        "bone": "hand.R"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 2.384185791015625e-07
+    },
+    {
+      "name": "TossThinkToBody_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.034999994696119974,
+      "minimum_arm_head_implicit_volume": 1.1775612589854183,
+      "x_extent": [
+        -4.474999935219686,
+        -1.82644001737275
+      ],
+      "closest_arm_head_sample": {
+        "frame": 1,
+        "bone": "hand.R"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 4.76837158203125e-07
+    },
+    {
+      "name": "WalkToThink_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.03499965729191823,
+      "minimum_arm_head_implicit_volume": 1.2163812199339756,
+      "x_extent": [
+        2.0977070400277897,
+        4.182101968725461
+      ],
+      "closest_arm_head_sample": {
+        "frame": 32,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 2.384185791015625e-07
+    },
+    {
+      "name": "WalkThinking_body_clearance",
+      "passed": true,
+      "frames_checked": 120,
+      "minimum_floor_z": 0.03499968441668744,
+      "minimum_arm_head_implicit_volume": 1.1165810912154772,
+      "x_extent": [
+        1.977157729497995,
+        4.144486154803584
+      ],
+      "closest_arm_head_sample": {
+        "frame": 11,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 2.384185791015625e-07
+    },
+    {
+      "name": "WalkThinkToBody_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.03499965729191823,
+      "minimum_arm_head_implicit_volume": 1.2163812199339756,
+      "x_extent": [
+        2.0977070400277897,
+        4.182101968725461
+      ],
+      "closest_arm_head_sample": {
+        "frame": 1,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 4.76837158203125e-07
+    },
+    {
+      "name": "WalkReverseToThink_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.03499975034966618,
+      "minimum_arm_head_implicit_volume": 1.3904808161199396,
+      "x_extent": [
+        -4.162703465931557,
+        -2.2081754923859074
+      ],
+      "closest_arm_head_sample": {
+        "frame": 32,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.7881393432617188e-07
+    },
+    {
+      "name": "WalkReverseThinking_body_clearance",
+      "passed": true,
+      "frames_checked": 120,
+      "minimum_floor_z": 0.034999780149660265,
+      "minimum_arm_head_implicit_volume": 1.2262589909155606,
+      "x_extent": [
+        -4.2238974934721805,
+        -2.159166154612721
+      ],
+      "closest_arm_head_sample": {
+        "frame": 14,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 2.384185791015625e-07
+    },
+    {
+      "name": "WalkReverseThinkToBody_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.03499975034966618,
+      "minimum_arm_head_implicit_volume": 1.3904808161199396,
+      "x_extent": [
+        -4.162703465931557,
+        -2.2081754923859074
+      ],
+      "closest_arm_head_sample": {
+        "frame": 1,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 1.7881393432617188e-07
+    }
+  ],
+  "geometry_frames_checked": 1840
+}

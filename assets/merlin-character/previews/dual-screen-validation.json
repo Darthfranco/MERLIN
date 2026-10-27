@@ -1,0 +1,807 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-10-27T20:09:08.115719+00:00",
+  "blend_file": "merlin-states.blend",
+  "blend_sha256": "c2070a3d40cddab63988161b19a878402aa80d77c84720ec3ada6e0f7215f432",
+  "manifest_sha256": "252499f2c63739ad55b83fcf643b661d0f07ef6f9a6e350a5a2f2b983fcd01de",
+  "glb_checked": true,
+  "blender_version": "4.0.2",
+  "checks": [
+    {
+      "name": "all_original_and_nine_dual_manifest_clips",
+      "passed": true,
+      "actual": 113,
+      "missing": [],
+      "additional_clips": [
+        "BodyThinkToFace",
+        "BothThinkToBody",
+        "BothThinking",
+        "BothToFace",
+        "BothToThink",
+        "CeilingIdle",
+        "CeilingThinkToBody",
+        "CeilingThinking",
+        "CeilingToFace",
+        "CeilingToLeftPanel",
+        "CeilingToReady",
+        "CeilingToRightPanel",
+        "CeilingToThink",
+        "DanceThinkToBody",
+        "DanceThinking",
+        "DanceToFace",
+        "DanceToThink",
+        "FaceToBodyThink",
+        "FaceToBoth",
+        "FaceToCeiling",
+        "FaceToDance",
+        "FaceToLeft",
+        "FaceToNap",
+        "FaceToRight",
+        "FaceToSeatedLeft",
+        "FaceToSeatedRight",
+        "FaceToToss",
+        "FaceToWalk",
+        "FaceToWalkReverse",
+        "LeftThinkToBody",
+        "LeftThinking",
+        "LeftToFace",
+        "LeftToThink",
+        "NapThinkToBody",
+        "NapThinking",
+        "NapToFace",
+        "NapToThink",
+        "ReadyToCeiling",
+        "ReadyToWalkWhistleReverse",
+        "RightThinkToBody",
+        "RightThinking",
+        "RightToFace",
+        "RightToThink",
+        "SeatedLeftThinkToBody",
+        "SeatedLeftThinking",
+        "SeatedLeftToFace",
+        "SeatedLeftToThink",
+        "SeatedRightThinkToBody",
+        "SeatedRightThinking",
+        "SeatedRightToFace",
+        "SeatedRightToThink",
+        "TossThinkToBody",
+        "TossThinking",
+        "TossToFace",
+        "TossToThink",
+        "WalkPaused",
+        "WalkReversePaused",
+        "WalkReverseThinkToBody",
+        "WalkReverseThinking",
+        "WalkReverseToFace",
+        "WalkReverseToThink",
+        "WalkThinkToBody",
+        "WalkThinking",
+        "WalkToFace",
+        "WalkToThink",
+        "WalkWhistleReverse",
+        "WalkWhistleReverseToReady"
+      ]
+    },
+    {
+      "name": "exactly_98_unique_synchronized_owners",
+      "passed": true
+    },
+    {
+      "name": "new_actions_complete_finite_and_synchronized",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "original_15_bones_unit_rig_24fps_four_by_three",
+      "passed": true
+    },
+    {
+      "name": "original_resources_unchanged",
+      "passed": true
+    },
+    {
+      "name": "original_geometry_unchanged",
+      "passed": true
+    },
+    {
+      "name": "original_owners_unchanged",
+      "passed": true
+    },
+    {
+      "name": "original_screens_unchanged",
+      "passed": true
+    },
+    {
+      "name": "all_37_original_clips_and_companions_unchanged",
+      "passed": true,
+      "clips": 37,
+      "actions": 3626,
+      "changed_actions": []
+    },
+    {
+      "name": "original_manifest_clip_metadata_unchanged",
+      "passed": true
+    },
+    {
+      "name": "original_manifest_camera_unchanged",
+      "passed": true
+    },
+    {
+      "name": "original_manifest_screens_unchanged",
+      "passed": true
+    },
+    {
+      "name": "original_manifest_lighting_unchanged",
+      "passed": true
+    },
+    {
+      "name": "ReadyToBothPanels_source_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "ReadyIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "ReadyToBothPanels_target_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "BothPanelsIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "BothPanelsIdle_source_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "BothPanelsIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "BothPanelsIdle_target_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "BothPanelsIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "BothToLeftPanel_source_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "BothPanelsIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "BothToLeftPanel_target_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "SeatedLeftPanelIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "BothToRightPanel_source_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "BothPanelsIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "BothToRightPanel_target_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "SeatedRightPanelIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "SeatedLeftPanelIdle_source_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "SeatedLeftPanelIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "SeatedLeftPanelIdle_target_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "SeatedLeftPanelIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "SeatedRightPanelIdle_source_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "SeatedRightPanelIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "SeatedRightPanelIdle_target_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "SeatedRightPanelIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "SeatedLeftToReady_source_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "SeatedLeftPanelIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "SeatedLeftToReady_target_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "ReadyIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "SeatedRightToReady_source_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "SeatedRightPanelIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "SeatedRightToReady_target_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "ReadyIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "BothPanelsToReady_source_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "BothPanelsIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "BothPanelsToReady_target_continuous",
+      "passed": true,
+      "maximum_error": 0.0,
+      "reference": [
+        "ReadyIdle",
+        1
+      ],
+      "errors": []
+    },
+    {
+      "name": "BothPanelsIdle_seamless_loop",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "SeatedLeftPanelIdle_seamless_loop",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "SeatedRightPanelIdle_seamless_loop",
+      "passed": true,
+      "maximum_error": 0.0,
+      "errors": []
+    },
+    {
+      "name": "seated_body_lower_than_ready",
+      "passed": true,
+      "root_drop": 0.6932805180549622
+    },
+    {
+      "name": "BothToLeftPanel_retained_screen_held_and_textured",
+      "passed": true,
+      "maximum_matrix_error": 0.0,
+      "visibility_errors": []
+    },
+    {
+      "name": "BothToLeftPanel_dismissed_screen_fully_hidden",
+      "passed": true,
+      "still_visible": []
+    },
+    {
+      "name": "BothToLeftPanel_body_stays_seated",
+      "passed": true,
+      "maximum_root_distance": 0.0
+    },
+    {
+      "name": "BothToRightPanel_retained_screen_held_and_textured",
+      "passed": true,
+      "maximum_matrix_error": 0.0,
+      "visibility_errors": []
+    },
+    {
+      "name": "BothToRightPanel_dismissed_screen_fully_hidden",
+      "passed": true,
+      "still_visible": []
+    },
+    {
+      "name": "BothToRightPanel_body_stays_seated",
+      "passed": true,
+      "maximum_root_distance": 0.0
+    },
+    {
+      "name": "SeatedLeftToReady_both_screens_fully_hidden",
+      "passed": true,
+      "still_visible": []
+    },
+    {
+      "name": "SeatedRightToReady_both_screens_fully_hidden",
+      "passed": true,
+      "still_visible": []
+    },
+    {
+      "name": "BothPanelsToReady_both_screens_fully_hidden",
+      "passed": true,
+      "still_visible": []
+    },
+    {
+      "name": "BothPanelsIdle_correct_screens_visible",
+      "passed": true,
+      "sides": [
+        "left",
+        "right"
+      ],
+      "fragments": []
+    },
+    {
+      "name": "SeatedLeftPanelIdle_correct_screens_visible",
+      "passed": true,
+      "sides": [
+        "left"
+      ],
+      "fragments": []
+    },
+    {
+      "name": "SeatedRightPanelIdle_correct_screens_visible",
+      "passed": true,
+      "sides": [
+        "right"
+      ],
+      "fragments": []
+    },
+    {
+      "name": "ReadyToBothPanels_body_floor_wall_and_scale_clearance",
+      "passed": true,
+      "minimum_floor_z": 0.03299995570996739,
+      "x_extent": [
+        -4.475000486439425,
+        4.475000504896812
+      ],
+      "maximum_scale_error": 2.980232238769531e-07
+    },
+    {
+      "name": "BothPanelsIdle_body_floor_wall_and_scale_clearance",
+      "passed": true,
+      "minimum_floor_z": 0.033000083659140644,
+      "x_extent": [
+        -1.1645773838566704,
+        1.1645773838566704
+      ],
+      "maximum_scale_error": 4.172325134277344e-07
+    },
+    {
+      "name": "BothToLeftPanel_body_floor_wall_and_scale_clearance",
+      "passed": true,
+      "minimum_floor_z": 0.033000083659140644,
+      "x_extent": [
+        -1.2003779419191525,
+        1.5514833172673645
+      ],
+      "maximum_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "BothToRightPanel_body_floor_wall_and_scale_clearance",
+      "passed": true,
+      "minimum_floor_z": 0.033000083659140644,
+      "x_extent": [
+        -1.5514833172673645,
+        1.2003779419191525
+      ],
+      "maximum_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "SeatedLeftPanelIdle_body_floor_wall_and_scale_clearance",
+      "passed": true,
+      "minimum_floor_z": 0.033000083659140644,
+      "x_extent": [
+        -1.1645773838566704,
+        1.1645773838566704
+      ],
+      "maximum_scale_error": 4.172325134277344e-07
+    },
+    {
+      "name": "SeatedRightPanelIdle_body_floor_wall_and_scale_clearance",
+      "passed": true,
+      "minimum_floor_z": 0.033000083659140644,
+      "x_extent": [
+        -1.1645773838566704,
+        1.1645773838566704
+      ],
+      "maximum_scale_error": 4.172325134277344e-07
+    },
+    {
+      "name": "SeatedLeftToReady_body_floor_wall_and_scale_clearance",
+      "passed": true,
+      "minimum_floor_z": 0.03299995365441727,
+      "x_extent": [
+        -1.5514833172673645,
+        1.2003779419191525
+      ],
+      "maximum_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "SeatedRightToReady_body_floor_wall_and_scale_clearance",
+      "passed": true,
+      "minimum_floor_z": 0.03299995365441727,
+      "x_extent": [
+        -1.2003779419191525,
+        1.5514833172673645
+      ],
+      "maximum_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "BothPanelsToReady_body_floor_wall_and_scale_clearance",
+      "passed": true,
+      "minimum_floor_z": 0.03299995365441727,
+      "x_extent": [
+        -1.5514833172673645,
+        1.5514833172673645
+      ],
+      "maximum_scale_error": 2.384185791015625e-07
+    },
+    {
+      "name": "seated_robot_between_two_separate_cards",
+      "passed": true,
+      "left_bounds": [
+        [
+          -4.710000038146973,
+          -1.4800000190734863
+        ],
+        [
+          -0.16343379020690918,
+          1.0434337854385376
+        ],
+        [
+          0.8024759888648987,
+          4.497524261474609
+        ]
+      ],
+      "right_bounds": [
+        [
+          1.4800000190734863,
+          4.710000038146973
+        ],
+        [
+          -0.16343379020690918,
+          1.0434337854385376
+        ],
+        [
+          0.8024759888648987,
+          4.497524261474609
+        ]
+      ],
+      "robot_x_extent": [
+        -1.1490000486373901,
+        1.1490000486373901
+      ]
+    },
+    {
+      "name": "both_seated_cards_inside_camera_and_above_floor",
+      "passed": true,
+      "framing": [
+        {
+          "card": "MERLIN_LeftPanel",
+          "x": [
+            0.03823528066277504,
+            0.3549019694328308
+          ],
+          "y": [
+            0.28296956419944763,
+            0.7896361947059631
+          ],
+          "front": true
+        },
+        {
+          "card": "Panel \u2022 white card",
+          "x": [
+            0.6450980305671692,
+            0.9617646932601929
+          ],
+          "y": [
+            0.28296956419944763,
+            0.7896361947059631
+          ],
+          "front": true
+        }
+      ]
+    },
+    {
+      "name": "three_editable_screen_ids",
+      "passed": true,
+      "nodes": {
+        "right": [
+          "Panel \u2022 white card",
+          "Panel \u2022 fragment 01",
+          "Panel \u2022 fragment 02",
+          "Panel \u2022 fragment 03",
+          "Panel \u2022 fragment 04",
+          "Panel \u2022 fragment 05",
+          "Panel \u2022 fragment 06",
+          "Panel \u2022 fragment 07",
+          "Panel \u2022 fragment 08",
+          "Panel \u2022 fragment 09",
+          "Panel \u2022 fragment 10",
+          "Panel \u2022 fragment 11",
+          "Panel \u2022 fragment 12",
+          "Panel \u2022 fragment 13",
+          "Panel \u2022 fragment 14",
+          "Panel \u2022 fragment 15",
+          "Panel \u2022 fragment 16",
+          "Panel \u2022 fragment 17",
+          "Panel \u2022 fragment 18",
+          "Panel \u2022 fragment 19",
+          "Panel \u2022 fragment 20",
+          "Panel \u2022 fragment 21",
+          "Panel \u2022 fragment 22",
+          "Panel \u2022 fragment 23",
+          "Panel \u2022 fragment 24",
+          "Panel \u2022 fragment 25",
+          "Panel \u2022 fragment 26",
+          "Panel \u2022 fragment 27",
+          "Panel \u2022 fragment 28",
+          "Panel \u2022 fragment 29",
+          "Panel \u2022 fragment 30"
+        ],
+        "left": [
+          "MERLIN_LeftFragment_01",
+          "MERLIN_LeftFragment_02",
+          "MERLIN_LeftFragment_03",
+          "MERLIN_LeftFragment_04",
+          "MERLIN_LeftFragment_05",
+          "MERLIN_LeftFragment_06",
+          "MERLIN_LeftFragment_07",
+          "MERLIN_LeftFragment_08",
+          "MERLIN_LeftFragment_09",
+          "MERLIN_LeftFragment_10",
+          "MERLIN_LeftFragment_11",
+          "MERLIN_LeftFragment_12",
+          "MERLIN_LeftFragment_13",
+          "MERLIN_LeftFragment_14",
+          "MERLIN_LeftFragment_15",
+          "MERLIN_LeftFragment_16",
+          "MERLIN_LeftFragment_17",
+          "MERLIN_LeftFragment_18",
+          "MERLIN_LeftFragment_19",
+          "MERLIN_LeftFragment_20",
+          "MERLIN_LeftFragment_21",
+          "MERLIN_LeftFragment_22",
+          "MERLIN_LeftFragment_23",
+          "MERLIN_LeftFragment_24",
+          "MERLIN_LeftFragment_25",
+          "MERLIN_LeftFragment_26",
+          "MERLIN_LeftFragment_27",
+          "MERLIN_LeftFragment_28",
+          "MERLIN_LeftFragment_29",
+          "MERLIN_LeftFragment_30",
+          "MERLIN_LeftPanel"
+        ],
+        "camera": [
+          "Face state \u2022 camera screen"
+        ]
+      }
+    },
+    {
+      "name": "all_screen_front_materials_uvs_and_embedded_images_valid",
+      "passed": true,
+      "errors": [],
+      "error_count": 0
+    },
+    {
+      "name": "screen_node_counts",
+      "passed": true,
+      "counts": {
+        "right": 31,
+        "left": 31,
+        "camera": 1
+      }
+    },
+    {
+      "name": "manifest_screen_ids_match_scene",
+      "passed": true
+    },
+    {
+      "name": "unrelated_presentation_helpers_hidden",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "name": "reverse_walk_reflects_forward_gait_and_duration",
+      "passed": true,
+      "sampled_poses": 7,
+      "maximum_matrix_error": 7.152557373046875e-07,
+      "errors": []
+    },
+    {
+      "name": "ReadyToWalkWhistleReverse_1_continuous",
+      "passed": true,
+      "maximum_error": 5.960464477539063e-08,
+      "errors": []
+    },
+    {
+      "name": "ReadyToWalkWhistleReverse_96_continuous",
+      "passed": true,
+      "maximum_error": 4.76837158203125e-07,
+      "errors": []
+    },
+    {
+      "name": "WalkWhistleReverseToReady_1_continuous",
+      "passed": true,
+      "maximum_error": 4.76837158203125e-07,
+      "errors": []
+    },
+    {
+      "name": "WalkWhistleReverseToReady_108_continuous",
+      "passed": true,
+      "maximum_error": 5.960464477539063e-08,
+      "errors": []
+    },
+    {
+      "name": "export_all_manifest_clips",
+      "passed": true,
+      "actual": 113
+    },
+    {
+      "name": "export_original_37_animations_and_resources_preserved",
+      "passed": true
+    },
+    {
+      "name": "export_new_channels_times_and_values_valid",
+      "passed": true,
+      "channels": {
+        "ReadyToBothPanels": 325,
+        "BothPanelsIdle": 325,
+        "BothToLeftPanel": 325,
+        "BothToRightPanel": 325,
+        "SeatedLeftPanelIdle": 325,
+        "SeatedRightPanelIdle": 325,
+        "SeatedLeftToReady": 325,
+        "SeatedRightToReady": 325,
+        "BothPanelsToReady": 325
+      },
+      "errors": []
+    }
+  ],
+  "measurements": {
+    "geometry": {
+      "ReadyToBothPanels": {
+        "frames_checked": 288,
+        "floor_min": 0.03299995570996739,
+        "x_extent": [
+          -4.475000486439425,
+          4.475000504896812
+        ]
+      },
+      "BothPanelsIdle": {
+        "frames_checked": 96,
+        "floor_min": 0.033000083659140644,
+        "x_extent": [
+          -1.1645773838566704,
+          1.1645773838566704
+        ]
+      },
+      "BothToLeftPanel": {
+        "frames_checked": 72,
+        "floor_min": 0.033000083659140644,
+        "x_extent": [
+          -1.2003779419191525,
+          1.5514833172673645
+        ]
+      },
+      "BothToRightPanel": {
+        "frames_checked": 72,
+        "floor_min": 0.033000083659140644,
+        "x_extent": [
+          -1.5514833172673645,
+          1.2003779419191525
+        ]
+      },
+      "SeatedLeftPanelIdle": {
+        "frames_checked": 96,
+        "floor_min": 0.033000083659140644,
+        "x_extent": [
+          -1.1645773838566704,
+          1.1645773838566704
+        ]
+      },
+      "SeatedRightPanelIdle": {
+        "frames_checked": 96,
+        "floor_min": 0.033000083659140644,
+        "x_extent": [
+          -1.1645773838566704,
+          1.1645773838566704
+        ]
+      },
+      "SeatedLeftToReady": {
+        "frames_checked": 132,
+        "floor_min": 0.03299995365441727,
+        "x_extent": [
+          -1.5514833172673645,
+          1.2003779419191525
+        ]
+      },
+      "SeatedRightToReady": {
+        "frames_checked": 132,
+        "floor_min": 0.03299995365441727,
+        "x_extent": [
+          -1.2003779419191525,
+          1.5514833172673645
+        ]
+      },
+      "BothPanelsToReady": {
+        "frames_checked": 132,
+        "floor_min": 0.03299995365441727,
+        "x_extent": [
+          -1.5514833172673645,
+          1.5514833172673645
+        ]
+      }
+    }
+  },
+  "limitations": [
+    "Integer-frame body geometry and clip endpoints are checked; numerical checks complement visual review.",
+    "No live device connection, service activation or performance benchmark is claimed."
+  ],
+  "passed": true,
+  "failed_checks": [],
+  "glb_sha256": "65123c9c5e1301ae3942678db16f56bbceabce0ddb1b51e879cfc3e4d338afa3"
+}

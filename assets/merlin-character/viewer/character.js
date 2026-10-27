@@ -4,7 +4,8 @@ import { EffectComposer } from './vendor/three/examples/jsm/postprocessing/Effec
 import { RenderPass } from './vendor/three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from './vendor/three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from './vendor/three/examples/jsm/postprocessing/OutputPass.js';
-import { collectScreens } from './screens.js';
+import { collectScreens, syncScreenAspect } from './screens.js';
+import { ScreenHandoff } from './screen-layout.js';
 import { MotionController } from './motion.js';
 import { SceneClock } from './scene-clock.js';
 import { PANEL_TYPES, paintPanel, loadPanelArt } from './panels/render.js';
@@ -111,7 +112,7 @@ function lineage(state, states) {
 }
 const isFaceState = (state, states) => lineage(state, states).includes('face');
 function visiblePanels(controller) {
-  const layouts = {left: ['left'], right: ['right'], both: ['left', 'right'], seatedLeft: ['left'], seatedRight: ['right']};
+  const layouts = {left: ['left'], right: ['right'], both: ['left', 'right'], seatedLeft: ['left'], seatedRight: ['right'], ceiling: ['right']};
   const states = [controller.current, ...(controller.phase === 'idle' ? [] : [controller.arrival])];
   return new Set(states.flatMap(state => {
     if (isFaceState(state, controller.states)) return [];
@@ -124,6 +125,13 @@ function visiblePanels(controller) {
 export function createCharacterDriver({controller, screens, panelArt = {}, reducedMotion = false, onStatus = () => {}, invalidate = () => {}}) {
   let wanted = 'ready', destroyed = false, lastSide = 'right', speaking = 0, listening = false, transitionPace = 1;
   const panels = {left: null, right: null}; let panelPaints = 0;
+  const handoff = typeof screens.left?.copyFrom === 'function' && screens.right ? new ScreenHandoff(screens, () => {
+    // The left texture needs its own record so live polling follows the card,
+    // while later edits to the retained right record remain independent.
+    const source = panels.right;
+    panels.left = source ? {type: source.type, side: 'left', data: source.data} : null;
+    lastSide = 'left'; refreshPanels(['left']); invalidate();
+  }) : null;
   const capabilities = Object.freeze({states: Object.freeze(Object.keys(controller.states)),
     routes: Object.freeze((controller.routes || []).map(route => Object.freeze({...route}))), procedural: Object.freeze(['sweep'])});
   const waiters = new Set();
@@ -134,6 +142,7 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     waiter.resolve(result);
   };
   function motionChanged() {
+    handoff?.sync(controller.clip);
     invalidate();
     // The shared controller may resolve context-sensitive thought/face routes.
     if (!(wanted === 'sweep' && controller.desired === 'ready')) wanted = controller.desired;
@@ -155,6 +164,8 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     if (urgent || reducedMotion) {
       const pending = controller.phase === 'idle' ? controller.current : controller.arrival;
       if (isFaceState(destination, controller.states) && !isFaceState(pending, controller.states)) controller.bodyContext = controller.states[pending]?.rest || pending;
+      const source = isFaceState(pending, controller.states) ? controller.bodyContext : pending;
+      if (lineage(source, controller.states).includes('ceiling') && lineage(destination, controller.states).includes('left')) handoff?.sync('CeilingToLeftPanel');
       controller.snap(destination, {paused: reducedMotion});
     } else if (destination === 'ready' && controller.ready) controller.ready();
     else controller.go(destination);
@@ -191,7 +202,7 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     return readPanel(panel);
   }
   function refreshPanels(sides = ['left', 'right']) {
-    let changed = false;
+    let changed = false, sourceChanged = false;
     for (const side of sides) {
       const panel = panels[side]; if (!panel) continue;
       const snapshot = readPanel(panel);
@@ -202,11 +213,12 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
       if (signature === panel.signature) continue;
       panel.snapshot = snapshot; panel.signature = signature;
       if (!panel.initialized) {
-        screens[side].draw((context, width, height) => paintPanel(context, width, height, panel.snapshot, {art: panelArt, controls: false}), {animate: true});
+        screens[side].draw((context, width, height) => paintPanel(context, width, height, panel.snapshot, {art: panelArt, controls: false}), {animate: true, reflow: false});
         panel.initialized = true;
       } else screens[side].tick(0);
-      panelPaints++; changed = true;
+      panelPaints++; changed = true; if (side === 'right') sourceChanged = true;
     }
+    handoff?.sync(controller.clip, sourceChanged);
     if (changed) invalidate(); return changed;
   }
   function clearPanel(side) {
@@ -218,8 +230,12 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     }
     invalidate(); return true;
   }
+  function syncScreens() {
+    handoff?.sync(controller.clip);
+    for (const side of visiblePanels(controller)) if (screens[side]) syncScreenAspect(screens[side]);
+  }
   return {
-    go, showPanel, updatePanel, clearPanel, refreshPanels, motionChanged, capabilities,
+    go, showPanel, updatePanel, clearPanel, refreshPanels, syncScreens, motionChanged, capabilities,
     setSpeaking(level) { speaking = Number.isFinite(level) ? Math.max(0, Math.min(1, level)) : level === true ? .5 : 0; },
     setListening(value) { listening = Boolean(value); },
     get state() { return state(); }, get desired() { return wanted; }, get phase() { return controller.phase; },
@@ -419,6 +435,7 @@ export async function createCharacter({canvas, stage, onStatus = () => {}, onErr
       speech.update(elapsed, driver.speaking, driver.state === 'face' && !driver.reducedMotion,
         ['ready', 'right', 'left', 'both', 'seatedLeft', 'seatedRight'].includes(driver.state) && !driver.reducedMotion);
       model.updateMatrixWorld(true);
+      driver.syncScreens();
       const fullFace = isFaceState(controller.current, controller.states) && controller.phase === 'idle';
       renderStats.visibleMeshes = cullMeshes(fullFace);
       for (const {foot, glow} of feet) { foot.getWorldPosition(glow.position); glow.position.y = .12; }

@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "fps": 24,
   "initial": "ready",
   "states": {
@@ -83,7 +83,157 @@
       "enter": "ReadyToWalkWhistle",
       "idle": "WalkWhistle",
       "exit": "WalkWhistleToReady",
+      "parent": "ready",
+      "rest": "walkRest"
+    },
+    "both": {
+      "label": "Both screens \u00b7 seated",
+      "enter": "ReadyToBothPanels",
+      "idle": "BothPanelsIdle",
+      "exit": "BothPanelsToReady",
       "parent": "ready"
+    },
+    "seatedLeft": {
+      "label": "Left screen \u00b7 seated",
+      "idle": "SeatedLeftPanelIdle",
+      "exit": "SeatedLeftToReady",
+      "exitTo": "ready",
+      "parent": "both"
+    },
+    "seatedRight": {
+      "label": "Right screen \u00b7 seated",
+      "idle": "SeatedRightPanelIdle",
+      "exit": "SeatedRightToReady",
+      "exitTo": "ready",
+      "parent": "both"
+    },
+    "walkReverse": {
+      "label": "Walk & whistle \u00b7 right to left",
+      "enter": "ReadyToWalkWhistleReverse",
+      "idle": "WalkWhistleReverse",
+      "exit": "WalkWhistleReverseToReady",
+      "parent": "ready",
+      "rest": "walkReverseRest"
+    },
+    "rightThink": {
+      "label": "right \u00b7 thinking",
+      "enter": "RightToThink",
+      "idle": "RightThinking",
+      "exit": "RightThinkToBody",
+      "parent": "right",
+      "bodyContext": "right",
+      "contextualThinking": true
+    },
+    "leftThink": {
+      "label": "left \u00b7 thinking",
+      "enter": "LeftToThink",
+      "idle": "LeftThinking",
+      "exit": "LeftThinkToBody",
+      "parent": "left",
+      "bodyContext": "left",
+      "contextualThinking": true
+    },
+    "bothThink": {
+      "label": "both \u00b7 thinking",
+      "enter": "BothToThink",
+      "idle": "BothThinking",
+      "exit": "BothThinkToBody",
+      "parent": "both",
+      "bodyContext": "both",
+      "contextualThinking": true
+    },
+    "seatedLeftThink": {
+      "label": "Seated Left \u00b7 thinking",
+      "enter": "SeatedLeftToThink",
+      "idle": "SeatedLeftThinking",
+      "exit": "SeatedLeftThinkToBody",
+      "parent": "seatedLeft",
+      "bodyContext": "seatedLeft",
+      "contextualThinking": true
+    },
+    "seatedRightThink": {
+      "label": "Seated Right \u00b7 thinking",
+      "enter": "SeatedRightToThink",
+      "idle": "SeatedRightThinking",
+      "exit": "SeatedRightThinkToBody",
+      "parent": "seatedRight",
+      "bodyContext": "seatedRight",
+      "contextualThinking": true
+    },
+    "danceThink": {
+      "label": "dance \u00b7 thinking",
+      "enter": "DanceToThink",
+      "idle": "DanceThinking",
+      "exit": "DanceThinkToBody",
+      "parent": "dance",
+      "bodyContext": "dance",
+      "contextualThinking": true
+    },
+    "napThink": {
+      "label": "nap \u00b7 thinking",
+      "enter": "NapToThink",
+      "idle": "NapThinking",
+      "exit": "NapThinkToBody",
+      "parent": "nap",
+      "bodyContext": "nap",
+      "contextualThinking": true
+    },
+    "tossThink": {
+      "label": "toss \u00b7 thinking",
+      "enter": "TossToThink",
+      "idle": "TossThinking",
+      "exit": "TossThinkToBody",
+      "parent": "toss",
+      "bodyContext": "toss",
+      "contextualThinking": true
+    },
+    "walkRest": {
+      "label": "Walk endpoint",
+      "idle": "WalkPaused",
+      "exit": "WalkWhistleToReady",
+      "parent": "ready",
+      "bodyContext": "walkRest"
+    },
+    "walkThink": {
+      "label": "walk \u00b7 thinking",
+      "enter": "WalkToThink",
+      "idle": "WalkThinking",
+      "exit": "WalkThinkToBody",
+      "parent": "walkRest",
+      "bodyContext": "walkRest",
+      "contextualThinking": true
+    },
+    "walkReverseRest": {
+      "label": "Reverse walk endpoint",
+      "idle": "WalkReversePaused",
+      "exit": "WalkWhistleReverseToReady",
+      "parent": "ready",
+      "bodyContext": "walkReverseRest"
+    },
+    "walkReverseThink": {
+      "label": "walkReverse \u00b7 thinking",
+      "enter": "WalkReverseToThink",
+      "idle": "WalkReverseThinking",
+      "exit": "WalkReverseThinkToBody",
+      "parent": "walkReverseRest",
+      "bodyContext": "walkReverseRest",
+      "contextualThinking": true
+    },
+    "ceiling": {
+      "label": "Ceiling screen",
+      "enter": "ReadyToCeiling",
+      "idle": "CeilingIdle",
+      "exit": "CeilingToReady",
+      "parent": "ready"
+    },
+    "ceilingThink": {
+      "label": "ceiling \u00b7 thinking",
+      "enter": "CeilingToThink",
+      "idle": "CeilingThinking",
+      "exit": "CeilingThinkToBody",
+      "parent": "ceiling",
+      "bodyContext": "ceiling",
+      "contextualThinking": true
     }
   },
   "clips": {
@@ -344,6 +494,538 @@
       "source": "FaceSearch",
       "source_frame": 1,
       "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "ReadyToBothPanels": {
+      "frames": 288,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "BothPanelsIdle",
+      "target_frame": 1
+    },
+    "BothPanelsIdle": {
+      "frames": 96,
+      "source": "BothPanelsIdle",
+      "source_frame": 1,
+      "target": "BothPanelsIdle",
+      "target_frame": 1
+    },
+    "BothToLeftPanel": {
+      "frames": 72,
+      "source": "BothPanelsIdle",
+      "source_frame": 1,
+      "target": "SeatedLeftPanelIdle",
+      "target_frame": 1
+    },
+    "BothToRightPanel": {
+      "frames": 72,
+      "source": "BothPanelsIdle",
+      "source_frame": 1,
+      "target": "SeatedRightPanelIdle",
+      "target_frame": 1
+    },
+    "SeatedLeftPanelIdle": {
+      "frames": 96,
+      "source": "SeatedLeftPanelIdle",
+      "source_frame": 1,
+      "target": "SeatedLeftPanelIdle",
+      "target_frame": 1
+    },
+    "SeatedRightPanelIdle": {
+      "frames": 96,
+      "source": "SeatedRightPanelIdle",
+      "source_frame": 1,
+      "target": "SeatedRightPanelIdle",
+      "target_frame": 1
+    },
+    "SeatedLeftToReady": {
+      "frames": 132,
+      "source": "SeatedLeftPanelIdle",
+      "source_frame": 1,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "SeatedRightToReady": {
+      "frames": 132,
+      "source": "SeatedRightPanelIdle",
+      "source_frame": 1,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "BothPanelsToReady": {
+      "frames": 132,
+      "source": "BothPanelsIdle",
+      "source_frame": 1,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "ReadyToWalkWhistleReverse": {
+      "frames": 96,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "WalkWhistleReverse",
+      "target_frame": 1
+    },
+    "WalkWhistleReverse": {
+      "frames": 192,
+      "source": "WalkWhistleReverse",
+      "source_frame": 1,
+      "target": "WalkWhistleReverse",
+      "target_frame": 192
+    },
+    "WalkWhistleReverseToReady": {
+      "frames": 108,
+      "source": "WalkWhistleReverse",
+      "source_frame": 192,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "RightToThink": {
+      "frames": 32,
+      "source": "PanelIdle",
+      "source_frame": 1,
+      "target": "RightThinking",
+      "target_frame": 1
+    },
+    "RightThinking": {
+      "frames": 120,
+      "source": "RightThinking",
+      "source_frame": 1,
+      "target": "RightThinking",
+      "target_frame": 1
+    },
+    "RightThinkToBody": {
+      "frames": 32,
+      "source": "RightThinking",
+      "source_frame": 1,
+      "target": "PanelIdle",
+      "target_frame": 1
+    },
+    "RightToFace": {
+      "frames": 40,
+      "source": "PanelIdle",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToRight": {
+      "frames": 40,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "PanelIdle",
+      "target_frame": 1
+    },
+    "LeftToThink": {
+      "frames": 32,
+      "source": "LeftPanelIdle",
+      "source_frame": 1,
+      "target": "LeftThinking",
+      "target_frame": 1
+    },
+    "LeftThinking": {
+      "frames": 120,
+      "source": "LeftThinking",
+      "source_frame": 1,
+      "target": "LeftThinking",
+      "target_frame": 1
+    },
+    "LeftThinkToBody": {
+      "frames": 32,
+      "source": "LeftThinking",
+      "source_frame": 1,
+      "target": "LeftPanelIdle",
+      "target_frame": 1
+    },
+    "LeftToFace": {
+      "frames": 40,
+      "source": "LeftPanelIdle",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToLeft": {
+      "frames": 40,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "LeftPanelIdle",
+      "target_frame": 1
+    },
+    "BothToThink": {
+      "frames": 32,
+      "source": "BothPanelsIdle",
+      "source_frame": 1,
+      "target": "BothThinking",
+      "target_frame": 1
+    },
+    "BothThinking": {
+      "frames": 120,
+      "source": "BothThinking",
+      "source_frame": 1,
+      "target": "BothThinking",
+      "target_frame": 1
+    },
+    "BothThinkToBody": {
+      "frames": 32,
+      "source": "BothThinking",
+      "source_frame": 1,
+      "target": "BothPanelsIdle",
+      "target_frame": 1
+    },
+    "BothToFace": {
+      "frames": 40,
+      "source": "BothPanelsIdle",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToBoth": {
+      "frames": 40,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "BothPanelsIdle",
+      "target_frame": 1
+    },
+    "SeatedLeftToThink": {
+      "frames": 32,
+      "source": "SeatedLeftPanelIdle",
+      "source_frame": 1,
+      "target": "SeatedLeftThinking",
+      "target_frame": 1
+    },
+    "SeatedLeftThinking": {
+      "frames": 120,
+      "source": "SeatedLeftThinking",
+      "source_frame": 1,
+      "target": "SeatedLeftThinking",
+      "target_frame": 1
+    },
+    "SeatedLeftThinkToBody": {
+      "frames": 32,
+      "source": "SeatedLeftThinking",
+      "source_frame": 1,
+      "target": "SeatedLeftPanelIdle",
+      "target_frame": 1
+    },
+    "SeatedLeftToFace": {
+      "frames": 40,
+      "source": "SeatedLeftPanelIdle",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToSeatedLeft": {
+      "frames": 40,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "SeatedLeftPanelIdle",
+      "target_frame": 1
+    },
+    "SeatedRightToThink": {
+      "frames": 32,
+      "source": "SeatedRightPanelIdle",
+      "source_frame": 1,
+      "target": "SeatedRightThinking",
+      "target_frame": 1
+    },
+    "SeatedRightThinking": {
+      "frames": 120,
+      "source": "SeatedRightThinking",
+      "source_frame": 1,
+      "target": "SeatedRightThinking",
+      "target_frame": 1
+    },
+    "SeatedRightThinkToBody": {
+      "frames": 32,
+      "source": "SeatedRightThinking",
+      "source_frame": 1,
+      "target": "SeatedRightPanelIdle",
+      "target_frame": 1
+    },
+    "SeatedRightToFace": {
+      "frames": 40,
+      "source": "SeatedRightPanelIdle",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToSeatedRight": {
+      "frames": 40,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "SeatedRightPanelIdle",
+      "target_frame": 1
+    },
+    "DanceToThink": {
+      "frames": 32,
+      "source": "Dance",
+      "source_frame": 1,
+      "target": "DanceThinking",
+      "target_frame": 1
+    },
+    "DanceThinking": {
+      "frames": 120,
+      "source": "DanceThinking",
+      "source_frame": 1,
+      "target": "DanceThinking",
+      "target_frame": 1
+    },
+    "DanceThinkToBody": {
+      "frames": 32,
+      "source": "DanceThinking",
+      "source_frame": 1,
+      "target": "Dance",
+      "target_frame": 1
+    },
+    "DanceToFace": {
+      "frames": 40,
+      "source": "Dance",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToDance": {
+      "frames": 40,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "Dance",
+      "target_frame": 1
+    },
+    "NapToThink": {
+      "frames": 32,
+      "source": "Nap",
+      "source_frame": 1,
+      "target": "NapThinking",
+      "target_frame": 1
+    },
+    "NapThinking": {
+      "frames": 120,
+      "source": "NapThinking",
+      "source_frame": 1,
+      "target": "NapThinking",
+      "target_frame": 1
+    },
+    "NapThinkToBody": {
+      "frames": 32,
+      "source": "NapThinking",
+      "source_frame": 1,
+      "target": "Nap",
+      "target_frame": 1
+    },
+    "NapToFace": {
+      "frames": 40,
+      "source": "Nap",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToNap": {
+      "frames": 40,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "Nap",
+      "target_frame": 1
+    },
+    "TossToThink": {
+      "frames": 32,
+      "source": "WallToss",
+      "source_frame": 240,
+      "target": "TossThinking",
+      "target_frame": 1
+    },
+    "TossThinking": {
+      "frames": 120,
+      "source": "TossThinking",
+      "source_frame": 1,
+      "target": "TossThinking",
+      "target_frame": 1
+    },
+    "TossThinkToBody": {
+      "frames": 32,
+      "source": "TossThinking",
+      "source_frame": 1,
+      "target": "WallToss",
+      "target_frame": 240
+    },
+    "TossToFace": {
+      "frames": 40,
+      "source": "WallToss",
+      "source_frame": 240,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToToss": {
+      "frames": 40,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "WallToss",
+      "target_frame": 240
+    },
+    "WalkPaused": {
+      "frames": 96,
+      "source": "WalkWhistle",
+      "source_frame": 192,
+      "target": "WalkWhistle",
+      "target_frame": 192
+    },
+    "WalkToThink": {
+      "frames": 32,
+      "source": "WalkWhistle",
+      "source_frame": 192,
+      "target": "WalkThinking",
+      "target_frame": 1
+    },
+    "WalkThinking": {
+      "frames": 120,
+      "source": "WalkThinking",
+      "source_frame": 1,
+      "target": "WalkThinking",
+      "target_frame": 1
+    },
+    "WalkThinkToBody": {
+      "frames": 32,
+      "source": "WalkThinking",
+      "source_frame": 1,
+      "target": "WalkWhistle",
+      "target_frame": 192
+    },
+    "WalkToFace": {
+      "frames": 40,
+      "source": "WalkWhistle",
+      "source_frame": 192,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToWalk": {
+      "frames": 40,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "WalkWhistle",
+      "target_frame": 192
+    },
+    "WalkReversePaused": {
+      "frames": 96,
+      "source": "WalkWhistleReverse",
+      "source_frame": 192,
+      "target": "WalkWhistleReverse",
+      "target_frame": 192
+    },
+    "WalkReverseToThink": {
+      "frames": 32,
+      "source": "WalkWhistleReverse",
+      "source_frame": 192,
+      "target": "WalkReverseThinking",
+      "target_frame": 1
+    },
+    "WalkReverseThinking": {
+      "frames": 120,
+      "source": "WalkReverseThinking",
+      "source_frame": 1,
+      "target": "WalkReverseThinking",
+      "target_frame": 1
+    },
+    "WalkReverseThinkToBody": {
+      "frames": 32,
+      "source": "WalkReverseThinking",
+      "source_frame": 1,
+      "target": "WalkWhistleReverse",
+      "target_frame": 192
+    },
+    "WalkReverseToFace": {
+      "frames": 40,
+      "source": "WalkWhistleReverse",
+      "source_frame": 192,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToWalkReverse": {
+      "frames": 40,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "WalkWhistleReverse",
+      "target_frame": 192
+    },
+    "BodyThinkToFace": {
+      "frames": 40,
+      "source": "BodyThink",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToBodyThink": {
+      "frames": 40,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "BodyThink",
+      "target_frame": 1
+    },
+    "CeilingIdle": {
+      "frames": 96,
+      "source": "CeilingIdle",
+      "source_frame": 1,
+      "target": "CeilingIdle",
+      "target_frame": 1
+    },
+    "ReadyToCeiling": {
+      "frames": 168,
+      "source": "ReadyIdle",
+      "source_frame": 1,
+      "target": "CeilingIdle",
+      "target_frame": 1
+    },
+    "CeilingToLeftPanel": {
+      "frames": 132,
+      "source": "CeilingIdle",
+      "source_frame": 1,
+      "target": "LeftPanelIdle",
+      "target_frame": 1
+    },
+    "CeilingToRightPanel": {
+      "frames": 132,
+      "source": "CeilingIdle",
+      "source_frame": 1,
+      "target": "PanelIdle",
+      "target_frame": 1
+    },
+    "CeilingToReady": {
+      "frames": 144,
+      "source": "CeilingIdle",
+      "source_frame": 1,
+      "target": "ReadyIdle",
+      "target_frame": 1
+    },
+    "CeilingToThink": {
+      "frames": 32,
+      "source": "CeilingIdle",
+      "source_frame": 1,
+      "target": "CeilingThinking",
+      "target_frame": 1
+    },
+    "CeilingThinking": {
+      "frames": 120,
+      "source": "CeilingThinking",
+      "source_frame": 1,
+      "target": "CeilingThinking",
+      "target_frame": 1
+    },
+    "CeilingThinkToBody": {
+      "frames": 32,
+      "source": "CeilingThinking",
+      "source_frame": 1,
+      "target": "CeilingIdle",
+      "target_frame": 1
+    },
+    "CeilingToFace": {
+      "frames": 40,
+      "source": "CeilingIdle",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
+    },
+    "FaceToCeiling": {
+      "frames": 40,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "CeilingIdle",
       "target_frame": 1
     }
   },
@@ -852,5 +1534,298 @@
         "size": 0.41999998688697815
       }
     ]
+  },
+  "routes": [
+    {
+      "to": "seatedLeft",
+      "clip": "BothToLeftPanel",
+      "from": "both"
+    },
+    {
+      "to": "seatedRight",
+      "clip": "BothToRightPanel",
+      "from": "both"
+    },
+    {
+      "from": "right",
+      "to": "face",
+      "clip": "RightToFace",
+      "context": "right"
+    },
+    {
+      "from": "face",
+      "to": "right",
+      "clip": "FaceToRight",
+      "context": "right"
+    },
+    {
+      "from": "left",
+      "to": "face",
+      "clip": "LeftToFace",
+      "context": "left"
+    },
+    {
+      "from": "face",
+      "to": "left",
+      "clip": "FaceToLeft",
+      "context": "left"
+    },
+    {
+      "from": "both",
+      "to": "face",
+      "clip": "BothToFace",
+      "context": "both"
+    },
+    {
+      "from": "face",
+      "to": "both",
+      "clip": "FaceToBoth",
+      "context": "both"
+    },
+    {
+      "from": "seatedLeft",
+      "to": "face",
+      "clip": "SeatedLeftToFace",
+      "context": "seatedLeft"
+    },
+    {
+      "from": "face",
+      "to": "seatedLeft",
+      "clip": "FaceToSeatedLeft",
+      "context": "seatedLeft"
+    },
+    {
+      "from": "seatedRight",
+      "to": "face",
+      "clip": "SeatedRightToFace",
+      "context": "seatedRight"
+    },
+    {
+      "from": "face",
+      "to": "seatedRight",
+      "clip": "FaceToSeatedRight",
+      "context": "seatedRight"
+    },
+    {
+      "from": "dance",
+      "to": "face",
+      "clip": "DanceToFace",
+      "context": "dance"
+    },
+    {
+      "from": "face",
+      "to": "dance",
+      "clip": "FaceToDance",
+      "context": "dance"
+    },
+    {
+      "from": "nap",
+      "to": "face",
+      "clip": "NapToFace",
+      "context": "nap"
+    },
+    {
+      "from": "face",
+      "to": "nap",
+      "clip": "FaceToNap",
+      "context": "nap"
+    },
+    {
+      "from": "toss",
+      "to": "face",
+      "clip": "TossToFace",
+      "context": "toss"
+    },
+    {
+      "from": "face",
+      "to": "toss",
+      "clip": "FaceToToss",
+      "context": "toss"
+    },
+    {
+      "from": "walkRest",
+      "to": "face",
+      "clip": "WalkToFace",
+      "context": "walkRest"
+    },
+    {
+      "from": "face",
+      "to": "walkRest",
+      "clip": "FaceToWalk",
+      "context": "walkRest"
+    },
+    {
+      "from": "walk",
+      "to": "face",
+      "clip": "WalkToFace",
+      "context": "walkRest"
+    },
+    {
+      "from": "walk",
+      "to": "walkThink",
+      "clip": "WalkToThink"
+    },
+    {
+      "from": "walkReverseRest",
+      "to": "face",
+      "clip": "WalkReverseToFace",
+      "context": "walkReverseRest"
+    },
+    {
+      "from": "face",
+      "to": "walkReverseRest",
+      "clip": "FaceToWalkReverse",
+      "context": "walkReverseRest"
+    },
+    {
+      "from": "walkReverse",
+      "to": "face",
+      "clip": "WalkReverseToFace",
+      "context": "walkReverseRest"
+    },
+    {
+      "from": "walkReverse",
+      "to": "walkReverseThink",
+      "clip": "WalkReverseToThink"
+    },
+    {
+      "from": "bodyThink",
+      "to": "face",
+      "clip": "BodyThinkToFace",
+      "context": "bodyThink"
+    },
+    {
+      "from": "face",
+      "to": "bodyThink",
+      "clip": "FaceToBodyThink",
+      "context": "bodyThink"
+    },
+    {
+      "from": "ceiling",
+      "to": "left",
+      "clip": "CeilingToLeftPanel"
+    },
+    {
+      "from": "ceiling",
+      "to": "right",
+      "clip": "CeilingToRightPanel"
+    },
+    {
+      "from": "ceiling",
+      "to": "face",
+      "clip": "CeilingToFace",
+      "context": "ceiling"
+    },
+    {
+      "from": "face",
+      "to": "ceiling",
+      "clip": "FaceToCeiling",
+      "context": "ceiling"
+    }
+  ],
+  "dual_screens": {
+    "showcase": "DualScreensShowcase",
+    "panel_scale": 0.68,
+    "seated_position": "center",
+    "dismissal": "Tap the selected side; untouched content remains visible."
+  },
+  "contexts": {
+    "right": {
+      "activity": "PanelIdle",
+      "frame": 1,
+      "thinking": "RightThinking",
+      "toFace": "RightToFace",
+      "fromFace": "FaceToRight"
+    },
+    "left": {
+      "activity": "LeftPanelIdle",
+      "frame": 1,
+      "thinking": "LeftThinking",
+      "toFace": "LeftToFace",
+      "fromFace": "FaceToLeft"
+    },
+    "both": {
+      "activity": "BothPanelsIdle",
+      "frame": 1,
+      "thinking": "BothThinking",
+      "toFace": "BothToFace",
+      "fromFace": "FaceToBoth"
+    },
+    "seatedLeft": {
+      "activity": "SeatedLeftPanelIdle",
+      "frame": 1,
+      "thinking": "SeatedLeftThinking",
+      "toFace": "SeatedLeftToFace",
+      "fromFace": "FaceToSeatedLeft"
+    },
+    "seatedRight": {
+      "activity": "SeatedRightPanelIdle",
+      "frame": 1,
+      "thinking": "SeatedRightThinking",
+      "toFace": "SeatedRightToFace",
+      "fromFace": "FaceToSeatedRight"
+    },
+    "dance": {
+      "activity": "Dance",
+      "frame": 1,
+      "thinking": "DanceThinking",
+      "toFace": "DanceToFace",
+      "fromFace": "FaceToDance"
+    },
+    "nap": {
+      "activity": "Nap",
+      "frame": 1,
+      "thinking": "NapThinking",
+      "toFace": "NapToFace",
+      "fromFace": "FaceToNap"
+    },
+    "toss": {
+      "activity": "WallToss",
+      "frame": 240,
+      "thinking": "TossThinking",
+      "toFace": "TossToFace",
+      "fromFace": "FaceToToss"
+    },
+    "walk": {
+      "activity": "WalkWhistle",
+      "frame": 192,
+      "thinking": "WalkThinking",
+      "toFace": "WalkToFace",
+      "fromFace": "FaceToWalk"
+    },
+    "walkReverse": {
+      "activity": "WalkWhistleReverse",
+      "frame": 192,
+      "thinking": "WalkReverseThinking",
+      "toFace": "WalkReverseToFace",
+      "fromFace": "FaceToWalkReverse"
+    },
+    "bodyThink": {
+      "activity": "BodyThink",
+      "frame": 1,
+      "thinking": null,
+      "toFace": "BodyThinkToFace",
+      "fromFace": "FaceToBodyThink"
+    },
+    "ceiling": {
+      "activity": "CeilingIdle",
+      "frame": 1,
+      "thinking": "CeilingThinking",
+      "toFace": "CeilingToFace",
+      "fromFace": "FaceToCeiling"
+    }
+  },
+  "ceiling_screen": {
+    "surface": "right",
+    "width": 9.65,
+    "height": 6.8,
+    "center": [
+      0.0,
+      -2.799999952316284,
+      3.5999999046325684
+    ],
+    "robot_foreground_y": -4.1,
+    "left_handoff_frame": 126,
+    "content_handoff": "Copy right content to left before CeilingToLeftPanel starts."
   }
 }

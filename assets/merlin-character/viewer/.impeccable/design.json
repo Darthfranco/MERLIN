@@ -354,6 +354,14 @@
       "css": ".ds-secondary{min-height:44px;padding:9px 13px;border:1px solid #ccd5dd;border-radius:6px;color:#185c9e;background:#fff;cursor:pointer;font:600 .9rem -apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;}.ds-secondary:hover{background:#eaf2f9}.ds-secondary:focus-visible{outline:3px solid #1264ac;outline-offset:3px;}.ds-secondary:disabled{color:#526373;background:#e3e8ed;cursor:wait}"
     },
     {
+      "name": "Screen dismissal",
+      "kind": "custom",
+      "refersTo": "button-secondary",
+      "description": "Independent left/right dismissal keeps the remaining seated screen; both returns to ready. Unavailable sides are disabled.",
+      "html": "<div class=\"ds-dismissals\" role=\"group\" aria-label=\"Dismiss screens\"><button type=\"button\">Dismiss left</button><button type=\"button\">Dismiss right</button><button type=\"button\">Dismiss both</button></div>",
+      "css": ".ds-dismissals{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.ds-dismissals button{min-height:44px;padding:9px 13px;border:1px solid #ccd5dd;border-radius:6px;color:#185c9e;background:#fff;cursor:pointer;font:600 .9rem -apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif}.ds-dismissals button:last-child{grid-column:1/-1}.ds-dismissals button:hover{background:#eaf2f9}.ds-dismissals button:focus-visible{outline:3px solid #1264ac;outline-offset:3px}.ds-dismissals button:disabled{color:#526373;background:#e3e8ed;cursor:default}"
+    },
+    {
       "name": "Labeled text field",
       "kind": "input",
       "refersTo": "field",
@@ -366,7 +374,7 @@
       "kind": "input",
       "refersTo": "field",
       "description": "Native selection; the separate Play action starts the chosen destination.",
-      "html": "<label class=\"ds-select-label\" for=\"ds-mode\">Choose a mood or action</label><select class=\"ds-select\" id=\"ds-mode\"><optgroup label=\"Body\"><option>Ready to help</option><option>Music &amp; dance</option><option>Deep thought</option></optgroup><optgroup label=\"Screens\"><option>Pull a screen from the right</option><option>Pull a screen from the left</option></optgroup></select>",
+      "html": "<label class=\"ds-select-label\" for=\"ds-mode\">Choose a mood or action</label><select class=\"ds-select\" id=\"ds-mode\"><optgroup label=\"Body\"><option>Ready to help</option><option>Music &amp; dance</option><option>Deep thought</option></optgroup><optgroup label=\"Screens\"><option>Jump &amp; pull down a large screen</option><option>Pull both screens &amp; sit between them</option><option>Pull a screen from the right</option><option>Pull a screen from the left</option></optgroup></select>",
       "css": ".ds-select-label{display:block;color:#172a3b;font-size:.86rem;font-weight:600;margin:12px 0 6px}.ds-select{width:100%;padding:10px 11px;border:1px solid #8b9eae;border-radius:6px;color:#172a3b;background:#fff;font:inherit;caret-color:#185c9e;min-height:44px}.ds-select:focus{outline:2px solid #1264ac;outline-offset:2px}"
     },
     {
@@ -395,7 +403,7 @@
       "name": "Scene clock",
       "kind": "custom",
       "refersTo": "scene-clock",
-      "description": "Static specimen of the scene overlay. Runtime placement reserves planned character motion and panel shards; full-face mode hides it.",
+      "description": "Static specimen of the scene overlay. Runtime placement reserves planned character motion and panel shards; Full-face and ceiling presentations, the paired pull, and simultaneous dismissal hide it.",
       "html": "<div class=\"ds-clock-stage\"><div class=\"ds-clock\" aria-label=\"Tuesday, October 27, 2026 at 2:37 PM\"><time class=\"ds-clock-time\" datetime=\"2026-10-27T14:37:00\"><span>2:37</span><span class=\"ds-clock-period\">PM</span></time><span class=\"ds-clock-date\">Tue, Oct 27</span></div></div>",
       "css": ".ds-clock-stage{position:relative;width:100%;aspect-ratio:4/3;container-type:inline-size;background:#081326;border-radius:12px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif}.ds-clock{position:absolute;left:4.125%;top:5.5%;width:max-content;min-width:27cqw;color:#e4f4ff;pointer-events:none;user-select:none;text-align:center;font-variant-numeric:tabular-nums;text-shadow:0 2px 12px #060e1c66;opacity:1;transition:opacity 130ms ease-out}.ds-clock[data-visible=\"false\"]{opacity:0;visibility:hidden}.ds-clock-time{display:flex;align-items:baseline;justify-content:center;gap:.1em;white-space:nowrap;font-size:clamp(26px,8.6cqw,88px);font-weight:350;letter-spacing:-.035em;line-height:1.05}.ds-clock-period{font-size:.2em;font-weight:550;letter-spacing:.01em;color:#b9d9ee}.ds-clock-period:empty{display:none}.ds-clock-date{display:block;margin-top:.55em;font-size:clamp(10px,1.85cqw,19px);font-weight:450;line-height:1.35;letter-spacing:.015em;color:#bbdbed;white-space:nowrap}@media(prefers-reduced-motion:reduce){.ds-clock{transition:none}}"
     }
@@ -422,7 +430,7 @@
       "**Do** retain labeled native controls, visible keyboard focus, textual status, and explicit playback control.",
       "**Do** keep screen editing separate from animation selection and preserve content on the correct surface and fragments.",
       "**Do** label the browser lighting as an approximation and use Blender as the visual reference.",
-      "**Do** retain a clear clock anchor across the complete planned motion, including reverse walking and panel dismissal, and hide the clock throughout full-face entry, substates, and exit.",
+      "**Do** retain a clear clock anchor across the complete planned motion, including reverse walking and panel dismissal, and hide the clock throughout full-face and ceiling entry, substates, and exit.",
       "**Do** keep clock movement brief and use immediate placement when reduced motion is requested."
     ],
     "donts": [

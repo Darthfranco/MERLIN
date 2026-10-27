@@ -2,9 +2,10 @@ import {chooseClockSpot, clockMotionPlan, formatSceneTime} from './clock-layout.
 
 /** A lightweight DOM overlay; only re-plan on route, viewport, or type-size changes. */
 export class SceneClock {
-  constructor(stage, states, footprints) {
+  constructor(stage, states, footprints, routes = []) {
     this.stage = stage;
     this.states = states;
+    this.routes = routes;
     this.footprints = footprints;
     this.reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     this.element = document.createElement('div');
@@ -37,7 +38,7 @@ export class SceneClock {
 
   sync(motion) {
     this.motion = motion;
-    this.plan = clockMotionPlan(motion, this.states);
+    this.plan = clockMotionPlan(motion, this.states, this.routes);
     const visible = !this.plan.hidden;
     this.element.dataset.visible = String(visible);
     this.element.setAttribute('aria-hidden', String(!visible));

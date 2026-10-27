@@ -1,0 +1,392 @@
+{
+  "passed": true,
+  "clips": 10,
+  "checks": [
+    {
+      "name": "context_owner_inventory",
+      "passed": true,
+      "count": 98
+    },
+    {
+      "name": "CeilingIdle_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "CeilingIdle_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "CeilingIdle_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "ReadyToCeiling_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "ReadyToCeiling_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "ReadyToCeiling_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "CeilingToLeftPanel_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "CeilingToLeftPanel_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "CeilingToLeftPanel_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "CeilingToRightPanel_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "CeilingToRightPanel_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "CeilingToRightPanel_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "CeilingToReady_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "CeilingToReady_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "CeilingToReady_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "CeilingToThink_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "CeilingToThink_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "CeilingToThink_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "CeilingThinking_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "CeilingThinking_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "CeilingThinking_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "CeilingThinking_planted_body_and_unchanged_panels",
+      "passed": true,
+      "lower_body_error": 0.0,
+      "panel_error": 0.0
+    },
+    {
+      "name": "CeilingThinkToBody_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "CeilingThinkToBody_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "CeilingThinkToBody_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "CeilingToFace_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "CeilingToFace_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "CeilingToFace_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "CeilingToFace_panels_retained_until_covered",
+      "passed": true,
+      "maximum_panel_error": 0.0,
+      "covered_frame": 31
+    },
+    {
+      "name": "CeilingToFace_nonnegative_helper_scale",
+      "passed": true,
+      "minimum_scale": 0.0
+    },
+    {
+      "name": "FaceToCeiling_complete_finite_tracks",
+      "passed": true,
+      "scalar_channels": 983,
+      "expected_scalar_channels": 983,
+      "missing": [],
+      "nonfinite": []
+    },
+    {
+      "name": "FaceToCeiling_exact_endpoints",
+      "passed": true,
+      "maximum_error": 0.0
+    },
+    {
+      "name": "FaceToCeiling_no_unrelated_prop_leaks",
+      "passed": true,
+      "leaks": []
+    },
+    {
+      "name": "CeilingToThink_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.1710757216762082,
+      "x_extent": [
+        -1.2081720154090434,
+        1.1490000486373901
+      ],
+      "closest_arm_head_sample": {
+        "frame": 32,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 4.76837158203125e-07
+    },
+    {
+      "name": "CeilingThinking_body_clearance",
+      "passed": true,
+      "frames_checked": 120,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.033665505508078,
+      "x_extent": [
+        -1.2382606228433952,
+        1.1773638552872576
+      ],
+      "closest_arm_head_sample": {
+        "frame": 34,
+        "bone": "forearm.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 4.76837158203125e-07
+    },
+    {
+      "name": "CeilingThinkToBody_body_clearance",
+      "passed": true,
+      "frames_checked": 32,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.1710757216762082,
+      "x_extent": [
+        -1.2081720154090434,
+        1.1490000486373901
+      ],
+      "closest_arm_head_sample": {
+        "frame": 1,
+        "bone": "hand.L"
+      },
+      "maximum_sampled_vs_evaluated_matrix_error": 4.76837158203125e-07
+    },
+    {
+      "name": "ReadyToCeiling_physical_clearance",
+      "passed": true,
+      "minimum_floor_z": 0.03299985204863504,
+      "minimum_arm_head_implicit_volume": 1.4387274011313333,
+      "closest_arm_head_sample": {
+        "frame": 52,
+        "bone": "forearm.L"
+      },
+      "x_extent": [
+        -1.611765191176751,
+        1.611765191176751
+      ],
+      "maximum_character_z": 8.489838268413644
+    },
+    {
+      "name": "ReadyToCeiling_held_edge_contact",
+      "passed": true,
+      "maximum_wrist_target_error": 0.07537588354629972
+    },
+    {
+      "name": "CeilingIdle_physical_clearance",
+      "passed": true,
+      "minimum_floor_z": 0.03499992936849594,
+      "minimum_arm_head_implicit_volume": 1.5396346435529193,
+      "closest_arm_head_sample": {
+        "frame": 66,
+        "bone": "upper_arm.R"
+      },
+      "x_extent": [
+        -1.1835200582212086,
+        1.1645101747979985
+      ],
+      "maximum_character_z": 3.6982528834659125
+    },
+    {
+      "name": "CeilingToLeftPanel_physical_clearance",
+      "passed": true,
+      "minimum_floor_z": 0.03499930967693407,
+      "minimum_arm_head_implicit_volume": 1.4803470645743595,
+      "closest_arm_head_sample": {
+        "frame": 14,
+        "bone": "upper_arm.R"
+      },
+      "x_extent": [
+        -1.1875951271525442,
+        2.6990000009536743
+      ],
+      "maximum_character_z": 3.6968807722827677
+    },
+    {
+      "name": "CeilingToLeftPanel_card_does_not_cut_robot",
+      "passed": true,
+      "minimum_character_depth_in_front_of_panel": 0.09774836396413877,
+      "closest_sample": {
+        "frame": 1,
+        "bone": "shin.R"
+      }
+    },
+    {
+      "name": "CeilingToRightPanel_physical_clearance",
+      "passed": true,
+      "minimum_floor_z": 0.03499937670771136,
+      "minimum_arm_head_implicit_volume": 1.4803470623591883,
+      "closest_arm_head_sample": {
+        "frame": 14,
+        "bone": "upper_arm.L"
+      },
+      "x_extent": [
+        -2.6990000009536743,
+        1.1875951271525442
+      ],
+      "maximum_character_z": 3.6968807722827677
+    },
+    {
+      "name": "CeilingToRightPanel_card_does_not_cut_robot",
+      "passed": true,
+      "minimum_character_depth_in_front_of_panel": 0.09774836396413877,
+      "closest_sample": {
+        "frame": 1,
+        "bone": "shin.R"
+      }
+    },
+    {
+      "name": "CeilingToReady_physical_clearance",
+      "passed": true,
+      "minimum_floor_z": 0.03499943909351508,
+      "minimum_arm_head_implicit_volume": 1.4384248265019774,
+      "closest_arm_head_sample": {
+        "frame": 13,
+        "bone": "upper_arm.L"
+      },
+      "x_extent": [
+        -1.1490000486373901,
+        1.2004758015792811
+      ],
+      "maximum_character_z": 3.699885506035687
+    },
+    {
+      "name": "ceiling_left_owner_handoff",
+      "passed": true,
+      "frame": 126,
+      "visible_transform_error": 0.0
+    },
+    {
+      "name": "ceiling_card_inside_frame_above_floor",
+      "passed": true,
+      "frame_width_fraction": 0.9460784490637396,
+      "frame_height_fraction": 0.8888889055106638,
+      "bottom_z": 0.36385178565979004,
+      "projected_y_extent": [
+        -3.2117536306381225,
+        3.5882463693618774
+      ]
+    },
+    {
+      "name": "ceiling_robot_visible_in_foreground",
+      "passed": true,
+      "minimum_character_depth_in_front_of_panel": 0.09774836396413877,
+      "projected_character_y_extent": [
+        -3.74135316064824,
+        -0.06996543075803952
+      ]
+    }
+  ],
+  "thinking_frames_checked": 184,
+  "body_frames_checked": 672,
+  "baseline_actions_unchanged": true,
+  "baseline_action_count": 103,
+  "geometry_materials_unchanged": true,
+  "compaction": {
+    "clips": 10,
+    "curves_compacted": 13,
+    "keyframes_removed": 974,
+    "exact_constant_channels": true,
+    "durations_preserved": true
+  }
+}

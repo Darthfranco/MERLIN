@@ -5,7 +5,8 @@ import {AnimationMixer, AnimationClip, Object3D, NumberKeyframeTrack} from './ve
 import {MotionController} from './motion.js';
 import {CLOCK_SPOTS, clockAnchors, clockMotionPlan, chooseClockSpot, formatSceneTime} from './clock-layout.js';
 
-const {states, clips: metadata} = JSON.parse(readFileSync(new URL('../states.json', import.meta.url)));
+const manifest = JSON.parse(readFileSync(new URL('../states.json', import.meta.url)));
+const {states, clips: metadata, routes} = manifest;
 const size = {width: 1000, height: 750, clockWidth: 270, clockHeight: 110};
 const initial = {current:'ready', desired:'ready', phase:'idle', clip:'ReadyIdle'};
 const advance = (c, seconds) => {for(let t=0;t<seconds;t+=1/60)c.update(1/60);};
@@ -62,7 +63,7 @@ test('prediction includes the unfinished transition, both panel routes and desti
   assert.deepEqual(plan.clips, ['ReadyToPanel','PanelToReady','ReadyToLeftPanel','LeftPanelIdle']);
   assert.equal(plan.hidden, false);
   assert.deepEqual(plan.occlusionClips, ['ReadyToPanel','PanelIdle','PanelToReady']);
-  assert.deepEqual(clockMotionPlan({...initial, desired:'walk'}, states).clips, ['ReadyIdle','ReadyToWalkWhistle','WalkWhistle']);
+  assert.deepEqual(clockMotionPlan({...initial, desired:'walk'}, states).clips, ['ReadyIdle','ReadyToWalkWhistle','WalkWhistle','WalkPaused']);
 });
 
 test('full-face entry, every descendant, and the entire return hide time', () => {
@@ -77,19 +78,50 @@ test('full-face entry, every descendant, and the entire return hide time', () =>
   assert.deepEqual(clockMotionPlan({current:'walk',desired:'face',arrival:'walk',phase:'finishLoop',clip:'WalkWhistle'},states).occlusionClips,
     ['WalkWhistle','WalkWhistleToReady']);
 });
+test('the large ceiling screen hides time until its side-panel conversion is complete',()=>{
+  for(const motion of [
+    {...initial,phase:'enter',arrival:'ceiling',desired:'ceiling',clip:'ReadyToCeiling'},
+    {current:'ceiling',desired:'ceiling',phase:'idle',clip:'CeilingIdle'},
+    {current:'ceilingThink',desired:'ceilingThink',phase:'idle',clip:'CeilingThinking'},
+    {current:'ceiling',arrival:'left',desired:'left',phase:'transition',clip:'CeilingToLeftPanel'},
+    {current:'ceiling',arrival:'right',desired:'right',phase:'transition',clip:'CeilingToRightPanel'},
+  ])assert.equal(clockMotionPlan(motion,states,routes).hidden,true,motion.clip);
+  assert.equal(clockMotionPlan({current:'left',desired:'left',phase:'idle',clip:'LeftPanelIdle'},states,routes).hidden,false);
+  const queued=clockMotionPlan({...initial,desired:'ceiling'},states,routes);
+  assert.equal(queued.hidden,false);assert.deepEqual(queued.occlusionClips,['ReadyIdle']);
+});
+
+test('busy paired pull and full dismissal hide time only during their clips',()=>{
+  for(const motion of [
+    {...initial,phase:'enter',arrival:'both',desired:'both',clip:'ReadyToBothPanels'},
+    {current:'both',arrival:'ready',desired:'ready',phase:'exit',clip:'BothPanelsToReady'},
+  ])assert.equal(clockMotionPlan(motion,states,routes).hidden,true);
+  for(const state of ['ready','both','seatedLeft','seatedRight'])assert.equal(clockMotionPlan({current:state,desired:state,phase:'idle',clip:states[state].idle},states,routes).hidden,false);
+  const pending=clockMotionPlan({...initial,desired:'both'},states,routes);
+  assert.equal(pending.hidden,false);assert.ok(!pending.occlusionClips.includes('ReadyToBothPanels'));
+});
 
 test('predicted route covers every actual clip for every state pair, including pause and changed destinations', () => {
   const clips = Object.entries(metadata).map(([name, meta]) => new AnimationClip(name,(meta.frames-1)/24,[new NumberKeyframeTrack('.position[x]',[0,(meta.frames-1)/24],[0,0])]));
   for (const start of Object.keys(states)) for (const end of Object.keys(states)) {
-    const c = new MotionController(new AnimationMixer(new Object3D()),clips,{states});
+    const c = new MotionController(new AnimationMixer(new Object3D()),clips,manifest);
     c.go(start); advance(c,30);
     const predicted = clockMotionPlan({...c, desired:end}, states);
     const actual = new Set();
     c.onChange = info => actual.add(info.clip);
-    c.go(end); c.pause(); advance(c,.25); c.resume(); advance(c,40);
-    assert.equal(c.current,end);
+    c.request(end); c.pause(); advance(c,.25); c.resume(); advance(c,40);
+    assert.equal(c.current,states[end].rest||end);
     for (const clip of actual) assert.ok(predicted.clips.includes(clip), `${start} → ${end}: ${clip}`);
   }
+});
+
+test('simultaneous panels reserve both surfaces and direct dismissal until the remaining seated idle', () => {
+  const plan = clockMotionPlan({current:'both',desired:'seatedLeft',phase:'idle',clip:'BothPanelsIdle'},states,routes);
+  assert.deepEqual(plan.clips,['BothPanelsIdle','BothToLeftPanel','SeatedLeftPanelIdle']);
+  assert.deepEqual(plan.occlusionClips,plan.clips);
+  const exiting = clockMotionPlan({current:'both',desired:'dance',arrival:'seatedRight',phase:'transition',clip:'BothToRightPanel'},states,routes);
+  assert.deepEqual(exiting.clips,['BothToRightPanel','SeatedRightToReady','ReadyToDance','Dance']);
+  assert.deepEqual(exiting.occlusionClips,['BothToRightPanel','BothPanelsIdle','SeatedRightPanelIdle']);
 });
 
 test('locale, day rollover, and daylight saving use the real wall clock', () => {

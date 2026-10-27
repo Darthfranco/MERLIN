@@ -5,6 +5,7 @@ import { AnimationClip,AnimationMixer,Bone,BoxGeometry,BufferAttribute,BufferGeo
 import { buildMotionFootprints } from './motion-footprints.js';
 import { loadFootprintSource } from '../scripts/build_motion_footprints.mjs';
 import { chooseClockSpot,clockMotionPlan } from './clock-layout.js';
+import {transitionEdges} from './motion-routes.js';
 
 function camera(){const value=new OrthographicCamera(-5,5,5,-5,.1,100);value.position.z=10;value.updateMatrixWorld(true);return value;}
 function movingBox(){
@@ -53,6 +54,12 @@ test('cached footprints match the current GLB and authored camera and cover ever
   // These samples cover the walker reversing, ballistic prop, live panels,
   // shattering fragments, dancing notes, nap and the supported return hop.
   const cases=[['WalkWhistle',[.47,2.37,4.23,6.43]],['WallToss',[1.23,3.17,6.37]],['PanelIdle',[.37]],['LeftPanelIdle',[.63]],['PanelToReady',[2.17]],['LeftPanelToReady',[2.13]],['Dance',[2.77]],['Nap',[2.47]],['NapToReady',[2.13]]];
+  const extended=new Set(['ReadyToBothPanels','BothPanelsIdle','BothToLeftPanel','BothToRightPanel','BothPanelsToReady','SeatedLeftPanelIdle','SeatedRightPanelIdle','SeatedLeftToReady','SeatedRightToReady']);
+  for(const clip of source.gltf.animations)if(/Thinking|ToThink|ThinkToBody|Paused|ToFace$|^FaceTo|WhistleReverse|Ceiling/.test(clip.name))extended.add(clip.name);
+  for(const name of extended){
+    const clip=source.gltf.animations.find(value=>value.name===name);
+    cases.push([name,[clip.duration*.173,clip.duration*.617]]);
+  }
   const mixer=new AnimationMixer(source.gltf.scene),point=new Vector3();
   for(const [name,times] of cases){
     const clip=source.gltf.animations.find(value=>value.name===name),action=mixer.clipAction(clip).play();
@@ -63,15 +70,19 @@ test('cached footprints match the current GLB and authored camera and cover ever
         if(!mesh.isMesh)return;
         const rect=rects.get(mesh.name);
         const count=mesh.geometry.attributes.position.count;
-        let left=Infinity,top=Infinity,right=-Infinity,bottom=-Infinity;
+        let left=Infinity,top=Infinity,right=-Infinity,bottom=-Infinity,escapedVertex=null;
         for(let vertex=0;vertex<count;vertex++){
           mesh.getVertexPosition(vertex,point).applyMatrix4(mesh.matrixWorld).project(source.camera);
           const x=(point.x+1)/2,y=(1-point.y)/2;
           if(x<0||x>1||y<0||y>1||point.z< -1||point.z>1)continue;
           left=Math.min(left,x);top=Math.min(top,y);right=Math.max(right,x);bottom=Math.max(bottom,y);
-          if(rect)assert.ok(x>=rect.left-1e-6&&x<=rect.right+1e-6&&y>=rect.top-1e-6&&y<=rect.bottom+1e-6,`${name} at ${time}: ${mesh.name} vertex ${vertex} escaped footprint`);
+          if(rect&&!(x>=rect.left-1e-6&&x<=rect.right+1e-6&&y>=rect.top-1e-6&&y<=rect.bottom+1e-6))escapedVertex??=vertex;
         }
-        if(!rect&&Number.isFinite(left))assert.ok((right-left)*(bottom-top)<1e-6,`${name} at ${time}: visible ${mesh.name} is missing`);
+        // A shard's collapsed origin need not lie inside its later visible path.
+        // Match the production subpixel/zero-scale visibility threshold first.
+        if(!Number.isFinite(left)||(right-left)*(bottom-top)<1e-6)return;
+        assert.ok(rect,`${name} at ${time}: visible ${mesh.name} is missing`);
+        assert.equal(escapedVertex,null,`${name} at ${time}: ${mesh.name} vertex ${escapedVertex} escaped footprint`);
       });
     }
     action.stop();
@@ -80,10 +91,10 @@ test('cached footprints match the current GLB and authored camera and cover ever
 
 test('authored full activity cycles leave a safe large-clock anchor on mobile and desktop',async()=>{
   const data=JSON.parse(await readFile(new URL('./motion-footprints.json',import.meta.url),'utf8'));
-  const {states}=JSON.parse(await readFile(new URL('../states.json',import.meta.url),'utf8'));
+  const {states,routes}=JSON.parse(await readFile(new URL('../states.json',import.meta.url),'utf8'));
   for(const width of [358,896])for(const state of Object.keys(states)){
     const motion={current:state,desired:state,phase:'idle',clip:states[state].idle};
-    const plan=clockMotionPlan(motion,states);if(plan.hidden)continue;
+    const plan=clockMotionPlan(motion,states,routes);if(plan.hidden)continue;
     const obstacles=(plan.occlusionClips||plan.clips).flatMap(clip=>data.clips[clip]);
     const spot=chooseClockSpot({width,height:width*.75,clockWidth:width*.27,clockHeight:width*.14,obstacles});
     assert.equal(spot.overlap,0,`${width}px ${state} has no clear anchor`);
@@ -95,6 +106,8 @@ test('both panel exits and opposite entries individually leave a clear clock rou
   for(const width of [358,896])for(const route of [
     ['PanelIdle','PanelToReady'],['ReadyToLeftPanel','LeftPanelIdle'],
     ['LeftPanelIdle','LeftPanelToReady'],['ReadyToPanel','PanelIdle'],
+    ['BothPanelsIdle','BothToLeftPanel','SeatedLeftPanelIdle'],
+    ['BothPanelsIdle','BothToRightPanel','SeatedRightPanelIdle'],
   ]){
     const spot=chooseClockSpot({width,height:width*.75,clockWidth:width*.27,clockHeight:width*.14,obstacles:route.flatMap(clip=>data.clips[clip])});
     assert.equal(spot.overlap,0,`${width}px ${route.join(' → ')} has no clear anchor`);
@@ -103,16 +116,14 @@ test('both panel exits and opposite entries individually leave a clear clock rou
 
 test('every visible destination pair and interrupted transition retains a safe anchor with real footprints',async()=>{
   const data=JSON.parse(await readFile(new URL('./motion-footprints.json',import.meta.url),'utf8'));
-  const {states}=JSON.parse(await readFile(new URL('../states.json',import.meta.url),'utf8'));
+  const {states,routes}=JSON.parse(await readFile(new URL('../states.json',import.meta.url),'utf8'));
+  const edges=transitionEdges(states,routes);
   for(const width of [358,896])for(const [state,definition] of Object.entries(states))for(const desired of Object.keys(states)){
     const motions=[{current:state,desired,phase:'idle',clip:definition.idle}];
-    if(definition.parent)motions.push(
-      {current:definition.parent,arrival:state,desired,phase:'enter',clip:definition.enter},
-      {current:state,arrival:definition.parent,desired,phase:'exit',clip:definition.exit},
-    );
+    for(const edge of edges.filter(edge=>edge.from===state))motions.push({current:state,arrival:edge.to,desired,phase:edge.phase,clip:edge.clip});
     if(['walk','toss'].includes(state))motions.push({current:state,arrival:state,desired,phase:'finishLoop',clip:definition.idle});
     for(const motion of motions){
-      const plan=clockMotionPlan(motion,states);if(plan.hidden)continue;
+      const plan=clockMotionPlan(motion,states,routes);if(plan.hidden)continue;
       const obstacles=plan.occlusionClips.flatMap(clip=>data.clips[clip]);
       const spot=chooseClockSpot({width,height:width*.75,clockWidth:width*.27,clockHeight:width*.14,obstacles});
       assert.equal(spot.overlap,0,`${width}px ${state} → ${desired} (${motion.phase}) has no clear anchor`);

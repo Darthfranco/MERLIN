@@ -1,5 +1,11 @@
+import {planRoute,transitionEdges} from './motion-routes.js';
+
 /** Five resting places, in scene coordinates. No model calls or frame-by-frame chasing. */
 export const CLOCK_SPOTS = ['upper-left', 'upper-middle', 'upper-right', 'lower-left', 'lower-right'];
+// These complete paired movements sweep through every reserved anchor. Their
+// seated/ready endpoints are clear, so time returns as soon as the clip ends.
+const BUSY_TRANSITIONS = new Set(['ReadyToBothPanels', 'BothPanelsToReady']);
+const REPLAN_HUBS = new Set(['ready', 'seatedLeft', 'seatedRight']);
 
 export function clockAnchors(width, height, clockWidth, clockHeight) {
   const inset = Math.min(width, height) * .055;
@@ -17,29 +23,43 @@ function lineage(state, states) {
 }
 
 /** Include every queued transition AND the destination's entire idle loop. */
-export function clockMotionPlan(motion, states) {
-  const inFace = state => lineage(state, states).includes('face');
-  const hidden = inFace(motion.current) || (motion.phase !== 'idle' && inFace(motion.arrival));
+export function clockMotionPlan(motion, states, routes = motion.routes || []) {
+  const coversStage = state => {const path=lineage(state,states);return path.includes('face')||path.includes('ceiling');};
+  const hidden = coversStage(motion.current) || (motion.phase !== 'idle' && (coversStage(motion.arrival) || BUSY_TRANSITIONS.has(motion.clip)));
   const clips = new Set([motion.clip]);
   let cursor = motion.phase === 'idle' ? motion.current : motion.arrival;
-  const destination = lineage(motion.desired, states);
-  while (cursor && !destination.includes(cursor)) {
-    clips.add(states[cursor].exit);
-    cursor = states[cursor].parent;
-  }
-  const entering = destination.slice(0, destination.indexOf(cursor)).reverse();
-  for (const state of entering) clips.add(states[state].enter);
+  if(motion.phase==='finishLoop')cursor=motion.current===motion.desired?motion.current:(states[cursor].rest||cursor);
+  const pending = planRoute(cursor, motion.desired, states, routes, motion.bodyContext);
+  for (const edge of pending) clips.add(edge.clip);
   clips.add(states[motion.desired].idle);
-  const hiddenClips = new Set(Object.entries(states).filter(([state]) => inFace(state))
+  if(states[motion.desired].rest)clips.add(states[states[motion.desired].rest].idle);
+  const hiddenClips = new Set(Object.entries(states).filter(([state]) => coversStage(state))
     .flatMap(([, state]) => [state.enter, state.idle, state.exit]));
+  for(const edge of transitionEdges(states,routes))if(coversStage(edge.from)||coversStage(edge.to))hiddenClips.add(edge.clip);
+  for(const clip of BUSY_TRANSITIONS)hiddenClips.add(clip);
   const route = [...clips].filter(Boolean);
   const activity = motion.phase === 'enter' ? motion.arrival : motion.current;
-  // The ready hub is a safe replanning point. Opposite panels occupy both
+  // Ready and completed seated dismissals are safe replanning points. Panels occupy both
   // halves at different times: reserve the old panel through its dismissal,
-  // then move ahead of the next pull. Combining them would block every slot.
-  const leavingActivity = states[activity]?.parent === 'ready' && !inFace(activity) && activity !== motion.desired;
-  const segment = leavingActivity ? [...new Set([motion.clip, states[activity].idle, states[activity].exit])] : route;
-  // A future full-screen face must not evict a still-visible walking clock;
+  // then move ahead of the next action. Combining them would block every slot.
+  const leavingActivity = activity !== 'ready' && !coversStage(activity) &&
+    (activity !== motion.desired || motion.phase !== 'idle' && motion.arrival !== activity);
+  let segment = route;
+  if (leavingActivity) {
+    const reserved = new Set([motion.clip, states[activity].idle]);
+    let hub = motion.phase !== 'idle' && REPLAN_HUBS.has(motion.arrival) ? motion.arrival : null;
+    if (!hub) for (const edge of pending) {
+      reserved.add(edge.clip);
+      if (REPLAN_HUBS.has(edge.to)) {hub = edge.to; break;}
+    }
+    if(hub && hub !== 'ready')reserved.add(states[hub].idle);
+    if (!hub) {
+      reserved.add(states[motion.desired].idle);
+      if(states[motion.desired].rest)reserved.add(states[states[motion.desired].rest].idle);
+    }
+    segment = [...reserved];
+  }
+  // A future full-frame face or ceiling screen must not evict a still-visible walking clock;
   // time will already be hidden by the time those clips start.
   return {hidden, clips: route, occlusionClips: segment.filter(clip => clip && !hiddenClips.has(clip))};
 }

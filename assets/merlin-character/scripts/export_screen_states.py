@@ -7,6 +7,7 @@ sys.path.insert(0,str(HERE))
 import screen_state_support as support
 from screen_content import configure_panel_screens
 from export_interactions import export_interactions
+from preserve_step_handoffs import preserve_step_handoffs
 OUT=HERE.parent
 if Path(bpy.data.filepath)!=OUT/'merlin-states.blend':
     bpy.ops.wm.open_mainfile(filepath=str(OUT/'merlin-states.blend'))
@@ -15,4 +16,6 @@ bpy.ops.wm.save_as_mainfile(filepath=str(OUT/'merlin-states.blend'),compress=Tru
 manifest=json.loads((OUT/'states.json').read_text())
 export_interactions(list(manifest['clips']),OUT/'merlin-states.glb',controller=support,
                     collection_names=['MERLIN • Character','MERLIN • Display mode','MERLIN • Face states'])
+handoff=preserve_step_handoffs(OUT/'merlin-states.glb',manifest)
+print('MERLIN_HANDOFF_EXPORT',json.dumps(handoff),flush=True)
 print('MERLIN_STATES_EXPORT_COMPLETE',flush=True)
