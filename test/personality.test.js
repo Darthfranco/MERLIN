@@ -13,7 +13,7 @@ const reply = text => ({ type: 'message', role: 'assistant', phase: 'final_answe
 const call = (name, args) => ({ type: 'function_call', status: 'completed', name, arguments: JSON.stringify(args), call_id: randomUUID() });
 const body = (message, session_id = randomUUID()) => ({ message, session_id, request_id: randomUUID(), time_zone: 'America/New_York' });
 const rule = (kind, value) => ({ kind, value, scope: kind.startsWith('timer_') ? 'timers' : 'assistant_reply', original: `Synthetic ${kind}`, source_id: 'manual', source_quote: '', explanation: 'Synthetic fixture.' });
-const defaultStyle = { style: 'warm', address: '' };
+const defaultStyle = { style: 'warm', address: 'mister' };
 
 function provider(steps = []) {
   return { configured: true, model: 'synthetic-personality', calls: [], async respond(input, tools, instructions) {
@@ -57,22 +57,23 @@ test('style parser accepts direct corrections, declines quotes, definitions, neg
   assert.throws(() => normalizePersonality({ style: 'warm', address: 'x'.repeat(41) }));
 });
 
-test('optional courtesy has a delivery-based cooldown, no inferred address, and lexical restrictions win', () => {
+test('chosen courtesy can recur naturally and combines with charm while restrictions win', () => {
   const now = Date.now();
   const base = { settings: { style: 'warm', address: 'mister' }, message: 'set me a timer', session_id: 's', now };
   const receipt = 'Your timer is set for five minutes.';
   let policy = personalityContext(base);
   assert.equal(withCourtesy(receipt, policy, [], { success: true }), 'Your timer is set for five minutes, mister.');
   const addressed = { role: 'assistant', text: 'Your timer is running, mister.', session_id: 's', created_at: new Date(now - 1000).toISOString() };
-  assert.equal(personalityContext({ ...base, conversations: [addressed] }).address_allowed, false);
+  assert.equal(personalityContext({ ...base, conversations: [addressed] }).address_allowed, true);
   const seven = Array.from({ length: 7 }, () => ({ role: 'assistant', text: 'Done.', session_id: 's', created_at: new Date(now).toISOString() }));
-  assert.equal(personalityContext({ ...base, conversations: [addressed, ...seven] }).address_allowed, false, 'same short exchange still suppresses courtesy');
+  assert.equal(personalityContext({ ...base, conversations: [addressed, ...seven] }).address_allowed, true, 'consecutive warm replies may use the chosen address');
   policy = personalityContext({ ...base, conversations: [{ ...addressed, created_at: new Date(now - 180_000).toISOString() }, ...seven] });
   assert.equal(policy.address_allowed, true);
   for (const rules of [[rule('avoid_word', 'mister')], [rule('response_suffix', 'Confirmed.')], [rule('address_as', 'sir')]]) assert.equal(withCourtesy(receipt, policy, rules, { success: true }), receipt);
-  for (const overrides of [{ settings: defaultStyle }, { settings: { style: 'plain', address: 'mister' } }, { message: 'I already told you. Stop asking.' }, { tool_events: [{ status: 'failed' }] }]) assert.equal(withCourtesy(receipt, personalityContext({ ...base, ...overrides }), [], { success: true }), receipt);
+  for (const overrides of [{ settings: { style: 'warm', address: '' } }, { settings: { style: 'plain', address: 'mister' } }, { message: 'I already told you. Stop asking.' }, { tool_events: [{ status: 'failed' }] }]) assert.equal(withCourtesy(receipt, personalityContext({ ...base, ...overrides }), [], { success: true }), receipt);
   assert.equal(withCourtesy(receipt, policy, [], { success: false }), receipt);
-  assert.equal(withCourtesy('All set. Your timer is running.', policy, [], { success: true }), 'All set. Your timer is running.');
+  assert.equal(withCourtesy('All set. Your timer is running.', policy, [], { success: true }), 'All set, mister. Your timer is running.');
+  assert.equal(withCourtesy('Righto, mister! Your timer is running.', policy, [], { success: true }), 'Righto, mister! Your timer is running.');
   const urgent = 'Leave the house and call emergency services from outside.';
   assert.equal(withCourtesy(urgent, personalityContext({ ...base, message: 'I smell gas in the house. What should I do?' }), [], { success: true }), urgent);
 });
@@ -100,13 +101,63 @@ test('personality settings persist, migrate older memory, preserve factual histo
   assert.deepEqual(migrated.personality(), defaultStyle);
 });
 
+test('an explicit address opt-out survives restart and returning to warm replies', async t => {
+  const app = await fixture(t);
+  await app.store.putRule(rule('timer_default_seconds', 300));
+  const stopped = await app.request('/api/chat', body('Stop calling me mister.'));
+  assert.equal(stopped.status, 200); assert.equal(stopped.body.personality.address, '');
+  assert.doesNotMatch(stopped.body.reply, /mister/iu);
+  await app.close(app);
+  const restored = await app.start();
+  assert.deepEqual((await restored.request('/api/personality')).body, { style: 'warm', address: '' });
+  await restored.request('/api/chat', body('Just answer normally.'));
+  const warm = await restored.request('/api/chat', body('Be more playful.'));
+  assert.deepEqual(warm.body.personality, { style: 'warm', address: '' });
+  const timer = await restored.request('/api/chat', body('set me a timer'));
+  assert.equal(timer.status, 200); assert.equal(timer.body.trace.model_calls, 0);
+  assert.match(timer.body.reply, /in a jiffy/); assert.doesNotMatch(timer.body.reply, /mister/iu);
+});
+
+test('the model may use the chosen address in consecutive warm greetings and thanks without repair', async t => {
+  const meta = provider([[reply('At your service, mister!')], [reply('You bet, mister!')]]);
+  const app = await fixture(t, meta);
+  const session = randomUUID();
+  const hello = await app.request('/api/chat', body('Hello', session));
+  const thanks = await app.request('/api/chat', body('Thank you!', session));
+  for (const result of [hello, thanks]) {
+    assert.equal(result.status, 200); assert.equal(result.body.trace.model_calls, 1);
+    assert.equal((result.body.reply.match(/mister/gu) ?? []).length, 1);
+    assert.equal(result.body.trace.events.some(event => event.stage === 'personality_check'), false);
+    assert.deepEqual(result.body.tool_events, []);
+  }
+  assert.deepEqual(meta.calls[1].tools, []);
+});
+
+test('chosen model addresses are accepted while plain, calm, opt-out and unchosen titles are checked', () => {
+  const warm = personalityContext();
+  for (const text of ['Righto, mister!', 'Mister, your timer is set.', 'Your timer is set, mister.']) {
+    assert.deepEqual(checkPersonalityDraft(text, warm), [], text);
+  }
+  for (const text of ['Righto, sir!', 'At your service, master!', 'You bet, boss!']) {
+    assert.ok(checkPersonalityDraft(text, warm).length, text);
+  }
+  const custom = personalityContext({ settings: { style: 'warm', address: 'Alex' } });
+  assert.deepEqual(checkPersonalityDraft('Righto, Alex!', custom), []);
+  assert.ok(checkPersonalityDraft('Righto, mister!', custom).length);
+  for (const settings of [{ style: 'plain', address: 'mister' }, { style: 'warm', address: '' }]) {
+    assert.ok(checkPersonalityDraft('Your timer is set, mister.', personalityContext({ settings })).length);
+  }
+  assert.ok(checkPersonalityDraft('Your timer is set, mister.', personalityContext({ message: 'I am frustrated.' })).length);
+  assert.deepEqual(checkPersonalityDraft('Mister is a form of address.', warm), []);
+});
+
 test('direct style corrections save exact provenance, skip learning and preserve zero-call timers', async t => {
   const meta = provider();
   meta.extractMemories = async () => { throw new Error('Pure style instructions must not be learned again.'); };
   const app = await fixture(t, meta);
   const session = randomUUID();
   const plain = await app.request('/api/chat', body('Please just answer normally.', session));
-  assert.equal(plain.status, 200); assert.deepEqual(plain.body.personality, { style: 'plain', address: '' });
+  assert.equal(plain.status, 200); assert.deepEqual(plain.body.personality, { style: 'plain', address: 'mister' });
   assert.equal(plain.body.trace.model_calls, 0);
   assert.equal(app.store.snapshot().facts.length, 0);
   assert.equal(app.learning.status().pending, 0);
@@ -140,7 +191,7 @@ test('quoted style examples stay with Meta without changing settings, and curren
   const remembered = await app.request('/api/chat', body('What should you call me?'));
   assert.equal(remembered.status, 200);
   assert.match(meta.calls[0].instructions, /Current shared-household reply style: plain/);
-  assert.match(meta.calls[0].instructions, /optional preferred address is "Alex"/);
+  assert.match(meta.calls[0].instructions, /current preferred address is "Alex"/);
   assert.match(meta.calls[0].instructions, /emotionally dependent/);
   assert.match(meta.calls[0].instructions, /6–18 words/);
   assert.match(meta.calls[0].instructions, /not a reminder time/);
@@ -192,6 +243,18 @@ test('explicit framing wins without suppressing unrelated calm or plain checks',
   assert.deepEqual(checkPersonalityDraft('Golly, your timer is running.', plain, [rule('response_prefix', 'Golly,')]), []);
   assert.deepEqual(checkPersonalityDraft('Your timer is running. Standing down!', plain, [rule('response_suffix', 'Standing down!')]), []);
   assert.deepEqual(checkPersonalityDraft('Confirmed: sir, Your timer is running.', plain, [rule('response_prefix', 'Confirmed:'), rule('address_as', 'sir')]), []);
+  assert.ok(checkPersonalityDraft('Righto, mister! Your timer is running.', personalityContext(), [rule('address_as', 'Captain')]).length);
+  assert.deepEqual(checkPersonalityDraft('Captain, your timer is running.', personalityContext(), [rule('address_as', 'Captain')]), []);
+});
+
+test('a mandatory address overrides default mister in the prompt and delivered reply', async t => {
+  const meta = provider([[reply('Righto, mister! Happy to help.')], [reply('Happy to help.')]]);
+  const app = await fixture(t, meta);
+  await app.store.putRule(rule('address_as', 'Captain'));
+  const result = await app.request('/api/chat', body('Hello there!'));
+  assert.equal(result.status, 200); assert.equal(result.body.reply, 'Captain, Happy to help.');
+  assert.match(meta.calls[0].instructions, /Do not use an optional form of address on this turn/);
+  assert.deepEqual(meta.calls[1].tools, []);
 });
 
 test('frustrated requests repair a playful sign-off without repeating the action', async t => {
@@ -231,7 +294,7 @@ test('local warm timer replies vary without model calls or duplicate execution, 
   const request = body('set me a timer', session);
   const first = await app.request('/api/chat', request);
   assert.equal(first.status, 200); assert.equal(first.body.trace.model_calls, 0);
-  assert.notEqual(first.body.reply, 'Your timer is set for 5 minutes.');
+  assert.equal(first.body.reply, 'Set in a jiffy, mister! Your timer is set for 5 minutes.');
   assert.match(first.body.reply, /5 minutes/); assert.equal(first.body.timers.length, 1);
   const retry = await app.request('/api/chat', request);
   assert.equal(retry.body.reply, first.body.reply); assert.equal(retry.body.timers.length, 1);
@@ -274,30 +337,33 @@ test('fixed receipt charm preserves Spotify outcomes and declines arbitrary text
 test('banned decoration cannot block a local timer and unavailable flourishes fall back to its verified receipt', async t => {
   const app = await fixture(t);
   await app.store.putRule(rule('timer_default_seconds', 300));
-  await app.store.putRule(rule('avoid_phrase', 'Tick-tock'));
+  await app.store.putRule(rule('avoid_phrase', 'in a jiffy'));
   const result = await app.request('/api/chat', body('set me a timer'));
   assert.equal(result.status, 200); assert.match(result.body.reply, /Your timer is set for 5 minutes\./);
   assert.equal(result.body.timers.length, 1); assert.equal(result.body.trace.model_calls, 0);
-  assert.doesNotMatch(result.body.reply, /tick-tock/iu);
+  assert.doesNotMatch(result.body.reply, /in a jiffy/iu);
   await app.store.putRule(rule('avoid_phrase', '!'));
+  await app.store.putRule(rule('avoid_word', 'mister'));
   const fallback = await app.request('/api/chat', body('set me a timer'));
   assert.equal(fallback.status, 200); assert.equal(fallback.body.reply, 'Your timer is set for 5 minutes.');
   assert.equal(fallback.body.timers.length, 2); assert.equal(fallback.body.trace.model_calls, 0);
 });
 
-test('optional address respects bans on local receipts, cooldown across HTTP retries and plain mode', async t => {
+test('default address accompanies checked local charm while retries, bans and plain mode remain effective', async t => {
   const app = await fixture(t);
   await app.store.setPersonality({ style: 'warm', address: 'mister' });
   await app.store.putRule(rule('timer_default_seconds', 300));
   const request = body('set me a timer');
   const first = await app.request('/api/chat', request);
-  assert.match(first.body.reply, /, mister\.$/);
+  assert.match(first.body.reply, /^Set in a jiffy, mister!/);
   assert.equal(first.body.trace.events.find(event => event.stage === 'personality').data.optional_address_applied, true);
+  assert.equal(first.body.trace.events.find(event => event.stage === 'personality').data.playful_receipt_applied, true);
   const repeated = await app.request('/api/chat', request);
   assert.equal(repeated.body.reply, first.body.reply);
   assert.equal(app.store.snapshot().conversations.filter(item => item.role === 'assistant').length, 1);
   const second = await app.request('/api/chat', body('set me a timer'));
-  assert.doesNotMatch(second.body.reply, /mister/);
+  assert.match(second.body.reply, /mister/);
+  assert.equal((second.body.reply.match(/mister/gu) ?? []).length, 1);
   await app.store.putRule(rule('avoid_word', 'mister'));
   const banned = await app.request('/api/chat', body('set me a timer'));
   assert.equal(banned.status, 200); assert.match(banned.body.reply, /set for 5 minutes/); assert.doesNotMatch(banned.body.reply, /mister/);

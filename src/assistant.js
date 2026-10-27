@@ -46,8 +46,8 @@ export class Assistant {
     const originalReply = result.reply;
     const success = !result.conflict && !result.routine_confirmation && !result.personality_changed
       && result.tool_events.length > 0 && result.tool_events.every(event => event.status === 'completed');
-    const courteous = withCourtesy(result.reply, policy, rules, { success });
-    const decorated = courteous !== result.reply ? courteous : withPlayfulReceipt(result.reply, policy, rules, { success, tool_events: result.tool_events });
+    const playful = withPlayfulReceipt(result.reply, policy, rules, { success, tool_events: result.tool_events });
+    const decorated = withCourtesy(playful, policy, rules, { success });
     if (decorated !== result.reply) {
       const checked = checkOutput(rules, decorated);
       if (!checked.violations.length && !checked.conflicts.length) {
@@ -57,16 +57,18 @@ export class Assistant {
       }
     }
     onTrace('personality', 'Applied household reply style; explicit output rules remain authoritative.', {
-      style: policy.style, calm: policy.calm, optional_address_applied: courteous !== originalReply,
-      playful_receipt_applied: decorated !== courteous && result.reply !== originalReply,
+      style: policy.style, calm: policy.calm, optional_address_applied: decorated !== playful && result.reply !== originalReply,
+      playful_receipt_applied: playful !== originalReply && result.reply !== originalReply,
       recent_openings: policy.recent_openings,
     });
     return result;
   }
 
   personalityPolicy({ message, session_id, tool_events = [] }) {
-    return personalityContext({ settings: this.memory?.store.personality() ?? DEFAULT_PERSONALITY,
+    const policy = personalityContext({ settings: this.memory?.store.personality() ?? DEFAULT_PERSONALITY,
       conversations: this.memory?.store.snapshot().conversations ?? [], message, session_id, tool_events });
+    if (this.memory?.rules().some(rule => rule.kind === 'address_as')) policy.address_allowed = false;
+    return policy;
   }
 
   async runTurn({ message, time_zone, request_id, session_id, source_id, history = [], onTrace = () => {} }) {
@@ -108,7 +110,7 @@ export class Assistant {
         context.epoch = this.memory.store.epoch;
         const rules = this.memory.rules();
         const acknowledgement = patch.style === 'plain' ? "I'll keep it straightforward." : patch.style === 'warm'
-          ? "Righto! A little more pep, coming up." : remove_address ? "I'll leave that address out." : "I'll use that occasionally.";
+          ? "Righto! A little more pep, coming up." : remove_address ? "I'll leave that address out." : "You bet. I'll use that.";
         const checked = checkOutput(rules, acknowledgement);
         const reply = checked.violations.length || checked.conflicts.length ? safeClarification(rules, checked.conflicts) : checked.text;
         emit('personality_save', 'Saved the direct household style request with exact user evidence.', { source_id, style: settings.style, has_address: !!settings.address });

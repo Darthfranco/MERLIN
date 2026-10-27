@@ -185,7 +185,7 @@ test('HTTP chat executes a timer, supplies factual output to Meta, and preserves
   const body = chatBody();
   const created = await app.post('/api/chat', body);
   assert.equal(created.status, 200);
-  assert.equal(created.body.reply, 'Your tea timer is running for 60 seconds.');
+  assert.equal(created.body.reply, 'Your tea timer is running for 60 seconds, mister.');
   assert.deepEqual(created.body.tool_events, [{ tool: 'create_timer', status: 'completed', message: 'Created “Tea” for 60 seconds.' }]);
   assert.equal(created.body.timers.length, 1);
   assert.equal('turn' in created.body, false);
