@@ -14,6 +14,7 @@ async function fixture(t) {
   const publicRoot = join(directory, 'public/phone');
   const characterRoot = join(directory, 'character');
   const catalogPath = join(directory, 'public/connections/catalog.js');
+  const spokenTextPath = join(directory, 'public/shared/spoken-text.js');
   const phoneAssets = {
     'index.html': `<!doctype html><title>MERLIN phone</title><script type="importmap">${IMPORT_MAP}</script>`,
     'app.js': 'export const demo = true;',
@@ -41,10 +42,13 @@ async function fixture(t) {
   }
   await mkdir(dirname(catalogPath), { recursive: true });
   await writeFile(catalogPath, 'export const catalog = [];');
+  await mkdir(dirname(spokenTextPath), { recursive: true });
+  await writeFile(spokenTextPath, 'export const normalizeSpokenText = text => text;');
+  await writeFile(join(dirname(spokenTextPath), 'private.js'), 'not an allowed shared asset');
   await writeFile(join(directory, '.env'), 'SYNTHETIC_PRIVATE_FILE=not-public');
   await writeFile(join(publicRoot, 'private.json'), '{"private":true}');
   await writeFile(join(characterRoot, 'merlin-states.blend'), 'not a public phone asset');
-  const server = createPhoneServer({ publicRoot, characterRoot, catalogPath });
+  const server = createPhoneServer({ publicRoot, characterRoot, catalogPath, spokenTextPath });
   assert.equal(server.listening, false);
   await new Promise((resolve, reject) => {
     server.once('error', reject);
@@ -68,7 +72,7 @@ async function fixture(t) {
     req.on('error', reject);
     req.end();
   });
-  return { server, publicRoot, characterRoot, catalogPath, directory, port, phoneAssets, faceAssets, request };
+  return { server, publicRoot, characterRoot, catalogPath, spokenTextPath, directory, port, phoneAssets, faceAssets, request };
 }
 
 test('phone demo serves its own nested assets, existing catalog, and only the required character assets', async t => {
@@ -87,12 +91,14 @@ test('phone demo serves its own nested assets, existing catalog, and only the re
   }
   assert.equal((await app.request('/phone/%61pp.js')).text, app.phoneAssets['app.js']);
   assert.equal((await app.request('/connections/catalog.js')).text, 'export const catalog = [];');
+  assert.equal((await app.request('/shared/spoken-text.js')).text, 'export const normalizeSpokenText = text => text;');
   const expectedTypes = {
     '/': 'text/html; charset=utf-8', '/phone/app.js': 'text/javascript; charset=utf-8',
     '/phone/styles.css': 'text/css; charset=utf-8', '/phone/logos/spotify.svg': 'image/svg+xml',
     '/phone/icons/app.png': 'image/png', '/phone/fonts/interface.woff2': 'font/woff2',
     '/phone/fonts/interface.ttf': 'font/ttf', '/phone/manifest.webmanifest': 'application/manifest+json',
     '/character/states.json': 'application/json; charset=utf-8', '/character/merlin-states.glb': 'model/gltf-binary',
+    '/shared/spoken-text.js': 'text/javascript; charset=utf-8',
   };
   for (const [path, type] of Object.entries(expectedTypes)) assert.equal((await app.request(path)).headers['content-type'], type, path);
 });
@@ -118,7 +124,7 @@ test('browser policy allows only local demo assets, the exact import map, and ex
 
 test('HEAD returns asset and error metadata without reading out bodies', async t => {
   const app = await fixture(t);
-  for (const path of ['/', '/phone/styles.css', '/character/merlin-states.glb', '/health', '/missing', '/%']) {
+  for (const path of ['/', '/phone/styles.css', '/shared/spoken-text.js', '/character/merlin-states.glb', '/health', '/missing', '/%']) {
     const get = await app.request(path);
     const head = await app.request(path, { method: 'HEAD' });
     assert.equal(head.status, get.status, path);
@@ -183,6 +189,7 @@ test('private files, unexpected character assets, traversal, and malformed paths
     '/phone/%2e%2e/connections/catalog.js', '/phone/%2e%2e%2f.env', '/phone/%252e%252e%252f.env',
     '/phone/private.json', '/phone/.hidden.js', '/phone/logos/../app.js', '/phone//app.js',
     '/src/server.js', '/package.json', '/connections/app.js',
+    '/shared/private.js', '/shared/', '/shared/../phone/app.js', '/shared/%2e%2e/.env',
     '/character/merlin-states.blend', '/character/merlin.glb', '/character/viewer/character.js',
     '/character/viewer/vendor/three/NOTICE.md', '/character/../phone/index.html',
   ]) {
@@ -214,6 +221,9 @@ test('file and nested-directory symlinks cannot escape any public asset root', a
   await rm(app.catalogPath);
   await symlink(join(app.directory, '.env'), app.catalogPath);
   assert.equal((await app.request('/connections/catalog.js')).status, 404);
+  await rm(app.spokenTextPath);
+  await symlink(join(app.directory, '.env'), app.spokenTextPath);
+  assert.equal((await app.request('/shared/spoken-text.js')).status, 404);
   await rm(join(app.publicRoot, 'styles.css'));
   await mkdir(join(app.publicRoot, 'styles.css'));
   assert.equal((await app.request('/phone/styles.css')).status, 404);

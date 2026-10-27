@@ -43,6 +43,12 @@ The browser requests echo cancellation, noise suppression, and automatic gain co
 
 The [official Kokoro Space code](https://huggingface.co/spaces/hexgrad/Kokoro-TTS/blob/main/app.py) documents punctuation and native stress/pronunciation controls, not a trained emotion parameter. Try `That is [so](+2) good!`. `(-1)` and `(-2)` reduce stress; increasing stress mainly affects less-stressed short words. Punctuation shapes intonation. Pronunciation links such as `[Kokoro](/kˈOkəɹO/)` remain supported. Invented `[happy]` or `[sad]` tags are not emotion controls and can become spoken text. Delivery presets do not guarantee emotional acting or low latency.
 
+## Speech-friendly assistant replies
+
+The assistant prompt asks Meta to write natural spoken language for ordinary replies, including typed replies that may be read aloud. A shared browser-safe formatter in `public/shared/spoken-text.js` expands common explicit temperature, unit, percentage, money, time, range, and fraction notation and removes ordinary prose markdown from the derived speech. It preserves numerical meaning, signs, exact protected literals, code, raw URLs/identifiers, and native Kokoro stress/pronunciation markup. Ambiguous numeric dates, bare unit/seat codes, media timestamps, unfamiliar abbreviations, and unsupported compound units are not guessed; the language model should express their meaning when context establishes it. There is no extra model call for speech formatting.
+
+`src/spoken-replies.js` checks both the original text and its speech projection against current household output rules and enforces the existing two-thousand-character synthesis limit after expansion. Required literal address/prefix/suffix text is protected, so general speech styling cannot override it. The combined assistant injects this preparation into HTTP read-aloud, live wake replies, and timer/stored-reply notifications. The phone demo uses the same formatter before browser speech synthesis. Displayed/archived assistant text, timer labels, tool arguments, and Spotify metadata boundaries remain unchanged. The standalone echo lab and Kokoro prosody engine retain their exact-text behavior; this formatter belongs to assistant output, not arbitrary source transcription.
+
 ## Data flow and boundaries
 
 1. **Typed input:** browser → local Node server → local Kokoro worker → WAV → browser playback. Text is not sent to Meta or Hugging Face.

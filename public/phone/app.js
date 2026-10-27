@@ -2,6 +2,7 @@ import {createInitialState, normalizeState, respond, removeMemory} from './demo-
 import {SERVICES, DEFAULT_CONNECTED_IDS, getService} from './services.js';
 import {icon, hydrateIcons} from './icons.js';
 import {saveFile, readFile, deleteFile, clearFiles, MAX_FILE_SIZE, MAX_TOTAL_SIZE} from './storage.js';
+import {normalizeSpokenText} from '../shared/spoken-text.js';
 
 const $ = id => document.getElementById(id);
 const STORAGE_KEY = 'merlin-phone-demo-v1';
@@ -233,7 +234,7 @@ function speakReply(text,preview){
   const revision=voiceRevision;setPhase('speaking',preview?'Speaking · Voice preview':soundEnabled?'Speaking':'Reply ready');
   const finish=()=>{if(revision===voiceRevision){setPhase('idle');$('microphone-state').textContent='Microphone off';}};
   const voice=soundEnabled?localVoice():undefined;
-  if(voice){const utterance=new SpeechSynthesisUtterance(text);utterance.voice=voice;utterance.rate=1;utterance.onend=finish;utterance.onerror=()=>{finish();toast('Spoken playback isn’t available. Your reply is on screen.');};speechSynthesis.speak(utterance);voiceTimer=setTimeout(finish,Math.max(10000,Math.min(45000,text.length*95)));}
+  if(voice){const spokenText=normalizeSpokenText(text);const utterance=new SpeechSynthesisUtterance(spokenText);utterance.voice=voice;utterance.rate=1;utterance.onend=finish;utterance.onerror=()=>{finish();toast('Spoken playback isn’t available. Your reply is on screen.');};speechSynthesis.speak(utterance);voiceTimer=setTimeout(finish,Math.max(10000,Math.min(45000,spokenText.length*95)));}
   else voiceTimer=setTimeout(finish,Math.min(6500,Math.max(2200,text.length*38)));
 }
 $('sound').addEventListener('click',()=>{

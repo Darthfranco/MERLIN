@@ -2,6 +2,16 @@
 
 Last updated: **October 27, 2026**.
 
+## Clear language for speech — October 27, 2026
+
+The owner's wording request now applies across ordinary assistant replies: Meta is prompted to write units, amounts, percentages, ranges, dates, times, and known abbreviations naturally for listening while keeping MERLIN's brief, energetic personality and chosen address. A shared local formatter additionally expands common unambiguous shorthand at live voice, stored-reply playback, timer-notification, speaker-test, and phone-demo speech boundaries. Numerical values, signs, precision, units, and action status are preserved; there is no unit conversion or extra formatting model call.
+
+The assistant checks original and prepared speech against current household output rules and protects required literal framing. The synthesis limit is checked after expansion without truncation. Displayed/archived replies, timer labels, tool arguments, native Kokoro markup, and exact code/identifiers remain intact. Ambiguous dates/units/abbreviations still require contextual model wording; the fallback does not guess. The standalone voice echo lab retains its exact-text contract, and Spotify metadata stays out of speech.
+
+Verification: all **607 automated tests pass** in an isolated snapshot of the intentional changes over the committed baseline, excluding the parallel animation task's unfinished assets. Checks cover numerical meaning, mixed recipe fractions, intact identifiers/rates/media timestamps, formatting idempotence, literal-rule preservation, current-rule changes before playback, HTTP and WebSocket speech, timer labels, phone captions/history, and static-route isolation. Six live standard-Meta synthetic cases passed for weather, price/weight, date/time/time zone, recipe fractions/ranges, separate temperature readings, and an exact model identifier. An actual local Fenrir → standard Meta ASR round trip preserved minus two degrees Celsius, twelve dollars and fifty cents, and three to five minutes. This verifies synthesis and transcription, not physical speaker or real-room microphone quality.
+
+Contribution: original speech instructions, dependency-free shared formatter, checked assistant playback adapter, phone-demo integration, regression tests, and documentation. No new provider, runtime dependency, household test record, or device integration. Next useful check: owner listening review on the target speaker, especially unfamiliar names/acronyms and context-dependent notation.
+
 ## Companion audio and performance follow-up — October 27, 2026
 
 The owner rejected panels beside the full face. `/companion/` now hides panels and panel controls during face conversation, preserving both records for body mode and Activity. Older character exports show the focused physical screen when a dual-screen clip is unavailable. Typed replies read aloud by default, with a remembered opt-out. An explicit gesture primes playback; an enabled wake session reads the checked stored typed reply through its existing audio channel. Typed speech waits safely for local-listener startup; blocked autoplay retains a manually playable clip until a new request, interruption, or shutdown. Read-aloud preserves the answer’s citations and action receipts. Microphone permission, local-listener preparation, wake standby, and speaking have distinct labels. Permission errors explain browser/OS recovery. A fixed, rule-checked **Test speaker** button verifies Fenrir output without an assistant/model request or memory write. Animation settling has a 2.5-second bound, and the post-action hold is 400 ms, so slow motion does not indefinitely delay speech.
@@ -191,6 +201,8 @@ The requested text/search/timer, memory/routine, and typed Spotify slices are im
 Full Official Rules and participant acceptance have not been verified. The supplied materials differ on the building-period start; consult `HACKATHON.md` before relying on an eligibility interpretation. Team/track, production stack, hardware, other service/device integrations, hosting, license, final voice integration, production retention, detailed permissions, and final demo scope remain undecided. Do not turn the confirmed goal of broad accessibility into a specific platform choice.
 
 ## Contribution record
+
+- **October 27, 2026 — clear language for speech:** added spoken-first model guidance and shared local expansion for assistant/phone playback, preserving exact evidence, values, explicit output framing, and the voice lab echo contract. Automated integration and live synthetic Meta/Fenrir checks cover the speech path; no new dependencies or physical-device claims.
 
 - **October 27, 2026 — default mister and energetic courtesy:** implemented the owner's explicit default address, removed the earlier address cooldown and blanket model-vocative ban, expanded original “in a jiffy”/“quick as a wink” phrasing, and combined checked local flourishes with the chosen address. Existing saved opt-outs/custom names remain intact; no data-migration guesses, UI changes, dependencies, or speech-pipeline changes.
 

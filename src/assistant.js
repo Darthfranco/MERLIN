@@ -7,6 +7,7 @@ import { ROUTINE_TOOLS, ROUTINE_INSTRUCTIONS, matchRoutineActivation, detectRout
 import { detectRoutineIntent, isRoutineDefinitionBlocked, parseRoutineTriggerDefinition } from './routine-intents.js';
 import { parseSimpleTimerIntent, formatDuration } from './timer-intents.js';
 import { isPureAcknowledgment } from './conversation-intents.js';
+import { SPOKEN_REPLY_INSTRUCTIONS } from './spoken-replies.js';
 import { SPOTIFY_TOOLS, SPOTIFY_INSTRUCTIONS, isSpotifyTool, executeSpotifyTool, spotifyReply, parseSimpleSpotifyControl } from './spotify-tools.js';
 import { DEFAULT_PERSONALITY, parsePersonalityRequest, personalityContext, personalityInstructions, withCourtesy, withPlayfulReceipt, checkPersonalityDraft } from './personality.js';
 
@@ -107,7 +108,7 @@ export class Assistant {
     const executed = new Map();
     let callCount = 0;
     let searchCount = 0;
-    const instructions = `${BASE_INSTRUCTIONS}\n${this.memory ? MEMORY_INSTRUCTIONS + '\nBefore web search, call prepare_web_search once. It enables native search only after current instructions are saved and checked.' : 'No persistent memory is enabled in this runtime.'}\n${this.routines ? ROUTINE_INSTRUCTIONS : ''}\n${spotifyEnabled ? SPOTIFY_INSTRUCTIONS : channel === 'voice' ? 'Spotify is unavailable for voice requests, including saved routines. No Spotify tool is enabled. If requested, briefly explain that music controls are available by typing or using the music panel. Complete independent supported work.' : 'Spotify is not enabled in this runtime.'}`;
+    const instructions = `${BASE_INSTRUCTIONS}\n${SPOKEN_REPLY_INSTRUCTIONS}\n${this.memory ? MEMORY_INSTRUCTIONS + '\nBefore web search, call prepare_web_search once. It enables native search only after current instructions are saved and checked.' : 'No persistent memory is enabled in this runtime.'}\n${this.routines ? ROUTINE_INSTRUCTIONS : ''}\n${spotifyEnabled ? SPOTIFY_INSTRUCTIONS : channel === 'voice' ? 'Spotify is unavailable for voice requests, including saved routines. No Spotify tool is enabled. If requested, briefly explain that music controls are available by typing or using the music panel. Complete independent supported work.' : 'Spotify is not enabled in this runtime.'}`;
     try {
       checkCancelled(signal);
       const personalityRequest = this.memory && !routineIntent && parsePersonalityRequest(message);

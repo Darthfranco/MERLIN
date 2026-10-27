@@ -22,6 +22,7 @@ import { attachVoiceSocket } from './voice/transport.js';
 import { VOICE_SESSION_LIMITS } from './voice/session.js';
 import { validateSpeechDelivery } from './voice/prosody.js';
 import { checkCancelled } from './cancellation.js';
+import { prepareSpokenReply } from './spoken-replies.js';
 import { companionAsset, companionCsp, connectionState, presentationEvent, presentationResult } from './companion.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -109,11 +110,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
     if (checked.violations.length || checked.conflicts.length) throw new AppError('A saved instruction prevents this timer announcement.', 409);
     return { reply: checked.text, presentation: [presentationResult('tool_result', { tool: 'create_timer', ok: true, result: timer })] };
   };
-  const checkedSpeech = text => {
-    const checked = checkOutput(memory.rules(), text);
-    if (checked.violations.length || checked.conflicts.length) throw new AppError('The reply cannot be spoken under the current instructions.', 409);
-    return checked.text;
-  };
+  const checkedSpeech = text => prepareSpokenReply(text, memory.rules());
   const replyAudio = async requestId => {
     uuid(requestId);
     const text = speechReplies.get(requestId);
@@ -351,7 +348,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         if (typeof speed !== 'number' || !Number.isFinite(speed) || speed < 0.75 || speed > 1.25) throw new AppError('Speech speed must be between 0.75 and 1.25.');
         speechPending.add(controller);
         try {
-          const audio = await tts.synthesize(text, { delivery, speed, signal: controller.signal });
+          const audio = await tts.synthesize(checkedSpeech(text), { delivery, speed, signal: controller.signal });
           if (!controller.signal.aborted && !res.destroyed) {
             res.writeHead(200, { 'Content-Type': 'audio/wav', 'Content-Length': audio.length }); res.end(audio);
           }
@@ -463,7 +460,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       else res.end();
     } finally { req.off('aborted', abort); res.off('close', abort); }
   });
-  const voiceSocket = attachVoiceSocket({ server, listener, meta: voiceMeta, tts, isBusy: () => speechPending.size > 0, timerAlert, replyAudio,
+  const voiceSocket = attachVoiceSocket({ server, listener, meta: voiceMeta, tts, prepareSpeech: checkedSpeech, isBusy: () => speechPending.size > 0, timerAlert, replyAudio,
     respond: async (text, { signal, onProgress, sessionId, timeZone: zone, requestId }) => {
       const result = await runChatTurn({ message: text, session_id: sessionId, time_zone: zone, request_id: requestId, channel: 'voice' }, { signal, onProgress });
       const { trace, ...response } = result.data;

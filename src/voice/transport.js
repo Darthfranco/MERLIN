@@ -2,7 +2,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { AppError, objectArgs, uuid } from '../errors.js';
 import { VoiceSession } from './session.js';
 
-export function attachVoiceSocket({ server, listener, meta, tts, respond, timerAlert, replyAudio, isBusy = () => false }) {
+export function attachVoiceSocket({ server, listener, meta, tts, respond, prepareSpeech, timerAlert, replyAudio, isBusy = () => false }) {
   const wss = new WebSocketServer({ noServer: true, maxPayload: 16_000, perMessageDeflate: false });
   const sessions = new Map();
   const reject = (socket, code) => { socket.end(`HTTP/1.1 ${code}\r\nConnection: close\r\nContent-Length: 0\r\n\r\n`); };
@@ -34,7 +34,7 @@ export function attachVoiceSocket({ server, listener, meta, tts, respond, timerA
     const send = value => {
       if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(value));
     };
-    const session = new VoiceSession({ listener, meta, tts, send, respond,
+    const session = new VoiceSession({ listener, meta, tts, send, respond, prepareSpeech,
       sendAudio: audio => {
         if (socket.readyState === WebSocket.OPEN) socket.send(audio, { binary: true });
       },

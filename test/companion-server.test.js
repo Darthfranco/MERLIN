@@ -183,6 +183,22 @@ test('speech accepts only checked stored replies and deletion removes their repl
   await assert.rejects(app.replyAudio(input.request_id), error => error.status === 404);
 });
 
+test('read-aloud expands shorthand without changing display, archive, or executing another model call', async t => {
+  const original = 'It is 16°F, with wind at 5 km/h and a 20% chance of rain.';
+  const app = await fixture(t, script([answer(original)]));
+  const input = body('Read this synthetic weather sample.');
+  const result = await app.runChatTurn(input);
+  assert.equal(result.data.reply, original);
+  assert.match(app.meta.calls[0].instructions, /Write MERLIN's replies for listening/);
+  assert.equal((await app.request('/api/companion/speak', { request_id: input.request_id })).status, 200);
+  assert.equal(app.spoken[0].text, 'It is 16 degrees Fahrenheit, with wind at 5 kilometers per hour and a 20 percent chance of rain.');
+  assert.equal(app.meta.calls.length, 1);
+  assert.equal(app.store.snapshot().conversations.find(item => item.role === 'assistant').text, original);
+  await app.store.putRule(normalizeRule({ kind: 'avoid_word', value: 'Fahrenheit', scope: 'assistant_reply', original: 'Do not say Fahrenheit.', source_id: 'manual', source_quote: '', explanation: 'Synthetic speech rule.' }));
+  assert.equal((await app.request('/api/companion/speak', { request_id: input.request_id })).status, 409);
+  assert.equal(app.spoken.length, 1);
+});
+
 test('wake-session reply audio rechecks stored text against current instructions', async t => {
   const app = await fixture(t, script([answer('Ready to help.')]));
   const input = body('Hello.');

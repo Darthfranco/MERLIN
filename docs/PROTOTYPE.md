@@ -57,6 +57,12 @@ Original writing examples below assume the stated facts and tool outcomes are co
 
 The personality belongs to the language layer. The owner asked to leave the UI unchanged for this task. It does not select a TTS voice, add speech input/output, or change device permissions. Spoken delivery and wake-word integration remain separate work.
 
+## Language for listening
+
+MERLIN now writes ordinary replies for speech even when the request is typed. Units, percentages, currencies, ranges, dates, times, and known abbreviations should be expressed in natural words. The numeric value and unit remain authoritative: the example “sixteen degrees Fahrenheit” does not imply a conversion to “twelve degrees Celsius.” Explicit requests for exact code, quotes, URLs, or identifiers keep their literal content.
+
+A shared local speech formatter also prepares common unambiguous shorthand before read-aloud playback, live voice replies, timer announcements, and phone-demo speech. It does not call a model or change tool arguments, the displayed/archived answer, or saved timer labels. In the combined assistant, both original and derived speech pass current output checks; required literal framing remains exact. Expanded speech must fit the existing synthesis limit without truncation. Context-dependent notation still relies on the model writing it naturally; the formatter does not guess ambiguous dates, units, identifiers, or unfamiliar acronyms. See [voice preparation](VOICE.md#speech-friendly-assistant-replies).
+
 ## Execution and boundaries
 
 - `src/meta.js` calls the **Meta Responses API**. Built-in `web_search` executes inside Meta; custom timer functions execute locally. Search events are reported from actual `web_search_call` output, and returned URL citations become safe clickable source links. A failed search or missing citation is not fabricated into a success or source.

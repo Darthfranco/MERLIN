@@ -21,9 +21,10 @@ function wavOf(pcm) {
 
 /** Local turn boundaries only. No provider calls are permitted in wake standby. */
 export class VoiceSession {
-  constructor({ listener, meta, tts, send, sendAudio, respond, now = () => performance.now(), limits = {} }) {
+  constructor({ listener, meta, tts, send, sendAudio, respond, prepareSpeech = text => text, now = () => performance.now(), limits = {} }) {
     this.listener = listener; this.meta = meta; this.tts = tts;
     this.respond = respond;
+    this.prepareSpeech = prepareSpeech;
     this.send = send; this.sendAudio = sendAudio; this.now = now;
     this.limits = { ...VOICE_SESSION_LIMITS, ...limits };
     this.state = 'off'; this.revision = 0; this.sample = 0;
@@ -124,7 +125,7 @@ export class VoiceSession {
   async #speakNotification(reply, { revision, controller }) {
     const current = () => !this.closed && this.revision === revision && !controller.signal.aborted;
     try {
-      const audio = await this.tts.synthesize(reply, { delivery: this.delivery, speed: this.speed, signal: controller.signal });
+      const audio = await this.tts.synthesize(this.prepareSpeech(reply), { delivery: this.delivery, speed: this.speed, signal: controller.signal });
       if (!current()) return;
       this.controller = null; this.utteranceId = randomUUID();
       const { presentationMode, kind, requestId } = this.notification;
@@ -304,6 +305,7 @@ export class VoiceSession {
         this.emit('response', { requestId, response });
         spokenText = response.reply;
       }
+      spokenText = this.prepareSpeech(spokenText);
       if (spokenText.length > 2000) throw new AppError(this.respond ? 'Your answer is on screen. It is too long to read aloud.' : 'The transcript is too long to read aloud. Shorten the next turn.');
       this.setState('generating', 'Preparing Fenrir’s voice…');
       const audio = await this.tts.synthesize(spokenText, { delivery: this.delivery, speed: this.speed, signal: controller.signal });

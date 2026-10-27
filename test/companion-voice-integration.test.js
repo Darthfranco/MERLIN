@@ -198,3 +198,37 @@ test('active wake socket speaks a checked typed reply without another model requ
   assert.equal(h.uploads.length, 0);
   assert.equal(h.store.snapshot().conversations.length, count);
 });
+
+test('live voice normalizes the spoken projection and keeps the original checked reply in history', { timeout: 7000 }, async t => {
+  const original = 'It is -2°C, with a 20% chance of rain.';
+  const h = await fixture(t, [answer(original)], ['Merlin, read the synthetic weather sample.']);
+  h.utterance({ wake: true });
+  const event = await h.waitFor(message => message.type === 'response');
+  await h.waitFor(message => message.binary);
+  assert.equal(event.response.reply, original);
+  assert.equal(h.spoken[0].text, 'It is minus 2 degrees Celsius, with a 20 percent chance of rain.');
+  assert.equal(h.store.snapshot().conversations.find(item => item.role === 'assistant').text, original);
+  assert.equal(h.modelCalls.length, 1);
+});
+
+test('live voice refuses a newly expanded forbidden word before synthesis', { timeout: 7000 }, async t => {
+  const h = await fixture(t, [answer('It is 16°F.')], ['Merlin, read the synthetic temperature.']);
+  await h.store.putRule({ kind: 'avoid_word', value: 'Fahrenheit', scope: 'assistant_reply', original: 'Do not say Fahrenheit.', source_id: 'manual', source_quote: '', explanation: 'Synthetic speech rule.' });
+  h.utterance({ wake: true });
+  await h.waitFor(message => message.type === 'response');
+  const error = await h.waitFor(message => message.type === 'error');
+  assert.match(error.message, /cannot be spoken/);
+  assert.equal(h.spoken.length, 0);
+  assert.equal(h.modelCalls.length, 1);
+});
+
+test('timer notifications expand label shorthand only for speech without changing timer records', { timeout: 7000 }, async t => {
+  const h = await fixture(t, [], []);
+  const timer = await h.timers.create({ label: '5 min tea', duration_seconds: 1, time_zone: 'UTC' }, 'spoken-label-test');
+  await h.advanceTimers(1000);
+  h.socket.send(JSON.stringify({ type: 'timer_alert', timerId: timer.id }));
+  await h.waitFor(message => message.binary);
+  assert.match(h.spoken[0].text, /5 minutes tea/);
+  assert.equal((await h.timers.list())[0].label, '5 min tea');
+  assert.equal(h.modelCalls.length, 0);
+});

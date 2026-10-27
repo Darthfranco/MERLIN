@@ -9,6 +9,7 @@ const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_ROOT = join(PROJECT_ROOT, 'public/phone');
 const CHARACTER_ROOT = join(PROJECT_ROOT, 'assets/merlin-character');
 const CATALOG_PATH = join(PROJECT_ROOT, 'public/connections/catalog.js');
+const SPOKEN_TEXT_PATH = join(PROJECT_ROOT, 'public/shared/spoken-text.js');
 const IMPORT_MAP = '{"imports":{"three":"/character/viewer/vendor/three/build/three.module.min.js","three/addons/":"/character/viewer/vendor/three/examples/jsm/"}}';
 const IMPORT_MAP_HASH = createHash('sha256').update(IMPORT_MAP).digest('base64');
 const CONTENT_TYPES = new Map([
@@ -68,10 +69,11 @@ async function openPublicFile(root, filename) {
 
 // This isolated demo imports no assistant/provider modules and never loads .env.
 // Returning an unstarted server makes tests/imports side-effect free.
-export function createPhoneServer({ publicRoot = PUBLIC_ROOT, characterRoot = CHARACTER_ROOT, catalogPath = CATALOG_PATH } = {}) {
+export function createPhoneServer({ publicRoot = PUBLIC_ROOT, characterRoot = CHARACTER_ROOT, catalogPath = CATALOG_PATH, spokenTextPath = SPOKEN_TEXT_PATH } = {}) {
   const phoneRoot = resolve(publicRoot);
   const faceRoot = resolve(characterRoot);
   const catalogFile = resolve(catalogPath);
+  const spokenTextFile = resolve(spokenTextPath);
   const server = createServer(async (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -123,6 +125,10 @@ export function createPhoneServer({ publicRoot = PUBLIC_ROOT, characterRoot = CH
     } else if (pathname === '/connections/catalog.js') {
       root = dirname(catalogFile);
       filename = catalogFile.slice(root.length + 1);
+      type = CONTENT_TYPES.get('.js');
+    } else if (pathname === '/shared/spoken-text.js') {
+      root = dirname(spokenTextFile);
+      filename = spokenTextFile.slice(root.length + 1);
       type = CONTENT_TYPES.get('.js');
     } else if (pathname.startsWith('/phone/')) {
       const relative = pathname.slice('/phone/'.length);
