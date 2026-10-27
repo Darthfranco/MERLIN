@@ -86,6 +86,22 @@ Transitions route through `ready` and the `face` hub. Requests made during a tra
 
 Reduced-motion preference starts the character paused. An explicit Play action resumes it. Pause also freezes animated canvas content. The 4:3 scene remains fixed while the surrounding controls adapt to a narrow screen.
 
+## Scene clock
+
+The stage displays the browser's current local time and date in large pale numerals. It follows the browser's locale and time zone, including 12/24-hour formatting and daylight saving; pausing the character does not pause wall time. It updates at minute boundaries, checks for clock changes within 15 seconds, and refreshes when returning to the tab. This clock is a browser overlay, not baked into the Blender export.
+
+Its five resting positions are **upper left, upper middle, upper right, lower left, and lower right**. `clock-layout.js` chooses a clear position using projected swept bounds from the actual GLB meshes, including skinning, props and panel fragments. It reserves the entire active loop and upcoming entry/exit, so walking back in the opposite direction cannot invalidate the chosen corner. It holds a clear position instead of chasing each frame. When switching opposite panels it reserves the current panel through dismissal, then replans at the ready hub before the next panel pulls in; treating both non-simultaneous panels as permanent obstacles would leave no valid slot.
+
+Moves use a 320 ms ease-out. Stage or font-size changes recompute placement without sliding from stale coordinates; reduced motion uses instant relocation. Full-face entry, every full-face variant, and the complete return hide the overlay visually and from assistive technology. The clock never takes pointer focus or makes repeated live-region announcements. `merlin.clock` exposes its current `spot` and `hidden` status for inspection.
+
+`motion-footprints.json` caches normalized geometry bounds so the expensive sampling runs at build time, not on page load. After changing `merlin-states.glb` or the authored camera, regenerate with:
+
+```sh
+node assets/merlin-character/scripts/build_motion_footprints.mjs
+```
+
+The tests verify asset/camera hashes and off-grid posed vertices against the cache. The planner is specific to the authored orthographic scene; future camera controls, additional objects, or interactive HTML panels need updated footprints/obstacles. If every resting spot is obstructed, it chooses the least obstructed spot and keeps the time visible; full-face mode is the intentional hiding case.
+
 ## Edit the Blender screens
 
 Open `merlin-states.blend`, switch to the Python Console, and run:

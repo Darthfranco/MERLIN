@@ -45,7 +45,7 @@ export class MotionController {
     if(old&&old!==action){action.crossFadeFrom(old,.18,false);this.retiring.push({action:old,at:this.clock+.2});}
     this.active=action;this.clip=name;this.notify();
   }
-  notify(){this.onChange({state:this.current,desired:this.desired,phase:this.phase,clip:this.clip,paused:this.paused});}
+  notify(){this.onChange({state:this.current,desired:this.desired,arrival:this.arrival,phase:this.phase,clip:this.clip,paused:this.paused});}
   pause(){this.paused=true;this.mixer.timeScale=0;this.notify();}
   resume(){this.paused=false;this.mixer.timeScale=1;this.notify();}
   update(dt){

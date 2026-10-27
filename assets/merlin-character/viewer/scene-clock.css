@@ -1,0 +1,48 @@
+/* The scene owns the typography scale, including a narrow or expanded stage. */
+.stage { container-type: inline-size; }
+.scene-clock {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: max-content;
+  min-width: 27cqw;
+  color: #e4f4ff;
+  pointer-events: none;
+  user-select: none;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 12px #060e1c66;
+  opacity: 1;
+  transition: opacity 130ms ease-out;
+}
+.scene-clock[data-visible="false"] { opacity: 0; visibility: hidden; }
+.scene-clock-time {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: .1em;
+  white-space: nowrap;
+  font-size: clamp(26px, 8.6cqw, 88px);
+  font-weight: 350;
+  letter-spacing: -.035em;
+  line-height: 1.05;
+}
+.scene-clock-period {
+  font-size: .2em;
+  font-weight: 550;
+  letter-spacing: .01em;
+  color: #b9d9ee;
+}
+.scene-clock-period:empty { display: none; }
+.scene-clock-date {
+  display: block;
+  margin-top: .55em;
+  font-size: clamp(10px, 1.85cqw, 19px);
+  font-weight: 450;
+  line-height: 1.35;
+  letter-spacing: .015em;
+  color: #bbdbed;
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-clock { transition: none; }
+}

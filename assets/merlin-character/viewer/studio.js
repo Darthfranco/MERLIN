@@ -6,17 +6,20 @@ import { UnrealBloomPass } from './vendor/three/examples/jsm/postprocessing/Unre
 import { OutputPass } from './vendor/three/examples/jsm/postprocessing/OutputPass.js';
 import { collectScreens,drawMessage,drawCanvasDemo } from './screens.js';
 import { MotionController } from './motion.js';
+import { SceneClock } from './scene-clock.js';
 import { PANEL_TYPES,createDemoState,paintPanel,loadPanelArt } from './panels/render.js';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene'),stage=$('stage');
 let controller,screens,renderer,composer,panelArt={};
 const contentRevision={right:0,left:0,camera:0};
+let sceneClock;
 const controls=['mode','play','apply','canvas-demo','pause','ready','screen-image','panel-design','panel-side','show-panel'];
 controls.forEach(id=>$(id).disabled=true);
 for(const {id,label} of PANEL_TYPES)$('panel-design').add(new Option(label,id));
 $('retry').addEventListener('click',()=>location.reload());
 function fail(error){
+  sceneClock?.destroy();
   $('loading').hidden=true;$('stage-error').hidden=false;
   $('error-detail').textContent=error.message||'Try reloading, or open the Blender file.';
   controls.forEach(id=>$(id).disabled=true);
@@ -29,6 +32,9 @@ async function start(){
   const artReady=loadPanelArt().catch(error=>{console.warn('Panel illustration unavailable:',error);return {};});
   const response=await fetch('../states.json');if(!response.ok)throw new Error('The character files are unavailable. Start this page with the included local server.');
   const manifest=await response.json();
+  const footprintResponse=await fetch('./motion-footprints.json');
+  if(!footprintResponse.ok)throw new Error('The clock layout data is unavailable. Reload the preview.');
+  const footprintData=await footprintResponse.json();
   renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.AgXToneMapping;
@@ -62,7 +68,9 @@ async function start(){
     const glow=new THREE.PointLight(0x26bcff,2.8,1.1,2);scene.add(glow);feet.push({foot,glow});
   }
   const mixer=new THREE.AnimationMixer(gltf.scene);
+  sceneClock=new SceneClock(stage,manifest.states,new Map(Object.entries(footprintData.clips)));
   controller=new MotionController(mixer,gltf.animations,manifest,info=>{
+    sceneClock.sync({...info,current:info.state});
     const label=manifest.states[info.phase==='idle'?info.state:info.desired].label;
     const message=info.phase==='finishLoop'?'Finishing '+manifest.states[info.state].label.toLowerCase()+'…':info.phase==='idle'?label:'Moving to '+label.toLowerCase()+'…';
     $('motion-status').textContent=(info.paused?'Paused · ':'')+message;
@@ -84,6 +92,7 @@ async function start(){
   Object.defineProperty(window,'merlin',{value:{
     screens,showPanel,go:state=>controller.go(state),ready:()=>controller.go('ready'),pause:()=>controller.pause(),resume:()=>controller.resume(),
     get state(){return controller.current;},get desired(){return controller.desired;},get phase(){return controller.phase;},get clip(){return controller.clip;},
+    get clock(){return {spot:sceneClock.spot?.id,hidden:sceneClock.plan.hidden};},
   }});
   if(matchMedia('(prefers-reduced-motion: reduce)').matches)controller.pause();
   controls.forEach(id=>$(id).disabled=false);$('loading').hidden=true;

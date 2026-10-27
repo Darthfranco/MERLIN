@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-27T18:04:31.519Z",
+  "generatedAt": "2026-10-27T18:42:36.458Z",
   "title": "Design System: MERLIN character studio",
   "extensions": {
     "colorMeta": {
@@ -227,6 +227,48 @@
           "oklch(83.57% 0.03317 254.85)",
           "oklch(95.00% 0.03317 254.85)"
         ]
+      },
+      "clock-digits": {
+        "role": "neutral",
+        "displayName": "Pale cyan clock digits",
+        "tonalRamp": [
+          "oklch(15.00% 0.02253 237.64)",
+          "oklch(26.43% 0.02253 237.64)",
+          "oklch(37.86% 0.02253 237.64)",
+          "oklch(49.29% 0.02253 237.64)",
+          "oklch(60.71% 0.02253 237.64)",
+          "oklch(72.14% 0.02253 237.64)",
+          "oklch(83.57% 0.02253 237.64)",
+          "oklch(95.00% 0.02253 237.64)"
+        ]
+      },
+      "clock-period": {
+        "role": "neutral",
+        "displayName": "Soft cyan clock period",
+        "tonalRamp": [
+          "oklch(15.00% 0.04478 236.81)",
+          "oklch(26.43% 0.04478 236.81)",
+          "oklch(37.86% 0.04478 236.81)",
+          "oklch(49.29% 0.04478 236.81)",
+          "oklch(60.71% 0.04478 236.81)",
+          "oklch(72.14% 0.04478 236.81)",
+          "oklch(83.57% 0.04478 236.81)",
+          "oklch(95.00% 0.04478 236.81)"
+        ]
+      },
+      "clock-date": {
+        "role": "neutral",
+        "displayName": "Soft cyan clock date",
+        "tonalRamp": [
+          "oklch(15.00% 0.04209 232.57)",
+          "oklch(26.43% 0.04209 232.57)",
+          "oklch(37.86% 0.04209 232.57)",
+          "oklch(49.29% 0.04209 232.57)",
+          "oklch(60.71% 0.04209 232.57)",
+          "oklch(72.14% 0.04209 232.57)",
+          "oklch(83.57% 0.04209 232.57)",
+          "oklch(95.00% 0.04209 232.57)"
+        ]
       }
     },
     "typographyMeta": {
@@ -237,6 +279,18 @@
       "help": {
         "displayName": "Help and captions",
         "purpose": "Subordinate explanations and explicit preview limits."
+      },
+      "clock-time": {
+        "displayName": "Scene time",
+        "purpose": "Large tabular local time, scaled to the stage inline container."
+      },
+      "clock-period": {
+        "displayName": "Clock period",
+        "purpose": "Optional locale-specific period on the time baseline."
+      },
+      "clock-date": {
+        "displayName": "Scene date",
+        "purpose": "Small localized weekday, month, and day beneath the time."
       }
     },
     "motion": [
@@ -244,6 +298,16 @@
         "name": "clip-crossfade",
         "value": "180ms",
         "purpose": "Blend from an interrupted loop into its authored exit; walking and tossing first finish their current cycle."
+      },
+      {
+        "name": "clock-anchor-move",
+        "value": "320ms cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Move between five resting anchors only when the current anchor is obstructed across the planned motion. First placement, resize, and reduced motion are immediate."
+      },
+      {
+        "name": "clock-visibility",
+        "value": "130ms ease-out",
+        "purpose": "Opacity transition for the scene clock; visibility and aria-hidden suppress it throughout full-face entry, substates, and exit. Reduced motion disables the transition."
       }
     ],
     "breakpoints": [
@@ -262,6 +326,13 @@
       {
         "name": "wide-page-min",
         "value": "1600px"
+      }
+    ],
+    "shadows": [
+      {
+        "name": "clock-text",
+        "value": "0 2px 12px #060e1c66",
+        "purpose": "Diffuse text-shadow for clock legibility over the scene; no card elevation."
       }
     ]
   },
@@ -319,6 +390,14 @@
       "description": "A native disclosure keeps API examples below the ordinary controls.",
       "html": "<details class=\"ds-details\"><summary>Use the screens from code</summary><p class=\"ds-help\">Each surface accepts a canvas, image, or video element.</p><pre><code>merlin.go('right');</code></pre></details>",
       "css": ".ds-details{margin-top:26px;padding-top:18px;border-top:1px solid #ccd5dd;font-size:.86rem;color:#172a3b}.ds-details summary{cursor:pointer;min-height:44px;line-height:1.5;font-weight:600;color:#185c9e}.ds-details summary:focus-visible{outline:3px solid #1264ac;outline-offset:3px;}.ds-help{font-size:.82rem;line-height:1.5;color:#4e6070;margin:10px 0 0;max-width:72ch}.ds-details pre{overflow:auto;max-width:100%;padding:14px;background:#eaf2f9;border-radius:6px;color:#163f64;font-size:.75rem;line-height:1.65;tab-size:2}.ds-details code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}"
+    },
+    {
+      "name": "Scene clock",
+      "kind": "custom",
+      "refersTo": "scene-clock",
+      "description": "Static specimen of the scene overlay. Runtime placement reserves planned character motion and panel shards; full-face mode hides it.",
+      "html": "<div class=\"ds-clock-stage\"><div class=\"ds-clock\" aria-label=\"Tuesday, October 27, 2026 at 2:37 PM\"><time class=\"ds-clock-time\" datetime=\"2026-10-27T14:37:00\"><span>2:37</span><span class=\"ds-clock-period\">PM</span></time><span class=\"ds-clock-date\">Tue, Oct 27</span></div></div>",
+      "css": ".ds-clock-stage{position:relative;width:100%;aspect-ratio:4/3;container-type:inline-size;background:#081326;border-radius:12px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif}.ds-clock{position:absolute;left:4.125%;top:5.5%;width:max-content;min-width:27cqw;color:#e4f4ff;pointer-events:none;user-select:none;text-align:center;font-variant-numeric:tabular-nums;text-shadow:0 2px 12px #060e1c66;opacity:1;transition:opacity 130ms ease-out}.ds-clock[data-visible=\"false\"]{opacity:0;visibility:hidden}.ds-clock-time{display:flex;align-items:baseline;justify-content:center;gap:.1em;white-space:nowrap;font-size:clamp(26px,8.6cqw,88px);font-weight:350;letter-spacing:-.035em;line-height:1.05}.ds-clock-period{font-size:.2em;font-weight:550;letter-spacing:.01em;color:#b9d9ee}.ds-clock-period:empty{display:none}.ds-clock-date{display:block;margin-top:.55em;font-size:clamp(10px,1.85cqw,19px);font-weight:450;line-height:1.35;letter-spacing:.015em;color:#bbdbed;white-space:nowrap}@media(prefers-reduced-motion:reduce){.ds-clock{transition:none}}"
     }
   ],
   "narrative": {
@@ -328,14 +407,23 @@
       "Native controls and restrained blue actions on a pale neutral page.",
       "A fixed landscape stage that preserves the authored camera composition.",
       "Explicit animation status, playback controls, and editable screen content.",
+      "A large local time and small date that keep clear of the character and pulled panels.",
       "A separate local preview with honest boundaries around unconnected services."
     ],
-    "rules": [],
+    "rules": [
+      {
+        "name": "The Clear Slot Rule",
+        "body": "Keep the current resting anchor whenever its measured text bounds remain clear across the planned motion. Replan on motion-route or size changes; do not chase each rendered pose. Precomputed [motion footprints](motion-footprints.json) reserve the full destination loop and the active route segment, including the walk back in the opposite direction, return transitions, and panel dismissal shards. When moving between opposite panels, retain clearance for the old panel through dismissal, then replan at the shared ready pose before the next pull. If all anchors overlap, choose the least-obstructed anchor with a small stability tolerance.",
+        "section": "components"
+      }
+    ],
     "dos": [
       "**Do** preserve the original character proportions, matte materials, pale cyan display detail, and 4:3 composition.",
       "**Do** retain labeled native controls, visible keyboard focus, textual status, and explicit playback control.",
       "**Do** keep screen editing separate from animation selection and preserve content on the correct surface and fragments.",
-      "**Do** label the browser lighting as an approximation and use Blender as the visual reference."
+      "**Do** label the browser lighting as an approximation and use Blender as the visual reference.",
+      "**Do** retain a clear clock anchor across the complete planned motion, including reverse walking and panel dismissal, and hide the clock throughout full-face entry, substates, and exit.",
+      "**Do** keep clock movement brief and use immediate placement when reduced motion is requested."
     ],
     "donts": [
       "**Don't** treat camera, searching, or music gestures as proof of live camera, search, or music integration.",
