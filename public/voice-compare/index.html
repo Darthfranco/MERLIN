@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MERLIN · Voice comparison</title><link rel="stylesheet" href="/styles.css"><script type="module" src="/app.js"></script></head>
+<body>
+<main>
+  <header><h1>Find MERLIN’s voice.</h1><p>Four local models. The same words. Listen, then compare the time.</p></header>
+  <section class="workbench" aria-labelledby="test-heading">
+    <div class="section-heading"><h2 id="test-heading">Your test</h2><span class="local-note">Runs on this Mac</span></div>
+    <label for="text">Words to say</label>
+    <textarea id="text" maxlength="600" rows="3">Right away, mister! Your tea timer is set for five minutes. I’ll have everything ready in a jiffy.</textarea>
+    <div class="text-meta"><span>Use ordinary sentences for the fairest comparison.</span><span id="count">0 / 600</span></div>
+    <fieldset id="models"><legend>Models to compare</legend><div id="model-options">Checking local setup…</div></fieldset>
+    <div class="run-options"><label for="passes">Timing passes <select id="passes"><option value="2">First load + warm repeat</option><option value="1">First load only</option></select></label><label class="check"><input type="checkbox" id="use-reference" checked><span id="use-reference-label">Use saved reference for cloning models</span></label></div>
+    <div class="actions"><button id="run" disabled>Compare voices</button><button id="stop" class="secondary" disabled>Stop</button><button id="refresh" class="text-button">Refresh model status</button></div>
+    <p id="status" role="status">Checking local setup…</p><p id="error" class="error" role="alert" hidden></p>
+  </section>
+  <section class="results" aria-labelledby="results-heading"><div class="section-heading"><h2 id="results-heading">Listen & compare</h2><a id="download" hidden download="merlin-voice-comparison.json">Download timings</a></div><p id="result-context" class="help">Run a comparison to hear real generated audio here.</p><div id="results"></div></section>
+  <details class="reference"><summary>Voice reference <span id="reference-label">No custom reference saved</span></summary>
+    <p>A reference is a short recording of the voice to copy. These models use the recording to condition speech; this test does not retrain their weights. Kokoro stays in Fenrir.</p>
+    <p class="help">For all three cloning models, choose 10–30 seconds of one clear voice, with no music or overlapping speech. Qwen also needs the exact spoken words.</p>
+    <div id="saved-reference" hidden><audio id="reference-audio" controls preload="none"></audio><p id="saved-transcript" class="help"></p></div>
+    <form id="reference-form"><label for="reference-file">Audio file</label><input id="reference-file" type="file" accept="audio/*" required><label for="reference-name">Reference name</label><input id="reference-name" maxlength="100" placeholder="A name to recognize this voice"><label for="transcript">Exact words in the recording</label><textarea id="transcript" rows="2" maxlength="3000" placeholder="Paste or type the transcript for Qwen."></textarea><button id="save-reference" class="secondary">Save reference locally</button></form>
+  </details>
+  <details class="method"><summary>What the timings mean</summary><p>Models run one at a time. The first pass starts a new worker; the warm repeat reuses its loaded model and voice reference. Each worker is released before the next model.</p><p><strong>Total wait</strong> is measured at the local server, from request to the completed WAV. <strong>Generation</strong> excludes model loading and reference preparation. <strong>Audio length</strong> is measured from the WAV. A generation ratio below 1× is faster than playback.</p><p>Audio is played after the full file finishes. A model’s internal first-chunk time, when available, is diagnostic only—it is not browser playback latency. Initial Core ML compilation can make a first-ever run much slower. These are Mac measurements, not iPad benchmarks.</p></details>
+  <footer><p>Text, voice references, and generated audio stay in this local test’s storage. No Meta calls, microphones, household memory, or device actions. Model setup downloads are separate.</p><button id="clear" class="text-button">Delete local tests & reference</button></footer>
+  <noscript>Enable JavaScript to run the comparison.</noscript>
+</main></body></html>

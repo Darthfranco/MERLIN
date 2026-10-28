@@ -2,6 +2,14 @@
 
 Catalog/prices checked: **2026-10-26**. Voice implementation updated **2026-10-27**. This records the founder's supplied catalog and initial preferences, cross-checked against the linked primary documentation. Prices are a dated planning snapshot in USD, not a spending authorization or guarantee of account access.
 
+## Separate four-model speech comparison — October 27, 2026
+
+The local comparison adds the exact English Pocket TTS 100M via FluidAudio Core ML, Chatterbox Nano via its community Core ML port, and the linked TinyTrashLabs Qwen3-TTS 0.6B Base ANE conversion alongside existing official Kokoro Fenrir. All inference is local; Meta remains MERLIN’s assistant foundation. Workers measure model loading, reference preparation, synthesis and completed-file wall time separately. A fresh worker and its warm repeat run sequentially before unloading. These are Apple M1 Mac tests, not iPad benchmarks or a new production model selection.
+
+Qwen’s talker needs a disclosed CPU/GPU configuration on this Mac because its original CPU/Neural Engine load failed; exact model weights are unchanged. Its required reference normalization runs locally before encoding, and generation timings include the upstream renderer's automatic retries. This is not a measurement of the conversion author's complete ANE execution path.
+
+Custom voices use reference conditioning; **no weights are fine-tuned**. Qwen requires an audio clip plus exact transcript; Nano and Pocket also have default voices. Kokoro remains `am_fenrir`. The owner’s requested Tails target is unfulfilled because there is no permitted reference; Kyutai’s published access conditions require explicit lawful consent for cloning. The interim original synthetic Sky reference is labelled as such and is not a film voice. Exact sources, pins, licenses, setup commands, data handling and measurement definitions are in [VOICE_COMPARISON.md](VOICE_COMPARISON.md); measured checks are in [STATUS.md](STATUS.md).
+
 ## Combined local assistant — October 27, 2026
 
 The new `/companion/` surface on the assistant server connects standard Meta transcription to the existing standard Spark reasoning/memory/tool path, then speaks its checked reply with local Fenrir. It reuses the lab's local wake/VAD and quiet windows. The separate voice lab still echoes. Voice channel removes and rejects Spotify tools, including routine expansion; typed Spotify remains unchanged. Background learning retains the existing standard-Meta boundary. No new provider/model or Contributor variant was introduced. Completed-timer announcements use validated local timer records and local TTS without a model call. See [orchestration](ORCHESTRATION.md).

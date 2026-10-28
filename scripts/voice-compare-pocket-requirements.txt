@@ -1,0 +1,9 @@
+# Official Python CPU runtime, isolated from MERLIN's existing Kokoro environment.
+pocket-tts==4.0.0
+torch==2.14.1
+numpy==2.5.4
+scipy==1.18.1
+huggingface-hub==2.3.0
+tokenizers==0.23.3
+safetensors==0.8.0
+soundfile==0.13.1

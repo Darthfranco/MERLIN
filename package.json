@@ -16,6 +16,8 @@
     "check:meta": "node --env-file-if-exists=.env scripts/check-meta.js",
     "setup:voice": "bash scripts/voice-setup.sh",
     "voice": "node --env-file-if-exists=.env src/voice-server.js",
+    "voice:compare": "node src/voice-compare-server.js",
+    "setup:voice-compare": "bash scripts/voice-compare-setup.sh",
     "dev:voice": "node --env-file-if-exists=.env --watch src/voice-server.js",
     "check:voice": "node --env-file-if-exists=.env scripts/voice-check.js",
     "check:voice-session": "node --env-file-if-exists=.env scripts/voice-session-check.js",

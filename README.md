@@ -10,6 +10,8 @@ Built for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Ce
 
 **Separate voice lab:** run `npm ci` and `npm run setup:voice` once, then `npm run voice` and open [localhost:3001](http://127.0.0.1:3001). Choose a Fenrir delivery and type, record, or enable local “MERLIN” wake detection. The lab supports automatic speech completion, interruption, and follow-ups. Idle audio stays local; active clips go to Meta for transcription, then local Kokoro reads the words back. See [voice setup and privacy](docs/VOICE.md).
 
+**Four-model voice comparison:** run `npm run setup:voice-compare` once on an Apple Silicon Mac, then `npm run voice:compare` and open [localhost:3004](http://127.0.0.1:3004). Compare actual Pocket 100M, Chatterbox Nano, Qwen 0.6B Base ANE, and Kokoro Fenrir audio with first/warm timings. Reference conditioning is supported; no model weights are trained. See [setup, reference requirements, and timing definitions](docs/VOICE_COMPARISON.md).
+
 **Separate Connection Center:** run `npm run connections` and open [localhost:3002](http://127.0.0.1:3002). Search by company or device category, compare setup difficulty, and try guided connections. All connection states are simulated and stored only in this browser; this preview does not access accounts or hardware. See [Connection Center setup](docs/CONNECTIONS.md).
 
 **Phone companion demo:** run `npm run phone` and open [localhost:3003](http://127.0.0.1:3003). Chat with attachments, talk with the original MERLIN face, and browse branded connection settings. History and preferences stay in this browser; responses/actions are simulated and the phone is not yet connected to the home-display assistant. See [phone demo details](docs/PHONE.md).

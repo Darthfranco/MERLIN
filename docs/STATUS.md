@@ -2,6 +2,31 @@
 
 Last updated: **October 27, 2026**.
 
+## Local four-model voice comparison — October 27, 2026
+
+The requested separate browser comparison is implemented at `npm run voice:compare` → [localhost:3004](http://127.0.0.1:3004). It runs the exact Pocket TTS 100M FluidAudio Core ML conversion, Chatterbox Nano community Core ML port, linked Qwen3-TTS 0.6B Base ANE conversion, and existing official Kokoro Fenrir. Each selected model gets the same text, a fresh worker and optional warm repeat, actual WAV playback/download, measured load/reference/synthesis/total time, and a timing JSON download. Models run sequentially; stop kills inference, errors remain visible, and clear deletes the local test text, references, audio and records. The main assistant and original voice lab are unchanged. Setup, source revisions, attribution and timing definitions are in [VOICE_COMPARISON.md](VOICE_COMPARISON.md).
+
+The three new models use inference-time reference conditioning; **no weights were trained or fine-tuned**. The requested Tails film voice remains unfulfilled: the owner has no reference and Kyutai's published conditions require explicit lawful consent to clone. No film audio or derived voice profile is bundled. The interim reference is original synthetic Kokoro Sky speech, clearly labelled in the page; it is an evaluation sample, not an approved production voice. All recordings, models and benchmark evidence stay in ignored `local/voice-compare/`. No Meta calls, microphone capture, household context or device actions are added.
+
+On this Apple M1 / 16 GB / macOS 26.3.1 Mac, the Qwen talker's original CPU/Neural Engine configuration failed to load. A guarded setup patch requests CPU/GPU for every talker function while preserving the exact model weights and shared state; the code predictor still requests CPU/Neural Engine and reference encoders use CPU. Probe and result labels disclose this configuration. Pocket needs an equivalent explicit TaskLocal expansion in its ignored dependency checkout because the installed Command Line Tools lack that macro plugin. These are Mac compatibility measures, not evidence of iPad performance or actual per-operation hardware placement.
+
+Verification: **711 automated tests pass**, including six focused comparison tests for sequential warm measurement, shared text/reference handling, model failure isolation, cancellation/deletion, concurrent mutation rejection, WAV/timing validation, loopback/origin restrictions, path/symlink rejection, and interrupted-run recovery. Native adapter smoke tests generated real nonzero 24 kHz mono PCM16 audio for all four models; no mock audio is presented as model output. Browser lifecycle checks verified exclusive sample/reference playback, recovery from a temporary server error, reference upload/reload, and clear/reload deletion with zero page errors. Syntax and diff checks pass. The independent coordinator/server review found no material blocker.
+
+Final same-passage comparison used the 16.325-second synthetic Sky reference and “Right away, mister! Your tea timer is set for five minutes. I'll have everything ready in a jiffy.” Each model completed two valid WAVs. These are individual observations with existing operating-system compilation caches:
+
+| Model | First total wait | Warm total wait | First / warm synthesis | First / warm audio length |
+| --- | ---: | ---: | ---: | ---: |
+| Kokoro Fenrir | 7.11 s | 1.34 s | 1.25 / 1.34 s | 6.175 / 6.175 s |
+| Pocket 100M | 4.66 s | 2.20 s | 2.71 / 2.20 s | 5.20 / 4.96 s |
+| Chatterbox Nano | 6.09 s | 2.74 s | 3.09 / 2.72 s | 5.56 / 5.56 s |
+| Qwen 0.6B | 56.80 s | 94.06 s | 47.87 / 94.05 s | 5.13 / 5.13 s |
+
+Qwen's initial raw-reference attempt stopped before completion. Adding the upstream required `ReferenceStandard` preprocessing allowed completion with unchanged text, seed and model weights; preprocessing is included in preparation time and runtime retries in synthesis time. **Qwen quality remains unresolved:** both final outputs are quiet and local tiny.en ASR returned no words, including after diagnostic in-memory amplification. Kokoro, Pocket and Nano outputs transcribed to the supplied passage apart from punctuation/capitalization. ASR is only a diagnostic; no human listening or character-similarity rating is claimed. The Qwen row deliberately retains the actual weak result and slow timing rather than substituting another voice or model.
+
+All eight native browser players reached their end. Final desktop/mobile checks found no horizontal overflow at 1280/390/320px, no browser errors and no external page requests. Independent UI review passed. Evidence is under ignored `local/voice-compare/`: `benchmark-final.json`, `audio-final-verification.json`, `qwen-normalized-asr.json`, `browser-final.json`, `browser-lifecycle.json`, and final desktop/mobile captures. The earlier failed run is retained separately as `benchmark-longer-failed.json`.
+
+Contribution: original local comparison UI/server, worker protocol adapters, pinned setup/download orchestration, reference conversion/storage, timing and audio validation, regression checks, and documentation. Third-party models/native engines retain their own licenses and attribution. Voice similarity and subjective quality require listening; physical speakers and production-device behavior are unverified. Next useful step: owner listening review and selection of a permitted reference before choosing a production voice.
+
 ## Floating activities during body and face conversation — October 27, 2026
 
 The owner explicitly superseded the earlier face-mode hiding rule for timers and music. The [floating activity plan](ORCHESTRATION.md#floating-activities-and-face-corner-plan--october-27-2026) preceded implementation. `/companion/` now uses the new floating cards for multiple timers or timers with current connected Spotify playback. Full-face conversation keeps the same live activity identities in a compact lower-right rail below the eyes and mouth. Body cards choose the clearer lower corner around the character and clock. Both rails have bounded scrolling, so additional timers remain available without covering the scene. A single retained timer can return to its physical screen without a duplicate floating card.
