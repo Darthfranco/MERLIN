@@ -5,13 +5,13 @@ export const ACTION_HOLD = 400;
 const idleActivities = ['walk', 'walkReverse', 'toss'];
 export const toolPanel = tool => /^(create|cancel|list)_timer/.test(tool) ? 'timer'
   : tool?.startsWith('spotify_') ? 'music' : tool === 'routine_save' ? 'routine-saved'
-    : ['routine_read', 'routine_use'].includes(tool) ? 'routine' : null;
-const labels = {timer:'Your timer',music:'Spotify',lights:'Lights',oven:'Oven',schedule:'Schedules',routine:'Your routine','routine-saved':'Your routine'};
+    : ['routine_read', 'routine_use'].includes(tool) ? 'routine' : tool === 'show_connections' ? 'connections' : null;
+const labels = {timer:'Your timer',music:'Spotify',lights:'Lights',oven:'Oven',schedule:'Schedules',routine:'Your routine','routine-saved':'Your routine',connections:'Connect your home'};
 const surfaces = {left:['left'],right:['right'],both:['left','right'],seatedLeft:['left'],seatedRight:['right'],ceiling:['right']};
 const faceStates = new Set(['face','faceThink','search','camera']);
 export const panelSides = destination => [...(surfaces[destination?.replace(/Think$/, '')] || [])];
 export const isFacePresentation = destination => faceStates.has(destination);
-const identity = panel => panel?.id ? `${panel.type?.startsWith('routine')?'routine':panel.type}:${panel.id}` : ['music','lights','oven','schedule'].includes(panel?.type) ? panel.type : null;
+const identity = panel => panel?.type==='connections' ? 'connections' : panel?.id ? `${panel.type?.startsWith('routine')?'routine':panel.type}:${panel.id}` : ['music','lights','oven','schedule'].includes(panel?.type) ? panel.type : null;
 const sameTimer = (a,b) => ['id','label','status','durationSeconds','endsAt','timeZone'].every(key=>a?.[key]===b?.[key]);
 export function presentationLayout(view, states) {
   const available = new Set(states || ['ready','bodyThink','face','faceThink','search','camera','walk','walkReverse','toss','dance',...Object.keys(surfaces),...Object.keys(surfaces).map(state=>state+'Think')]);
@@ -51,6 +51,8 @@ export class Orchestrator {
     this.render(this.view);return this.view;
   }
   refreshLayout({seated=false}={}) {
+    // The connection touchscreen owns the ceiling; a retained panel on the other side waits behind it.
+    if(this.bodyLayout==='ceiling'&&this.panels.right?.type==='connections'){this.focusSide='right';this.panel=this.panels.right;return;}
     const sides=['left','right'].filter(side=>this.panels[side]);
     if(!sides.includes(this.focusSide))this.focusSide=sides.includes('right')?'right':sides[0]||'right';
     this.panel=this.panels[this.focusSide];
@@ -112,7 +114,7 @@ export class Orchestrator {
       for(const timer of timers)if(list||!previous.has(timer.id)||previous.get(timer.id)!==timer.status)confirmed.set('timer:'+timer.id,timerPanel(timer,this.now()));
     }
     if(completed.has('music'))confirmed.set('music',musicPanel(spotify));
-    for(const panel of confirmed.values())this.remember(panel);
+    for(const panel of confirmed.values())panel.type==='connections'?this.openLargeScreen(panel):this.remember(panel);
     if(events.length){
       this.phase='action';this.lastActionAt=this.now();
       this.show(this.bodyLayout,events.some(event=>event.status==='failed')?'That action needs attention':confirmed.size?'Here’s the result':'Check the action outcome below');
@@ -139,11 +141,26 @@ export class Orchestrator {
     if(['panel','idle','ambient','error'].includes(this.phase)){this.phase=this.panel?'panel':'idle';this.deadline=this.panel?Infinity:this.now()+IDLE_DELAY;}
     this.show(wasBody?this.bodyLayout:this.view.destination,this.panel?.label||this.view.label,this.panel,{dismiss:true});return true;
   }
+  /** Pull the big screen down for the connection touchscreen. Another open panel moves to the free side. */
+  openLargeScreen(panel){
+    const kept=['right','left'].map(side=>this.panels[side]).find(other=>other&&identity(other)!==identity(panel))||null;
+    this.panels={left:kept,right:panel};this.focusSide='right';this.panel=panel;this.bodyLayout='ceiling';this.pending=null;
+    if(!['listening','thinking','action','searching','speaking'].includes(this.phase))this.phase='panel';
+    this.deadline=Infinity;
+    return true;
+  }
+  /** Open the connection touchscreen outside a turn (for example from the Activity list). */
+  inspectLarge(panel){
+    if(['listening','thinking','action','searching','speaking'].includes(this.phase))return false;
+    this.epoch++;this.turn=null;this.openLargeScreen(panel);this.phase='panel';this.show('ceiling',panel.label||labels[panel.type]);return true;
+  }
   expandPanel(side=this.focusSide){
+    if(this.panels[side]?.type==='connections')return false;
     if(!this.panels[side]||Object.values(this.panels).filter(Boolean).length!==1||['listening','thinking','action','searching','speaking'].includes(this.phase))return false;
     const panel=this.panels[side];this.panels={left:null,right:panel};this.focusSide='right';this.panel=panel;this.bodyLayout='ceiling';this.phase='panel';this.pending=null;this.show('ceiling',panel.label||labels[panel.type]);return true;
   }
   dockPanel(side){
+    if(this.panels.right?.type==='connections')return false;
     if(!['left','right'].includes(side)||Object.values(this.panels).filter(Boolean).length!==1||['listening','thinking','action','searching','speaking'].includes(this.phase))return false;
     const panel=this.panels.left||this.panels.right;this.panels={left:null,right:null};this.panels[side]=panel;this.focusSide=side;this.panel=panel;this.bodyLayout=side;this.phase='panel';this.pending=null;this.show(side,panel.label||labels[panel.type]);return true;
   }

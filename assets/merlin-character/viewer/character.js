@@ -10,8 +10,10 @@ import { MotionController } from './motion.js';
 import { planRoute, stateScreens, contentDestination, dismissalDestination } from './motion-routes.js';
 import { SceneClock } from './scene-clock.js';
 import { PANEL_TYPES, paintPanel, loadPanelArt } from './panels/render.js';
+import { CONNECTIONS_PANEL, paintConnections } from './panels/connections.js';
 
-const panelTypes = new Set(PANEL_TYPES.map(panel => panel.id));
+// The connection touchscreen is a scene-only panel; it is not part of the 5:6 gallery collection.
+const panelTypes = new Set([...PANEL_TYPES.map(panel => panel.id), CONNECTIONS_PANEL]);
 const ambient = new Set(['walk', 'walkReverse', 'toss', 'nap', 'dance']);
 const assetURL = path => new URL(path, import.meta.url).href;
 const validData = value => value && typeof value === 'object' && !Array.isArray(value);
@@ -284,7 +286,10 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
       if (signature === panel.signature) continue;
       panel.snapshot = snapshot; panel.signature = signature;
       if (!panel.initialized) {
-        screens[side].draw((context, width, height) => paintPanel(context, width, height, panel.snapshot, {art: panelArt, controls: false}), {animate: true, reflow: false});
+        // The connection screen reflows to the surface it is on (the landscape ceiling card);
+        // the 5:6 designs keep their authored canvas.
+        if (panel.type === CONNECTIONS_PANEL) screens[side].draw((context, width, height) => paintConnections(context, width, height, panel.snapshot), {animate: true, reflow: true});
+        else screens[side].draw((context, width, height) => paintPanel(context, width, height, panel.snapshot, {art: panelArt, controls: false}), {animate: true, reflow: false});
         panel.initialized = true;
       } else screens[side].tick(0);
       panelPaints++; changed = true; if (side === 'right') sourceChanged = true;
@@ -479,6 +484,21 @@ export async function createCharacter({canvas, stage, onStatus = () => {}, onErr
     canvas.addEventListener('webglcontextlost', onContextLost);
     if (followsPreference) media.addEventListener('change', onReducedMotion);
     driver.go('ready', {urgent: true});
-    return Object.assign(driver, {subscribeLayout: listener => sceneClock.subscribeLayout(listener), destroy: dispose});
+    // Where a screen sits on the stage (fractions of the canvas) and its logical drawing size, so the page
+    // can place real buttons over a painted touchscreen. Exact under the authored orthographic camera.
+    function screenGeometry(side) {
+      const surface = screens[side], mesh = surface?.basis?.mesh; if (!mesh) return null;
+      mesh.updateWorldMatrix(true, false); camera.updateMatrixWorld();
+      const position = mesh.geometry.attributes.position, point = new THREE.Vector3();
+      let left = Infinity, right = -Infinity, top = Infinity, bottom = -Infinity;
+      for (let index = 0; index < position.count; index++) {
+        point.fromBufferAttribute(position, index).applyMatrix4(mesh.matrixWorld).project(camera);
+        left = Math.min(left, point.x); right = Math.max(right, point.x); top = Math.min(top, -point.y); bottom = Math.max(bottom, -point.y);
+      }
+      if (![left, right, top, bottom].every(Number.isFinite)) return null;
+      const rect = {left: (left + 1) / 2, top: (top + 1) / 2, width: (right - left) / 2, height: (bottom - top) / 2};
+      return {aspect: surface.aspect, logical: {width: surface.height * surface.aspect, height: surface.height}, rect};
+    }
+    return Object.assign(driver, {subscribeLayout: listener => sceneClock.subscribeLayout(listener), screenGeometry, destroy: dispose});
   } catch (error) { dispose(); onError(error); throw error; }
 }

@@ -4,7 +4,7 @@ import { extname, resolve, sep } from 'node:path';
 
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.glb': 'model/gltf-binary', '.png': 'image/png', '.svg': 'image/svg+xml' };
 const STAGES = new Set(['received', 'context', 'model', 'routine', 'memory', 'search_ready', 'tool_start', 'tool_result', 'output_check', 'delivered', 'interrupted', 'failed']);
-const TOOLS = new Set(['create_timer', 'list_timers', 'cancel_timer', 'web_search', 'spotify_search', 'spotify_playlists', 'spotify_status', 'spotify_control', 'routine_save', 'routine_read', 'routine_use', 'routine_delete', 'memory_save_fact', 'memory_save_rule', 'memory_search', 'memory_read_document', 'memory_forget', 'memory_resolve_conflict']);
+const TOOLS = new Set(['create_timer', 'list_timers', 'cancel_timer', 'show_connections', 'web_search', 'spotify_search', 'spotify_playlists', 'spotify_status', 'spotify_control', 'routine_save', 'routine_read', 'routine_use', 'routine_delete', 'memory_save_fact', 'memory_save_rule', 'memory_search', 'memory_read_document', 'memory_forget', 'memory_resolve_conflict']);
 
 // Deliberately discard free text, arguments, evidence, results and provider metadata.
 export function presentationEvent(stage, at_ms, data) {
@@ -24,6 +24,11 @@ export function connectionState(spotify) {
 export function presentationResult(stage, data) {
   const result = data?.result ?? (stage === 'routine' ? data : undefined);
   if (!result || data?.ok === false) return null;
+  if (data?.tool === 'show_connections') {
+    // Only a category, a route ID, or a search phrase from the catalog; no household details.
+    const text = value => typeof value === 'string' ? value.slice(0, 80) : '';
+    return { type: 'connections', id: 'connections', category: text(result.category) || 'all', entry: text(result.entry), query: text(result.query), reason: text(result.reason) };
+  }
   if (['create_timer', 'cancel_timer'].includes(data?.tool) && result.id) {
     return { type: 'timer', ...Object.fromEntries(['id', 'label', 'duration_seconds', 'ends_at', 'status', 'time_zone'].map(key => [key, result[key]])) };
   }
@@ -46,6 +51,9 @@ export async function companionAsset(root, pathname) {
     if (!(relative.startsWith('viewer/') || ['merlin-states.glb', 'states.json'].includes(relative))) return null;
   } else if (pathname === '/voice/recorder-worklet.js') {
     base = resolve(root, 'public/voice'); relative = 'recorder-worklet.js';
+  } else if (pathname === '/connections/catalog.js') {
+    // The same researched catalog the Connection Center and the assistant use.
+    base = resolve(root, 'public/connections'); relative = 'catalog.js';
   } else return null;
   if (!TYPES[extname(relative)] || relative.split('/').some(piece => piece.startsWith('.') || piece === '..') || /[\\\u0000-\u001f]/u.test(relative)) return null;
   const file = resolve(base, relative);

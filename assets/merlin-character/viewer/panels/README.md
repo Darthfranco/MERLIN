@@ -122,3 +122,7 @@ node --test test/routine-art.test.js
 ```
 
 They cover the standard model and privacy switches, local/public output boundary, missing credentials, exact prompt metadata with unchanged image pixels, safe provider errors, and incomplete/invalid image responses. These checks do not establish live device, scheduling, music, or household-routine behavior.
+
+## Connection touchscreen (scene-only panel)
+
+`connections.js` is an eighth, scene-only design: the landscape connection screen MERLIN pulls down on the ceiling card. It is not in `PANEL_TYPES` or the gallery. It reflows to the surface it is on, and one function (`connectionsLayout`) feeds both `paintConnections` and `connectionTargets`, so real buttons can be placed over the painted controls. Controls stay out of `ROBOT_ZONE`, the robot's footprint on the ceiling card. `character.screenGeometry(side)` returns the screen's rectangle on the stage and its logical size. See the [plan](../../../../docs/ORCHESTRATION.md#connection-touchscreen-plan--october-31-2026).

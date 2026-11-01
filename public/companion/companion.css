@@ -14,3 +14,9 @@ main{max-width:1600px;margin:auto;display:flex;align-items:flex-start;padding:0 
 .preferences{align-items:center}.preferences button{font-size:12px;padding:6px 12px;white-space:nowrap}#voice-troubleshooting{font-size:13px;line-height:1.6;color:var(--soft);margin-top:16px}#voice-troubleshooting p{margin:10px 0}
 .panel-controls{flex-wrap:wrap;justify-content:center;max-width:100%}.panel-controls>span{max-width:min(240px,100%)}.panel-controls button{white-space:nowrap}.action-controls:empty{display:none}
 @media(max-width:720px){.preferences{align-items:flex-start}.preferences>span{max-width:none;width:100%;margin:0;text-align:left}}
+
+.touch-layer{position:absolute;z-index:4}.touch-layer[hidden]{display:none}
+.touch-target{position:absolute;min-height:0;padding:0;border:0;border-radius:18px;background:transparent;color:transparent;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.touch-target:hover{background:rgba(36,108,167,.10)}.touch-target:active{background:rgba(36,108,167,.22)}
+.touch-target:focus-visible{outline:3px solid #246ca7;outline-offset:2px;background:rgba(36,108,167,.08)}
+@media(prefers-reduced-motion:no-preference){.touch-target{transition:background .12s}}

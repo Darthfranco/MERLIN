@@ -6,6 +6,8 @@ import {randomUUID} from 'node:crypto';
 import * as orchestration from '../public/companion/orchestrator.js';
 import {floatingActivityPlan} from '../public/companion/floating-activities.js';
 import {TimerAlertQueue} from '../public/companion/timer-alerts.js';
+import * as connectionsModel from '../public/companion/connections-panel.js';
+import {connectionTargets,pageCount} from '../assets/merlin-character/viewer/panels/connections.js';
 import {AnimationMixer,AnimationClip,Object3D} from '../assets/merlin-character/viewer/vendor/three/build/three.module.min.js';
 import {MotionController} from '../assets/merlin-character/viewer/motion.js';
 import {createCharacterDriver} from '../assets/merlin-character/viewer/character.js';
@@ -66,7 +68,7 @@ async function fixture(t,{timers=[],chatResult,tts,realDriver=false,musicSnapsho
     hide(id){this.cards.delete(id);}
     destroy(){this.cards.clear();}
   }
-  const context=createContext({...orchestration,floatingActivityPlan,SceneOverlays,TimerAlertQueue,document,window,URL:ObjectURL,Blob,AbortController,AbortSignal,Date,Intl,crypto:{randomUUID},sessionStorage:storage,localStorage:storage,innerWidth:1200,location:{reload(){}},
+  const context=createContext({...orchestration,...connectionsModel,connectionTargets,pageCount,floatingActivityPlan,SceneOverlays,TimerAlertQueue,document,window,URL:ObjectURL,Blob,AbortController,AbortSignal,Date,Intl,crypto:{randomUUID},sessionStorage:storage,localStorage:storage,innerWidth:1200,location:{reload(){}},
     CompanionVoiceClient:Voice,unlockAudioPlayback:()=>Promise.resolve(true),formatDuration:seconds=>String(seconds),
     createCharacter:async options=>{notify=options.onStatus;notify({state:'ready',desired:'ready',phase:'idle',clip:'ReadyIdle'});return runtime;},
     matchMedia:()=>({matches:false,addEventListener(){}}),Option:class extends Element{constructor(text,value){super('option');this.textContent=text;this.value=value;}},
@@ -252,4 +254,40 @@ test('connection polling reconciles concealed music before disconnected physical
   assert.equal(h.run("floatingOverlays.cards.has('music:spotify')"),false);assert.equal(h.run('orchestration.musicPlaying'),false);
   h.run('acceptSnapshot({timers:[]})');await flush();
   assert.equal(h.runtime.desired,'seatedLeft');assert.equal(h.physical.left.data().status,'offline');
+});
+
+const connectionsReceipt=(extra={})=>({reply:'Tap an option on the big screen.',tool_events:[{tool:'show_connections',status:'completed',message:'Opened the connection options on the large screen.'}],
+  presentation:[{type:'connections',id:'connections',category:'lights',entry:'',query:'',reason:'That needs a connection first.',...extra}]});
+
+test('actual app pulls the large screen down for connection options and offers only Close panel',async t=>{
+  const h=await fixture(t,{chatResult:connectionsReceipt()}),work=h.run("submit('turn on the lights')");
+  await h.until(()=>h.element('typed-audio').plays===1);
+  assert.equal(h.runtime.state,'ceiling');assert.equal(h.o.phase,'speaking');
+  assert.equal(h.physical.right.type,'connections');
+  const state=h.physical.right.data();
+  assert.equal(state.view,'browse');assert.equal(state.categories.find(chip=>chip.active).id,'lights');
+  assert.ok(state.tiles.length>0&&state.tiles.every(tile=>tile.status==='available'||tile.status==='unavailable'),'nothing is connected yet');
+  const buttons=h.element('action-controls').children.flatMap(group=>group.children.filter(child=>child.tag==='button').map(child=>child.textContent));
+  assert.deepEqual(buttons,['Close panel'],'a large touchscreen cannot be docked or enlarged like a timer');
+  h.element('typed-audio').ended=true;await h.element('typed-audio').dispatch('ended');await work;
+  assert.equal(h.runtime.desired,'ceiling');
+});
+
+test('actual app follows a connection card to its setup guide and reflects preview connections from the server',async t=>{
+  const h=await fixture(t,{chatResult:connectionsReceipt({category:'cameras',entry:'ring'})}),work=h.run("submit('How do I connect my Ring?')");
+  await h.until(()=>h.element('typed-audio').plays===1);
+  assert.equal(h.physical.right.data().view,'setup');assert.equal(h.physical.right.data().setup.id,'ring');
+  assert.equal(h.physical.right.data().setup.connected,false);
+  h.run("snapshot={...snapshot,connections:[{id:'ring',connected_at:'2026-10-31T12:00:00.000Z'}]}");
+  assert.equal(h.physical.right.data().setup.connected,true,'the painted state follows the saved preview connection');
+  assert.equal(h.physical.right.data().setup.real,false);
+  h.element('typed-audio').ended=true;await h.element('typed-audio').dispatch('ended');await work;
+});
+
+test('actual app opens the connection screen from the Activity list unless a reply is in progress',async t=>{
+  const h=await fixture(t);
+  h.run("openConnections({category:'appliances'})");
+  assert.equal(h.o.view.destination,'ceiling');assert.equal(h.run("connectionsUi.category"),'appliances');
+  const busy=await fixture(t);busy.run("orchestration.begin('x')");busy.run("openConnections({category:'lights'})");
+  assert.notEqual(busy.o.view.destination,'ceiling');assert.match(busy.element('notice').textContent,/Finish this reply first/);
 });

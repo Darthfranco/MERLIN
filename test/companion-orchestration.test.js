@@ -137,3 +137,61 @@ test('repeated service inspection updates its singleton screen without duplicati
   const {o}=setup();o.inspect(pendingPanel('timer','unknown'));o.inspect(pendingPanel('timer','unknown'));
   assert.equal(Object.values(o.panels).filter(Boolean).length,2);
 });
+
+// ---- Connection touchscreen on the large screen ----
+const connectionsResult=(extra={})=>({reply:'Tap an option on the big screen.',tool_events:[{tool:'show_connections',status:'completed'}],
+  presentation:[{type:'connections',id:'connections',category:'lights',entry:'',query:'',reason:'That needs a connection first.',...extra}]});
+function ask(o,id,result){o.begin(id);o.result(id,result,{timers:[]});o.reply(id);}
+
+test('asking for something unconnected pulls the large screen down and keeps the reply beside it',()=>{
+  const {o,views}=setup();
+  ask(o,'a',connectionsResult());
+  assert.equal(o.bodyLayout,'ceiling');assert.equal(o.panels.right.type,'connections');assert.equal(o.panels.left,null);
+  assert.equal(o.view.destination,'ceiling','the reply is spoken with the screen still down, not in a face that would hide it');
+  assert.ok(views.some(view=>view.destination==='ceiling'));
+  o.speaking();o.followup();assert.equal(o.view.destination,'ceiling');
+});
+test('the large screen survives conversation, quiet, and returns to the same ceiling layout',()=>{
+  const {o,advance}=setup();ask(o,'a',connectionsResult());o.followup();advance(FOLLOWUP_DELAY);
+  assert.equal(o.view.destination,'ceiling');
+  o.listening();assert.equal(o.view.destination,'face');o.begin('b');assert.equal(o.view.destination,'faceThink');
+  o.result('b',{reply:'Hello.',tool_events:[]});o.reply('b');o.followup();advance(FOLLOWUP_DELAY);
+  assert.equal(o.view.destination,'ceiling');assert.equal(o.panels.right.type,'connections');
+  advance(IDLE_DELAY+90000);assert.equal(o.view.destination,'ceiling','quiet never walks away from an open touchscreen');
+});
+test('a running timer panel waits on the free side and returns when the large screen closes',()=>{
+  const {o}=setup();complete(o,'t',[timer()]);assert.equal(o.view.destination,'right');
+  ask(o,'a',connectionsResult());
+  assert.equal(o.bodyLayout,'ceiling');assert.equal(o.panels.right.type,'connections');assert.equal(o.panels.left.id,'tea','the timer moved aside instead of vanishing');
+  // A live timer update must not collapse the ceiling into a two-panel layout.
+  o.syncTimers([timer('tea',{label:'renamed'})]);assert.equal(o.bodyLayout,'ceiling');assert.equal(o.view.destination,'ceiling');
+  o.dismiss('right');assert.equal(o.bodyLayout,'left');assert.deepEqual(ids(o),['tea']);assert.equal(o.view.destination,'left');
+});
+test('a second request updates the same large screen instead of stacking another',()=>{
+  const {o}=setup();ask(o,'a',connectionsResult({category:'lights'}));ask(o,'b',connectionsResult({category:'cameras',entry:'ring'}));
+  assert.equal(o.panels.right.category,'cameras');assert.equal(o.panels.right.entry,'ring');assert.equal(o.panels.left,null);
+});
+test('the connection screen cannot be docked or enlarged like an ordinary panel',()=>{
+  const {o}=setup();ask(o,'a',connectionsResult());
+  assert.equal(o.dockPanel('left'),false);assert.equal(o.expandPanel('right'),false);assert.equal(o.bodyLayout,'ceiling');
+  const {o:other}=setup();other.inspect(timerPanel(timer()));assert.equal(other.expandPanel('right'),true,'ordinary panels still enlarge');
+});
+test('with two panels already open the connection screen keeps one and closing it restores that one',()=>{
+  const {o}=setup();complete(o,'t',[timer('tea'),timer('pasta')]);assert.equal(o.bodyLayout,'both');
+  ask(o,'a',connectionsResult());
+  assert.equal(o.panels.right.type,'connections');assert.ok(['tea','pasta'].includes(o.panels.left.id));
+  o.dismiss('right');assert.equal(o.panels.right,null);assert.equal(o.bodyLayout,'left');
+});
+test('the Activity list can open the large screen, but not while a reply is in progress',()=>{
+  const {o}=setup();
+  assert.equal(o.inspectLarge({type:'connections',id:'connections',label:'Connect your home'}),true);
+  assert.equal(o.view.destination,'ceiling');assert.equal(o.phase,'panel');
+  const {o:busy}=setup();busy.begin('x');assert.equal(busy.inspectLarge({type:'connections',id:'connections'}),false);
+});
+test('a failed or missing show_connections event never opens the screen',()=>{
+  const {o}=setup();
+  ask(o,'a',{reply:'Sorry.',tool_events:[{tool:'show_connections',status:'failed'}],presentation:connectionsResult().presentation});
+  assert.equal(o.panels.right,null);assert.notEqual(o.bodyLayout,'ceiling');
+  const {o:none}=setup();ask(none,'b',{reply:'Hi.',tool_events:[],presentation:connectionsResult().presentation});
+  assert.equal(none.panels.right,null);
+});

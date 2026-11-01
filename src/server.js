@@ -24,6 +24,7 @@ import { validateSpeechDelivery } from './voice/prosody.js';
 import { checkCancelled } from './cancellation.js';
 import { prepareSpokenReply } from './spoken-replies.js';
 import { companionAsset, companionCsp, connectionState, presentationEvent, presentationResult } from './companion.js';
+import { ConnectionStore } from './connections.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_FILES = new Map([
@@ -59,16 +60,17 @@ function publicError(error) {
 export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaClient({
   apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY,
   model: process.env.META_MODEL || 'muse-spark-1.3',
-}), timers: suppliedTimers, ledger: suppliedLedger, memoryStore: suppliedMemory, spotify: suppliedSpotify, learningDelayMs = 750, voiceMeta = new MetaTranscriber({ apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY }), tts = new KokoroTts(), listener = new LocalVoiceListener() } = {}) {
+}), timers: suppliedTimers, ledger: suppliedLedger, memoryStore: suppliedMemory, spotify: suppliedSpotify, connectionStore: suppliedConnections, learningDelayMs = 750, voiceMeta = new MetaTranscriber({ apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY }), tts = new KokoroTts(), listener = new LocalVoiceListener() } = {}) {
   const timers = suppliedTimers || await new TimerStore({ filePath: join(dataDir, 'timers.json') }).init();
   const ledger = suppliedLedger || await new RequestLedger(join(dataDir, 'requests.jsonl')).init();
   const store = suppliedMemory || await new MemoryStore({ filePath: join(dataDir, 'memory.json') }).init();
   const memory = new MemoryService(store);
+  const connections = suppliedConnections || await new ConnectionStore({ filePath: join(dataDir, 'connections.json') }).init();
   const spotify = suppliedSpotify || await new SpotifyService({ filePath: join(dataDir, 'spotify.json'), clientId: process.env.SPOTIFY_CLIENT_ID || '' }).init();
   const routineStore = await new RoutinesStore({ filePath: join(dataDir, 'routines.json') }).init();
   const routines = new RoutineService({ store: routineStore, memoryStore: store });
   const learning = await new MemoryLearning({ store, meta, filePath: join(dataDir, 'memory-learning.json'), delayMs: learningDelayMs }).init();
-  const assistant = new Assistant({ meta, timers, memory, routines, spotify });
+  const assistant = new Assistant({ meta, timers, memory, routines, spotify, connections });
   const traces = new Map();
   const progress = new Map();
   const speechReplies = new Map();
@@ -271,7 +273,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         res.writeHead(303, { Location: `/?spotify=${outcome}#spotify-title` });
         res.end(); return;
       }
-      if (['GET', 'HEAD'].includes(req.method) && (path.startsWith('/companion') || path.startsWith('/character/') || path === '/voice/recorder-worklet.js')) {
+      if (['GET', 'HEAD'].includes(req.method) && (path.startsWith('/companion') || path.startsWith('/character/') || path === '/voice/recorder-worklet.js' || path === '/connections/catalog.js')) {
         const asset = await companionAsset(ROOT, path);
         if (!asset) throw new AppError('Not found.', 404);
         res.setHeader('Content-Security-Policy', companionCsp(asset.hashes));
@@ -281,7 +283,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       if (req.method === 'GET' && path === '/api/companion/state') {
         await tick();
         json(200, { configured: meta.configured, model: meta.model, chat_timeout_ms: MAX_MODEL_ROUNDS * MODEL_TIMEOUT_MS + 30_000,
-          ...await state(), services: connectionState(spotify), voice: await voiceStatus() }); return;
+          ...await state(), services: connectionState(spotify), connections: connections.list(), voice: await voiceStatus() }); return;
       }
       if (req.method === 'GET' && path === '/api/voice/status') {
         json(200, await voiceStatus()); return;
@@ -295,6 +297,9 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         res.writeHead(200, { 'Content-Type': type });
         res.end(await readFile(join(ROOT, 'public', file)));
         return;
+      }
+      if (req.method === 'GET' && path === '/api/connections') {
+        json(200, { connections: connections.list(), preview: true }); return;
       }
       if (req.method === 'GET' && path === '/api/state') {
         await tick();
@@ -418,6 +423,12 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         if (store.epoch !== beforeEpoch) { clearCaches(); await learning.clear(); }
         json(200, { ok: true, ...inspect() }); return;
       }
+      if (path === '/api/connections/connect' || path === '/api/connections/disconnect') {
+        // A preview records the household's choice only; it never reaches a device or account.
+        objectArgs(body, ['id']);
+        if (path.endsWith('/connect')) await connections.connect(body.id); else await connections.disconnect(body.id);
+        json(200, { connections: connections.list(), preview: true }); return;
+      }
       if (path === '/api/timers') {
         objectArgs(body, ['label', 'duration_seconds', 'time_zone', 'request_id']);
         uuid(body.request_id);
@@ -471,7 +482,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
   });
   const closeVoice = () => { voiceSocket.close(); listener.close(); for (const pending of speechPending) pending.abort(); Promise.resolve(tts.close()).catch(() => {}); };
   server.on('close', () => { clearInterval(interval); closeVoice(); learning.close().catch(() => {}); });
-  return { server, timers, meta, store, memory, learning, routines, routineStore, spotify, runChatTurn, timerAlert, replyAudio, closeVoice };
+  return { server, timers, meta, store, memory, learning, routines, routineStore, spotify, connections, runChatTurn, timerAlert, replyAudio, closeVoice };
 
 }
 
