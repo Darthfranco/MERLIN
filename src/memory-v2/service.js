@@ -353,7 +353,7 @@ export class MemoryServiceV2 extends MemoryService {
   engineStatus() {
     const migration = parse(getMeta(this.#db, 'migration_complete') ?? 'null', null);
     return { selected: 'v2', rollback: 'Set MERLIN_MEMORY_ENGINE=legacy and restart. Learning since the cutoff stays in v2 and does not carry over.', rollback_cutoff: getMeta(this.#db, 'rollback_cutoff') ?? null, migration,
-      semantic_cutoff: { value: this.#retriever.semanticCutoff, calibrated: false }, retrieval_limits: { semantic: 40, keyword: 30, entity: 20, recent: 10, rrf_k: 60, items: 12, estimated_tokens: 4000 }, vector_search: 'bounded local scan; no ANN index' };
+      semantic_cutoff: { value: this.#retriever.semanticCutoff, calibration: this.#retriever.cutoffCalibration }, retrieval_limits: { semantic: 40, keyword: 30, entity: 20, recent: 10, rrf_k: 60, items: 12, estimated_tokens: 4000 }, vector_search: 'bounded local scan; no ANN index' };
   }
   inspect(sessionId) {
     const snapshot = this.store.snapshot();

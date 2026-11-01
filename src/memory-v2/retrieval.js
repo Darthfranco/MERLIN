@@ -6,9 +6,10 @@ export const BRANCH_CAPS = { semantic: 40, keyword: 30, entity: 20, recent: 10 }
 export const RRF_K = 60;
 export const MAX_ITEMS = 12;
 export const RETRIEVED_TOKEN_BUDGET = 4000;
-// A starting value only. It has not been calibrated against any embedding model or household
-// queries, and is reported as uncalibrated in the inspector. Override with MERLIN_MEMORY_SEMANTIC_CUTOFF.
-export const DEFAULT_SEMANTIC_CUTOFF = 0.45;
+// Chosen by scripts/calibrate-memory-v2.js for this model on invented text, not on household queries.
+// Any other model counts as uncalibrated in the inspector. Override with MERLIN_MEMORY_SEMANTIC_CUTOFF.
+export const DEFAULT_SEMANTIC_CUTOFF = 0.525;
+const CUTOFF_CALIBRATED_MODEL = 'nomic-embed-text';
 const STOP_WORDS = new Set('a an and are as at be but by can could do does did for from get give got had has have how i if in is it its just let like make me my no not of on or our please set should so tell than that the their them then there these they this to up us was we were what when where which who why will with would you your'.split(' '));
 
 /** Documented conservative estimate (about three characters per token), not a tokenizer count. */
@@ -34,6 +35,10 @@ export class Retriever {
   #cutoff;
   constructor({ db, gate, semanticCutoff = DEFAULT_SEMANTIC_CUTOFF }) { this.#db = db; this.#gate = gate; this.#cutoff = semanticCutoff; }
   get semanticCutoff() { return this.#cutoff; }
+  get cutoffCalibration() {
+    const model = String(this.#gate.status().configured_model ?? '').replace(/:latest$/u, '');
+    return this.#cutoff === DEFAULT_SEMANTIC_CUTOFF && model === CUTOFF_CALIBRATED_MODEL ? 'synthetic_set' : 'none';
+  }
 
   /** Scope goes into every branch's SQL, so an out-of-scope row can never reach ranking. */
   #scope({ household = HOUSEHOLD, viewer = null } = {}) {

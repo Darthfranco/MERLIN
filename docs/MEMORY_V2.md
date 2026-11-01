@@ -2,7 +2,7 @@
 
 This is the owner's *Home Agent Memory Procedure* (version 1, October 28, 2026), implemented as a selectable engine beside the existing one. The procedure is the behavioral source of truth for v2. [MEMORY.md](MEMORY.md) describes the legacy engine, which stays available as the rollback. Status and check results are in [STATUS.md](STATUS.md).
 
-**Legacy is still the default.** The owner's condition for making v2 the default is that its real semantic adapter is usable. No embedding service is installed on the development machine yet, so v2 is an explicit opt-in. Without one it runs with semantic retrieval reported as degraded, and lexical, entity, and lifecycle behavior still work.
+**Legacy is still the default.** The owner's condition for making v2 the default is that its real semantic adapter is usable. As of November 1, 2026 that holds on the development Mac, where Ollama and `nomic-embed-text` are installed and checked. Switching remains the owner's decision, so v2 is still an explicit opt-in. A machine with no embedding service runs v2 with semantic retrieval reported as degraded, and lexical, entity, and lifecycle behavior still work.
 
 ## Enable, check, roll back
 
@@ -20,7 +20,16 @@ MERLIN_MEMORY_ENGINE=v2 npm start
 MERLIN_MEMORY_ENGINE=legacy npm start
 ```
 
-To enable semantic retrieval, install [Ollama](https://ollama.com), run `ollama pull nomic-embed-text`, and rerun the check. Any service with the same `POST /api/embed` and `GET /api/tags` endpoints works through `MERLIN_EMBEDDING_URL` and `MERLIN_EMBEDDING_MODEL`. `.env.example` lists the settings. To make v2 the default after that check passes on real household-like queries, change `DEFAULT_MEMORY_ENGINE` in `src/memory-engine.js`.
+To enable semantic retrieval on a Mac:
+
+```bash
+brew install ollama
+brew services start ollama
+ollama pull nomic-embed-text
+npm run check:memory-v2
+```
+
+The service starts again at login and listens only on `127.0.0.1:11434`. To stop it, run `brew services stop ollama`. Any service with the same `POST /api/embed` and `GET /api/tags` endpoints works through `MERLIN_EMBEDDING_URL` and `MERLIN_EMBEDDING_MODEL`. `.env.example` lists the settings. A different model needs its own cutoff from `npm run calibrate:memory-v2`. To make v2 the default, change `DEFAULT_MEMORY_ENGINE` in `src/memory-engine.js`.
 
 What rollback does and does not do:
 
@@ -114,15 +123,38 @@ The existing owner controls keep working, and this does not add a new deletion w
 
 ## Inspecting
 
-`GET /api/memory` adds `memory_engine`, `engine` (selected engine, cutoff, migration counts, uncalibrated cutoff, limits), and in `learning`: capture backlog, candidate counts, open segments, consolidating segments with their boundaries, semantic readiness, index counts, document status, and retry availability. These status fields carry no household content. Memory lab shows version, type, evidence kind, temporary or unresolved status, and provenance gaps on each record, with no UI redesign. **Behind this response** adds per-branch counts, semantic state, and estimated tokens.
+`GET /api/memory` adds `memory_engine`, `engine` (selected engine, cutoff, migration counts, cutoff value and calibration status, limits), and in `learning`: capture backlog, candidate counts, open segments, consolidating segments with their boundaries, semantic readiness, index counts, document status, and retry availability. These status fields carry no household content. Memory lab shows version, type, evidence kind, temporary or unresolved status, and provenance gaps on each record, with no UI redesign. **Behind this response** adds per-branch counts, semantic state, and estimated tokens.
+
+## Semantic calibration
+
+`npm run calibrate:memory-v2` runs a labeled set from `scripts/memory-v2-calibration-set.js` through the configured model and the real search path, on a throwaway database with no Meta calls. The set has 39 records, 450 plausible distractors, 39 answerable queries worded to avoid the record's words, and 26 unanswerable queries. It picks the highest cutoff that gives up at most one query from the best recall on one half of the set, then reports the other half.
+
+Results for `nomic-embed-text` on November 1, 2026. The full-search rows use all queries, including the half that chose the cutoff, and up to 12 items per query:
+
+| Search | Answer retrieved | Items per general question | Items per household-sounding question |
+| --- | --- | --- | --- |
+| Keyword and entity only | 5 of 39 | 0.4 | 2.1 |
+| Hybrid at the earlier 0.45 | 34 of 39 | 4.2 | 10.9 |
+| Hybrid at the chosen 0.525 | 33 of 39 | 0.4 | 6.6 |
+
+On the held-out half alone, the semantic branch at 0.525 found 84 percent of answers. No general question returned a semantic result, and 57 percent of household-sounding questions returned at least one false match.
+
+How to read this:
+
+- **The keyword gap is exaggerated on purpose,** because the queries avoid the record's words. It shows what semantic search adds, not how often real questions need it.
+- **No cutoff separates near misses.** "Is the pool heater on?" scores close to a record about the space heater, and "What color should we paint the guest room?" scores 0.74 against distractors that name that room. Those items reach the model as context, and it has to judge them.
+- **The store is small and invented,** so real recall could be lower.
+- **Task prefixes are not used.** The model's documented `search_query:` and `search_document:` prefixes made no clear difference on the 39 records: top-1 recall 87 versus 90 percent without them, top-12 recall 100 versus 97 percent, each about one query. The adapter stays simple. Adding them later needs a new model identity, so stored vectors are rebuilt.
+
+Query embedding took about 17 ms with the model loaded and about 300 ms after Ollama unloaded it, which it does after five idle minutes. Both are well under the 1,500 ms query timeout. A slower first load, such as just after a reboot, was not measured; a timeout falls back to lexical search for that request.
 
 ## Local choices and limits
 
-These are implementation choices, not owner decisions: SQLite through built-in `node:sqlite` with FTS5, a bounded vector scan, `sources.json` as the source log, the Ollama development adapter with `nomic-embed-text`, and the starting cutoff of 0.45.
+These are implementation choices, not owner decisions: SQLite through built-in `node:sqlite` with FTS5, a bounded vector scan, `sources.json` as the source log, the Ollama development adapter with `nomic-embed-text`, and the cutoff of 0.525.
 
-- **Semantic recall has not been exercised with a real model.** Tests use an injected deterministic embedder, which proves ordering, reuse, and fallbacks, not recall.
-- **The cosine cutoff is uncalibrated**, and is reported as such in the inspector. A real model may need a different value; calibrate with `npm run check:memory-v2` output and negative queries.
-- **Live Meta coverage is one synthetic case.** `npm run check:memory-v2 -- --meta` and a single end-to-end conversation succeeded on November 1, 2026. That shows the provider accepts the v2 tools and schemas; it does not measure extraction or consolidation quality. Wording is model-dependent: before the instruction was tightened, that run replied "I'll remember," and no code check enforces this wording.
+- **Semantic recall has only been measured on invented text.** See [Semantic calibration](#semantic-calibration). Automated tests still use an injected deterministic embedder, which proves ordering, reuse, and fallbacks, not recall.
+- **The cosine cutoff is calibrated for one model on a synthetic set**, and the inspector reports `synthetic_set` for that model and `none` for any other model or an overridden value. It has not been checked against real household queries.
+- **Live Meta coverage is two synthetic conversations.** `npm run check:memory-v2 -- --meta` and two end-to-end conversations succeeded on November 1, 2026, the second with real embeddings. That shows the provider accepts the v2 tools and schemas; it does not measure extraction or consolidation quality. Wording is model-dependent: the first run replied "I'll remember." After the instruction was tightened, the second replied "I'll use the red sofa," but no code check enforces this wording.
 - **Vector search is a full scan**, with no ANN index. Measured locally with embedding excluded: p50 about 12 ms and p95 about 17 ms for 2,000 items at 768 dimensions over 200 queries. That is one machine and a synthetic corpus, not a scale or recall claim.
 - `node:sqlite` is verified on the running Node 26.5 only. The project minimum is 22.16, where it may print an experimental warning. Legacy does not load it.
 - Temporary control items stay in a session with their timestamps rather than parsed expiry times; the model judges elapsed time from the stated time.

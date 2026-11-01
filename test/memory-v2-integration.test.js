@@ -455,7 +455,7 @@ test('the HTTP inspector and owner controls work against v2', async t => {
   const inspect = await (await fetch(`${origin}/api/memory`)).json();
   assert.equal(inspect.memory_engine, 'v2');
   assert.equal(inspect.engine.selected, 'v2');
-  assert.equal(inspect.engine.semantic_cutoff.calibrated, false);
+  assert.equal(inspect.engine.semantic_cutoff.calibration, 'none', 'the default cutoff was only calibrated for one real model');
   for (const key of ['capture_backlog', 'candidates', 'segments', 'semantic', 'index', 'retry']) assert.ok(key in inspect.learning, key);
   assert.equal(inspect.learning.semantic.state, 'ready');
   assert.equal(JSON.stringify(inspect.learning).includes('recycling'), false, 'status carries no household content');

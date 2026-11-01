@@ -50,13 +50,22 @@ test('each branch contributes on its own, including an indirect-wording match no
   assert.deepEqual((await search.search({ query: 'what about Alex' })).items.map(item => [item.key, item.branches]), [['recent-only', ['recent']]]);
 });
 
+test('the cutoff counts as calibrated only for the model it was chosen on, at its default value', () => {
+  const search = (model, options) => new Retriever({ db: null, gate: new EmbeddingGate(new OllamaEmbedder({ model })), ...options });
+  assert.equal(search('nomic-embed-text').cutoffCalibration, 'synthetic_set');
+  assert.equal(search('nomic-embed-text:latest').cutoffCalibration, 'synthetic_set');
+  assert.equal(search('another-model').cutoffCalibration, 'none');
+  assert.equal(search('nomic-embed-text', { semanticCutoff: 0.4 }).cutoffCalibration, 'none');
+  assert.equal(new Retriever({ db: null, gate: new EmbeddingGate(null) }).cutoffCalibration, 'none');
+});
+
 test('an irrelevant query can stay empty, and the local timer route is not diverted by it', async t => {
   const { db, embedder, retriever: search } = retriever();
   seed(db, 'thermostat', { text: 'The thermostat stays at 72 degrees.' });
   await vectorize(db, embedder, 'thermostat', 'The thermostat stays at 72 degrees.');
   const negative = await search.search({ query: 'quantum zeppelin ballet' });
   assert.deepEqual(negative.items, []);
-  assert.equal(negative.counts.semantic, 0, 'below the uncalibrated starting cutoff');
+  assert.equal(negative.counts.semantic, 0, 'below the semantic cutoff');
 
   const meta = scriptedMeta();
   const { app, clock } = await v2App(t, { meta });
