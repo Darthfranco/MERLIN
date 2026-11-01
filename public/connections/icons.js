@@ -20,6 +20,9 @@ const paths = {
   garden: '<path d="M12 21v-9m0 4c-7 0-9-4-9-10 6 0 9 3 9 8m0 2c7 0 9-4 9-10-6 0-9 3-9 8"/>',
   energy: '<path d="m13 2-8 12h6l-1 8 9-13h-6z"/>',
   garage: '<path d="M3 21V9l9-6 9 6v12M7 21V11h10v10M7 15h10M7 19h10"/>',
+  alert: '<path d="M12 3 2.5 20h19zM12 10v5m0 3h.01"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-9h.01"/>',
   hub: '<rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 15h.01M12 15h.01M7 6a8 8 0 0 1 10 0M10 3a11 11 0 0 1 4 0"/>',
 };
 

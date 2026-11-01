@@ -55,10 +55,11 @@ test('music needs a connected service only when Spotify is not connected', () =>
   assert.equal(classify('play some jazz', { spotifyAvailable: false }), null);
 });
 
-test('a category that only has a preview connection does not reopen the panel', () => {
-  const intent = classify('turn on the lights', { connectedIds: ['philips-hue'] });
-  assert.deepEqual([intent.kind, intent.category], ['preview_only', 'lights']);
-  assert.equal(classify('turn on the lights', { connectedIds: ['ring'] }).kind, 'unconnected');
+test('a category a verified connector covers does not reopen the panel, an uncovered one does', () => {
+  assert.equal(classify('turn on the lights', { coveredCategories: new Set(['lights']) }), null, 'the device tools handle it');
+  const intent = classify('turn on the lights', { coveredCategories: new Set(['plugs', 'locks']) });
+  assert.deepEqual([intent.kind, intent.category], ['unconnected', 'lights']);
+  assert.equal(classify('turn on the lights').kind, 'unconnected');
 });
 
 test('timers, routines, conversation, weather, and lookups never open the panel', () => {

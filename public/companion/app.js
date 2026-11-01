@@ -5,7 +5,7 @@ import {formatDuration} from '/character/viewer/panels/render.js';
 import {CompanionVoiceClient,unlockAudioPlayback} from './voice-client.js';
 import {Orchestrator,ACTION_HOLD,pendingPanel,timerPanel,musicPanel,presentationLayout,panelSides} from './orchestrator.js';
 import {TimerAlertQueue} from './timer-alerts.js';
-import {panelState,initialUi,applyAction,connectionsPanelRecord} from './connections-panel.js';
+import {panelState,initialUi,applyAction,connectionsPanelRecord,connectorSummary} from './connections-panel.js';
 import {connectionTargets,pageCount} from '/character/viewer/panels/connections.js';
 
 const $=id=>document.getElementById(id);
@@ -34,7 +34,7 @@ async function api(path,body,{signal,timeout=15000}={}){
   if(!response.ok)throw Object.assign(new Error(data.error||'That request could not finish.'),{data,status:response.status});return data;
 }
 function livePanel(panel){
-  if(panel?.type==='connections')return {...panel,...panelState(connectionsUi,{connectedIds:(snapshot.connections||[]).map(entry=>entry.id),spotifyConnected:spotify.connected===true})};
+  if(panel?.type==='connections')return {...panel,...panelState(connectionsUi,{connectors:snapshot.connectors||[],spotify})};
   if(panel?.type==='timer'&&panel.id){const t=snapshot.timers.find(t=>t.id===panel.id);return t?timerPanel(t,Date.now()+serverOffset):panel;}
   return panel;
 }
@@ -167,8 +167,8 @@ function changeLayout(change){
 function invalidate({keepAlert=false}={}){generation++;clearSpeech();if(!keepAlert)timerAlerts.interrupt();requestController?.abort();requestController=null;stopTyped();$('stop').hidden=true;$('send').disabled=!connected;turnId=null;pollingTurn=null;}
 function showReply(result){
   $('reply').textContent=result.reply||result.error||'The request finished.';
-  $('sources').replaceChildren();for(const source of result.sources||[]){try{const url=new URL(source.url);if(!['https:','http:'].includes(url.protocol))continue;const a=el('a',source.title||url.hostname);a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';const li=el('li','');li.append(a);$('sources').append(li);}catch{}}
-  $('sources').setAttribute('aria-label',(result.sources||[]).length&&(result.sources||[]).every(source=>source.basis==='retrieved')?'Pages checked for this answer':'Answer sources');
+  $('sources').replaceChildren();for(const source of result.sources||[]){try{const url=new URL(source.url);if(!['https:','http:'].includes(url.protocol))continue;const a=el('a',source.title||url.hostname);if(source.snippet)a.title=String(source.snippet).slice(0,280);a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';const li=el('li','');li.append(a);$('sources').append(li);}catch{}}
+  $('sources').setAttribute('aria-label',(result.sources||[]).length&&(result.sources||[]).every(source=>['retrieved','read'].includes(source.basis))?'Pages checked for this answer':'Answer sources');
   $('sources').hidden=!$('sources').children.length;
   $('actions').replaceChildren();for(const event of result.tool_events||[]){$('actions').append(el('li',event.message||`${event.status==='completed'?'Completed':'Couldn’t finish'} ${event.tool.replaceAll('_',' ')}`));}
   $('actions-empty').hidden=Boolean($('actions').children.length);
@@ -405,6 +405,7 @@ async function pollState(){
     if(!connected)notice('The assistant is not connected yet. You can still view local timers.');
     $('send').disabled=!connected||Boolean(turnId);
     const status=state.services?.spotify;$('spotify-state').textContent=status?.connected?'Connected':'Not connected';
+    $('lights-state').textContent=state.services?.lights?.connected?'Connected':'Not connected';
     if(!status?.connected)acceptMusic({connected:false});
     else if(pollCount++%5===0)void refreshMusic().catch(()=>{});
   }catch{connected=false;$('connection').textContent='Connection lost · Reconnecting';$('send').disabled=true;}
@@ -414,7 +415,7 @@ function openConnections(card){
   connectionsUi=initialUi(card);touchKey='';
   if(!orchestration.inspectLarge(connectionsPanelRecord()))notice('Finish this reply first, then open the connection options.');
 }
-function announceConnections(){$('touch-status').textContent=connectionsUi.notice||'';}
+function announceConnections(){$('touch-status').textContent=connectionsUi.announce||connectionsUi.notice||'';}
 function refreshConnections(){
   if(activePanels.right?.type!=='connections')return;
   character?.refreshPanels?.(['right']);renderTouchLayer();
@@ -451,14 +452,27 @@ async function tapTarget(target){
   const {ui,effect}=applyAction(connectionsUi,target,{pages});connectionsUi=ui;touchKey='';
   refreshConnections();announceConnections();
   if(!effect)return;
-  if(effect.type==='open'){window.open(effect.url,'_blank','noopener,noreferrer');return;}
+  if(effect.type==='open'){
+    // A normal new tab: nothing here waits for it, so the companion keeps running while the household sets things up.
+    window.open(effect.url,'_blank','noopener,noreferrer');
+    if(effect.name){connectionsUi={...connectionsUi,notice:`Opened the ${effect.name} setup page in a new tab.`,announce:`Opened the ${effect.name} setup page in a new tab. If nothing opened, visit /connections/ in a browser on this computer.`};touchKey='';refreshConnections();announceConnections();}
+    return;
+  }
   if(connectionsBusy)return;connectionsBusy=true;
+  connectionsUi={...connectionsUi,busy:effect.type};touchKey='';refreshConnections();
   try{
-    const data=await api(`/api/connections/${effect.type}`,{id:effect.id});
-    snapshot={...snapshot,connections:data.connections};
-    connectionsUi={...connectionsUi,notice:effect.type==='connect'?`Connected ${effect.name} (preview). MERLIN can’t control it yet.`:`Disconnected ${effect.name}.`};
-  }catch(error){connectionsUi={...connectionsUi,notice:error.message||'That didn’t save. Try again.'};}
-  finally{connectionsBusy=false;touchKey='';refreshConnections();announceConnections();}
+    // The server checks the real service (verify) or revokes and forgets its credentials (disconnect). Nothing is assumed.
+    const data=await api(`/api/connectors/${encodeURIComponent(effect.id)}/${effect.type}`,{});
+    snapshot={...snapshot,connectors:[...(snapshot.connectors||[]).filter(item=>item.id!==data.id),connectorSummary(data)]};
+    if(effect.type==='disconnect'){
+      if(effect.id==='spotify')acceptMusic({connected:false});
+      connectionsUi={...connectionsUi,notice:`Disconnected ${effect.name}.`,announce:data.message||`Disconnected ${effect.name}.`};
+    }else connectionsUi={...connectionsUi,notice:data.status==='connected'?`${effect.name} is connected and verified.`:`${effect.name}: ${data.detail||'check the connection.'}`};
+  }catch(error){
+    connectionsUi={...connectionsUi,notice:error.status===401?`${effect.name} did not accept the saved credentials. Reconnect it on the Connection Center page.`:error.message||'That didn’t finish. Try again.'};
+    void pollState();
+  }
+  finally{connectionsBusy=false;connectionsUi={...connectionsUi,busy:''};touchKey='';refreshConnections();announceConnections();}
 }
 function toggleActivity(open){$('activity').hidden=!open;$('activity-toggle').setAttribute('aria-expanded',String(open));if(open&&innerWidth<=720)$('activity').scrollIntoView({behavior:motionQuery.matches?'auto':'smooth',block:'start'});}
 $('activity-toggle').addEventListener('click',()=>toggleActivity($('activity').hidden));$('activity-close').addEventListener('click',()=>{toggleActivity(false);$('activity-toggle').focus();});

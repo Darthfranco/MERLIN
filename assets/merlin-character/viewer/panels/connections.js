@@ -4,7 +4,10 @@
 
    The robot stands in front of the middle of the ceiling card. In landscape, controls live in the
    top band and the two side columns and never inside ROBOT_ZONE (measured from the authored
-   ceiling clips). Drawing is display-only; execution belongs to the caller. */
+   ceiling clips). Drawing is display-only; execution belongs to the caller.
+
+   It shows real connector status and honest setup guides. It never asks for a credential: setup
+   buttons open the Connection Center page, where secrets are typed in a normal browser tab. */
 import {COLORS} from './render.js';
 
 export const CONNECTIONS_PANEL = 'connections';
@@ -13,6 +16,19 @@ const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
 export const ROBOT_ZONE = Object.freeze({x0: .34, x1: .66, y0: .47});
 const HARD = {ink: '#82433b', bg: '#f8efed'};
 const DIFFICULTY = {easy: {label: 'Easy', ink: COLORS.green, bg: COLORS.greenBg}, medium: {label: 'Medium', ink: COLORS.amber, bg: COLORS.amberBg}, hard: {label: 'Hard', ink: HARD.ink, bg: HARD.bg}};
+/* What each real status looks like. Only `connected` is green, and only a verified connector reaches it.
+   tile: the line at the bottom of a tile. chip: the pill on the setup view. spoken: the screen-reader wording. */
+const STATUS = {
+  connected: {tile: 'Connected ✓', chip: 'Connected ✓', spoken: 'connected and verified', ink: COLORS.green, bg: COLORS.greenBg, line: COLORS.green},
+  saved: {tile: 'Setup unfinished', chip: 'Setup unfinished', spoken: 'setup unfinished, not usable yet', ink: COLORS.amber, bg: COLORS.amberBg, line: COLORS.amber},
+  attention: {tile: 'Needs attention', chip: 'Needs attention', spoken: 'needs attention', ink: HARD.ink, bg: HARD.bg, line: HARD.ink},
+  available: {tile: 'Set up ›', chip: 'Not connected', spoken: 'not connected, can be set up', ink: COLORS.blue, bg: COLORS.ice, line: COLORS.line},
+  guide: {tile: 'Via Home Assistant ›', chip: 'Via Home Assistant', spoken: 'setup guide only, works through Home Assistant', ink: COLORS.blue, bg: COLORS.ice, line: COLORS.line},
+  none: {tile: 'Not supported', chip: 'Not supported', spoken: 'not supported', ink: COLORS.muted, bg: COLORS.quiet, line: COLORS.line},
+  unavailable: {tile: 'Unavailable', chip: 'Unavailable', spoken: 'unavailable', ink: COLORS.muted, bg: COLORS.quiet, line: COLORS.line},
+};
+const statusStyle = status => STATUS[status] || STATUS.none;
+const NOTICE = 'Connect real services on the Connection Center page. Guides don’t connect MERLIN.';
 const isLandscape = (w, h) => w / h >= 1.15;
 
 export const pageSize = (width, height) => isLandscape(width, height) ? 6 : 5;
@@ -28,39 +44,46 @@ export function connectionsLayout(state, width, height) {
   const setup = state?.view === 'setup' && state.setup;
   add({kind: 'title', x: pad, y: (wide ? .075 : .06) * h, text: setup ? state.setup.name : 'Connect your home', size: Math.round((wide ? .052 : .04) * h)});
   add({kind: 'subtitle', x: pad, y: (wide ? .125 : .1) * h, size: Math.round((wide ? .027 : .02) * h),
-    text: state?.notice || 'Preview only: connecting records your choice. MERLIN can’t control devices yet.'});
+    text: state?.notice || NOTICE});
 
   if (setup) {
     const s = state.setup, bar = (wide ? .085 : .06) * h, gap = .015 * w;
     let rowTop = (wide ? .16 : .15) * h, x = pad;
     // Narrow cards wrap the action row instead of running off the edge.
-    const button = (action, label, text, primary, disabled = false) => {
-      const bw = Math.round(80 + text.length * 21);
+    const button = ({action, value, label, text: caption, primary = false, disabled = false, danger = false}) => {
+      const bw = Math.round(56 + caption.length * 17);
       if (x > pad && x + bw > w - pad) { x = pad; rowTop += bar + .012 * h; }
-      const placed = add({kind: 'button', action, label, text, x, y: rowTop, w: bw, h: bar, primary, disabled});
+      const placed = add({kind: 'button', action, value, label, text: caption, x, y: rowTop, w: bw, h: bar, primary, disabled, danger});
       x += bw + gap; return placed;
     };
-    button('back', 'Back to the connection list', '‹ Back', false);
-    if (s.connected) button('disconnect', `Disconnect ${s.name} preview`, 'Disconnect', false, !s.disconnectable);
-    else button('connect', `Connect ${s.name} as a preview`, s.real ? 'Open Spotify setup' : s.available ? 'Connect (preview)' : 'Not available', s.available, !s.available);
-    if (s.guideUrl) button('guide', `Open the official ${s.name} guide in a new tab`, 'Official guide ↗', false);
-    const top = rowTop;
-    const badge = DIFFICULTY[s.difficulty] || DIFFICULTY.medium, size = Math.round(.03 * h);
-    // "Preview" stays in the subtitle and the accessible name; the pill must fit above the robot.
-    const badgeText = s.connected ? `${badge.label} · Connected` : `${badge.label} setup`;
-    // Wide: the free band above the robot's head. Narrow: under the action row.
-    const bx = wide ? (ROBOT_ZONE.x0 + .015) * w : pad, by = wide ? .31 * h : top + bar + .035 * h;
-    add({kind: 'badge', x: bx, y: by, w: Math.round(badgeText.length * size * .6 + 40), h: size * 1.5, text: badgeText, ink: badge.ink, bg: badge.bg, size});
-    const pw = wide ? (ROBOT_ZONE.x1 - ROBOT_ZONE.x0 - .03) * w : w - 2 * pad, ps = Math.round(.026 * h);
-    add({kind: 'paragraph', x: bx, y: by + .065 * h, w: pw, h: ps * 1.4 * 2, lines: s.reason ? [s.reason] : [], size: ps, max: 2});
-    // Requirements on the left, steps on the right: both outside the robot.
-    const col = .275 * w, colTop = .30 * h, leftX = pad, rightX = w - pad - col;
+    for (const spec of setupActions(s)) button(spec);
+    const rowEnd = rowTop + bar;
+    const difficulty = DIFFICULTY[s.difficulty] || DIFFICULTY.medium, style = statusStyle(s.status);
+    // The pill states the real status. "Easy" and the like describe household effort, not whether anything is connected.
+    const chipText = `${difficulty.label} · ${style.chip}`;
+    const col = .275 * w, leftX = pad, rightX = w - pad - col;
     if (wide) {
-      add({kind: 'list', heading: 'You’ll need', x: leftX, y: colTop, w: col, h: .62 * h, items: [...(s.requirements || []).slice(0, 3), ...(s.limitations || []).slice(0, 1).map(l => `Limit: ${l}`)], numbered: false});
-      add({kind: 'list', heading: 'Steps', x: rightX, y: colTop, w: col, h: .62 * h, items: (s.steps || []).slice(0, 4), numbered: true});
+      // The free band above the robot's head holds the status pill and a short live summary.
+      const bx = (ROBOT_ZONE.x0 + .015) * w, by = Math.max(.31 * h, rowEnd + .045 * h), pw = (ROBOT_ZONE.x1 - ROBOT_ZONE.x0 - .03) * w, ps = Math.round(.026 * h);
+      const size = Math.min(Math.round(.03 * h), Math.floor((pw - 40) / (chipText.length * .6)));
+      add({kind: 'badge', x: bx, y: by, w: Math.min(pw, Math.round(chipText.length * size * .6 + 40)), h: size * 1.5, text: chipText, ink: style.ink, bg: style.bg, size});
+      add({kind: 'paragraph', x: bx, y: by + .065 * h, w: pw, h: ps * 1.4 * 2, lines: s.summary ? [s.summary] : [], size: ps, max: 2});
+      const top = Math.max(.30 * h, rowEnd + .02 * h), bottom = .93 * h;
+      add({kind: 'list', heading: 'You’ll need', x: leftX, y: top, w: col, h: .31 * h, items: (s.requirements || []).slice(0, 2), numbered: false});
+      add({kind: 'note', heading: 'What MERLIN can do', x: leftX, y: top + .335 * h, w: col, h: bottom - (top + .335 * h), text: s.afterwards, size: 24});
+      add({kind: 'list', heading: 'Steps', x: rightX, y: top, w: col, h: .33 * h, items: (s.steps || []).slice(0, 3), numbered: true});
+      add({kind: 'note', heading: 'What’s missing', x: rightX, y: top + .345 * h, w: col, h: bottom - (top + .345 * h), text: s.remaining, size: 24});
     } else {
-      add({kind: 'list', heading: 'You’ll need', x: pad, y: .44 * h, w: w - 2 * pad, h: .22 * h, items: (s.requirements || []).slice(0, 2), numbered: false});
-      add({kind: 'list', heading: 'Steps', x: pad, y: .69 * h, w: w - 2 * pad, h: .26 * h, items: (s.steps || []).slice(0, 3), numbered: true});
+      const size = Math.min(Math.round(.03 * h), Math.floor((w - 2 * pad - 40) / (chipText.length * .6)));
+      const by = rowEnd + .035 * h, ps = Math.round(.026 * h), pw = w - 2 * pad;
+      add({kind: 'badge', x: pad, y: by, w: Math.min(pw, Math.round(chipText.length * size * .6 + 40)), h: size * 1.5, text: chipText, ink: style.ink, bg: style.bg, size});
+      add({kind: 'paragraph', x: pad, y: by + .065 * h, w: pw, h: ps * 1.4 * 2, lines: s.summary ? [s.summary] : [], size: ps, max: 2});
+      // Narrow card: what MERLIN can and cannot do outranks the requirement list (the Connection Center page has it in full).
+      // The three blocks share whatever height is left below the action rows, so a wrapped row never pushes them off the card.
+      const y1 = by + .135 * h, avail = Math.max(.2 * h, .985 * h - y1);
+      add({kind: 'note', heading: 'What MERLIN can do', x: pad, y: y1, w: pw, h: avail * .36, text: s.afterwards, size: 24});
+      add({kind: 'note', heading: 'What’s missing', x: pad, y: y1 + avail * .36, w: pw, h: avail * .27, text: s.remaining, size: 24});
+      add({kind: 'list', heading: 'Steps', x: pad, y: y1 + avail * .63, w: pw, h: avail * .37, items: (s.steps || []).slice(0, 3), numbered: true});
     }
     return items;
   }
@@ -107,35 +130,56 @@ export function connectionsLayout(state, width, height) {
   return items;
 }
 
-/** Tap targets in logical units: {id, action, value, label, x, y, w, h, disabled}. */
+/** The buttons on the setup view for a real status. Credentials are never entered here: setup opens the Connection Center page. */
+function setupActions(s) {
+  const actions = [{action: 'back', label: 'Back to the connection list', text: '‹ Back'}];
+  const connected = s.status === 'connected', busy = Boolean(s.busy);
+  if (s.type === 'native' && s.real) {
+    actions.push({action: 'setup', label: 'Open the Spotify setup page in a new tab', text: 'Open Spotify setup', primary: !connected});
+    if (connected) actions.push(disconnectSpec(s, busy));
+  } else if (s.type === 'native') {
+    if (connected) {
+      actions.push({action: 'verify', label: `Check that ${s.name} still works`, text: s.busy === 'verify' ? 'Checking…' : 'Check connection', primary: true, disabled: busy});
+      actions.push(disconnectSpec(s, busy));
+    } else if (s.status === 'attention') {
+      actions.push({action: 'setup', label: `Reconnect ${s.name}. Opens the Connection Center page in a new tab`, text: 'Reconnect', primary: true});
+      actions.push({action: 'verify', label: `Check ${s.name} again`, text: s.busy === 'verify' ? 'Checking…' : 'Check again', disabled: busy});
+    } else if (s.status === 'saved') {
+      actions.push({action: 'setup', label: `Finish ${s.name} setup. Opens the Connection Center page in a new tab`, text: 'Finish setup', primary: true});
+    } else if (s.status !== 'unavailable') {
+      actions.push({action: 'setup', label: `Set up ${s.name} on this computer. Opens the Connection Center page in a new tab`, text: 'Set up on this computer', primary: true});
+    }
+  } else if (s.via === 'home-assistant') {
+    actions.push({action: 'open', value: 'home-assistant', label: `Open Home Assistant setup. ${s.name} works only through Home Assistant`, text: 'Set up Home Assistant', primary: true});
+  }
+  if (s.guideUrl) actions.push({action: 'guide', label: `Open the official ${s.name} guide in a new tab`, text: 'Official guide ↗'});
+  return actions;
+}
+function disconnectSpec(s, busy) {
+  return s.confirmDisconnect
+    ? {action: 'disconnect', label: `Tap again to disconnect ${s.name}`, text: 'Tap again to disconnect', danger: true, disabled: busy}
+    : {action: 'disconnect', label: `Disconnect ${s.name}`, text: 'Disconnect', disabled: busy};
+}
+
+/** Tap targets in logical units: {id, action, value, label, x, y, w, h}. */
 export function connectionTargets(state, width, height) {
   const targets = [];
   for (const item of connectionsLayout(state, width, height)) {
     if (item.action && !item.disabled) targets.push({id: `${item.action}:${item.value ?? ''}`, action: item.action, value: item.value, label: item.label, x: item.x, y: item.y, w: item.w, h: item.h});
     if (item.kind !== 'tile') continue;
-    const tile = item.tile, status = tile.status === 'connected' ? (tile.real ? 'connected' : 'connected as a preview') : tile.status === 'unavailable' ? 'unavailable' : 'not connected';
-    targets.push({id: `open:${tile.id}`, action: 'open', value: tile.id, label: `${tile.name}, ${DIFFICULTY[tile.difficulty]?.label.toLowerCase() || 'medium'} setup, ${status}. Open details`, x: item.x, y: item.y, w: item.w, h: item.h});
-    const pill = tilePill(item);
-    // `within` lets the page grow a small pill into a comfortable touch size without leaving its tile.
-    if (pill) targets.push({id: `connect:${tile.id}`, action: 'connect', value: tile.id, label: `Connect ${tile.name} as a preview`, x: pill.x, y: pill.y, w: pill.w, h: pill.h, within: {x: item.x, y: item.y, w: item.w, h: item.h}});
+    const tile = item.tile;
+    targets.push({id: `open:${tile.id}`, action: 'open', value: tile.id, label: `${tile.name}, ${DIFFICULTY[tile.difficulty]?.label.toLowerCase() || 'medium'} setup, ${statusStyle(tile.status).spoken}. Open details`, x: item.x, y: item.y, w: item.w, h: item.h});
   }
   return targets;
-}
-
-// The quick Connect pill sits on easy, available, unconnected tiles (never on Spotify, which has its own setup).
-function tilePill({x, y, w, h, tile}) {
-  if (tile.status !== 'available' || tile.difficulty !== 'easy' || tile.real) return null;
-  const pw = Math.min(w * .42, 210), ph = Math.min(h * .36, 64);
-  return {x: x + w - pw - h * .1, y: y + h - ph - h * .1, w: pw, h: ph};
 }
 
 export function connectionsDescription(state) {
   if (state?.view === 'setup' && state.setup) {
     const s = state.setup;
-    return `${s.name} setup guide. ${DIFFICULTY[s.difficulty]?.label || 'Medium'} setup. ${s.connected ? 'Connected' : 'Not connected'}${s.real ? '' : ' as a preview'}.`;
+    return `${s.name} setup. ${DIFFICULTY[s.difficulty]?.label || 'Medium'} setup. ${statusStyle(s.status).spoken.replace(/^./u, letter => letter.toUpperCase())}. ${s.summary || ''}`.trim();
   }
   const active = (state?.categories || []).find(category => category.active);
-  return `Connection options${active ? `: ${active.label}` : ''}. ${state?.tiles?.length || 0} available. Previews record a choice only.`;
+  return `Connection options${active ? `: ${active.label}` : ''}. ${state?.tiles?.length || 0} listed. ${NOTICE}`;
 }
 
 function rr(c, x, y, w, h, r, fill, stroke) { c.beginPath(); c.roundRect(x, y, w, h, r); if (fill) { c.fillStyle = fill; c.fill(); } if (stroke) { c.strokeStyle = stroke; c.lineWidth = 2; c.stroke(); } }
@@ -172,9 +216,9 @@ export function paintConnections(c, width, height, state) {
       rr(c, item.x, item.y, item.w, item.h, item.h / 2, item.active ? COLORS.blue : COLORS.ice, item.active ? null : COLORS.line);
       text(c, item.text, item.x + item.w / 2, item.y + item.h / 2, Math.round(item.h * .46), {align: 'center', weight: 600, color: item.active ? '#ffffff' : COLORS.ink, max: item.w - 20});
     } else if (item.kind === 'button') {
-      const fill = item.disabled ? COLORS.quiet : item.primary ? COLORS.blue : COLORS.ice;
-      rr(c, item.x, item.y, item.w, item.h, 20, fill, item.primary || item.disabled ? null : COLORS.line);
-      text(c, item.text, item.x + item.w / 2, item.y + item.h / 2, Math.round(item.h * .42), {align: 'center', weight: 650, color: item.disabled ? COLORS.muted : item.primary ? '#ffffff' : COLORS.blue, max: item.w - 16});
+      const fill = item.disabled ? COLORS.quiet : item.danger ? HARD.bg : item.primary ? COLORS.blue : COLORS.ice;
+      rr(c, item.x, item.y, item.w, item.h, 20, fill, item.primary || item.disabled ? null : item.danger ? HARD.ink : COLORS.line);
+      text(c, item.text, item.x + item.w / 2, item.y + item.h / 2, Math.round(item.h * .42), {align: 'center', weight: 650, color: item.disabled ? COLORS.muted : item.danger ? HARD.ink : item.primary ? '#ffffff' : COLORS.blue, max: item.w - 16});
     } else if (item.kind === 'pager') text(c, item.text, item.x, item.y, item.size, {align: 'center', color: COLORS.muted, weight: 600});
     else if (item.kind === 'empty') text(c, item.text, item.x, item.y, item.size, {align: 'center', color: COLORS.muted});
     else if (item.kind === 'badge') {
@@ -184,6 +228,7 @@ export function paintConnections(c, width, height, state) {
     } else if (item.kind === 'paragraph') {
       item.lines.forEach((line, i) => wrap(c, line, item.w, item.size, 500, item.max).forEach((part, j) => text(c, part, item.x, item.y + (i + j) * item.size * 1.4, item.size, {color: COLORS.muted, max: item.w})));
     } else if (item.kind === 'list') paintList(c, item);
+    else if (item.kind === 'note') paintNote(c, item);
     else if (item.kind === 'tile') paintTile(c, item);
   }
   c.restore();
@@ -202,23 +247,34 @@ function paintList(c, item) {
   });
 }
 
+function paintNote(c, item) {
+  text(c, item.heading, item.x, item.y, 34, {weight: 650, color: COLORS.blue, max: item.w});
+  if (!item.text) return;
+  const line = item.size * 1.38, lines = Math.max(1, Math.floor((item.h - 58 - item.size / 2) / line) + 1);
+  wrap(c, item.text, item.w, item.size, 500, lines).forEach((part, i) => text(c, part, item.x, item.y + 58 + i * line, item.size, {color: COLORS.ink, max: item.w}));
+}
+
 function paintTile(c, item) {
-  const {x, y, w, h, tile} = item, connected = tile.status === 'connected', unavailable = tile.status === 'unavailable';
-  rr(c, x, y, w, h, 24, connected ? COLORS.greenBg : unavailable ? COLORS.quiet : '#ffffff', connected ? COLORS.green : COLORS.line);
+  const {x, y, w, h, tile} = item, style = statusStyle(tile.status), live = ['connected', 'saved', 'attention'].includes(tile.status), dim = ['none', 'unavailable'].includes(tile.status);
+  rr(c, x, y, w, h, 24, live ? style.bg : dim ? COLORS.quiet : '#ffffff', live ? style.line : COLORS.line);
   const logo = Math.min(h * .42, 86);
   rr(c, x + h * .12, y + h * .12, logo, logo, logo * .28, COLORS.ice);
   text(c, String(tile.name).trim().charAt(0).toUpperCase(), x + h * .12 + logo / 2, y + h * .12 + logo / 2 + 2, logo * .55, {align: 'center', weight: 700, color: COLORS.blue});
   const tx = x + h * .12 + logo + h * .1, tw = x + w - tx - h * .08;
-  text(c, tile.name, tx, y + h * .27, Math.round(h * .21), {weight: 650, max: tw, color: unavailable ? COLORS.muted : COLORS.ink});
+  text(c, tile.name, tx, y + h * .27, Math.round(h * .21), {weight: 650, max: tw, color: dim ? COLORS.muted : COLORS.ink});
   text(c, tile.sub || '', tx, y + h * .5, Math.round(h * .14), {color: COLORS.muted, max: tw});
   const difficulty = DIFFICULTY[tile.difficulty] || DIFFICULTY.medium;
+  if (w / h < 3.2) {
+    // Compact tile (the ceiling card's columns): the difficulty chip sits under the logo so the status line has the full width.
+    const bs = Math.round(h * .105); c.font = `650 ${bs}px ${FONT}`; const bw = Math.min(logo + h * .2, c.measureText(difficulty.label).width + 20);
+    const bx = Math.max(x + 8, x + h * .12 + logo / 2 - bw / 2), by = y + h * .12 + logo + h * .06;
+    rr(c, bx, by, bw, bs * 1.5, bs * .75, difficulty.bg);
+    text(c, difficulty.label, bx + bw / 2, by + bs * .75, bs, {align: 'center', weight: 650, color: difficulty.ink, max: bw - 8});
+    text(c, style.tile, tx, y + h * .8, Math.round(h * .125), {weight: 650, color: style.ink, max: tw});
+    return;
+  }
   const bs = Math.round(h * .13); c.font = `650 ${bs}px ${FONT}`; const bw = c.measureText(difficulty.label).width + 24;
   rr(c, tx, y + h * .64, bw, bs * 1.5, bs * .75, difficulty.bg);
   text(c, difficulty.label, tx + 12, y + h * .64 + bs * .75, bs, {weight: 650, color: difficulty.ink});
-  const pill = tilePill(item);
-  if (pill) { rr(c, pill.x, pill.y, pill.w, pill.h, pill.h / 2, COLORS.blue); text(c, 'Connect', pill.x + pill.w / 2, pill.y + pill.h / 2, Math.round(pill.h * .45), {align: 'center', weight: 650, color: '#ffffff', max: pill.w - 16}); }
-  else {
-    const label = connected ? (tile.real ? 'Connected ✓' : 'Connected · preview ✓') : unavailable ? 'Route unavailable' : 'View setup ›';
-    text(c, label, x + w - h * .08, y + h * .83, Math.round(h * .13), {align: 'right', weight: 650, color: connected ? COLORS.green : unavailable ? COLORS.muted : COLORS.blue, max: w * .6});
-  }
+  text(c, style.tile, x + w - h * .08, y + h * .83, Math.round(h * .13), {align: 'right', weight: 650, color: style.ink, max: w * .6});
 }

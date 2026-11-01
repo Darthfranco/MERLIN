@@ -1,46 +1,36 @@
 # MERLIN Connection Center
 
-The owner requested a separate local browser prototype for exploring connections to existing smart-home equipment. This is a simulated setup experience, not a live device integration. It does not select MERLIN's final app platform or integration backend.
+The Connection Center is where a household sets up connections to existing smart-home equipment and services. **Since November 1, 2026 it is no longer a simulation.** Served by MERLIN at <http://127.0.0.1:3000/connections/>, it connects the services MERLIN has real connectors for (Home Assistant, Philips Hue, Shelly, SwitchBot, Rachio, and Spotify's existing flow), and shows clearly labeled setup guides for the rest. The full list, supported actions, limits and live-verification status are in [CONNECTORS.md](CONNECTORS.md). It still does not select MERLIN's final app platform or integration backend.
 
 ## Run
 
-With the project's supported Node.js version, run:
+Start MERLIN (`npm start`) and open <http://127.0.0.1:3000/connections/>, or choose **Connection Center** on the main page. `npm run connections` still starts a separate **guide-only** copy at <http://127.0.0.1:3002>: it can search the catalog and read guides, but it has no API and no connect buttons, and it says so on the page. For source changes to that server use `npm run dev:connections`; choose another port with `CONNECTIONS_PORT=3003 npm run connections`.
 
-```sh
-npm run connections
-```
+## Using the Connection Center
 
-Open <http://127.0.0.1:3002>. For source changes to the server, use `npm run dev:connections`. To choose another port, run `CONNECTIONS_PORT=3003 npm run connections`.
-
-The server uses only Node standard libraries, binds to loopback, and does not load `.env`, the assistant, Meta, Spotify, or the voice lab. It can run alongside those existing surfaces.
-
-## Using the preview
-
-- Search company names, aliases, devices, or categories. Search tokens are combined, case-insensitive, and accent-insensitive.
-- Narrow results by category, company, and Easy / Medium / Hard setup difficulty. The rating describes household setup, not our development effort; prerequisites are explained in each guide.
-- Easy entries have a direct demo Connect button. Every entry's name opens a dedicated setup page; Medium and Hard entries also have a View setup button.
-- Guides describe the proposed real connection route, prerequisites, steps, model limitations, and a primary setup reference. They are reference material, not instructions that must be completed to try the demo.
-- The demo action changes the entry to Connected, explicitly labeled Demo. It does not authenticate, discover, verify, or control anything. Restricted vendor routes can also be previewed without suggesting those real integrations are available.
-- The Connected view supports individual disconnect and clear-all with a local confirmation. Browser back returns from setup to the previous list and filters.
+- Search company names, aliases, devices, or categories; narrow by category, company and Easy / Medium / Hard household setup difficulty.
+- Every card says how MERLIN can reach the service: **Connects to MERLIN** (a real connector), **Through Home Assistant** (a guide; MERLIN reaches the device only through Home Assistant's entities), or **No supported route**.
+- Real connectors show a setup form for exactly what that service needs. Secret fields are password inputs, are never prefilled, and are cleared after submit. A connector shows **Connected** only after the service accepted the credentials; a multi-step setup (Hue) shows **Setup unfinished** between steps.
+- Guides list what you need, the steps, the official links, **what MERLIN can do afterward**, and **what is still missing**. They never claim that following them connects MERLIN.
+- Connected services can be re-verified and disconnected; Disconnect revokes access where the service allows it and always removes the local credentials.
 
 ## Data and boundaries
 
-The only persistent state is a versioned list of catalog IDs in this origin's `localStorage`, under `merlin.connections.demo.v1`. It contains no account details, passwords, tokens, addresses, or device settings. Unknown IDs are discarded. Invalid/unavailable storage produces visible feedback and a usable page session. Clear demo connections removes the saved selections; it has no effect on other MERLIN stores or actual accounts. Different hostnames, ports, browser profiles, and private windows have separate browser storage.
-
-The app makes no connection API calls. The server exposes only an allowlist of static files plus `GET /health`, which returns `{ "ok": true, "mode": "demo" }`. Mutations are unsupported; the browser's content security policy blocks fetch/WebSocket connections, third-party scripts, embedded frames, and inline scripts. Camera, microphone, and location permissions are disabled. Official reference links open only when clicked, in a separate tab.
+Credentials and connection state live in the server's ignored `data/connectors.json` (see [CONNECTORS.md](CONNECTORS.md#credentials)). The page keeps nothing sensitive in browser storage and never shows a saved secret. The old browser-only demo list (`merlin.connections.demo.v1`) and the server-side preview list (`data/connections.json`) are obsolete and ignored; you may delete them. The page is served with a strict content security policy: no inline scripts or styles, same-origin requests only, no camera, microphone or location.
 
 ## Files and maintenance
 
-- `public/connections/catalog.js`: researched catalog, categories, setup copy, source links, and pure search/filter logic.
-- `public/connections/index.html`, `styles.css`, `app.js`, `icons.js`: isolated responsive directory and setup flow.
-- `public/connections/state.js`: validated browser-only demo storage.
-- `src/connections-server.js`: importable static server and CLI entry point.
-- `test/connections-*.test.js`: catalog/search, persistence, and HTTP boundary regression checks.
+- `public/connections/catalog.js`: researched catalog, categories, setup copy, source links, pure search/filter logic. Each entry carries an `integration` record.
+- `public/connections/integrations.js`: the single honest statement of what MERLIN can do for each service: real connector, through Home Assistant (with the entity types it controls), or no supported route. Edit this file when a connector is added.
+- `public/connections/index.html`, `styles.css`, `app.js`, `icons.js`: the responsive directory, live setup forms and guides.
+- `src/connectors/`: the hub and the connectors (`hub.js`, `base.js`, `home-assistant.js`, `hue.js`, `shelly.js`, `switchbot.js`, `rachio.js`, `spotify.js`).
+- `src/connections-server.js`: importable static server and CLI entry point for the guide-only copy on port 3002.
+- `test/connections-*.test.js`, `test/connector-*.test.js`: catalog, page server, hub and per-connector checks.
 
 No new runtime package, external font, third-party image, or downloaded brand asset is used. Icons are original simple SVG geometry. This page inherits the existing prototype's visual vocabulary; its layout is documented in [Connection Center design](CONNECTIONS_DESIGN.md).
 
-The October 27, 2026 research is a compatibility starting point. A catalog entry is not proof of working MERLIN hardware support. Before implementing a real adapter, recheck provider availability and terms, discover exact device capabilities, implement scoped authorization and truthful state feedback, and label simulator versus actual model/firmware verification. A public account-linking integration may require approvals unavailable to an individual developer account.
+The October 27, 2026 research was re-checked against official documentation on November 1, 2026 (see [CONNECTORS.md](CONNECTORS.md#why-these-were-chosen-and-not-others)). A catalog entry is still not proof of working MERLIN hardware support: only the services marked **Connects to MERLIN** have a connector, and none has yet been run against a real account or device.
 
 ## On MERLIN's large screen
 
-The home companion (`/companion/`) now shows the same catalog on the big ceiling screen when someone asks how to connect something or asks for something that is not connected. It is a tap-to-use touchscreen: category chips, paged tiles with setup difficulty, a setup guide (needs, steps, limits, official guide), and Connect or Disconnect. It is still a preview. The choices are saved on the server in ignored `data/connections.json` (catalog IDs and timestamps only, owner-only permissions) so MERLIN can tell what was never connected, and they are **not** shared with this standalone page, which keeps its own browser-local list. Spotify's tile shows the real Spotify connection and opens the existing Spotify setup page. See the [plan and limits](ORCHESTRATION.md#connection-touchscreen-plan--october-31-2026).
+The home companion (`/companion/`) shows the same catalog and the same live connector status on the big ceiling screen when someone asks how to connect something or asks for something that is not connected. Tiles show the real status; setup views show what you need, what MERLIN can do afterward and what is missing. Credentials are never typed there: **Set up** opens this page in a new tab. See the [plan and update](ORCHESTRATION.md#connection-touchscreen-plan--october-31-2026).

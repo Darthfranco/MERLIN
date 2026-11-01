@@ -15,6 +15,7 @@
     "test": "node --test",
     "check:meta": "node --env-file-if-exists=.env scripts/check-meta.js",
     "check:lookup": "node --env-file-if-exists=.env scripts/check-lookup.js",
+    "check:connectors": "node scripts/check-connectors.js",
     "setup:voice": "bash scripts/voice-setup.sh",
     "voice": "node --env-file-if-exists=.env src/voice-server.js",
     "voice:compare": "node src/voice-compare-server.js",

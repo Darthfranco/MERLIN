@@ -24,6 +24,8 @@ const CASES = [
   ['lookup', "what's the capital of Australia?"],
   ['lookup', 'how tall is Mount Everest?'],
   ['lookup', 'set a 2 minute tea timer and look up how long green tea should steep'],
+  // The model may open a result page when snippets are not enough; this is informational (pages_read), not required.
+  ['lookup', 'look up the Wikipedia article on the Philips Hue lighting system and tell me what year it launched'],
   ['none', 'hello there'],
   ['none', "what's your name?"],
   ['none', 'set a 30 second tea timer'],
@@ -61,7 +63,7 @@ try {
     const ok = status === 200 && (expectation === 'lookup' ? searched > 0 && body.lookup?.state !== 'failed' : searched === 0);
     if (!ok) failures++;
     const state = body.lookup ? `${body.lookup.policy}/${body.lookup.state}` : 'no lookup';
-    console.log(`${ok ? 'PASS' : 'FAIL'}  ${expectation.padEnd(6)} searches=${searched} sources=${(body.sources ?? []).length} rounds=${body.trace?.model_calls ?? '?'} ${String(Date.now() - started).padStart(6)} ms  ${state.padEnd(20)} ${message}`);
+    console.log(`${ok ? 'PASS' : 'FAIL'}  ${expectation.padEnd(6)} searches=${searched} sources=${(body.sources ?? []).length} snippets=${(body.sources ?? []).filter(source => source.snippet).length} pages_read=${(body.tool_events ?? []).filter(event => event.tool === 'read_web_page' && event.status === 'completed').length} rounds=${body.trace?.model_calls ?? '?'} ${String(Date.now() - started).padStart(6)} ms  ${state.padEnd(20)} ${message}`);
   }
 } finally {
   app.server.closeAllConnections();

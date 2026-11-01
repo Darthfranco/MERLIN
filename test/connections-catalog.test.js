@@ -52,7 +52,7 @@ test('search is case and accent insensitive across company, product and aliases'
 test('multiword queries require every token and can span fields', () => {
   assert.deepEqual(ids(searchConnections({ query: 'lg washer' })), ['lg-thinq']);
   assert.deepEqual(ids(searchConnections({ query: 'philips sensors' })), ['philips-hue']);
-  assert.deepEqual(ids(searchConnections({ query: 'shelly installed' })), ['shelly']);
+  assert.deepEqual(ids(searchConnections({ query: 'shelly shutters' })), ['shelly']);
   assert.deepEqual(searchConnections({ query: 'Hue Roomba' }), []);
 });
 
@@ -100,8 +100,24 @@ test('restricted and technical routes preserve the important prerequisites', () 
   assert.match(byId.get('myq').availabilityNote, /unavailable/i);
   assert.equal(byId.get('google-home-mcp').availability, 'restricted');
   assert.ok(byId.get('matter').requirements.some((text) => /Thread border router/.test(text)));
-  assert.ok(byId.get('home-assistant').difficultyReason.includes('existing'));
+  assert.ok(byId.get('home-assistant').difficultyReason.includes('running'));
   for (const entry of CONNECTIONS.filter((item) => item.id !== 'home-assistant' && item.method.startsWith('Home Assistant'))) {
     assert.ok(entry.requirements.some((text) => /Home Assistant running at home/.test(text)), entry.id);
   }
+});
+
+test('every entry says honestly how MERLIN can reach it, and no copy claims a preview works', () => {
+  const types = new Set(['native', 'via-home-assistant', 'none']);
+  for (const entry of CONNECTIONS) {
+    assert.ok(types.has(entry.integration.type), entry.id);
+    assert.ok(entry.integration.afterwards.length > 20 && entry.integration.remaining.length > 20, `${entry.id} explains what MERLIN can do afterwards and what is missing`);
+    const text = JSON.stringify(entry);
+    assert.doesNotMatch(text, /this (?:browser )?preview|demo mode|simulated/i, `${entry.id} must not describe a simulated connection`);
+    if (entry.integration.type === 'via-home-assistant') assert.match(entry.integration.afterwards, /does not connect anything to MERLIN by itself/, entry.id);
+    if (entry.integration.type === 'none') assert.equal(entry.integration.connector, '', entry.id);
+  }
+  assert.deepEqual(CONNECTIONS.filter((entry) => entry.integration.type === 'native').map((entry) => entry.id).sort(), ['home-assistant', 'philips-hue', 'rachio', 'shelly', 'switchbot']);
+  assert.match(CONNECTIONS.find((entry) => entry.id === 'sonos').integration.afterwards, /cannot control it yet/);
+  assert.match(CONNECTIONS.find((entry) => entry.id === 'switchbot').integration.remaining, /never unlocks/);
+  assert.match(CONNECTIONS.find((entry) => entry.id === 'ratgdo').integration.afterwards, /cannot control it yet/);
 });

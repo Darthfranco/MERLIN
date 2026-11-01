@@ -10,11 +10,11 @@ export const RULE_KINDS = Object.freeze({
   avoid_phrase: Object.freeze({ scope: 'assistant_reply', value_type: 'text', description: 'Block this literal phrase, case-insensitively; this is not a semantic restriction.' }),
   response_prefix: Object.freeze({ scope: 'assistant_reply', value_type: 'text', description: 'Start replies with this literal text.' }),
   response_suffix: Object.freeze({ scope: 'assistant_reply', value_type: 'text', description: 'End replies with this literal text.' }),
-  tool_deny: Object.freeze({ scope: 'tools', value_type: 'tool', description: 'Block one implemented operation: create_timer, cancel_timer, web_search, spotify_control, spotify_search, spotify_playlists, or spotify_status.' }),
+  tool_deny: Object.freeze({ scope: 'tools', value_type: 'tool', description: 'Block one implemented operation: create_timer, cancel_timer, web_search, read_web_page, home_list_devices, home_get_state, home_control, spotify_control, spotify_search, spotify_playlists, or spotify_status.' }),
 });
 
 const UNITS = Object.freeze({ seconds: 1, minutes: 60, hours: 3600 });
-const DENIABLE_TOOLS = new Set(['create_timer', 'cancel_timer', 'web_search', 'spotify_control', 'spotify_search', 'spotify_playlists', 'spotify_status']);
+const DENIABLE_TOOLS = new Set(['create_timer', 'cancel_timer', 'web_search', 'read_web_page', 'spotify_control', 'spotify_search', 'spotify_playlists', 'spotify_status', 'home_list_devices', 'home_get_state', 'home_control']);
 const SINGLETONS = new Set(['timer_default_unit', 'timer_default_seconds', 'timer_max_seconds', 'address_as', 'response_prefix', 'response_suffix']);
 const AFFIXES = new Set(['address_as', 'response_prefix', 'response_suffix']);
 const LEXICAL = new Set(['avoid_word', 'avoid_phrase']);
@@ -183,6 +183,8 @@ export function checkTool(rules, { name, args = {}, message } = {}) {
   // dedicated search tool. A restriction on search also covers that dependency.
   const operations = new Set([name]);
   if (name === 'spotify_control' && Object.hasOwn(args, 'query')) operations.add('spotify_search');
+  // Opening a page is internet access too, so a rule against searching the web covers it.
+  if (name === 'read_web_page') operations.add('web_search');
   for (const rule of active.filter(rule => rule.kind === 'tool_deny' && operations.has(rule.value))) {
     result.applied_rule_ids.push(rule.id);
     result.violations.push(violation(rule, 'TOOL_DENIED', 'A standing instruction blocks this tool.'));

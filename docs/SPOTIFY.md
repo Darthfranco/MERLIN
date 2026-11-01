@@ -9,6 +9,8 @@ The owner requested Spotify integration on October 26, 2026. MERLIN now has a Sp
 3. Paste the app's **Client ID** into the Spotify setup panel and save, or set `SPOTIFY_CLIENT_ID` in ignored `.env` before starting the server. A Client ID is public application identification. MERLIN does **not** request a client secret or a Spotify password.
 4. Choose **Connect Spotify** and approve the requested access on Spotify's own page. Open Spotify on the desired computer, phone, or speaker. Refresh devices in MERLIN and select the destination when needed.
 
+The shared connector hub (`src/connectors/spotify.js`, [CONNECTORS.md](CONNECTORS.md)) reports Spotify's real status to the Connection Center and the big screen: **Connected** only after Spotify issued tokens to MERLIN, **Setup unfinished** when only the Client ID is saved. Those screens link back here for setup; this page's OAuth flow is unchanged.
+
 No Spotify developer credentials are bundled. A passing offline test suite does not establish access to a real account. See [current verification](STATUS.md).
 
 ## Available controls

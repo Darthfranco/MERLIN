@@ -5,3 +5,4 @@ export const MAX_SEARCH_CALLS = 12;
 // Extra search-only rounds allowed when a required lookup was skipped.
 export const MAX_LOOKUP_ENFORCEMENTS = 2;
 export const MODEL_TIMEOUT_MS = 60_000;
+export const MAX_PAGE_READS = 4;

@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { request as httpRequest } from 'node:http';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { createApp } from '../src/server.js';
+import { ConnectorHub } from '../src/connectors/hub.js';
+import { ConnectorError } from '../src/connectors/base.js';
 
 const call = (name, args, call_id = randomUUID()) => ({ type: 'function_call', status: 'completed', name, arguments: JSON.stringify(args), call_id });
 const reply = text => ({ type: 'message', role: 'assistant', phase: 'final_answer', content: [{ type: 'output_text', text, annotations: [] }] });
@@ -25,9 +27,33 @@ function scriptedMeta(steps) {
   };
 }
 
+const SECRET = 'super-secret-key-1234';
+
+/** A stand-in for a real service. Mock responses prove MERLIN's handling only, not that any live service works. */
+function fakeHue() {
+  const connector = {
+    id: 'philips-hue', name: 'Fake Hue', summary: 'A fake lighting service.', kinds: ['light'], calls: [],
+    fields: [{ name: 'bridge', label: 'Bridge address', type: 'text' }, { name: 'key', label: 'Key', type: 'secret' }],
+    publicConfig: config => ({ bridge: config.bridge }),
+    async connect(input) {
+      if (input.key === 'bad') throw new ConnectorError('auth', 'Fake Hue rejected the saved credentials.');
+      if (!input.key) return { config: { bridge: input.bridge }, pending: 'Press the link button, then choose Pair.' };
+      return { config: { bridge: input.bridge, key: input.key }, summary: 'Connected.' };
+    },
+    async verify(config) { if (config.key === 'expired') throw new ConnectorError('auth', 'Fake Hue rejected the saved credentials.'); return { summary: 'Still good.' }; },
+    async devices() { return [{ id: '1', name: 'Desk Lamp', kind: 'light', state: { on: false }, actions: ['turn_on', 'turn_off'] }]; },
+    async act(_config, device, action) { connector.calls.push([device.id, action]); if (connector.fail) throw connector.fail; return { confirmed: true }; },
+    async disconnect() { return { revoked: true, message: 'Access revoked on the bridge.' }; },
+    operations: { pair: { label: 'Pair', needs: 'saved', async run(config) { return { config: { ...config, key: SECRET }, summary: 'Paired.' }; } } },
+  };
+  return connector;
+}
+
 async function fixture(t, meta) {
   const directory = await mkdtemp(join(tmpdir(), 'merlin-connections-it-'));
-  const app = await createApp({ dataDir: directory, meta, learningDelayMs: 60000 });
+  const hue = fakeHue();
+  const connectorHub = await new ConnectorHub({ filePath: join(directory, 'connectors.json'), connectors: [hue], sleep: async () => {} }).init();
+  const app = await createApp({ dataDir: directory, meta, connectorHub, learningDelayMs: 60000 });
   t.after(async () => {
     await app.learning.close();
     if (app.server.listening) {
@@ -53,7 +79,7 @@ async function fixture(t, meta) {
     req.on('error', reject);
     req.end(body === undefined ? undefined : JSON.stringify(body));
   });
-  return Object.assign(app, { send, directory });
+  return Object.assign(app, { send, directory, hue });
 }
 
 test('asking how to connect something opens the setup guide on the large screen', async t => {
@@ -61,7 +87,8 @@ test('asking how to connect something opens the setup guide on the large screen'
     assert.ok(tools.some(tool => tool.name === 'show_connections'));
     assert.match(instructions, /large connection screen is now open/);
     assert.match(instructions, /setup guide for Ring/);
-    assert.match(instructions, /cannot control any connected device yet/);
+    assert.match(instructions, /connects nothing, so never say or imply that a device now works/);
+    assert.match(instructions, /No home service is verified as connected/);
     return [reply('Tap Ring on the big screen to get started.')];
   }]);
   const app = await fixture(t, meta);
@@ -87,18 +114,57 @@ test('asking for something never connected opens the matching category and admit
   assert.match(body.reply, /can't control the lights/);
 });
 
-test('a category with only a preview connection does not reopen the screen and the model is told previews control nothing', async t => {
-  const meta = scriptedMeta([(_input, { instructions }) => {
-    assert.match(instructions, /Philips Hue is marked connected only as a preview/);
-    assert.match(instructions, /Do not claim the action happened/);
-    return [reply("Hue is only a preview connection, so I can't switch lights yet.")];
-  }]);
+test('a category covered by a verified connector does not reopen the screen; the model gets device tools and receipts decide the reply', async t => {
+  const meta = scriptedMeta([
+    (_input, { tools, instructions }) => {
+      assert.ok(tools.some(tool => tool.name === 'home_control') && tools.some(tool => tool.name === 'home_list_devices'));
+      assert.match(instructions, /Verified connected home services .*Fake Hue/);
+      assert.doesNotMatch(instructions, /large connection screen is now open/);
+      return [call('home_control', { device: 'desk lamp', action: 'turn_on' }, 'lamp-1')];
+    },
+    input => {
+      const output = JSON.parse(input.findLast(item => item.type === 'function_call_output').output);
+      assert.deepEqual([output.ok, output.result.status, output.result.confirmed], [true, 'confirmed', true]);
+      return [reply('All done, mister!')];
+    },
+  ]);
   const app = await fixture(t, meta);
-  assert.equal((await app.send('/api/connections/connect', { id: 'philips-hue' })).status, 200);
+  await app.send('/api/connectors/philips-hue/connect', { bridge: '192.168.1.5', key: 'k' });
   const { body } = await app.send('/api/chat', chat('turn on the lights'));
   assert.deepEqual(meta.failures.map(error => error.message), []);
-  assert.deepEqual(connectionCards(body), []);
-  assert.equal(body.tool_events.some(event => event.tool === 'show_connections'), false);
+  assert.deepEqual(connectionCards(body), [], 'a real connection exists for lights, so the setup screen stays closed');
+  assert.deepEqual(app.hue.calls, [['1', 'turn_on']]);
+  assert.match(body.reply, /Turned on Desk Lamp\. Fake Hue reports it\./);
+  assert.ok(body.tool_events.some(event => event.tool === 'home_control' && event.status === 'completed'));
+});
+
+test('saved but unfinished settings are not a connection: the screen still opens and no device tool exists', async t => {
+  const meta = scriptedMeta([(_input, { tools, instructions }) => {
+    assert.equal(tools.some(tool => tool.name === 'home_control'), false);
+    assert.match(instructions, /Fake Hue \(setup unfinished\)/);
+    assert.match(instructions, /showing lights options/);
+    return [reply("I can't control the lights yet. Finish setting up on the big screen.")];
+  }]);
+  const app = await fixture(t, meta);
+  assert.equal((await app.send('/api/connectors/philips-hue/connect', { bridge: '192.168.1.5' })).body.status, 'saved');
+  const { body } = await app.send('/api/chat', chat('turn on the lights'));
+  assert.deepEqual(meta.failures.map(error => error.message), []);
+  assert.equal(connectionCards(body)[0].category, 'lights');
+});
+
+test('a failed device action replaces any success claim the model made', async t => {
+  const meta = scriptedMeta([
+    [call('home_control', { device: 'desk lamp', action: 'turn_on' }, 'lamp-2')],
+    () => [reply('I turned on the lamp. Anything else?')],
+  ]);
+  const app = await fixture(t, meta);
+  await app.send('/api/connectors/philips-hue/connect', { bridge: '192.168.1.5', key: 'k' });
+  app.hue.fail = new ConnectorError('unreachable', 'Fake Hue could not be reached.');
+  const { body } = await app.send('/api/chat', chat('turn on the desk lamp'));
+  assert.deepEqual(meta.failures.map(error => error.message), []);
+  assert.doesNotMatch(body.reply, /turned on the lamp/i);
+  assert.match(body.reply, /Fake Hue could not be reached\./);
+  assert.ok(body.tool_events.some(event => event.tool === 'home_control' && event.status === 'failed'));
 });
 
 test('the model can open the screen for phrasing the classifier misses, and a repeat call is idempotent', async t => {
@@ -146,10 +212,11 @@ test('invalid tool arguments are refused and open nothing', async t => {
 
 test('routine setup, timers, and thanks never open the screen', async t => {
   const meta = scriptedMeta([
-    (_input, { tools }) => { assert.equal(tools.some(tool => tool.name === 'show_connections'), false, 'routine setup limits tools'); return [reply('Saved.')]; },
+    (_input, { tools }) => { assert.equal(tools.some(tool => tool.name === 'show_connections' || tool.name === 'home_control'), false, 'routine setup limits tools'); return [reply('Saved.')]; },
     (_input, { tools }) => { assert.ok(tools.some(tool => tool.name === 'show_connections')); return [reply('Timer talk.')]; },
   ]);
   const app = await fixture(t, meta);
+  await app.send('/api/connectors/philips-hue/connect', { bridge: '192.168.1.5', key: 'k' });
   const setup = await app.send('/api/chat', chat('When I say movie night, turn off the lights and play music'));
   assert.deepEqual(meta.failures.map(error => error.message), []);
   assert.deepEqual(connectionCards(setup.body), []);
@@ -167,31 +234,82 @@ test('pausing music while Spotify is not connected opens the way to connect it',
   assert.equal(body.reply, "Spotify isn't connected yet. Pick it on the big screen to set it up.");
 });
 
-test('the connection API validates ids, rejects extra fields, persists privately, and survives clear-all memory', async t => {
+test('the connector API validates input, proves access before connecting, and never returns a credential', async t => {
   const app = await fixture(t, scriptedMeta([]));
-  assert.deepEqual((await app.send('/api/connections')).body, { connections: [], preview: true });
-  for (const bad of [{ id: 'ghost' }, { id: '' }, {}, { id: 'ring', token: 'x' }, { id: ['ring'] }]) assert.equal((await app.send('/api/connections/connect', bad)).status, 400, JSON.stringify(bad));
-  assert.equal((await app.send('/api/connections/connect', { id: 'myq' })).status, 409);
-  const connected = await app.send('/api/connections/connect', { id: 'ring' });
-  assert.equal(connected.status, 200);
-  assert.deepEqual(connected.body.connections.map(entry => entry.id), ['ring']);
-  assert.deepEqual((await app.send('/api/companion/state')).body.connections.map(entry => entry.id), ['ring']);
-  assert.ok(!JSON.stringify(await readFile(join(app.directory, 'connections.json'), 'utf8')).includes('token'));
+  const listed = (await app.send('/api/connectors')).body;
+  assert.deepEqual(listed.connectors.map(item => [item.id, item.status]), [['philips-hue', 'not_connected']]);
+  assert.equal(listed.search.provider, 'Meta web search');
+
+  const rejected = await app.send('/api/connectors/philips-hue/connect', { bridge: '192.168.1.5', key: 'bad' });
+  assert.equal(rejected.status, 401);
+  assert.doesNotMatch(JSON.stringify(rejected.body), /bad"/);
+  assert.equal((await app.send('/api/connectors/philips-hue')).status, 404, 'no state for a bare connector path');
+  assert.equal((await app.send('/api/connectors')).body.connectors[0].status, 'not_connected', 'a failed check saves nothing');
+  await assert.rejects(readFile(join(app.directory, 'connectors.json'), 'utf8'), { code: 'ENOENT' });
+
+  assert.equal((await app.send('/api/connectors/philips-hue/connect', { bridge: '192.168.1.5', surprise: 'x' })).status, 400);
+  assert.equal((await app.send('/api/connectors/ghost/connect', {})).status, 404);
+  assert.equal((await app.send('/api/connectors/philips-hue/explode', {})).status, 404);
+  assert.equal((await app.send('/api/connectors/philips-hue/verify', {})).status, 409, 'nothing saved to verify yet');
+
+  const saved = await app.send('/api/connectors/philips-hue/connect', { bridge: '192.168.1.5' });
+  assert.equal(saved.status, 200);
+  assert.deepEqual([saved.body.status, saved.body.message], ['saved', 'Press the link button, then choose Pair.']);
+  assert.equal((await app.send('/api/companion/state')).body.services.lights.connected, false, 'saved settings are not a working connection');
+  const paired = await app.send('/api/connectors/philips-hue/pair', {});
+  assert.deepEqual([paired.status, paired.body.status], [200, 'connected']);
+  assert.deepEqual(paired.body.secrets_saved, ['key']);
+
+  const everywhere = JSON.stringify([paired.body, (await app.send('/api/connectors')).body, (await app.send('/api/companion/state')).body, (await app.send('/api/state')).body]);
+  assert.ok(!everywhere.includes(SECRET), 'the credential never leaves the server');
+  assert.match(await readFile(join(app.directory, 'connectors.json'), 'utf8'), new RegExp(SECRET), 'it is stored on the server');
+  assert.equal(((await stat(join(app.directory, 'connectors.json'))).mode & 0o777), 0o600);
+
+  assert.equal((await app.send('/api/connectors/philips-hue/verify', {})).body.status, 'connected');
+  assert.equal((await app.send('/api/connectors/philips-hue/verify', { extra: 1 })).status, 400);
+  const disconnected = await app.send('/api/connectors/philips-hue/disconnect', {});
+  assert.deepEqual([disconnected.body.status, disconnected.body.message], ['not_connected', 'Disconnected Fake Hue. Access revoked on the bridge.']);
+  assert.doesNotMatch(await readFile(join(app.directory, 'connectors.json'), 'utf8'), new RegExp(SECRET), 'disconnect forgets the credential');
+});
+
+test('the companion state exposes statuses only, follows verification, and survives clear-all memory', async t => {
+  const app = await fixture(t, scriptedMeta([]));
+  await app.send('/api/connectors/philips-hue/connect', { bridge: '192.168.1.5', key: SECRET });
+  const state = (await app.send('/api/companion/state')).body;
+  assert.deepEqual(state.connectors.map(item => Object.keys(item).sort()), [['detail', 'external', 'id', 'name', 'status', 'verified_at']]);
+  assert.deepEqual([state.connectors[0].status, state.services.lights.connected], ['connected', true]);
+  assert.equal(state.connections, undefined, 'the old preview list is gone');
+  assert.equal((await app.send('/api/connections')).status, 404, 'and so is its API');
+  assert.equal((await app.send('/api/connections/connect', { id: 'ring' })).status, 404);
   assert.equal((await app.send('/api/memory/clear', {})).status, 200);
-  assert.deepEqual((await app.send('/api/connections')).body.connections.map(entry => entry.id), ['ring'], 'clear-all memory keeps the household\'s preview choices');
-  assert.deepEqual((await app.send('/api/connections/disconnect', { id: 'ring' })).body.connections, []);
-  // Mutations stay same-origin JSON like every other private API.
-  assert.equal((await app.send('/api/connections/connect', { id: 'ring' }, { Origin: 'http://evil.example' })).status, 403);
+  assert.equal((await app.send('/api/connectors')).body.connectors[0].status, 'connected', 'clear-all memory keeps real connections');
+  // A credential that stops working flips the shared status everywhere, and the tools disappear.
+  await app.send('/api/connectors/philips-hue/connect', { bridge: '192.168.1.5', key: 'expired' });
+  assert.equal((await app.send('/api/connectors/philips-hue/verify', {})).status, 401);
+  const after = (await app.send('/api/companion/state')).body;
+  assert.deepEqual([after.connectors[0].status, after.services.lights.connected], ['attention', false]);
+});
+
+test('connector changes stay same-origin JSON like every other private API', async t => {
+  const app = await fixture(t, scriptedMeta([]));
+  const body = { bridge: '192.168.1.5', key: 'k' };
+  assert.equal((await app.send('/api/connectors/philips-hue/connect', body, { Origin: 'http://evil.example' })).status, 403);
+  assert.equal((await app.send('/api/connectors/philips-hue/connect', body, { 'Sec-Fetch-Site': 'cross-site' })).status, 403);
+  assert.equal((await app.send('/api/connectors/philips-hue/disconnect', {}, { Origin: 'http://evil.example' })).status, 403);
+  assert.equal((await app.send('/api/connectors')).body.connectors[0].status, 'not_connected', 'nothing changed');
 });
 
 test('the shared catalog is served to the companion page under its content security policy', async t => {
   const app = await fixture(t, scriptedMeta([]));
-  const asset = await app.send('/connections/catalog.js');
-  assert.equal(asset.status, 200);
-  assert.match(asset.headers['content-type'], /text\/javascript/);
-  assert.match(asset.body, /export const CONNECTIONS/);
-  assert.match(asset.headers['content-security-policy'], /default-src 'self'/);
-  assert.equal((await app.send('/connections/state.js')).status, 404, 'only the catalog is shared, not the Connection Center app');
+  for (const file of ['catalog.js', 'integrations.js']) {
+    const asset = await app.send(`/connections/${file}`);
+    assert.equal(asset.status, 200, file);
+    assert.match(asset.headers['content-type'], /text\/javascript/);
+    assert.match(asset.headers['content-security-policy'], /default-src 'self'/);
+  }
+  assert.match((await app.send('/connections/catalog.js')).body, /export const CONNECTIONS/);
+  assert.equal((await app.send('/connections/state.js')).status, 404, 'only the Connection Center files are served');
+  assert.equal((await app.send('/connections/../src/server.js')).status, 404);
 });
 
 test('a connection question is not turned into a web search, but an explicit "look it up" still always searches', async t => {

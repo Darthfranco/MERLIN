@@ -24,7 +24,9 @@ import { validateSpeechDelivery } from './voice/prosody.js';
 import { checkCancelled } from './cancellation.js';
 import { prepareSpokenReply } from './spoken-replies.js';
 import { companionAsset, companionCsp, connectionState, presentationEvent, presentationResult } from './companion.js';
-import { ConnectionStore } from './connections.js';
+import { ConnectorHub } from './connectors/hub.js';
+import { createConnectors } from './connectors/index.js';
+import { readWebPage } from './web-page.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_FILES = new Map([
@@ -60,23 +62,28 @@ function publicError(error) {
 export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaClient({
   apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY,
   model: process.env.META_MODEL || 'muse-spark-1.3',
-}), timers: suppliedTimers, ledger: suppliedLedger, memoryStore: suppliedMemory, spotify: suppliedSpotify, connectionStore: suppliedConnections, learningDelayMs = 750, voiceMeta = new MetaTranscriber({ apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY }), tts = new KokoroTts(), listener = new LocalVoiceListener() } = {}) {
+}), timers: suppliedTimers, ledger: suppliedLedger, memoryStore: suppliedMemory, spotify: suppliedSpotify, connectorHub: suppliedHub, connectorFetch = fetch, pageReader = readWebPage, learningDelayMs = 750, voiceMeta = new MetaTranscriber({ apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY }), tts = new KokoroTts(), listener = new LocalVoiceListener() } = {}) {
   const timers = suppliedTimers || await new TimerStore({ filePath: join(dataDir, 'timers.json') }).init();
   const ledger = suppliedLedger || await new RequestLedger(join(dataDir, 'requests.jsonl')).init();
   const store = suppliedMemory || await new MemoryStore({ filePath: join(dataDir, 'memory.json') }).init();
   const memory = new MemoryService(store);
-  const connections = suppliedConnections || await new ConnectionStore({ filePath: join(dataDir, 'connections.json') }).init();
   const spotify = suppliedSpotify || await new SpotifyService({ filePath: join(dataDir, 'spotify.json'), clientId: process.env.SPOTIFY_CLIENT_ID || '' }).init();
+  // Real connections only: credentials live in ignored data/connectors.json and never reach the browser, Meta or traces.
+  const connections = suppliedHub || await new ConnectorHub({ filePath: join(dataDir, 'connectors.json'), connectors: createConnectors({ spotify }), fetch: connectorFetch }).init();
   const routineStore = await new RoutinesStore({ filePath: join(dataDir, 'routines.json') }).init();
   const routines = new RoutineService({ store: routineStore, memoryStore: store });
   const learning = await new MemoryLearning({ store, meta, filePath: join(dataDir, 'memory-learning.json'), delayMs: learningDelayMs }).init();
-  const assistant = new Assistant({ meta, timers, memory, routines, spotify, connections });
+  const assistant = new Assistant({ meta, timers, memory, routines, spotify, connections, pageReader });
+  const searchStatus = () => ({ available: meta.configured, provider: 'Meta web search', page_reader: Boolean(pageReader),
+    detail: meta.configured ? 'Web search is available. MERLIN searches whenever you ask it to look something up or ask for current facts.' : 'Web search is unavailable: add META_API_KEY to .env and restart the server.' });
   const traces = new Map();
   const progress = new Map();
   const speechReplies = new Map();
   const speechPending = new Set();
+  // Links each answer showed as sources. Only these can be previewed later, so the endpoint is not a general page proxy.
+  const answerSources = new Map();
   const inspect = sessionId => ({ ...memory.inspect(sessionId), ...routines.inspect(sessionId), learning: learning.status(), retention: 'Kept locally until you delete it. Clear all memory also removes transcripts, documents, routines, and learning jobs. Timers are separate.' });
-  const clearCaches = () => { traces.clear(); progress.clear(); speechReplies.clear(); ledger.live.clear(); };
+  const clearCaches = () => { traces.clear(); progress.clear(); speechReplies.clear(); answerSources.clear(); ledger.live.clear(); };
   const checkedMessage = message => {
     const rules = memory.rules();
     const checked = checkOutput(rules, message);
@@ -189,6 +196,8 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         let response;
         try { response = await assistant.run({ ...body, source_id: source.id, history, onTrace, signal }); }
         catch (error) { foreground.status = signal?.aborted ? 'interrupted' : 'failed'; onTrace(foreground.status, 'The foreground request stopped.'); trace.status = foreground.status; trace.total_ms = Math.round(performance.now() - started); error.trace = structuredClone(trace); throw error; }
+        answerSources.set(body.request_id, new Set((response.sources ?? []).map(item => item.url)));
+        while (answerSources.size > 50) answerSources.delete(answerSources.keys().next().value);
         if (store.epoch !== requestEpoch) {
           clearCaches(); await learning.clear();
           if (response.forget_completed) presentation.clear();
@@ -273,17 +282,22 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         res.writeHead(303, { Location: `/?spotify=${outcome}#spotify-title` });
         res.end(); return;
       }
-      if (['GET', 'HEAD'].includes(req.method) && (path.startsWith('/companion') || path.startsWith('/character/') || path === '/voice/recorder-worklet.js' || path === '/connections/catalog.js')) {
+      // Relative asset links only resolve under the trailing slash.
+      if (['GET', 'HEAD'].includes(req.method) && path === '/connections') { res.writeHead(308, { Location: '/connections/' }); res.end(); return; }
+      if (['GET', 'HEAD'].includes(req.method) && (path.startsWith('/companion') || path.startsWith('/character/') || path === '/voice/recorder-worklet.js' || path === '/connections' || path.startsWith('/connections/'))) {
         const asset = await companionAsset(ROOT, path);
         if (!asset) throw new AppError('Not found.', 404);
+        // The Connection Center page runs in live mode only when MERLIN itself serves it.
+        const content = asset.type.startsWith('text/html') && asset.live ? Buffer.from(asset.content.toString('utf8').replace('<html lang="en">', '<html lang="en" data-live="true">')) : asset.content;
         res.setHeader('Content-Security-Policy', companionCsp(asset.hashes));
-        res.writeHead(200, { 'Content-Type': asset.type, 'Content-Length': asset.content.length });
-        res.end(req.method === 'HEAD' ? undefined : asset.content); return;
+        res.setHeader('Cache-Control', 'no-store');
+        res.writeHead(200, { 'Content-Type': asset.type, 'Content-Length': content.length });
+        res.end(req.method === 'HEAD' ? undefined : content); return;
       }
       if (req.method === 'GET' && path === '/api/companion/state') {
         await tick();
         json(200, { configured: meta.configured, model: meta.model, chat_timeout_ms: MAX_MODEL_ROUNDS * MODEL_TIMEOUT_MS + 30_000,
-          ...await state(), services: connectionState(spotify), connections: connections.list(), voice: await voiceStatus() }); return;
+          ...await state(), services: connectionState(spotify, connections), connectors: connections.list().map(({ id, name, status, detail, verified_at, external }) => ({ id, name, status, detail, verified_at, external })), search: searchStatus(), voice: await voiceStatus() }); return;
       }
       if (req.method === 'GET' && path === '/api/voice/status') {
         json(200, await voiceStatus()); return;
@@ -298,13 +312,13 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         res.end(await readFile(join(ROOT, 'public', file)));
         return;
       }
-      if (req.method === 'GET' && path === '/api/connections') {
-        json(200, { connections: connections.list(), preview: true }); return;
+      if (req.method === 'GET' && path === '/api/connectors') {
+        json(200, { connectors: connections.list(), search: searchStatus() }); return;
       }
       if (req.method === 'GET' && path === '/api/state') {
         await tick();
         json(200, {
-          configured: meta.configured, model: meta.model,
+          configured: meta.configured, model: meta.model, search: searchStatus(),
           chat_timeout_ms: MAX_MODEL_ROUNDS * MODEL_TIMEOUT_MS + 30_000,
           ...await state(),
         });
@@ -359,6 +373,15 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
           }
         } finally { speechPending.delete(controller); }
         return;
+      }
+      if (path === '/api/sources/excerpt') {
+        // Meta's search returns link titles but empty snippets, so the person can ask to see the start of a source page.
+        objectArgs(body, ['request_id', 'url']);
+        uuid(body.request_id);
+        if (!pageReader || !answerSources.get(body.request_id)?.has(body.url)) throw new AppError('That link was not one of this answer’s sources.', 404);
+        requireTool('read_web_page', {});
+        const page = await pageReader(body.url, { signal: controller.signal, maxChars: 700 });
+        json(200, { title: page.title || '', excerpt: page.text, truncated: page.truncated === true }); return;
       }
       if (path === '/api/spotify/config') {
         objectArgs(body, ['client_id']);
@@ -423,11 +446,15 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         if (store.epoch !== beforeEpoch) { clearCaches(); await learning.clear(); }
         json(200, { ok: true, ...inspect() }); return;
       }
-      if (path === '/api/connections/connect' || path === '/api/connections/disconnect') {
-        // A preview records the household's choice only; it never reaches a device or account.
-        objectArgs(body, ['id']);
-        if (path.endsWith('/connect')) await connections.connect(body.id); else await connections.disconnect(body.id);
-        json(200, { connections: connections.list(), preview: true }); return;
+      const connectorStep = path.match(/^\/api\/connectors\/([a-z0-9-]{1,40})\/([a-z-]{1,30})$/);
+      if (connectorStep) {
+        // Credentials arrive in this request body only. The reply carries status, never the credentials.
+        const [, id, step] = connectorStep;
+        const outcome = step === 'connect' ? await connections.connect(id, body)
+          : step === 'verify' ? (objectArgs(body, []), await connections.verify(id))
+            : step === 'disconnect' ? (objectArgs(body, []), await connections.disconnect(id))
+              : await connections.operation(id, step, body);
+        json(200, outcome); return;
       }
       if (path === '/api/timers') {
         objectArgs(body, ['label', 'duration_seconds', 'time_zone', 'request_id']);

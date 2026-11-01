@@ -75,10 +75,10 @@ test('tracker records only completed searches, safe result links, and bounded qu
   assert.equal(tracker.satisfied, true);
   assert.equal(tracker.state(), 'done');
   assert.deepEqual(tracker.queries, ['weather new york']);
-  assert.deepEqual(tracker.retrievedSources(), [{ url: 'https://forecast.weather.gov/x', title: 'NWS', basis: 'retrieved' }]);
+  assert.deepEqual(tracker.retrievedSources(), [{ url: 'https://forecast.weather.gov/x', title: 'NWS', basis: 'retrieved', snippet: 'private snippet' }], 'the person sees result text as context');
   const summary = tracker.summary();
   assert.deepEqual([summary.searches, summary.failed_searches, summary.state], [1, 1, 'done']);
-  assert.ok(!JSON.stringify(summary).includes('private snippet'));
+  assert.ok(!JSON.stringify(summary).includes('private snippet'), 'but result text stays out of traces and summaries');
   tracker.enforced = 1;
   assert.equal(tracker.state(), 'enforced');
 });

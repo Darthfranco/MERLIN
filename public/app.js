@@ -1,7 +1,7 @@
 "use strict";
 
 const elements = Object.fromEntries([
-  "connection", "setup-notice", "state-warning", "reset-chat", "chat-empty", "chat-log", "chat-form",
+  "connection", "search-status", "setup-notice", "state-warning", "reset-chat", "chat-empty", "chat-log", "chat-form",
   "message", "chat-error", "retry-notice", "chat-status", "send-message", "timer-count",
   "time-zone", "timers-title", "timer-list", "timers-empty", "timer-error", "timer-announcement",
   "timer-form", "timer-label", "timer-duration", "manual-retry-notice", "create-timer",
@@ -119,6 +119,12 @@ async function pollState() {
       chatTimeoutMs = state.chat_timeout_ms;
     }
     showError("state-warning", state.warning);
+    // Say plainly whether MERLIN can look things up right now; never leave it implied.
+    if (state.search && typeof state.search.detail === "string") {
+      elements["search-status"].textContent = state.search.available ? "Web search ready" : "Web search unavailable: add META_API_KEY";
+      elements["search-status"].title = state.search.detail;
+      elements["search-status"].dataset.state = state.search.available ? "ready" : "unavailable";
+    }
     elements["setup-notice"].hidden = configured;
     elements.connection.dataset.state = "online";
     elements.connection.textContent = configured
@@ -240,6 +246,29 @@ function addChatEntry(role, content) {
   return entry;
 }
 
+// The search service returns link titles but no text, so a source's opening text is fetched only when the person asks.
+function excerptControl(requestId, url) {
+  const wrap = document.createElement("div");
+  wrap.className = "source-excerpt";
+  const button = textElement("button", "text-button", "Show excerpt");
+  button.type = "button";
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    button.textContent = "Reading…";
+    try {
+      const page = await request("/api/sources/excerpt", { request_id: requestId, url }, 20000);
+      button.remove();
+      wrap.append(textElement("p", "source-snippet", page.excerpt + (page.truncated ? " …" : "")));
+    } catch (error) {
+      button.disabled = false;
+      button.textContent = "Show excerpt";
+      wrap.append(textElement("p", "error", error.message || "That page could not be read."));
+    }
+  });
+  wrap.append(button);
+  return wrap;
+}
+
 function renderReply(entry, data, error = "") {
   entry.dataset.state = error ? "error" : "complete";
   const body = entry.querySelector(".message-body");
@@ -285,12 +314,14 @@ function renderReply(entry, data, error = "") {
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       const item = document.createElement("li");
-      item.append(link);
+      item.append(link, textElement("span", "source-host", ` ${url.hostname.replace(/^www\./, "")}`));
+      if (typeof source.snippet === "string" && source.snippet) item.append(textElement("p", "source-snippet", source.snippet));
+      else if (entry.dataset.requestId) item.append(excerptControl(entry.dataset.requestId, source.url));
       sources.append(item);
     } catch { /* Invalid source URLs are not interactive. */ }
   }
   // Meta does not always return citations. Pages it retrieved are labelled as checked, not cited.
-  const retrievedOnly = Array.isArray(data.sources) && data.sources.length > 0 && data.sources.every((source) => source.basis === "retrieved");
+  const retrievedOnly = Array.isArray(data.sources) && data.sources.length > 0 && data.sources.every((source) => ["retrieved", "read"].includes(source.basis));
   if (sources.children.length) entry.append(textElement("p", "sources-label", retrievedOnly ? "Pages checked (open in a new tab)" : "Sources (open in a new tab)"), sources);
   else if (data.lookup?.state === "unverified") entry.append(textElement("p", "sources-label", "This answer was not checked online."));
   scrollChat();
@@ -319,6 +350,7 @@ elements["chat-form"].addEventListener("submit", async (event) => {
   updateChatControls();
   scrollChat();
   memoryLab?.begin(attempt.requestId, attempt.entry);
+  attempt.entry.dataset.requestId = attempt.requestId;
   let responseData;
   try {
     const data = await request("/api/chat", { message, time_zone: timeZone, session_id: sessionId, request_id: attempt.requestId }, chatTimeoutMs);

@@ -11,7 +11,8 @@ const FILES = new Map([
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/catalog.js', ['catalog.js', 'text/javascript; charset=utf-8']],
   ['/icons.js', ['icons.js', 'text/javascript; charset=utf-8']],
-  ['/state.js', ['state.js', 'text/javascript; charset=utf-8']],
+  ['/integrations.js', ['integrations.js', 'text/javascript; charset=utf-8']],
+  ['/live.js', ['live.js', 'text/javascript; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
 ]);
 
@@ -27,7 +28,8 @@ function json(req, res, status, value) {
   respond(req, res, status, 'application/json; charset=utf-8', JSON.stringify(value));
 }
 
-// Return an unstarted server so importing this demo cannot bind a port or load credentials.
+// The read-only setup guide: no API, no credentials, no connections. Real connections live on MERLIN's own server at
+// /connections/. Returns an unstarted server so importing this cannot bind a port or load credentials.
 export function createConnectionsServer({ publicRoot = PUBLIC_ROOT } = {}) {
   const root = resolve(publicRoot);
   const server = createServer(async (req, res) => {
@@ -43,7 +45,7 @@ export function createConnectionsServer({ publicRoot = PUBLIC_ROOT } = {}) {
       json(req, res, 403, { error: 'Only local access is allowed.' });
       return;
     }
-    // A clicked link may navigate here from another site; only the demo document is public to that navigation.
+    // A clicked link may navigate here from another site; only the guide document is public to that navigation.
     const documentNavigation = ['GET', 'HEAD'].includes(req.method)
       && req.headers['sec-fetch-mode'] === 'navigate'
       && req.headers['sec-fetch-dest'] === 'document'
@@ -71,7 +73,7 @@ export function createConnectionsServer({ publicRoot = PUBLIC_ROOT } = {}) {
     }
 
     if (pathname === '/health') {
-      json(req, res, 200, { ok: true, mode: 'demo' });
+      json(req, res, 200, { ok: true, mode: 'guide' });
       return;
     }
     const entry = FILES.get(pathname);
@@ -92,7 +94,7 @@ export function createConnectionsServer({ publicRoot = PUBLIC_ROOT } = {}) {
       respond(req, res, 200, entry[1], content);
     } catch (error) {
       const missing = ['ENOENT', 'ENOTDIR', 'EISDIR', 'ELOOP'].includes(error.code);
-      json(req, res, missing ? 404 : 500, { error: missing ? 'Not found.' : 'The connection demo could not load this file.' });
+      json(req, res, missing ? 404 : 500, { error: missing ? 'Not found.' : 'The setup guide could not load this file.' });
     } finally {
       await file?.close();
     }
@@ -108,12 +110,12 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   const server = createConnectionsServer();
   server.once('error', error => {
     console.error(error.code === 'EADDRINUSE'
-      ? `Connection demo port ${port} is in use. Set CONNECTIONS_PORT to another port.`
-      : 'The connection demo could not start.');
+      ? `Setup guide port ${port} is in use. Set CONNECTIONS_PORT to another port.`
+      : 'The setup guide could not start.');
     process.exitCode = 1;
   });
   server.listen(port, '127.0.0.1', () => {
-    console.log(`MERLIN Connection Center (demo): http://127.0.0.1:${port}`);
+    console.log(`MERLIN Connection Center setup guide (read-only; connect real services at MERLIN's /connections/): http://127.0.0.1:${port}`);
   });
   for (const signal of ['SIGINT', 'SIGTERM']) {
     process.once(signal, () => {

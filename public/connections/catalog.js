@@ -1,5 +1,6 @@
-// Setup references only. This catalog does not connect to accounts or devices.
-// Difficulty describes household setup, not MERLIN's engineering effort.
+// Researched setup references. The catalog itself connects nothing; each entry's `integration` says whether MERLIN has a real
+// connector, can only reach the device through Home Assistant, or has no supported route. Following a guide never connects
+// MERLIN by itself. Difficulty describes household setup, not MERLIN's engineering effort.
 export const CATEGORIES = [
   { id: 'lights', label: 'Lights', icon: 'light' },
   { id: 'plugs', label: 'Plugs & switches', icon: 'plug' },
@@ -18,10 +19,12 @@ export const CATEGORIES = [
   { id: 'hubs', label: 'Hubs & platforms', icon: 'hub' },
 ];
 
+import { integrationFor, nativeSetup } from './integrations.js';
+
 const haRequirement = 'Home Assistant running at home; setting it up is a separate step if you do not already use it.';
 const reviewStep = {
-  title: 'Review the available controls',
-  body: 'Check which controls and status readings your exact model exposes. This preview does not test or operate the device.',
+  title: 'Connect Home Assistant to MERLIN',
+  body: 'Check in Home Assistant which entities your exact model exposes. Following this guide does not connect anything to MERLIN by itself; connect Home Assistant on the Home Assistant card once the device works there.',
 };
 
 function throughHomeAssistant(entry) {
@@ -38,7 +41,7 @@ function throughHomeAssistant(entry) {
   };
 }
 
-export const CONNECTIONS = [
+const BASE_CONNECTIONS = [
   {
     id: 'home-assistant', name: 'Home Assistant', company: 'Home Assistant',
     aliases: ['HA', 'Home Assistant Green', 'existing smart home', 'bridge'], categoryIds: ['hubs'],
@@ -76,7 +79,7 @@ export const CONNECTIONS = [
     description: 'A future native Apple app could request access to supported accessories already in your Home.',
     difficulty: 'easy', difficultyReason: 'For the household, this can be a Home permission prompt in a compatible native app.',
     method: 'Native Apple HomeKit app',
-    requirements: ['An Apple device and an existing Apple Home.', 'A compatible native app with HomeKit support; this browser preview is not that app.'],
+    requirements: ['An Apple device and an existing Apple Home.', 'A compatible native app with HomeKit support. MERLIN does not have one yet.'],
     steps: [
       { title: 'Check Apple Home', body: 'Confirm that the accessories work in the Home app.' },
       { title: 'Allow Home access', body: 'In a future compatible native app, choose which Home access to allow when Apple presents its permission prompt.' },
@@ -84,7 +87,7 @@ export const CONNECTIONS = [
     ],
     limitations: ['HomeKit access is a native Apple platform route, not a Node server account import.', 'Home permission does not give an app unlimited background execution.'],
     guideUrl: 'https://developer.apple.com/documentation/homekit/enabling-homekit-in-your-app',
-    availability: 'advanced', availabilityNote: 'Requires a future native MERLIN app; this preview only shows the setup concept.',
+    availability: 'advanced', availabilityNote: 'Needs a native MERLIN app that does not exist yet, so MERLIN cannot control Apple Home today.',
   },
   {
     id: 'google-home', name: 'Google Home APIs', company: 'Google',
@@ -111,7 +114,7 @@ export const CONNECTIONS = [
     requirements: ['Eligibility for Google Home MCP early access.', 'The required Google Home Premium Advanced subscription and supported region/language.', 'Developer project and OAuth setup under the current program rules.'],
     steps: [
       { title: 'Check eligibility', body: 'Read Google’s current Home MCP requirements before starting; access is not open to every household.' },
-      { title: 'Complete the developer setup', body: 'Follow the official project, OAuth and access-approval steps. This preview does not register a project.' },
+      { title: 'Complete the developer setup', body: 'Follow the official project, OAuth and access-approval steps. MERLIN does not register a project for you.' },
       { title: 'Authorize the eligible client', body: 'Use Google’s authorization page in a supported client, then review the permitted home actions.' },
     ],
     limitations: ['Sensitive actions such as unlocking are excluded.', 'Creating and managing automations is not currently supported through this route.'],
@@ -151,7 +154,7 @@ export const CONNECTIONS = [
     method: 'Home Assistant with Z-Wave JS', requirements: ['A supported Z-Wave adapter with the correct regional frequency.', 'Z-Wave JS and access to each device for inclusion.'],
     preparation: 'Identify the existing controller and regional device versions. Plan any migration before removing devices from a working network.',
     setup: 'Follow the Z-Wave JS guide to set up the adapter, preserve network keys and include devices using their supported procedure.',
-    limitations: ['Some command classes or model-specific features are not fully supported.', 'Do not reset a working network just to try this preview.'],
+    limitations: ['Some command classes or model-specific features are not fully supported.', 'Do not reset a working network just to try this.'],
     guideUrl: 'https://www.home-assistant.io/integrations/zwave_js/', availability: 'advanced',
   }),
   {
@@ -188,7 +191,7 @@ export const CONNECTIONS = [
     steps: [
       { title: 'Set up in the vendor app', body: 'Confirm the device is online and working in Tapo or Kasa.' },
       { title: 'Check third-party access', body: 'Follow the guide for your firmware. Some models need Third-Party Compatibility enabled in the vendor app.' },
-      { title: 'Use a supported connector', body: 'A real connector may need account authentication for local access. Enter any required details only in its trusted setup flow, never in this preview.' },
+      { title: 'Use a supported connector', body: 'A real connector may need account authentication for local access. Enter any required details only in that service’s own trusted setup, never in MERLIN’s chat.' },
       reviewStep,
     ],
     limitations: ['Model, hardware and firmware compatibility vary.', 'The common local library is community maintained; this is not a promise of universal TP-Link API support.'],
@@ -250,7 +253,7 @@ export const CONNECTIONS = [
     difficulty: 'hard', difficultyReason: 'This personal-account route requires a ThinQ access token and the right account region.',
     method: 'Home Assistant ThinQ cloud integration', requirements: ['Supported appliances registered in the LG ThinQ app.', 'Access to the official ThinQ personal-token setup and the correct region.'],
     preparation: 'Check that the appliance is registered and working in ThinQ, then follow LG’s official personal-access setup.',
-    setup: 'Add LG ThinQ in Home Assistant and complete the token/region flow there. This preview never asks for or stores a token.',
+    setup: 'Add LG ThinQ in Home Assistant and complete the token/region flow there. MERLIN never asks for or stores that token.',
     limitations: ['Available commands vary by appliance and operating state.', 'Personal access does not establish availability of a public MERLIN account-linking service.'],
     guideUrl: 'https://www.home-assistant.io/integrations/lg_thinq/', availability: 'advanced',
   }),
@@ -263,7 +266,7 @@ export const CONNECTIONS = [
     steps: [
       { title: 'Prepare SmartHQ', body: 'Add and test the appliance in the SmartHQ app.' },
       { title: 'Choose a documented route', body: 'Follow SmartHQ’s developer guide for OAuth setup, or the vendor-maintained custom Home Assistant integration instructions.' },
-      { title: 'Authorize in the trusted flow', body: 'A real connection uses the SmartHQ sign-in and authorization flow. This preview does not sign in or install anything.' },
+      { title: 'Authorize in the trusted flow', body: 'SmartHQ uses its own sign-in and authorization flow. MERLIN does not sign in to SmartHQ.' },
       reviewStep,
     ],
     limitations: ['Commercial/public rollout terms still need verification for MERLIN.', 'Remote starting and heating remain subject to the appliance’s own controls and state.'],
@@ -524,7 +527,7 @@ export const CONNECTIONS = [
     steps: [
       { title: 'Check HomePod playback', body: 'Confirm that your HomePod works in Apple Home and accepts audio from your supported Apple device.' },
       { title: 'Review AirPlay access', body: 'Use Apple’s guide to check the speaker’s network and access settings.' },
-      { title: 'Use a supported sender', body: 'A real MERLIN audio route would need a compatible sender. This browser preview does not send AirPlay audio.' },
+      { title: 'Use a supported sender', body: 'MERLIN has no AirPlay sender, so it cannot send audio to a HomePod.' },
     ],
     limitations: ['AirPlay output does not expose HomePod’s microphone to MERLIN.', 'The Home Assistant Apple TV integration is not a general HomePod control integration.'],
     guideUrl: 'https://support.apple.com/en-ie/105068', availability: 'advanced',
@@ -548,7 +551,7 @@ export const CONNECTIONS = [
     difficulty: 'hard', difficultyReason: 'The vendor blocked this third-party cloud route; extra setup does not restore it.',
     method: 'No supported general Home Assistant cloud route', requirements: ['A separately documented authorized partner route, or compatible local add-on hardware.'],
     steps: [
-      { title: 'Keep your existing myQ setup', body: 'The myQ app can remain your existing control path. This preview cannot enable the removed Home Assistant cloud integration.' },
+      { title: 'Keep your existing myQ setup', body: 'The myQ app can remain your existing control path. The removed Home Assistant cloud integration cannot be enabled.' },
       { title: 'Check a separate compatible route', body: 'If you want local control, check the exact opener against a supported hardware solution such as ratgdo. That requires separate installation and compatibility checks.' },
     ],
     limitations: ['Home Assistant removed the myQ cloud integration after third-party access was blocked.', 'Do not assume every Chamberlain or LiftMaster opener works with a local replacement.'],
@@ -556,6 +559,17 @@ export const CONNECTIONS = [
     availability: 'restricted', availabilityNote: 'This cloud route is unavailable. An alternative must be assessed separately.',
   },
 ];
+
+/** Every entry carries an honest `integration`; entries MERLIN connects to directly also get their real setup copy. */
+export const CONNECTIONS = BASE_CONNECTIONS.map((entry) => {
+  const integration = integrationFor(entry);
+  const native = nativeSetup(entry.id);
+  // When Home Assistant exposes nothing MERLIN controls, the last step must not suggest there is something to connect.
+  const steps = integration.type === 'via-home-assistant' && !integration.can?.length && entry.steps
+    ? entry.steps.map((step) => (step === reviewStep ? { title: 'Know what MERLIN can do', body: 'MERLIN cannot control this through Home Assistant yet, so there is nothing to connect on the MERLIN side. Use this guide to set it up for Home Assistant itself.' } : step))
+    : entry.steps;
+  return { ...entry, steps, ...(native ?? {}), integration };
+});
 
 function normalize(value) {
   return String(value ?? '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()

@@ -77,8 +77,9 @@ test('an explicit lookup request gets search immediately, with no preparation st
   assert.deepEqual(body.lookup.queries, ['mets score last night']);
   assert.ok(body.tool_events.some(event => event.tool === 'web_search' && event.status === 'completed'));
   // No citation came back, so the pages Meta actually retrieved are shown and marked as such.
-  assert.deepEqual(body.sources, [{ url: 'https://example.org/recap', title: 'Game recap', basis: 'retrieved' }]);
-  assert.ok(!JSON.stringify(body).includes('private'));
+  assert.deepEqual(body.sources, [{ url: 'https://example.org/recap', title: 'Game recap', basis: 'retrieved', snippet: 'private' }]);
+  // Result text appears only as source context for the person, never in the trace, lookup record or tool events.
+  assert.ok(!JSON.stringify({ trace: body.trace, lookup: body.lookup, tool_events: body.tool_events }).includes('private'));
   assert.ok(body.trace.events.some(event => event.stage === 'search_ready'));
   assert.ok(body.trace.events.some(event => event.stage === 'lookup' && event.data?.level === 'explicit'));
 });

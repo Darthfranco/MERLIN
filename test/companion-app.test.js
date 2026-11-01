@@ -17,9 +17,9 @@ const timer=(id='one')=>({id,label:'Timer',duration_seconds:300,ends_at:new Date
 const receipt=t=>({reply:'Your timer is running.',tool_events:[{tool:'create_timer',status:'completed',message:'Timer started.'}],presentation:[{type:'timer',...t}],timers:[t]});
 function deferred(){let resolve;const promise=new Promise(done=>{resolve=done;});return {promise,resolve};}
 
-async function fixture(t,{timers=[],chatResult,tts,realDriver=false,musicSnapshot={connected:false}}={}){
+async function fixture(t,{timers=[],chatResult,tts,realDriver=false,musicSnapshot={connected:false},connectors=[],connectorApi}={}){
   class Element{
-    constructor(tag='div'){this.tag=tag;this.children=[];this.dataset={};this.hidden=false;this.handlers=new Map();this.attributes={};this.value='';this.textContent='';this.src='';this.currentSrc='';this.paused=true;this.plays=0;}
+    constructor(tag='div'){this.style={};this.clientWidth=1200;this.tag=tag;this.children=[];this.dataset={};this.hidden=false;this.handlers=new Map();this.attributes={};this.value='';this.textContent='';this.src='';this.currentSrc='';this.paused=true;this.plays=0;}
     addEventListener(name,fn,{signal}={}){if(signal?.aborted)return;const list=this.handlers.get(name)||[];list.push(fn);this.handlers.set(name,list);signal?.addEventListener('abort',()=>this.removeEventListener(name,fn),{once:true});}
     removeEventListener(name,fn){this.handlers.set(name,(this.handlers.get(name)||[]).filter(item=>item!==fn));}
     async dispatch(name,event={}){return Promise.all((this.handlers.get(name)||[]).map(fn=>fn(event)));}
@@ -38,14 +38,15 @@ async function fixture(t,{timers=[],chatResult,tts,realDriver=false,musicSnapsho
   const elements=new Map(),element=id=>{if(!elements.has(id))elements.set(id,new Element(id.includes('audio')?'audio':'div'));return elements.get(id);};
   const document=new Element();document.visibilityState='visible';document.hidden=false;document.getElementById=element;document.createElement=tag=>new Element(tag);document.querySelectorAll=()=>[];
   element('microphone').append(new Element('span'));element('activity').hidden=true;
-  const window=new Element(),calls=[],requests=[],waiters=new Set(),physical={left:null,right:null};let notify;
+  const window=new Element(),calls=[],requests=[],waiters=new Set(),physical={left:null,right:null},opened=[];let notify,currentConnectors=connectors;
+  window.open=(url,target,features)=>{opened.push({url,target,features});return null;};
   const manifest=JSON.parse(await readFile(new URL('../assets/merlin-character/states.json',import.meta.url),'utf8'));
   let controller;
   let runtime={state:'ready',desired:'ready',phase:'idle',auto:true,capabilities:{states:Object.keys(manifest.states)},
     go(destination,options={}){calls.push({destination,options});this.departure=this.state;this.desired=destination;this.phase='transition';notify?.({state:this.state,desired:destination,phase:this.phase,clip:'Route'});for(const waiter of [...waiters])if(waiter.destination!==destination){waiters.delete(waiter);waiter.resolve(false);}if(this.auto||options.urgent)this.settle();},
     settle(){if(this.departure==='ceiling'&&this.desired==='left')physical.left=physical.right;this.state=this.desired;this.phase='idle';notify?.({state:this.state,desired:this.desired,phase:'idle',clip:this.state+'Idle'});for(const waiter of [...waiters]){waiters.delete(waiter);waiter.resolve(waiter.destination===this.state);}},
     whenSettled(destination,signal){if(signal?.aborted||destination!==this.desired)return Promise.resolve(false);if(this.phase==='idle')return Promise.resolve(this.state===destination);return new Promise(resolve=>{const waiter={destination,resolve};waiters.add(waiter);signal?.addEventListener('abort',()=>{waiters.delete(waiter);resolve(false);},{once:true});});},
-    showPanel(type,data,side){physical[side]={type,data};},clearPanel(side){physical[side]=null;},setSpeaking(value){this.speaking=value;},setListening(value){this.listening=value;},destroy(){for(const waiter of waiters)waiter.resolve(false);waiters.clear();},
+    showPanel(type,data,side){physical[side]={type,data};},clearPanel(side){physical[side]=null;},screenGeometry(){return {logical:{width:1528,height:1080},rect:{left:.1,top:.1,width:.8,height:.8}};},refreshPanels(){},setSpeaking(value){this.speaking=value;},setListening(value){this.listening=value;},destroy(){for(const waiter of waiters)waiter.resolve(false);waiters.clear();},
   };
   if(realDriver){
     const clips=Object.entries(manifest.clips).map(([name,meta])=>new AnimationClip(name,(meta.frames-1)/manifest.fps,[]));
@@ -73,14 +74,14 @@ async function fixture(t,{timers=[],chatResult,tts,realDriver=false,musicSnapsho
     createCharacter:async options=>{notify=options.onStatus;notify({state:'ready',desired:'ready',phase:'idle',clip:'ReadyIdle'});return runtime;},
     matchMedia:()=>({matches:false,addEventListener(){}}),Option:class extends Element{constructor(text,value){super('option');this.textContent=text;this.value=value;}},
     setInterval:()=>0,clearInterval(){},setTimeout,clearTimeout,
-    fetch:async(path,options={})=>{requests.push({path,options});if(path.includes('/speak')||path.includes('/timer-speech')){if(tts)await tts.promise;return {ok:true,blob:async()=>new Blob(['synthetic audio'])};}const data=path==='/api/companion/state'?{configured:true,timers,services:{spotify:{connected:musicSnapshot.connected}}}:path==='/api/spotify?refresh=1'?musicSnapshot:path==='/api/chat'?chatResult||{reply:'Hello.',tool_events:[],timers}:path.includes('/progress?')?{status:'complete',events:[]}:{};return {ok:true,json:async()=>data};},
+    fetch:async(path,options={})=>{requests.push({path,options});if(path.includes('/speak')||path.includes('/timer-speech')){if(tts)await tts.promise;return {ok:true,blob:async()=>new Blob(['synthetic audio'])};}if(path.startsWith('/api/connectors/')){const reply=connectorApi?connectorApi(path,options):{status:200,body:{}};return {ok:reply.status<400,status:reply.status,json:async()=>reply.body};}const data=path==='/api/companion/state'?{configured:true,timers,connectors:currentConnectors,services:{spotify:{connected:musicSnapshot.connected},lights:{connected:currentConnectors.some(item=>item.id==='philips-hue'&&item.status==='connected')}}}:path==='/api/spotify?refresh=1'?musicSnapshot:path==='/api/chat'?chatResult||{reply:'Hello.',tool_events:[],timers}:path.includes('/progress?')?{status:'complete',events:[]}:{};return {ok:true,json:async()=>data};},
   });
   const source=await readFile(new URL('../public/companion/app.js',import.meta.url),'utf8');
   runInContext(source.replace(/^import .*;\n/gm,''),context);
   const run=code=>runInContext(code,context);
   await flush();await flush();
   t.after(()=>{run('destroyed=true;invalidate();sceneCleanup?.abort();voice.destroy();character?.destroy();');});
-  return {element,document,run,runtime,calls,requests,physical,setMusicSnapshot(value){musicSnapshot=value;},async advance(seconds=30){for(let i=0;i<seconds*60;i++)controller.update(1/60);await flush();},get voice(){return run('voice');},get o(){return run('orchestration');},async until(predicate){for(let i=0;i<100;i++){if(predicate())return;await new Promise(resolve=>setTimeout(resolve,10));}assert.fail('Expected app state did not arrive.');}};
+  return {element,document,run,runtime,calls,requests,physical,opened,setMusicSnapshot(value){musicSnapshot=value;},setConnectors(value){currentConnectors=value;},async advance(seconds=30){for(let i=0;i<seconds*60;i++)controller.update(1/60);await flush();},get voice(){return run('voice');},get o(){return run('orchestration');},async until(predicate){for(let i=0;i<100;i++){if(predicate())return;await new Promise(resolve=>setTimeout(resolve,10));}assert.fail('Expected app state did not arrive.');}};
 }
 
 test('actual app startup restores running timers and clearing conversation keeps both identities',async t=>{
@@ -266,22 +267,99 @@ test('actual app pulls the large screen down for connection options and offers o
   assert.equal(h.physical.right.type,'connections');
   const state=h.physical.right.data();
   assert.equal(state.view,'browse');assert.equal(state.categories.find(chip=>chip.active).id,'lights');
-  assert.ok(state.tiles.length>0&&state.tiles.every(tile=>tile.status==='available'||tile.status==='unavailable'),'nothing is connected yet');
+  assert.ok(state.tiles.length>0&&state.tiles.every(tile=>['available','guide','none','unavailable'].includes(tile.status)),'nothing is connected yet, and nothing looks connected');
   const buttons=h.element('action-controls').children.flatMap(group=>group.children.filter(child=>child.tag==='button').map(child=>child.textContent));
   assert.deepEqual(buttons,['Close panel'],'a large touchscreen cannot be docked or enlarged like a timer');
   h.element('typed-audio').ended=true;await h.element('typed-audio').dispatch('ended');await work;
   assert.equal(h.runtime.desired,'ceiling');
 });
 
-test('actual app follows a connection card to its setup guide and reflects preview connections from the server',async t=>{
-  const h=await fixture(t,{chatResult:connectionsReceipt({category:'cameras',entry:'ring'})}),work=h.run("submit('How do I connect my Ring?')");
+const hubItem=(id,name,status,over={})=>({id,name,status,detail:'',verified_at:null,external:false,...over});
+
+test('actual app follows a connection card to its setup guide and reflects the real connector status from the server',async t=>{
+  const h=await fixture(t,{chatResult:connectionsReceipt({category:'lights',entry:'philips-hue'})}),work=h.run("submit('How do I connect my Hue lights?')");
   await h.until(()=>h.element('typed-audio').plays===1);
-  assert.equal(h.physical.right.data().view,'setup');assert.equal(h.physical.right.data().setup.id,'ring');
-  assert.equal(h.physical.right.data().setup.connected,false);
-  h.run("snapshot={...snapshot,connections:[{id:'ring',connected_at:'2026-10-31T12:00:00.000Z'}]}");
-  assert.equal(h.physical.right.data().setup.connected,true,'the painted state follows the saved preview connection');
+  assert.equal(h.physical.right.data().view,'setup');assert.equal(h.physical.right.data().setup.id,'philips-hue');
+  assert.equal(h.physical.right.data().setup.status,'available','nothing verified means it is not shown as connected');
+  h.run("snapshot={...snapshot,connectors:[{id:'philips-hue',name:'Philips Hue',status:'saved',detail:'',verified_at:null,external:false}]}");
+  assert.equal(h.physical.right.data().setup.status,'saved','saved settings are not a working connection');
+  h.run("snapshot={...snapshot,connectors:[{id:'philips-hue',name:'Philips Hue',status:'connected',detail:'',verified_at:null,external:false}]}");
+  assert.equal(h.physical.right.data().setup.status,'connected','the painted state follows the server');
   assert.equal(h.physical.right.data().setup.real,false);
   h.element('typed-audio').ended=true;await h.element('typed-audio').dispatch('ended');await work;
+});
+
+test('actual app polls connector statuses and the Lights service label follows them',async t=>{
+  const h=await fixture(t);
+  assert.equal(h.element('lights-state').textContent,'Not connected');
+  h.setConnectors([hubItem('philips-hue','Philips Hue','connected')]);
+  await h.run('pollState()');
+  assert.equal(h.run("snapshot.connectors[0].status"),'connected');
+  assert.equal(h.element('lights-state').textContent,'Connected');
+  h.setConnectors([hubItem('philips-hue','Philips Hue','attention')]);
+  await h.run('pollState()');
+  assert.equal(h.element('lights-state').textContent,'Not connected','a connector needing attention is not shown as working');
+});
+
+test('the touchscreen opens the Connection Center in a new tab without blocking, and never calls a connect API',async t=>{
+  const h=await fixture(t);
+  h.run("openConnections({entry:'philips-hue'})");
+  await h.run("tapTarget({id:'setup:',action:'setup'})");
+  assert.deepEqual(h.opened,[{url:'/connections/#philips-hue',target:'_blank',features:'noopener,noreferrer'}]);
+  assert.equal(h.requests.some(request=>request.path.startsWith('/api/connectors/')||request.path.startsWith('/api/connections')),false,'opening setup sends nothing to the server');
+  assert.match(h.run('connectionsUi.notice'),/Opened the Philips Hue setup page in a new tab/);
+  assert.equal(h.run('connectionsBusy'),false,'the companion keeps working');
+  await h.run("tapTarget({id:'guide:',action:'guide'})");
+  assert.match(h.opened.at(-1).url,/^https:\/\//);
+});
+
+test('the touchscreen verifies a connection against the server and reports the real result',async t=>{
+  const api=(path,options)=>path.endsWith('/verify')?{status:200,body:hubItem('philips-hue','Philips Hue','connected',{message:'ok',values:{bridge:'x'},secrets_saved:['app_key']})}:{status:404,body:{error:'no'}};
+  const h=await fixture(t,{connectors:[hubItem('philips-hue','Philips Hue','connected')],connectorApi:api});await h.run('pollState()');
+  h.run("openConnections({entry:'philips-hue'})");
+  await h.run("tapTarget({id:'verify:',action:'verify'})");
+  const request=h.requests.find(item=>item.path==='/api/connectors/philips-hue/verify');
+  assert.equal(request.options.method,'POST');assert.deepEqual(JSON.parse(request.options.body),{},'no credentials are ever sent from the big screen');
+  assert.equal(h.run('connectionsUi.notice'),'Philips Hue is connected and verified.');
+  assert.equal(h.element('touch-status').textContent,'Philips Hue is connected and verified.');
+  assert.deepEqual(Object.keys(h.run('snapshot.connectors[0]')).sort(),['detail','external','id','name','status','verified_at'],'only status fields are kept from the response');
+  assert.equal(h.run('connectionsUi.busy'),'');
+});
+
+test('a rejected verification is reported honestly and the statuses are refreshed',async t=>{
+  const api=path=>({status:401,body:{error:'Philips Hue rejected the saved credentials.'}});
+  const h=await fixture(t,{connectors:[hubItem('philips-hue','Philips Hue','connected')],connectorApi:api});await h.run('pollState()');
+  h.run("openConnections({entry:'philips-hue'})");
+  h.setConnectors([hubItem('philips-hue','Philips Hue','attention',{detail:'Philips Hue rejected the saved credentials.'})]);
+  const before=h.requests.filter(item=>item.path==='/api/companion/state').length;
+  await h.run("tapTarget({id:'verify:',action:'verify'})");await flush();
+  assert.match(h.run('connectionsUi.notice'),/Philips Hue did not accept the saved credentials\. Reconnect it on the Connection Center page\./);
+  assert.ok(h.requests.filter(item=>item.path==='/api/companion/state').length>before,'statuses are re-read after a failure');
+  await flush();assert.equal(h.physical.right.data().setup.status,'attention');
+});
+
+test('disconnecting takes two taps, calls the server once, and shows the service as not connected',async t=>{
+  const api=path=>path.endsWith('/disconnect')?{status:200,body:hubItem('philips-hue','Philips Hue','not_connected',{message:'Disconnected Philips Hue. Access revoked on the bridge.'})}:{status:404,body:{error:'no'}};
+  const h=await fixture(t,{connectors:[hubItem('philips-hue','Philips Hue','connected')],connectorApi:api});await h.run('pollState()');
+  h.run("openConnections({entry:'philips-hue'})");
+  await h.run("tapTarget({id:'disconnect:',action:'disconnect'})");
+  assert.equal(h.requests.some(item=>item.path.endsWith('/disconnect')),false,'the first tap only asks for confirmation');
+  assert.match(h.run('connectionsUi.notice'),/Tap Disconnect again to remove Philips Hue/);
+  assert.equal(h.physical.right.data().setup.confirmDisconnect,true);
+  await h.run("tapTarget({id:'disconnect:',action:'disconnect'})");
+  assert.equal(h.requests.filter(item=>item.path==='/api/connectors/philips-hue/disconnect').length,1);
+  assert.equal(h.physical.right.data().setup.status,'available');
+  assert.equal(h.run('connectionsUi.notice'),'Disconnected Philips Hue.');
+  assert.equal(h.element('touch-status').textContent,'Disconnected Philips Hue. Access revoked on the bridge.','the full revocation note is announced');
+});
+
+test('disconnecting Spotify from the big screen also clears the music panel',async t=>{
+  const api=path=>({status:200,body:hubItem('spotify','Spotify','not_connected',{external:true,message:'Disconnected Spotify.'})});
+  const h=await fixture(t,{connectors:[hubItem('spotify','Spotify','connected',{external:true})],musicSnapshot:{connected:true,playback:{is_playing:false},devices:[]},connectorApi:api});await h.run('pollState()');
+  h.run("openConnections({entry:'spotify'})");
+  await h.run("tapTarget({id:'disconnect:',action:'disconnect'})");await h.run("tapTarget({id:'disconnect:',action:'disconnect'})");
+  assert.equal(h.run('spotify.connected'),false);
+  assert.equal(h.physical.right.data().setup.status,'available');
 });
 
 test('actual app opens the connection screen from the Activity list unless a reply is in progress',async t=>{

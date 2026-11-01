@@ -118,6 +118,10 @@ const safeLink = (url, title, fallback = '') => {
   } catch { return null; }
 };
 
+const MAX_SNIPPET = 280;
+const cleanSnippet = text => typeof text === 'string'
+  ? text.normalize('NFKC').replace(/[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2066-\u2069]/gu, ' ').replace(/\s+/gu, ' ').trim().slice(0, MAX_SNIPPET) : '';
+
 const MAX_QUERIES = 12;
 const MAX_RESULTS = 12;
 const MAX_FALLBACK_SOURCES = 5;
@@ -133,6 +137,8 @@ export class LookupTracker {
     this.enforced = 0;
     this.queries = [];
     this.results = new Map();
+    // Result text is untrusted. It is shown to the person as context, and is kept out of traces and summaries.
+    this.snippets = new Map();
   }
 
   setPolicy({ level, reason }) { this.level = level; this.reason = reason; if (level === 'none') this.blocked = ''; }
@@ -149,13 +155,20 @@ export class LookupTracker {
     for (const result of Array.isArray(item.results) ? item.results : []) {
       if (this.results.size >= MAX_RESULTS) break;
       const link = typeof result?.url === 'string' ? safeLink(result.url, result.title) : null;
-      if (link && !this.results.has(link.url)) this.results.set(link.url, link);
+      if (link && !this.results.has(link.url)) {
+        this.results.set(link.url, link);
+        const snippet = cleanSnippet(result.snippet ?? result.text);
+        if (snippet) this.snippets.set(link.url, snippet);
+      }
     }
   }
 
+  /** The retrieved text for a page, when the search returned any. */
+  snippetFor(url) { return this.snippets.get(url) ?? ''; }
+
   /** Pages Meta retrieved, used only when the reply carries no citations of its own. */
   retrievedSources() {
-    return [...this.results.values()].slice(0, MAX_FALLBACK_SOURCES).map(link => ({ ...link, basis: 'retrieved' }));
+    return [...this.results.values()].slice(0, MAX_FALLBACK_SOURCES).map(link => ({ ...link, basis: 'retrieved', ...(this.snippets.has(link.url) ? { snippet: this.snippets.get(link.url) } : {}) }));
   }
 
   state() {

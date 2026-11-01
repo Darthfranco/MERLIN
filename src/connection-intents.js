@@ -100,20 +100,16 @@ const UNCONNECTED = [
 ];
 const PLAY_MUSIC = /^(?:please |hey |ok |okay )*(?:merlin[, ]+)?(?:play|put on|queue|shuffle)\b|\b(?:play|put on|queue|shuffle)\b[^.?!]{0,30}\b(?:music|songs?|playlist|album|spotify|tunes)\b/u;
 
-/** Categories that a connected preview route belongs to. */
-export function connectedCategories(connectedIds = []) {
-  const connected = new Set(connectedIds);
-  return new Set(CONNECTIONS.filter(connection => connected.has(connection.id)).flatMap(connection => connection.categoryIds));
-}
-
 /**
  * @returns null, or { kind, category, entry, query, reason }
  *   how_to        how do I connect X (entry set when one route is named)
  *   browse        what can I connect / show me the connections
  *   unconnected   asked for something with no connection yet
- *   preview_only  asked for something whose category is only a preview connection (no panel)
+ *
+ * A category already covered by a verified connected service is left to the device tools: the screen opens only for
+ * things nothing real is connected for.
  */
-export function classifyConnectionIntent(message, { connectedIds = [], spotifyConnected = false, spotifyAvailable = true } = {}) {
+export function classifyConnectionIntent(message, { coveredCategories = new Set(), spotifyConnected = false, spotifyAvailable = true } = {}) {
   const text = normalize(message);
   if (!text || text.length > 600) return NONE_FOUND;
   if (/\b(?:don't|do not|never|no need to|stop) (?:show|open|pull up)\b/u.test(text)) return NONE_FOUND;
@@ -139,10 +135,8 @@ export function classifyConnectionIntent(message, { connectedIds = [], spotifyCo
   }
   const control = UNCONNECTED.find(([, pattern]) => pattern.test(text));
   if (!control) return NONE_FOUND;
-  const covered = connectedCategories(connectedIds).has(control[0]);
-  return covered
-    ? { kind: 'preview_only', category: control[0], entry: '', query: '', reason: 'Only a preview connection exists for this.' }
-    : { kind: 'unconnected', category: control[0], entry: '', query: '', reason: 'That needs a connection first.' };
+  if (new Set(coveredCategories).has(control[0])) return NONE_FOUND;
+  return { kind: 'unconnected', category: control[0], entry: '', query: '', reason: 'That needs a connection first.' };
 }
 
 const CATEGORY_LABEL = new Map([...CATEGORIES.map(category => [category.id, category.label.toLowerCase()]), ['music', 'music'], ['all', 'smart home']]);
@@ -151,16 +145,13 @@ export const categoryLabel = id => CATEGORY_LABEL.get(id) ?? 'smart home';
 export const routeName = id => ROUTE_NAME.get(id) ?? '';
 
 /** Facts for the model once the large screen is open. Nothing here claims a device can be controlled. */
-export function connectionDirective(intent, { connectedNames = [] } = {}) {
+export function connectionDirective(intent) {
   if (!intent) return '';
-  const preview = 'Connections made on the screen are previews: they record a choice, but MERLIN cannot control any connected device yet, so never say or imply that a device now works.';
-  if (intent.kind === 'preview_only') {
-    return `\nThe user asked for something in the ${categoryLabel(intent.category)} category. ${connectedNames.join(', ')} is marked connected only as a preview, so you cannot do it yet. Say so plainly in one short sentence. Do not claim the action happened. ${preview}`;
-  }
+  const honest = 'Some options connect for real from the Connection Center page and others are only setup guides. Opening the screen connects nothing, so never say or imply that a device now works.';
   const shows = intent.entry ? `the setup guide for ${routeName(intent.entry)}`
     : intent.kind === 'browse' ? `everything that can be connected${intent.category !== 'all' ? `, starting with ${categoryLabel(intent.category)}` : ''}`
       : `${categoryLabel(intent.category)} options${intent.query ? ` matching “${intent.query}”` : ''}`;
   const lead = intent.kind === 'unconnected' ? 'Say briefly that you cannot do that yet because nothing is connected for it, then invite them to tap an option.'
     : 'Invite them to tap an option, or read the guide, on the big screen.';
-  return `\nThe large connection screen is now open for the user, showing ${shows}. ${lead} Use one or two short sentences. Do not list the options or setup steps, and do not send them to another app. ${preview}`;
+  return `\nThe large connection screen is now open for the user, showing ${shows}. ${lead} Use one or two short sentences. Do not list the options or setup steps, and do not send them to another app. ${honest}`;
 }

@@ -11,11 +11,12 @@ async function fixture(t) {
   const publicRoot = join(directory, 'public');
   await mkdir(publicRoot);
   const assets = {
-    'index.html': '<!doctype html><title>MERLIN Connection Center demo</title>',
-    'app.js': 'export const demo = true;',
+    'index.html': '<!doctype html><title>MERLIN Connection Center guide</title>',
+    'app.js': 'export const guide = true;',
     'catalog.js': 'export const catalog = [];',
     'icons.js': 'export const icons = {};',
-    'state.js': 'export const state = {};',
+    'integrations.js': 'export const integrations = {};',
+    'live.js': 'export const live = {};',
     'styles.css': 'body { color: navy; }',
   };
   await Promise.all(Object.entries(assets).map(([name, content]) => writeFile(join(publicRoot, name), content)));
@@ -48,11 +49,11 @@ async function fixture(t) {
   return { server, publicRoot, directory, port, assets, request };
 }
 
-test('connection demo serves only its explicit asset files with correct content types', async t => {
+test('setup guide serves only its explicit asset files with correct content types', async t => {
   const app = await fixture(t);
   assert.equal(app.server.address().address, '127.0.0.1');
   for (const [name, content] of Object.entries(app.assets)) {
-    const response = await app.request(`/${name}?v=demo`);
+    const response = await app.request(`/${name}?v=guide`);
     assert.equal(response.status, 200, name);
     assert.equal(response.text, content);
     assert.equal(Number(response.headers['content-length']), Buffer.byteLength(content));
@@ -63,11 +64,11 @@ test('connection demo serves only its explicit asset files with correct content 
   assert.equal((await app.request('/%61pp.js')).text, app.assets['app.js']);
 });
 
-test('connection demo health and every response carry restrictive browser headers', async t => {
+test('setup guide health and every response carry restrictive browser headers', async t => {
   const app = await fixture(t);
   const health = await app.request('/health');
   assert.equal(health.status, 200);
-  assert.deepEqual(JSON.parse(health.text), { ok: true, mode: 'demo' });
+  assert.deepEqual(JSON.parse(health.text), { ok: true, mode: 'guide' });
   for (const response of [health, await app.request('/'), await app.request('/missing')]) {
     assert.equal(response.headers['cache-control'], 'no-store');
     assert.equal(response.headers['x-content-type-options'], 'nosniff');
@@ -124,7 +125,7 @@ test('local host and same-origin checks reject DNS rebinding and cross-site acce
   }
 });
 
-test('cross-site document links open the demo without enabling cross-site fetches or other routes', async t => {
+test('cross-site document links open the guide without enabling cross-site fetches or other routes', async t => {
   const app = await fixture(t);
   const navigation = { 'Sec-Fetch-Site': 'cross-site', 'Sec-Fetch-Mode': 'navigate', 'Sec-Fetch-Dest': 'document' };
   for (const method of ['GET', 'HEAD']) {
@@ -155,7 +156,7 @@ test('private files, traversal paths, other application routes and proxy targets
   for (const path of [
     '/.env', '/../.env', '/%2e%2e/.env', '/%2e%2e%2f.env', '/%252e%252e%252f.env',
     '/public/../index.html', '/public/%2e%2e/index.html', '/unexpected.json',
-    '/src/server.js', '/package.json', '/api/chat', '/api/state', '/api/memory',
+    '/src/server.js', '/package.json', '/api/chat', '/api/state', '/api/memory', '/api/connectors',
     '/api/spotify/status', '/api/voice/status', '/proxy?url=https://example.com',
   ]) {
     const response = await app.request(path);
