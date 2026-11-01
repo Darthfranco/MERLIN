@@ -104,7 +104,9 @@ test('informational workout and sleep questions cannot activate routines even if
       const results = input.filter(item => item.type === 'function_call_output').map(item => JSON.parse(item.output));
       assert.equal(results[0].result.mode, 'ignored');
       assert.equal(results[1].ok, false);
-      return [reply('Here is information without starting a routine.')];
+      // The two factual questions still need a lookup; the third names no fact to find.
+      const searched = question.startsWith('Tell me') ? [] : [{ type: 'web_search_call', id: `ws_${steps.length}`, status: 'completed' }];
+      return [...searched, reply('Here is information without starting a routine.')];
     });
   }
   const app = await fixture(t, scripted(steps));

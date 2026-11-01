@@ -208,7 +208,8 @@ test('imported documents expose a catalog, search relevant sources, and load bou
 });
 
 test('dependency-aware deletion removes related answers and clear-all removes memory plus queued learning while preserving timers', async (t) => {
-  const meta = scriptedMeta([[reply('You prefer oat milk.')], [reply('The sky is blue.')]]);
+  // A factual question requires a lookup, so the scripted answer includes its search.
+  const meta = scriptedMeta([[reply('You prefer oat milk.')], [{ type: 'web_search_call', id: 'ws_sky', status: 'completed' }, reply('The sky is blue.')]]);
   meta.extractMemories = async () => ({ facts: [] });
   const app = await fixture(t, meta);
   const created = await app.post('/api/memory/fact', { content: 'Prefers oat milk.', kind: 'preference', subject: 'household' });
@@ -293,17 +294,14 @@ test('the manual timer API enforces the same saved duration limit as assistant t
   assert.equal(allowed.body.timers.length, 1);
 });
 
-test('web search is unavailable until a local preparation succeeds and newly saved bans apply before preparation', async (t) => {
+test('a required lookup enables search after the local check, while other requests wait for a successful preparation and newly saved bans apply first', async (t) => {
   const instruction = 'Never search the web.';
   const meta = scriptedMeta([
     (_input, { tools }) => {
-      assert.equal(tools.some(tool => tool.type === 'web_search'), false);
-      assert.ok(tools.some(tool => tool.name === 'prepare_web_search'));
-      return [call('prepare_web_search', {})];
-    },
-    (input, { tools }) => {
-      assert.equal(outputs(input).at(-1).ok, true);
+      // The user asked for a lookup: the local permission check ran in the application,
+      // so search is offered at once and the model has no preparation step to skip.
       assert.ok(tools.some(tool => tool.type === 'web_search'));
+      assert.equal(tools.some(tool => tool.name === 'prepare_web_search'), false);
       return [{ type: 'web_search_call', id: 'native-synthetic-search', status: 'completed' }, reply('Search completed.')];
     },
     (_input, { tools }) => {

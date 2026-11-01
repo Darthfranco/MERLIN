@@ -163,6 +163,7 @@ function invalidate({keepAlert=false}={}){generation++;clearSpeech();if(!keepAle
 function showReply(result){
   $('reply').textContent=result.reply||result.error||'The request finished.';
   $('sources').replaceChildren();for(const source of result.sources||[]){try{const url=new URL(source.url);if(!['https:','http:'].includes(url.protocol))continue;const a=el('a',source.title||url.hostname);a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';const li=el('li','');li.append(a);$('sources').append(li);}catch{}}
+  $('sources').setAttribute('aria-label',(result.sources||[]).length&&(result.sources||[]).every(source=>source.basis==='retrieved')?'Pages checked for this answer':'Answer sources');
   $('sources').hidden=!$('sources').children.length;
   $('actions').replaceChildren();for(const event of result.tool_events||[]){$('actions').append(el('li',event.message||`${event.status==='completed'?'Completed':'Couldn’t finish'} ${event.tool.replaceAll('_',' ')}`));}
   $('actions-empty').hidden=Boolean($('actions').children.length);

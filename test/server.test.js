@@ -208,10 +208,7 @@ test('HTTP concurrent retries share mixed searches and timers, and restart canno
     async () => {
       entered();
       await blocked;
-      return [call('prepare_web_search', {}, 'prepare-search')];
-    },
-    (input) => {
-      assert.equal(JSON.parse(input.at(-1).output).ok, true);
+      // The user explicitly asked for searches, so search is offered without a preparation round.
       return [
         { type: 'web_search_call', id: 'ws_tea', status: 'completed' },
         call('create_timer', { label: 'Tea', duration: 60, unit: 'seconds' }, 'tea_timer'),
@@ -241,20 +238,21 @@ test('HTTP concurrent retries share mixed searches and timers, and restart canno
   release();
   const results = await Promise.all([first, second]);
   assert.ok(results.every((result) => result.status === 200));
-  assert.equal(meta.calls.length, 3);
-  assert.equal(meta.calls[0].tools.some(tool => tool.type === 'web_search'), false);
+  assert.equal(meta.calls.length, 2);
+  assert.ok(meta.calls[0].tools.some(tool => tool.type === 'web_search'));
+  assert.equal(meta.calls[0].tools.some(tool => tool.name === 'prepare_web_search'), false);
   assert.ok(meta.calls[1].tools.some(tool => tool.type === 'web_search'));
   const withoutResponseTime = ({ server_time, ...body }) => body;
   assert.deepEqual(withoutResponseTime(results[0].body), withoutResponseTime(results[1].body));
   assert.equal(results[0].body.timers.length, 2);
   assert.equal(new Set(results[0].body.timers.map((timer) => timer.id)).size, 2);
-  assert.deepEqual(results[0].body.tool_events.map((event) => event.tool), ['prepare_web_search', 'web_search', 'create_timer', 'create_timer', 'web_search']);
+  assert.deepEqual(results[0].body.tool_events.map((event) => event.tool), ['web_search', 'create_timer', 'create_timer', 'web_search']);
   assert.ok(results[0].body.tool_events.every((event) => event.status === 'completed'));
   assert.deepEqual(results[0].body.sources.map((source) => source.url), ['https://example.org/tea', 'https://example.org/pasta']);
   const retry = await app.post('/api/chat', body);
   assert.equal(retry.status, 200);
   assert.deepEqual(withoutResponseTime(retry.body), withoutResponseTime(results[0].body));
-  assert.equal(meta.calls.length, 3);
+  assert.equal(meta.calls.length, 2);
   assert.equal((await app.post('/api/chat', { ...body, message: 'Different message' })).status, 409);
   await closeServer(app.server);
   const restartMeta = scriptedMeta([]);

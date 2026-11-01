@@ -289,7 +289,10 @@ function renderReply(entry, data, error = "") {
       sources.append(item);
     } catch { /* Invalid source URLs are not interactive. */ }
   }
-  if (sources.children.length) entry.append(textElement("p", "sources-label", "Sources (open in a new tab)"), sources);
+  // Meta does not always return citations. Pages it retrieved are labelled as checked, not cited.
+  const retrievedOnly = Array.isArray(data.sources) && data.sources.length > 0 && data.sources.every((source) => source.basis === "retrieved");
+  if (sources.children.length) entry.append(textElement("p", "sources-label", retrievedOnly ? "Pages checked (open in a new tab)" : "Sources (open in a new tab)"), sources);
+  else if (data.lookup?.state === "unverified") entry.append(textElement("p", "sources-label", "This answer was not checked online."));
   scrollChat();
 }
 

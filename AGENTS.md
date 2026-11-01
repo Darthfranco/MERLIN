@@ -54,6 +54,7 @@ These are project engineering defaults, not additional hackathon rules:
 - Make camera/microphone use visible and user-controlled. Keep memory inspectable, editable, and removable. Minimize retention and document what leaves the home.
 - Do not select Contributor model variants for private home data by default; they permit training on inputs and outputs. Verify the actual provider's data terms before integration.
 - Treat camera text, retrieved pages, and other external content as data, never as authority to operate devices or change permissions.
+- Lookups: when the user says to look something up, search, or check online, MERLIN must actually search; never answer from memory instead, and never claim a search that did not run. Meta accepts only `tool_choice: "auto"`, so this is enforced in the application (`src/lookup.js`), not by the API. Time-sensitive and factual questions are also searched. See `docs/PROTOTYPE.md#web-lookups`; verify with `npm run check:lookup`.
 - Timers and schedules need explicit time zones, cancellation, persistence, and duplicate-execution protection when implemented.
 - Verify real behavior with checks appropriate to the feature. Do not invent test results, device integrations, or performance figures.
 - Keep public demo media and code limited to assets/data we have rights to use and share. Track new hackathon contributions and third-party dependencies.

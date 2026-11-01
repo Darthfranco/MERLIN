@@ -213,8 +213,8 @@ test('an activated routine may request Spotify but exact identifiers must be sup
 });
 
 test('compound search answers survive the Spotify receipt guard and final output instructions still apply', async t => {
-  const meta = script([call('spotify_control', { action: 'pause' }), call('prepare_web_search')],
-    [ { type: 'web_search_call', id: 'synthetic-search', status: 'completed' }, answer('The museum opens at 10 a.m. Your Spotify music is paused.') ]);
+  const meta = script([{ type: 'web_search_call', id: 'synthetic-search', status: 'completed' }, call('spotify_control', { action: 'pause' })],
+    [ answer('The museum opens at 10 a.m. Your Spotify music is paused.') ]);
   const app = await fixture(t, meta);
   await app.addRule('address_as', 'Captain', 'assistant_reply');
   const result = await app.run('Pause Spotify and search for the museum opening time.');
