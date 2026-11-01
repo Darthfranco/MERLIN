@@ -96,7 +96,9 @@ export class Assistant {
 
   async runTurn({ message, time_zone, request_id, session_id, source_id, history = [], onTrace = () => {}, channel = 'typed', signal }) {
     checkCancelled(signal);
-    const context = { message, source_id, session_id, request_id, epoch: this.memory?.store.epoch, signal };
+    // Retrieval is prepared once per distinct query within this request, however many model rounds run.
+    const retrieval = new Map();
+    const context = { message, source_id, session_id, request_id, epoch: this.memory?.store.epoch, signal, retrieval };
     const spotifyEnabled = Boolean(this.spotify) && channel === 'typed';
     const emit = (stage, detail, data) => onTrace(stage, detail, data);
     const usedMemory = new Set();
@@ -129,7 +131,7 @@ export class Assistant {
     // Meta accepts only tool_choice "auto", so required lookups are enforced here.
     const lookup = new LookupTracker();
     let lookupEnforcing = false;
-    const instructions = `${BASE_INSTRUCTIONS}\n${SPOKEN_REPLY_INSTRUCTIONS}\n${this.memory ? MEMORY_INSTRUCTIONS : 'No persistent memory is enabled in this runtime.'}\n${this.routines ? ROUTINE_INSTRUCTIONS : ''}\n${spotifyEnabled ? SPOTIFY_INSTRUCTIONS : channel === 'voice' ? 'Spotify is unavailable for voice requests, including saved routines. No Spotify tool is enabled. If requested, briefly explain that music controls are available by typing or using the music panel. Complete independent supported work.' : 'Spotify is not enabled in this runtime.'}`;
+    const instructions = `${BASE_INSTRUCTIONS}\n${SPOKEN_REPLY_INSTRUCTIONS}\n${this.memory ? this.memory.instructions ?? MEMORY_INSTRUCTIONS : 'No persistent memory is enabled in this runtime.'}\n${this.routines ? ROUTINE_INSTRUCTIONS : ''}\n${spotifyEnabled ? SPOTIFY_INSTRUCTIONS : channel === 'voice' ? 'Spotify is unavailable for voice requests, including saved routines. No Spotify tool is enabled. If requested, briefly explain that music controls are available by typing or using the music panel. Complete independent supported work.' : 'Spotify is not enabled in this runtime.'}`;
     try {
       checkCancelled(signal);
       const personalityRequest = this.memory && !routineIntent && parsePersonalityRequest(message);
@@ -141,6 +143,7 @@ export class Assistant {
           source_id, source_quote: message, removeAddress: remove_address, expectedEpoch: context.epoch,
         });
         context.epoch = this.memory.store.epoch;
+        if (remove_address) await this.memory.removeConversationAddress?.(remove_address);
         const rules = this.memory.rules();
         const acknowledgement = patch.style === 'plain' ? "I'll keep it straightforward." : patch.style === 'warm'
           ? "Righto! A little more pep, coming up." : remove_address ? "I'll leave that address out." : "You bet. I'll use that.";
@@ -189,7 +192,7 @@ export class Assistant {
       if (spotifyEnabled && !activeRoutine && !routineIntent) {
         const control = parseSimpleSpotifyControl(message);
         if (control) {
-          const selection = this.memory?.context(message, session_id);
+          const selection = await this.memory?.prepareContext(message, session_id, retrieval, { signal });
           if (!selection?.selected.fact_ids.length) return await this.runSimpleSpotify({ control, context, emit, tool_events, ids: usedMemory });
           emit('route', 'Selected household guidance needs interpretation for the music request.', { route: 'model', fact_ids: selection.selected.fact_ids });
         }
@@ -197,7 +200,7 @@ export class Assistant {
       if (this.memory && !activeRoutine && !routineIntent) {
         const intent = parseSimpleTimerIntent(message);
         if (intent && (intent.default_seconds !== undefined || this.memory.rules().some(rule => rule.kind === 'timer_default_seconds'))) {
-          const selection = this.memory.context(message, session_id);
+          const selection = await this.memory.prepareContext(message, session_id, retrieval, { signal });
           if (!selection.selected.fact_ids.length) {
             return await this.runSimpleTimer({ intent, context, time_zone, request_id, emit, tool_events, ids: usedMemory });
           }
@@ -221,11 +224,11 @@ export class Assistant {
       for (let round = 0; round < MAX_MODEL_ROUNDS; round++) {
         const remainingSearches = Math.max(0, MAX_SEARCH_CALLS - searchCount);
         const rules = this.memory?.rules() ?? [];
-        const selection = this.memory?.context(actionMessage, session_id);
+        const selection = await this.memory?.prepareContext(actionMessage, session_id, retrieval, { signal });
         const routineContext = this.routines?.context(session_id);
         if (selection) {
           Object.values(selection.selected).flat().forEach(id => usedMemory.add(id));
-          emit('context', 'Loaded current rules and selected household evidence.', { ...selection.selected, context_chars: selection.text.length });
+          emit('context', 'Loaded current rules and selected household evidence.', { ...selection.selected, context_chars: selection.text.length, ...(selection.stats ? { retrieval: selection.stats } : {}) });
         }
         const searchGate = checkTool(rules, { name: 'web_search', args: {}, message });
         // Routine setup/lookup and bare appreciation never authorize a search.
@@ -250,7 +253,7 @@ export class Assistant {
             label: { type: 'string', minLength: 1, maxLength: 80 }, duration: { anyOf: [{ type: 'number', exclusiveMinimum: 0 }, { type: 'null' }], description: 'Positive amount from the user request or an applicable saved purpose-specific duration preference; otherwise JSON null when the entire duration is omitted.' },
             unit: { type: 'string', enum: ['seconds', 'minutes', 'hours', 'default'] },
           }, ['label', 'duration', 'unit']) : tool);
-          availableTools.push(...MEMORY_TOOLS);
+          availableTools.push(...(this.memory.tools ?? MEMORY_TOOLS));
           if (remainingSearches && !searchPrepared && searchGate.ok) availableTools.push(SEARCH_PREPARATION);
         }
         if (this.routines) availableTools.push(...ROUTINE_TOOLS.filter(tool => !activeRoutine || tool.name !== 'routine_use'));
@@ -674,7 +677,7 @@ export class Assistant {
       }, context, `${request_id}:default_duration`);
       ids.add(saved.record.id);
       emit('memory', 'Saved the explicit default duration with exact user evidence.', { tool: 'memory_save_rule', result: saved });
-      tool_events.push({ tool: 'memory_save_rule', status: 'completed', message: 'Saved the default timer duration.' });
+      tool_events.push({ tool: 'memory_save_rule', status: 'completed', message: this.describeDefault(saved) });
       reply = saved.conflicts.some(conflict => conflict.rule_ids.includes(saved.record.id)) ? "I've kept both timer instructions for now." : `I'll use ${formatDuration(intent.default_seconds)} when you don't give a duration.`;
     }
     let conflict = false;
@@ -727,6 +730,10 @@ export class Assistant {
     ] };
   }
 
+  describeDefault(saved) {
+    return saved.publishes_after_close ? 'Applied the default timer duration for this conversation; it is reviewed for permanent memory after the conversation closes.' : 'Saved the default timer duration.';
+  }
+
   async execute(name, args, zone, operationKey) {
     if (name === 'create_timer') {
       objectArgs(args, ['label', 'duration_seconds']);
@@ -751,6 +758,8 @@ export class Assistant {
     if (name.startsWith('routine_')) return result.started ? 'Activated the saved routine request.' : result.read ? 'Read the saved routine without starting it.' : result.mode === 'suggest' ? 'Suggested a routine; waiting for confirmation.' : result.mode === 'ignored' ? 'Kept the routine inactive for this informational message.' : name === 'routine_delete' ? 'Deleted the saved routine.' : 'Saved the routine request.';
     if (name === 'prepare_web_search') return 'Checked permission to search the web.';
     if (name === 'show_connections') return 'Opened the connection options on the large screen.';
+    if (name.startsWith('memory_') && result?.applies_now) return result.publishes_after_close ? 'Applied for this conversation; it is reviewed for permanent memory after the conversation closes.' : 'Applied for this conversation only.';
+    if (name === 'memory_read_sources') return 'Read original messages.';
     if (name.startsWith('memory_')) return ({ memory_save_rule: 'Saved and compiled the standing instruction.', memory_save_fact: 'Saved general household information.', memory_search: 'Searched retained memory.', memory_read_document: 'Read the requested document section.', memory_forget: 'Deleted the requested memory and related recall records.', memory_resolve_conflict: 'Applied your rule-conflict choice.' })[name] || 'Memory updated.';
     if (name === 'create_timer') return `Created “${result.label}” for ${result.duration_seconds} seconds.`;
     if (name === 'cancel_timer') return `“${result.label}” is ${result.status}.`;

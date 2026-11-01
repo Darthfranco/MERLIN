@@ -34,7 +34,7 @@ async function fixture(t, meta = provider()) {
   };
   t.after(async () => { await Promise.all(apps.map(close)); await rm(directory, { recursive: true, force: true }); });
   const start = async (nextMeta = meta) => {
-    const app = await createApp({ dataDir: directory, meta: nextMeta, learningDelayMs: 60_000 }); apps.push(app);
+    const app = await createApp({ memoryEngine: 'legacy', dataDir: directory, meta: nextMeta, learningDelayMs: 60_000 }); apps.push(app);
     await new Promise(resolve => app.server.listen(0, '127.0.0.1', resolve));
     const request = async (path, value, method = value === undefined ? 'GET' : 'POST') => {
       const response = await fetch(`http://127.0.0.1:${app.server.address().port}${path}`, { method,

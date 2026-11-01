@@ -7,9 +7,7 @@ import { TimerStore } from './timers.js';
 import { MetaClient } from './meta.js';
 import { Assistant } from './assistant.js';
 import { RequestLedger } from './requests.js';
-import { MemoryStore } from './memory-store.js';
-import { MemoryService } from './memory.js';
-import { MemoryLearning } from './memory-learning.js';
+import { createMemoryEngine } from './memory-engine.js';
 import { RoutinesStore, RoutineService } from './routines.js';
 import { normalizeRule, checkOutput, checkTool, findConflicts, safeClarification } from './memory-rules.js';
 import { AppError, objectArgs, timeZone, uuid } from './errors.js';
@@ -62,17 +60,17 @@ function publicError(error) {
 export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaClient({
   apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY,
   model: process.env.META_MODEL || 'muse-spark-1.3',
-}), timers: suppliedTimers, ledger: suppliedLedger, memoryStore: suppliedMemory, spotify: suppliedSpotify, connectorHub: suppliedHub, connectorFetch = fetch, pageReader = readWebPage, learningDelayMs = 750, voiceMeta = new MetaTranscriber({ apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY }), tts = new KokoroTts(), listener = new LocalVoiceListener() } = {}) {
+}), timers: suppliedTimers, ledger: suppliedLedger, memoryStore: suppliedMemory, spotify: suppliedSpotify, connectorHub: suppliedHub, connectorFetch = fetch, pageReader = readWebPage, learningDelayMs = 750, memoryEngine, memoryOptions, voiceMeta = new MetaTranscriber({ apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY }), tts = new KokoroTts(), listener = new LocalVoiceListener() } = {}) {
   const timers = suppliedTimers || await new TimerStore({ filePath: join(dataDir, 'timers.json') }).init();
   const ledger = suppliedLedger || await new RequestLedger(join(dataDir, 'requests.jsonl')).init();
-  const store = suppliedMemory || await new MemoryStore({ filePath: join(dataDir, 'memory.json') }).init();
-  const memory = new MemoryService(store);
+  const engine = await createMemoryEngine({ engine: memoryEngine, dataDir, meta, suppliedStore: suppliedMemory, learningDelayMs, options: memoryOptions });
+  const { store, memory, learning } = engine;
   const spotify = suppliedSpotify || await new SpotifyService({ filePath: join(dataDir, 'spotify.json'), clientId: process.env.SPOTIFY_CLIENT_ID || '' }).init();
   // Real connections only: credentials live in ignored data/connectors.json and never reach the browser, Meta or traces.
   const connections = suppliedHub || await new ConnectorHub({ filePath: join(dataDir, 'connectors.json'), connectors: createConnectors({ spotify }), fetch: connectorFetch }).init();
   const routineStore = await new RoutinesStore({ filePath: join(dataDir, 'routines.json') }).init();
   const routines = new RoutineService({ store: routineStore, memoryStore: store });
-  const learning = await new MemoryLearning({ store, meta, filePath: join(dataDir, 'memory-learning.json'), delayMs: learningDelayMs }).init();
+  engine.attachRoutines(routineStore);
   const assistant = new Assistant({ meta, timers, memory, routines, spotify, connections, pageReader });
   const searchStatus = () => ({ available: meta.configured, provider: 'Meta web search', page_reader: Boolean(pageReader),
     detail: meta.configured ? 'Web search is available. MERLIN searches whenever you ask it to look something up or ask for current facts.' : 'Web search is unavailable: add META_API_KEY to .env and restart the server.' });
@@ -82,7 +80,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
   const speechPending = new Set();
   // Links each answer showed as sources. Only these can be previewed later, so the endpoint is not a general page proxy.
   const answerSources = new Map();
-  const inspect = sessionId => ({ ...memory.inspect(sessionId), ...routines.inspect(sessionId), learning: learning.status(), retention: 'Kept locally until you delete it. Clear all memory also removes transcripts, documents, routines, and learning jobs. Timers are separate.' });
+  const inspect = sessionId => ({ ...memory.inspect(sessionId), ...routines.inspect(sessionId), memory_engine: memory.kind, learning: learning.status(), retention: 'Kept locally until you delete it. Clear all memory also removes transcripts, documents, routines, and learning jobs. Timers are separate.' });
   const clearCaches = () => { traces.clear(); progress.clear(); speechReplies.clear(); answerSources.clear(); ledger.live.clear(); };
   const checkedMessage = message => {
     const rules = memory.rules();
@@ -133,7 +131,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
     if (typeof body.message !== 'string' || !body.message.trim() || body.message.length > 4000) throw new AppError('Enter a message between 1 and 4,000 characters.');
     checkCancelled(signal);
     if (!meta.configured) throw new AppError('Add META_API_KEY to .env and restart the server to connect Meta.', 503);
-    const result = await ledger.run(`chat:${body.request_id}`, body, async () => {
+    const result = await ledger.run(`chat:${body.request_id}`, body, () => memory.withSession(body.session_id, async () => {
       for (const [id, session] of sessions) if (!session.busy && session.used < Date.now() - 3_600_000) sessions.delete(id);
       if (!sessions.has(body.session_id)) {
         if (sessions.size >= 100) throw new AppError('Too many test conversations. Restart the server to clear them.', 429);
@@ -159,12 +157,15 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       session.used = Date.now();
       const requestEpoch = store.epoch;
       let inheritedIds = [];
+      let source;
       try {
+        memory.beginTurn(body.session_id, body.request_id);
         checkCancelled(signal);
         const history = memory.history(body.session_id);
         const prior = store.snapshot().conversations.filter(item => item.session_id === body.session_id);
         inheritedIds = prior.flatMap(item => item.memory_ids ?? []);
-        const source = await store.recordMessage({ session_id: body.session_id, request_id: body.request_id, role: 'user', text: body.message });
+        source = await store.recordMessage({ session_id: body.session_id, request_id: body.request_id, role: 'user', text: body.message });
+        memory.observeUserMessage(source);
         await routineStore.beginRequest({ session_id: body.session_id, request_id: body.request_id, message: body.message });
         const started = performance.now();
         const trace = { status: 'running', events: [], model_calls: 0, context_chars: 0, usage: null };
@@ -208,13 +209,17 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
           clearCaches(); traces.set(body.request_id, trace); progress.set(body.request_id, foreground);
           onTrace('personality_context', 'Current style takes precedence; factual conversation and pending household learning are preserved.');
         }
-        const presentIds = new Set([...store.snapshot().facts, ...memory.rules(), ...store.snapshot().documents, ...routineStore.list()].map(item => item.id));
+        const presentIds = new Set([...memory.knownIds(), ...routineStore.list().map(item => item.id)]);
         const memoryIds = [...new Set([...inheritedIds, ...(response.memory_ids || [])])].filter(id => presentIds.has(id));
-        await store.recordMessage({ session_id: body.session_id, request_id: body.request_id, role: 'assistant', text: response.reply, turn: response.turn, memory_ids: memoryIds });
+        const delivered = await store.recordMessage({ session_id: body.session_id, request_id: body.request_id, role: 'assistant', text: response.reply, turn: response.turn, memory_ids: memoryIds });
         foreground.status = 'complete';
         trace.status = 'complete'; trace.total_ms = Math.round(performance.now() - started);
         onTrace('delivered', 'Delivered the checked reply. Household learning runs in the background.');
-        try { if (!response.forget_completed && !response.personality_changed) await learning.enqueue(source); }
+        const exchange = { request_id: body.request_id, session_id: body.session_id, assistant_source_id: delivered.id, tool_events: response.tool_events };
+        try {
+          if (!response.forget_completed && !response.personality_changed) await learning.enqueue(source, exchange);
+          else if (!response.forget_completed && memory.kind === 'v2') await learning.enqueue(source, { ...exchange, skip: true });
+        }
         catch { onTrace('learning_error', 'Could not queue background learning. The reply and completed actions are preserved.'); }
         const { turn, memory_ids, forget_completed, ...visible } = response;
         speechReplies.set(body.request_id, response.reply);
@@ -234,10 +239,12 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
           { role: 'user', content: [{ type: 'input_text', text: store.epoch !== requestEpoch ? 'A memory-changing request was processed; original context was discarded.' : body.message }] },
           { role: 'assistant', content: [{ type: 'output_text', text: `Reply failed: ${visibleError}\nConfirmed tool outcomes: ${JSON.stringify(events)}` }] },
         ];
-        await store.recordMessage({ session_id: body.session_id, request_id: body.request_id, role: 'assistant', text: visibleError, turn: fallback, memory_ids: [...new Set([...inheritedIds, ...(error.memory_ids ?? [])])] }).catch(() => {});
+        const failed = await store.recordMessage({ session_id: body.session_id, request_id: body.request_id, role: 'assistant', text: visibleError, turn: fallback, memory_ids: [...new Set([...inheritedIds, ...(error.memory_ids ?? [])])] }).catch(() => null);
+        // Instructions already applied in this turn still reach capture, with only its verified outcomes.
+        if (memory.kind === 'v2' && source && store.epoch === requestEpoch) await learning.enqueue(source, { request_id: body.request_id, session_id: body.session_id, assistant_source_id: failed?.id ?? null, tool_events: events }).catch(() => {});
         return { status: safe.status, data: { error: visibleError, tool_events: events, sources: error.sources || [], ...(error.trace ? { trace: error.trace } : {}) } };
-      } finally { session.busy = false; finishSession(); }
-    });
+      } finally { session.busy = false; finishSession(); memory.endTurn(body.session_id); }
+    }));
     return { status: result.status, data: { ...result.data, personality: store.personality(), ...await state() } };
   };
   const server = createServer(async (req, res) => {
@@ -425,21 +432,21 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
           if (previous) await store.invalidateReferences({ ids: [previous.id], source_ids: [...new Set([previous.source_id, ...(previous.definition_sources ?? []).map(source => source.source_id)])] });
         } else if (path === '/api/memory/fact') {
           objectArgs(body, ['id', 'content', 'subject', 'kind']);
-          await store.putFact({ content: body.content, subject: body.subject || 'household', kind: body.kind || 'fact', source_id: 'manual', source_quote: '', reason: 'Edited directly in Memory lab.', ...(body.id ? { supersedes: body.id } : {}) });
+          await memory.putManualFact(body);
         } else if (path === '/api/memory/rule') {
           objectArgs(body, ['kind', 'value', 'scope', 'original']);
           const original = body.original || `${body.kind}: ${body.value}`;
           await store.putRule(normalizeRule({ ...body, original, explanation: 'Configured directly in Memory lab with explicit scope.', source_id: 'manual', source_quote: '' }));
         } else if (path === '/api/memory/delete') {
-          objectArgs(body, ['collection', 'id']); await store.remove(body); clearCaches();
+          objectArgs(body, ['collection', 'id']); await memory.removeRecord(body); clearCaches();
         } else if (path === '/api/memory/resolve') {
           objectArgs(body, ['keep_id', 'remove_ids']);
           if (!Array.isArray(body.remove_ids) || !findConflicts(memory.rules()).some(c => c.rule_ids.includes(body.keep_id) && body.remove_ids.every(id => id !== body.keep_id && c.rule_ids.includes(id)))) throw new AppError('Choose rules from an existing conflict.');
-          await store.resolveRules(body); clearCaches();
+          await memory.resolveRules(body); clearCaches();
         } else if (path === '/api/documents') {
-          objectArgs(body, ['id', 'title', 'description', 'content']); await store.putDocument(body); if (body.id) clearCaches();
+          objectArgs(body, ['id', 'title', 'description', 'content']); await memory.putDocument(body); if (body.id) clearCaches();
         } else if (path === '/api/memory/clear') {
-          objectArgs(body, []); await learning.clear(); await routineStore.clear(); await store.clearAll(); sessions.clear(); clearCaches();
+          objectArgs(body, []); await memory.clearAll(learning); await routineStore.clear(); sessions.clear(); clearCaches();
         } else if (path === '/api/memory/retry-learning') {
           objectArgs(body, []); await learning.retry();
         } else throw new AppError('Not found.', 404);
@@ -479,11 +486,17 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       if (path === '/api/session/reset') {
         objectArgs(body, ['session_id']); uuid(body.session_id);
         if (sessions.get(body.session_id)?.busy) throw new AppError('Wait for the current reply before clearing the conversation.', 409);
-        await store.clearConversation(body.session_id);
+        await memory.clearConversation(body.session_id);
         await routineStore.clearSession(body.session_id);
         await learning.clear();
         sessions.delete(body.session_id); clearCaches();
         json(200, { ok: true });
+        return;
+      }
+      if (path === '/api/session/close') {
+        // The explicit memory-segment boundary. Voice standby and wake timing are separate clocks.
+        objectArgs(body, ['session_id']); uuid(body.session_id);
+        json(200, memory.kind === 'v2' ? { ok: true, ...learning.requestClose(body.session_id) } : { ok: true, closed: false });
         return;
       }
       if (path === '/api/chat') {
@@ -509,7 +522,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
   });
   const closeVoice = () => { voiceSocket.close(); listener.close(); for (const pending of speechPending) pending.abort(); Promise.resolve(tts.close()).catch(() => {}); };
   server.on('close', () => { clearInterval(interval); closeVoice(); learning.close().catch(() => {}); });
-  return { server, timers, meta, store, memory, learning, routines, routineStore, spotify, connections, runChatTurn, timerAlert, replyAudio, closeVoice };
+  return { server, timers, meta, store, memory, learning, engine, routines, routineStore, spotify, connections, runChatTurn, timerAlert, replyAudio, closeVoice };
 
 }
 
@@ -537,9 +550,10 @@ async function main() {
   await lock.writeFile(String(process.pid));
   const release = async () => { await lock.close(); await unlink(lockPath).catch(() => {}); };
   try {
-    const { server, meta, closeVoice } = await createApp({ dataDir });
+    const { server, meta, memory, learning, closeVoice } = await createApp({ dataDir });
     await new Promise((done, fail) => { server.once('error', fail); server.listen(port, '127.0.0.1', done); });
     console.log(`MERLIN test UI: http://127.0.0.1:${port}`);
+    console.log(`Memory engine: ${memory.kind}${memory.kind === 'v2' ? ` (semantic retrieval: ${learning.status().semantic.state})` : ''}.`);
     console.log(meta.configured ? `Meta adapter: ${meta.model} (credentials configured; use npm run check:meta to verify access).` : 'Meta key is not configured. Manual timers are available.');
     for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => {
       closeVoice();

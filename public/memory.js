@@ -117,6 +117,7 @@ window.createMemoryLab = function createMemoryLab({ request, getSessionId, isCha
     row.append(make("p", "record-kind", (item.kind === "guidance" ? "Guidance · not code-enforced" : `${item.kind || "Fact"} · ${item.subject || "household"}`) + (replaced ? " · replaced" : "")));
     row.append(make("p", "record-content", item.content));
     if (replaced) row.append(make("p", "help", "Replaced by a newer memory. This record is not used for recall."));
+    if (item.version) row.append(make("p", "help", `Version ${item.version} · ${item.type} · ${item.evidence_kind} evidence${item.temporal === "temporary" ? " · temporary" : ""}${item.record_status === "unresolved" ? " · unresolved, not treated as certain" : ""}${item.provenance_gap ? " · original source no longer retained" : ""}`));
     row.append(sourceDetail(item));
     const actions = make("div", "record-actions");
     if (!replaced) actions.append(action("Edit", () => {
@@ -257,7 +258,8 @@ window.createMemoryLab = function createMemoryLab({ request, getSessionId, isCha
     const conversations = (data.conversations || []).filter((item) => !item.session_id || item.session_id === getSessionId());
     const learning = data.learning || {};
     const learningMessage = learning.running ? "Learning from the conversation…" : learning.pending ? `${learning.pending} learning ${learning.pending === 1 ? "job" : "jobs"} queued` : "Memory is up to date";
-    $("memory-status").textContent = `${learning.error ? "Learning needs attention" : learningMessage} · revision ${data.revision ?? "—"}`;
+    const engine = data.memory_engine === "v2" ? ` · engine v2 · semantic search ${learning.semantic?.state ?? "unknown"} · ${learning.segments?.open?.length ?? 0} open segment(s) · ${learning.candidates?.pending ?? 0} draft note(s)` : "";
+    $("memory-status").textContent = `${learning.error ? "Learning needs attention" : learningMessage} · revision ${data.revision ?? "—"}${engine}`;
     if (learning.error) feedback(`Background learning failed: ${typeof learning.error === "string" ? learning.error : JSON.stringify(learning.error)}`, true);
     $("retry-learning").hidden = !learning.error;
     $("count-conversation").textContent = conversations.length;

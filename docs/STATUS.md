@@ -2,6 +2,22 @@
 
 Last updated: **November 1, 2026**.
 
+## Memory engine v2 (selectable, legacy still default) — November 1, 2026
+
+The owner asked to implement their *Home Agent Memory Procedure* while keeping the existing system as a usable backup. Design, run steps, rollback and limits: [MEMORY_V2.md](MEMORY_V2.md).
+
+**Works (with injected test doubles):** the full local lifecycle. Immediate use of corrections through conversation control state; private draft notes after each exchange; close on explicit event or 120 seconds of foreground inactivity with frozen boundaries; validated consolidation with versioned supersession, unresolved contradictions and separate events; deterministic hybrid retrieval with four branches, reciprocal rank fusion and budgets; routine cards; passage-level document search; one-time migration with a private backup; one-setting rollback; a deletion fence covering both engines and backups. Added to the inspector with no UI redesign.
+
+**Selector:** `MERLIN_MEMORY_ENGINE=v2|legacy`. **Legacy remains the default** because the owner's condition for switching, a usable real semantic adapter, is not met: Ollama and an embedding model are not installed here, and this task did not install them.
+
+**Verification:** **998 automated tests pass**, 47 of them new in `test/memory-v2-*.test.js`, using temporary storage, scripted Meta and injected clocks and embeddings. Run under v2, the existing lookup, timer, routine, personality, Spotify, companion and connection suites gave 145 of 152 passing; the 7 failures each assert legacy storage directly (reading `memory.json` or expecting immediate `store.snapshot()` publication), and those test files now pin legacy explicitly. Local retrieval, embedding excluded, was about 12 ms p50 and 17 ms p95 at 2,000 synthetic items and 768 dimensions over 200 queries; this is not a scale or recall claim.
+
+**Live checks (synthetic text, temp storage, standard Meta):** `npm run check:memory-v2 -- --meta` passed the provider on both new contracts and proposed the correct `supersede` for one clear correction. One end-to-end v2 conversation also worked: the fact applied in the same conversation with an honest receipt, a second conversation before close saw nothing, close published a sourced record plus summary with no backlog, and a new conversation then recalled it. That run also showed household questions such as "Where does Biscuit nap?" triggering a web search. This comes from the existing lookup policy, applies to both engines, and was not changed here.
+
+**Not exercised:** real embedding recall, the uncalibrated cosine cutoff, and extraction or consolidation quality beyond that one case. `npm run check:memory-v2` reports `NOT READY` here. No household data was migrated: the owner's running instance stays on legacy until they opt in.
+
+**Next:** install an embedding service, run `npm run check:memory-v2`, calibrate the cutoff with representative and no-memory queries, run a small synthetic live Meta check of capture and consolidation, then decide with the owner whether to flip `DEFAULT_MEMORY_ENGINE`.
+
 ## Real connectors, setup guides, and stronger web lookup — November 1, 2026
 
 The owner asked for real connectors for the straightforward services, honest instructions for the harder ones, and an audit of MERLIN's internet search. Full detail, supported actions and limits: [CONNECTORS.md](CONNECTORS.md). This **replaces the October 31 simulated previews**: they and their Connect buttons were removed everywhere.

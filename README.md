@@ -50,7 +50,8 @@ Meta models are a core product requirement. Kokoro is the tentative speech synth
 | [Hosting options](docs/HOSTING.md) and [optional toolkit](deploy/README.md) | Compare home/cloud routes, inspect prerequisites, and supervise the current local assistant; shared-device access remains pending |
 | [Phone companion](docs/PHONE.md) | Standalone phone demo, shared text/voice browser memory, attachments, and branded connection settings |
 | [Spotify setup and privacy](docs/SPOTIFY.md) | Connect an account, playback controls, data boundaries, and limitations |
-| [Memory and routines](docs/MEMORY.md) | Memory lab, rule scopes, retention, routine activation, and testing |
+| [Memory and routines](docs/MEMORY.md) | Memory lab, rule scopes, retention, routine activation, and testing (legacy engine) |
+| [Memory engine v2](docs/MEMORY_V2.md) | Owner's replacement memory procedure: lifecycle, hybrid retrieval, setup, rollback, and limits |
 | [Original event overview](docs/sources/event-overview.txt) and [participant guide](docs/sources/participant-guide.txt) | User-supplied source snapshots |
 
 Submission target: **November 4, 2026 at 9:00 PM America/New_York (EST)**. A public repository and a three-minute video demonstrating work built during the hackathon are required by the supplied participant guide.

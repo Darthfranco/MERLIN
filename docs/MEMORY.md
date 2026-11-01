@@ -1,5 +1,7 @@
 # MERLIN memory implementation and testing
 
+**This guide describes the legacy engine**, which remains the default and the rollback. The owner-approved replacement procedure is implemented as the selectable v2 engine: see [MEMORY_V2.md](MEMORY_V2.md), which takes precedence where the two differ when `MERLIN_MEMORY_ENGINE=v2`. In particular, immediate permanent saves and keyword-only recall described below are legacy behavior.
+
 This guide describes the local text prototype's memory system. Product decisions and remaining unknowns belong in [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md); verification results and current limitations belong in [STATUS.md](STATUS.md). The earlier architecture research is in [MEMORY_RESEARCH.md](MEMORY_RESEARCH.md).
 
 MERLIN separates conversation history, overall household memory, explicit do/don't instructions, and named documents. Named routines also let an intentional trigger stand for a longer saved request. The **Memory lab** makes the records, evidence, interpretation, conflicts, retrieval, and execution checks visible while testing.

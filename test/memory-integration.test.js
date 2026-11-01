@@ -43,7 +43,7 @@ async function fixture(t, meta) {
     await rm(directory, { recursive: true, force: true });
   });
   const start = async nextMeta => {
-    const app = await createApp({ dataDir: directory, meta: nextMeta ?? meta, learningDelayMs: 60000 });
+    const app = await createApp({ memoryEngine: 'legacy', dataDir: directory, meta: nextMeta ?? meta, learningDelayMs: 60000 });
     apps.push(app);
     await new Promise((resolve, reject) => { app.server.once('error', reject); app.server.listen(0, '127.0.0.1', resolve); });
     const port = app.server.address().port;
