@@ -129,6 +129,10 @@ export class CompanionVoiceClient {
     this.clearPlayback(session);
     this.send(session, { type: 'interrupt' });
   }
+  /** Tells the server's self-echo check that a filler is audible. It is not playback of a reply. */
+  reportAcknowledgment(playing) {
+    if (this.session) this.send(this.session, { type: 'acknowledgment', playing });
+  }
   announceTimer(timerId) {
     const session = this.session;
     if (!session?.ready || session.awaitingSleep || session.awaitingRevision || !['wake', 'followup'].includes(this.state)) return false;

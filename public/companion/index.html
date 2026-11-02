@@ -21,7 +21,7 @@
         <ul id="sources" class="sources" aria-label="Answer sources" hidden></ul>
         <p id="notice" role="status" hidden></p>
         <form id="chat-form"><label class="sr-only" for="message">Ask MERLIN</label><input id="message" name="message" placeholder="Ask MERLIN something…" maxlength="4000" autocomplete="off" required><button id="send" type="submit">Send</button><button id="microphone" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></svg><span>Enable microphone</span></button></form>
-        <div class="preferences"><label><input id="read-aloud" type="checkbox" checked> Read typed replies aloud</label><button id="test-speaker" type="button">Test speaker</button><span id="voice-help">Enable the microphone, then say “MERLIN.” Standby audio stays local.</span></div>
+        <div class="preferences"><label><input id="read-aloud" type="checkbox" checked> Read typed replies aloud</label><label><input id="acknowledgments" type="checkbox" checked> Acknowledge requests aloud</label><button id="test-speaker" type="button">Test speaker</button><span id="voice-help">Enable the microphone, then say “MERLIN.” Standby audio stays local.</span></div>
         <details id="voice-troubleshooting" hidden><summary>Microphone or sound help</summary><p>Allow microphone access for this page in your browser. If this embedded browser blocks it, open <a href="http://127.0.0.1:3000/companion/" target="_blank" rel="noopener">this address</a> in your regular browser. On Mac, check System Settings → Privacy &amp; Security → Microphone for that browser.</p><p>Use Test speaker to check Fenrir without using the microphone. If the player moves but you hear nothing, check your output device, volume, and whether the tab is muted.</p></details>
       </div>
     </section>
@@ -40,6 +40,6 @@
       <details><summary>Privacy &amp; testing</summary><p>Direct conversations use Meta and your saved household memory. Audio is sent for transcription only after activation. Speech plays through local Fenrir.</p><p><a href="/" target="_blank" rel="noopener">Open memory and testing controls</a></p><button id="clear-conversation">Clear this conversation</button></details>
     </aside>
   </main>
-  <audio id="voice-audio" controls hidden></audio><audio id="typed-audio" controls hidden></audio>
+  <audio id="voice-audio" controls hidden></audio><audio id="typed-audio" controls hidden></audio><audio id="ack-audio" hidden></audio>
 </body>
 </html>

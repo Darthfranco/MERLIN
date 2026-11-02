@@ -11,7 +11,7 @@ function deferred() {
 
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
-function harness(t, { limits = {}, configured = true, startPromise, respond } = {}) {
+function harness(t, { limits = {}, configured = true, startPromise, respond, isAcknowledgmentEcho } = {}) {
   let clock = 0, sample = 0;
   const events = [], sent = [], audio = [], uploads = [], synthesis = [], listenerCalls = [];
   const transcripts = [], voices = [];
@@ -41,7 +41,7 @@ function harness(t, { limits = {}, configured = true, startPromise, respond } = 
       return await (voices.shift() ?? Buffer.alloc(48044));
     },
   };
-  const session = new VoiceSession({ listener, meta, tts, respond, send: value => sent.push(value), sendAudio: value => audio.push(value), now: () => clock, limits });
+  const session = new VoiceSession({ listener, meta, tts, respond, isAcknowledgmentEcho, send: value => sent.push(value), sendAudio: value => audio.push(value), now: () => clock, limits });
   t.after(() => session.close());
   const h = {
     session, listener, sent, audio, uploads, synthesis, listenerCalls, transcripts, voices,
@@ -849,4 +849,51 @@ test('checked typed read-aloud uses face mode with its own cancellation reason a
   h.finishPlayback();
   assert.equal(h.sent.filter(event => event.type === 'interrupt').at(-1).reason, 'reply-audio-ended');
   assert.equal(h.session.state, 'wake');
+});
+
+test('an audible filler changes no turn state: pending work, timers and playback stay exactly as they were', async t => {
+  const pending = deferred(), h = harness(t, { respond: async () => await pending.promise });
+  h.transcripts.push('Merlin, plan my week.');
+  await h.session.start(assistantContext); await h.wakeAndSpeak(); await flush();
+  assert.equal(h.session.state, 'processing');
+  const { revision, controller, deadline } = h.session, sent = h.sent.length;
+  h.session.acknowledgmentPlayback({ playing: true });
+  h.now(4000); h.session.tick();
+  h.session.acknowledgmentPlayback({ playing: false });
+  assert.equal(h.session.state, 'processing', 'the end of a filler is not the end of a reply');
+  assert.equal(h.session.revision, revision);
+  assert.equal(h.session.controller, controller);
+  assert.equal(controller.signal.aborted, false);
+  assert.equal(h.session.deadline, deadline);
+  assert.equal(h.sent.length, sent, 'nothing is emitted, so nothing can look like a new turn');
+  assert.throws(() => h.session.acknowledgmentPlayback({ playing: 'yes' }));
+  pending.resolve({ reply: 'Your week is planned.' }); await h.session.work;
+  assert.deepEqual(h.synthesis.map(item => item.text), ['Your week is planned.']);
+});
+
+test('speech that overlaps a filler can interrupt it, but its own words never become a request', async t => {
+  const first = deferred(), calls = [];
+  const h = harness(t, { isAcknowledgmentEcho: text => text.startsWith('You got it'), respond: async (text, context) => {
+    calls.push({ text, ...context });
+    return calls.length === 1 ? await first.promise : { reply: 'Here is the next answer.' };
+  } });
+  h.transcripts.push('Merlin, plan my week.', "You got it, mister. I'll work on that right now.", 'You got it, what about tomorrow?');
+  await h.session.start(assistantContext); await h.wakeAndSpeak(); await flush();
+  h.session.acknowledgmentPlayback({ playing: true });
+  await h.speech(); await h.session.work;
+  assert.equal(calls.length, 1, 'the leaked line reached no assistant turn');
+  assert.equal(h.sent.some(event => event.type === 'transcript' && event.text.includes("I'll work on that")), false);
+  assert.equal(h.session.state, 'followup');
+  h.session.acknowledgmentPlayback({ playing: false });
+  h.now(5000);
+  await h.speech(); await h.session.work;
+  assert.equal(calls.length, 2, 'the same words away from a filler are an ordinary request');
+  first.resolve({ reply: 'STALE' });
+});
+
+test('the echo check has no effect where no filler exists', async t => {
+  const calls = [], h = harness(t, { isAcknowledgmentEcho: () => true, respond: async text => { calls.push(text); return { reply: 'Ok.' }; } });
+  h.transcripts.push('Merlin, plan my week.');
+  await h.session.start(assistantContext); await h.wakeAndSpeak(); await h.session.work;
+  assert.deepEqual(calls, ['plan my week.']);
 });

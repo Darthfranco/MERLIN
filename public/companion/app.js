@@ -7,6 +7,7 @@ import {Orchestrator,ACTION_HOLD,pendingPanel,timerPanel,musicPanel,presentation
 import {TimerAlertQueue} from './timer-alerts.js';
 import {panelState,initialUi,applyAction,connectionsPanelRecord,connectorSummary} from './connections-panel.js';
 import {connectionTargets,pageCount} from '/character/viewer/panels/connections.js';
+import {AcknowledgmentCoordinator,AcknowledgmentPlayer,loadAcknowledgmentClips} from './acknowledgments.js';
 
 const $=id=>document.getElementById(id);
 const timeZone=Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';
@@ -26,6 +27,7 @@ let timerRowsKey='';
 let destroyed=false, stateBusy=false, musicBusy=false, timerBusy=new Set(), voiceEnabled=false;
 const motionQuery=matchMedia('(prefers-reduced-motion: reduce)');
 try{const saved=localStorage.getItem('merlin-read-aloud');$('read-aloud').checked=saved===null||saved==='true';}catch{$('read-aloud').checked=true;}
+try{$('acknowledgments').checked=localStorage.getItem('merlin-acknowledgments')!=='false';}catch{$('acknowledgments').checked=true;}
 function notice(text=''){ $('notice').textContent=text;$('notice').hidden=!text; }
 function el(tag,text,className){const n=document.createElement(tag);n.textContent=text;if(className)n.className=className;return n;}
 async function api(path,body,{signal,timeout=15000}={}){
@@ -98,7 +100,7 @@ function renderView(view){
       updateControlVisibility();
     });
     character.setListening(view.phase==='listening'||view.phase==='followup');
-    if(view.phase!=='speaking')character.setSpeaking(0);
+    if(view.phase!=='speaking'&&!view.acknowledging)character.setSpeaking(0);
   }
   lastDestination=destination;lastPanelType=activePanel?.type||'';
   renderPanelControls();
@@ -110,8 +112,26 @@ const voice=new CompanionVoiceClient({audio:$('voice-audio'),onEvent:voiceEvent,
   const presentation=speechClips.get(header.utteranceId)||speechTurns.get(`request:${header.requestId}`)||speechTurns.get(`revision:${header.revision}`);
   if(!presentation||presentation.cancelled||presentation.generation!==generation)return false;
   speechClips.set(header.utteranceId,presentation);
-  return prepareSpeech(presentation);
+  // The answer's pose and a started filler resolve together, so the reply follows its last word directly.
+  const [ready]=await Promise.all([prepareSpeech(presentation),acknowledgments.beforeAnswer()]);
+  return ready&&!presentation.cancelled&&presentation.generation===generation&&!document.hidden;
 }});
+const acknowledgments=new AcknowledgmentCoordinator({player:new AcknowledgmentPlayer($('ack-audio')),onAudible:(audible,{resume}={})=>{
+  orchestration.acknowledgment(audible,{resume:audible||resume});
+  voice.reportAcknowledgment(audible);
+  if(audible){character?.setSpeaking(.65);$('stop').hidden=false;}
+  else if(orchestration.phase!=='speaking'){character?.setSpeaking(0);$('stop').hidden=!requestController;}
+}});
+void loadAcknowledgmentClips({fetchImpl:fetch,createObjectURL:blob=>URL.createObjectURL(blob),subtle:crypto.subtle}).then(({version,clips})=>acknowledgments.setClips(version,clips)).catch(()=>{});
+// Speech output is checked at the moment a clip would start, so a later change applies immediately.
+function armAcknowledgment(id,token,typed=false){
+  acknowledgments.arm(id,{token,isEnabled:()=>{
+    const reply=$(typed&&!voice.active?'typed-audio':'voice-audio');
+    const enabled=$('acknowledgments').checked&&(!typed||$('read-aloud').checked)&&!document.hidden&&!reply.muted&&reply.volume!==0;
+    if(enabled)$('ack-audio').volume=reply.volume;
+    return enabled;
+  }});
+}
 async function settleCharacter(destination,g=generation){
   if(!character)return true;
   const runtime=character,abort=new AbortController();
@@ -159,12 +179,12 @@ function stopTyped(){const clip=typedPlayback;typedPlayback=null;clip?.finish(fa
 function clearSpeech(){for(const presentation of new Set([...speechTurns.values(),...speechClips.values(),speechPresentation]))if(presentation)presentation.cancelled=true;speechTurns.clear();speechClips.clear();speechPresentation=null;}
 function changeLayout(change){
   if(speechPresentation){
-    clearSpeech();stopTyped();if(voice.active)voice.endConversation();
+    clearSpeech();acknowledgments.cancel();stopTyped();if(voice.active)voice.endConversation();
     if(['reply','speaking','followup'].includes(orchestration.phase)){orchestration.phase='panel';orchestration.speechDestination=orchestration.bodyLayout;}
   }
   change();
 }
-function invalidate({keepAlert=false}={}){generation++;clearSpeech();if(!keepAlert)timerAlerts.interrupt();requestController?.abort();requestController=null;stopTyped();$('stop').hidden=true;$('send').disabled=!connected;turnId=null;pollingTurn=null;}
+function invalidate({keepAlert=false}={}){generation++;clearSpeech();acknowledgments.cancel();if(!keepAlert)timerAlerts.interrupt();requestController?.abort();requestController=null;stopTyped();$('stop').hidden=true;$('send').disabled=!connected;turnId=null;pollingTurn=null;}
 function showReply(result){
   $('reply').textContent=result.reply||result.error||'The request finished.';
   $('sources').replaceChildren();for(const source of result.sources||[]){try{const url=new URL(source.url);if(!['https:','http:'].includes(url.protocol))continue;const a=el('a',source.title||url.hostname);if(source.snippet)a.title=String(source.snippet).slice(0,280);a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';const li=el('li','');li.append(a);$('sources').append(li);}catch{}}
@@ -189,12 +209,12 @@ async function finish(id,result,before,g,voiceContext={}){
   const presentation=pinSpeech(resolveDestination(orchestration.speechDestination),{requestId:id,...voiceContext});
   await settleCharacter(presentation.destination,g);
   if(g!==generation)return;
-  $('stop').hidden=true;
+  $('stop').hidden=!orchestration.acknowledging;
   return presentation;
 }
 async function pollProgress(id,g){
   while(g===generation&&pollingTurn===id){
-    try{const progress=await api(`/api/companion/progress?request_id=${encodeURIComponent(id)}`);if(g!==generation||pollingTurn!==id)return;orchestration.progress(id,progress.events);if(['complete','failed','interrupted'].includes(progress.status))return;}catch{}
+    try{const progress=await api(`/api/companion/progress?request_id=${encodeURIComponent(id)}`);if(g!==generation||pollingTurn!==id)return;orchestration.progress(id,progress.events);acknowledgments.allow(id,progress.events?.find(event=>event.stage==='received')?.acknowledgments);if(['complete','failed','interrupted'].includes(progress.status)){acknowledgments.settled(id);return;}}catch{}
     await new Promise(resolve=>setTimeout(resolve,300));
   }
 }
@@ -202,19 +222,20 @@ async function submit(message){
   if(!message.trim())return;
   const retry=pendingRetry?.message===message?pendingRetry:null;
   voice.endConversation();invalidate();const g=generation;
-  if($('read-aloud').checked)void(voice.active?voice.unlockPlayback():unlockAudioPlayback($('typed-audio')));
+  if($('read-aloud').checked){void(voice.active?voice.unlockPlayback():unlockAudioPlayback($('typed-audio')));if($('acknowledgments').checked)void unlockAudioPlayback($('ack-audio'));}
   const id=retry?.id||crypto.randomUUID();turnId=id;pollingTurn=id;previousTimers=[...snapshot.timers];orchestration.begin(id);
   requestController=new AbortController();$('send').disabled=true;$('stop').hidden=false;notice();
   $('heard').textContent=message;$('heard').hidden=false;$('reply').textContent='';$('message').value='';
+  armAcknowledgment(id,g,true);
   void pollProgress(id,g);
   try{
     const result=await api('/api/chat',{message,request_id:id,session_id:sessionId,time_zone:timeZone,channel:'typed'},{signal:requestController.signal,timeout:snapshot.chat_timeout_ms||510000});
-    if(g!==generation)return;pendingRetry=null;pollingTurn=null;
+    if(g!==generation)return;pendingRetry=null;pollingTurn=null;acknowledgments.settled(id);
     completion=finish(id,result,previousTimers,g);const presentation=await completion;if(g!==generation||!presentation||presentation.cancelled)return;
     if($('read-aloud').checked){if(voice.active)await voice.speakReply(id);else await speak(id,g,{presentation});}
     if(g!==generation||presentation.cancelled||speechPresentation!==presentation)return;orchestration.followup();
   }catch(error){
-    if(g!==generation)return;pollingTurn=null;
+    if(g!==generation)return;pollingTurn=null;acknowledgments.settled(id);
     if(error.data){completion=finish(id,error.data,previousTimers,g);await completion;if(g!==generation)return;}
     else pendingRetry={id,message};
     orchestration.error('I couldn’t finish that reply');notice(error.message||'Check your activities before trying again.');
@@ -242,6 +263,8 @@ async function playTyped(clip){
   clip.task=(async()=>{
     try{
       if(!await prepareSpeech(clip.presentation)||!validTyped(clip)){clip.finish(false);return;}
+      await acknowledgments.beforeAnswer();
+      if(!validTyped(clip)){clip.finish(false);return;}
       clip.ready=true;await $('typed-audio').play();
       if(!validTyped(clip)&&$('typed-audio').src===clip.url)$('typed-audio').pause();
     }catch{
@@ -278,11 +301,14 @@ function voiceEvent(event){
     else if(state==='followup'&&!turnId){orchestration.followup({external:true});}
   }else if(event.type==='transcript'){
     $('heard').textContent=event.text||event.transcript||'';$('heard').hidden=false;
+    if(event.requestId)armAcknowledgment(event.requestId,`${generation}:${event.revision}`);
   }else if(event.type==='progress'){
     if(!voiceTurn){voiceTurn=`voice-${event.revision}`;orchestration.begin(voiceTurn);}
     orchestration.progress(voiceTurn,[event.progress]);
+    acknowledgments.allow(event.requestId,event.progress?.acknowledgments);
   }else if(event.type==='response'){
     if(!voiceTurn){voiceTurn=`voice-${event.revision}`;orchestration.begin(voiceTurn);}
+    acknowledgments.settled(event.requestId);
     completion=finish(voiceTurn,event.response,voiceBefore,generation,{requestId:event.requestId,revision:event.revision});
   }else if(event.type==='notification'){
     if(event.kind==='reply'){$('reply').textContent=event.response.reply;return;}
@@ -303,6 +329,7 @@ function voiceEvent(event){
     invalidate({keepAlert:event.reason==='notification'});voiceTurn=null;if(!event.reason?.startsWith('notification'))orchestration.listening();
   }else if(event.type==='error'){
     if(timerAlerts.active)timerAlerts.release(timerAlerts.active);
+    acknowledgments.settled();
     $('voice-troubleshooting').hidden=false;
     notice(event.message);if(event.fatal)orchestration.error('Voice is unavailable');
     else if(/player|paused/.test(event.message))$('voice-audio').hidden=false;
@@ -404,6 +431,7 @@ async function pollState(){
     $('connection').textContent=connected?'At home · Ready':'Assistant not connected';
     if(!connected)notice('The assistant is not connected yet. You can still view local timers.');
     $('send').disabled=!connected||Boolean(turnId);
+    acknowledgments.configure(state.acknowledgments);
     const status=state.services?.spotify;$('spotify-state').textContent=status?.connected?'Connected':'Not connected';
     $('lights-state').textContent=state.services?.lights?.connected?'Connected':'Not connected';
     if(!status?.connected)acceptMusic({connected:false});
@@ -480,13 +508,15 @@ $('chat-form').addEventListener('submit',event=>{event.preventDefault();void sub
 $('message').addEventListener('focus',()=>{if(!turnId&&!voice.active){invalidate();orchestration.listening({typed:true});}});
 $('message').addEventListener('blur',()=>{if(orchestration.phase==='listening'&&!voice.active&&!turnId)orchestration.followup();});
 $('message').addEventListener('input',()=>{$('send').textContent=pendingRetry?.message===$('message').value.trim()?'Retry':'Send';});
-$('microphone').addEventListener('click',async()=>{notice();if(voice.active){invalidate();voice.stop();return;}invalidate();try{await voice.start({sessionId,timeZone});}catch(error){notice(error.message);$('voice-troubleshooting').hidden=false;}});
+$('microphone').addEventListener('click',async()=>{notice();if(voice.active){invalidate();voice.stop();return;}invalidate();if($('acknowledgments').checked)void unlockAudioPlayback($('ack-audio'));try{await voice.start({sessionId,timeZone});}catch(error){notice(error.message);$('voice-troubleshooting').hidden=false;}});
 $('stop').addEventListener('click',()=>{invalidate();voice.interrupt();if(voice.active)orchestration.listening();else orchestration.followup();notice('Reply stopped. Completed actions are still in Activity.');});
 $('close-panel').addEventListener('click',()=>changeLayout(()=>orchestration.dismiss()));$('reload-scene').addEventListener('click',()=>location.reload());
 for(const button of document.querySelectorAll('[data-service]'))button.addEventListener('click',()=>{const type=button.dataset.service;if(['lights','oven','connections'].includes(type)){openConnections({category:type==='lights'?'lights':type==='oven'?'appliances':'all'});return;}orchestration.inspect(type==='music'?musicPanel(spotify):pendingPanel(type,'offline'));if(type!=='music')notice(type==='schedule'?'Schedules aren’t available yet.':'This home service isn’t connected yet.');});
 $('previous').addEventListener('click',()=>musicControl('previous'));$('next').addEventListener('click',()=>musicControl('next'));$('play-pause').addEventListener('click',()=>musicControl(spotify.playback?.is_playing?'pause':'play'));$('spotify-device').addEventListener('change',renderMusic);$('refresh-music').addEventListener('click',()=>refreshMusic().catch(()=>{}));
 $('clear-conversation').addEventListener('click',async()=>{invalidate();voice.stop();try{await api('/api/session/reset',{session_id:sessionId});$('heard').hidden=true;$('reply').textContent='Ready for a fresh conversation.';$('actions').replaceChildren();$('actions-empty').hidden=false;$('sources').hidden=true;pendingRetry=null;orchestration.standby();notice('This conversation was cleared. Your timers and panels are still here.');}catch(error){notice(error.message);}});
-$('read-aloud').addEventListener('change',()=>{try{localStorage.setItem('merlin-read-aloud',String($('read-aloud').checked));}catch{}if(!$('read-aloud').checked){stopTyped();if(turnId&&voice.active)voice.interrupt();}else void unlockAudioPlayback($('typed-audio'));});
+$('read-aloud').addEventListener('change',()=>{try{localStorage.setItem('merlin-read-aloud',String($('read-aloud').checked));}catch{}if(!$('read-aloud').checked){acknowledgments.cancel({resume:true});stopTyped();if(turnId&&voice.active)voice.interrupt();}else void unlockAudioPlayback($('typed-audio'));});
+// Only this preference is remembered: no request content or playback history.
+$('acknowledgments').addEventListener('change',()=>{try{localStorage.setItem('merlin-acknowledgments',String($('acknowledgments').checked));}catch{}if($('acknowledgments').checked)void unlockAudioPlayback($('ack-audio'));else acknowledgments.cancel({resume:true});});
 $('test-speaker').addEventListener('click',async()=>{
   invalidate();const g=generation;void unlockAudioPlayback($('typed-audio'));$('test-speaker').disabled=true;notice('Preparing a short speaker test…');
   try{
@@ -503,7 +533,7 @@ $('test-speaker').addEventListener('click',async()=>{
   finally{$('test-speaker').disabled=voice.active;}
 });
 motionQuery.addEventListener('change',()=>{orchestration.reducedMotion=motionQuery.matches;if(motionQuery.matches&&orchestration.phase==='ambient')orchestration.standby();});
-const ticker=setInterval(()=>{if(document.hidden)return;if(!floatingCount||!['idle','ambient'].includes(orchestration.phase))orchestration.tick();countdowns();syncFloatingActivities();void drainAlerts();if(orchestration.phase==='speaking')character?.setSpeaking(.65);},500);
+const ticker=setInterval(()=>{if(document.hidden)return;if(!floatingCount||!['idle','ambient'].includes(orchestration.phase))orchestration.tick();countdowns();syncFloatingActivities();void drainAlerts();if(orchestration.phase==='speaking'||orchestration.acknowledging)character?.setSpeaking(.65);},500);
 const statePoll=setInterval(()=>{if(document.visibilityState!=='hidden')void pollState();},2000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){invalidate();voice.stop();orchestration.standby();}else void pollState();});
 window.addEventListener('pagehide',()=>{destroyed=true;invalidate();voice.destroy();floatingOverlays?.destroy();character?.destroy();clearInterval(ticker);clearInterval(statePoll);},{once:true});

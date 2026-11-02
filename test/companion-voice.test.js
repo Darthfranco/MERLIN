@@ -418,3 +418,15 @@ test('typed read-aloud waits for a pending end-conversation acknowledgment befor
   assert.equal(socket.sent.filter(event => event.type === 'reply_audio').length, 1);
   h.client.stop(); assert.equal(await work, false);
 });
+
+test('filler state goes to the server as its own control, never as reply playback, and a stopped session sends nothing', async t => {
+  const h = await fixture(t), socket = await h.start();
+  h.client.reportAcknowledgment(true);
+  assert.deepEqual(socket.sent.at(-1), { type: 'acknowledgment', playing: true });
+  assert.equal(socket.sent.some(event => event.type === 'playback'), false);
+  assert.equal(h.events.some(event => event.type === 'playback'), false);
+  h.client.stop();
+  const sent = socket.sent.length;
+  h.client.reportAcknowledgment(false);
+  assert.equal(socket.sent.length, sent);
+});

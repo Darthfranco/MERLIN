@@ -2,6 +2,26 @@
 
 Last updated: **November 2, 2026**.
 
+## Prerecorded acknowledgments — November 2, 2026
+
+The owner asked MERLIN to say a short recorded line while a request runs, to show it heard the person. This reduces the felt wait, not processing time; no speed improvement is claimed. Design, eligibility and controls: [ORCHESTRATION.md](ORCHESTRATION.md#prerecorded-acknowledgments--november-2-2026).
+
+**Works:** in the real `/companion/` assistant, on the voice path and both typed paths. The request starts first, then after a 200 ms grace at most one cached clip plays. A fast reply or terminal error skips an unstarted clip. An answer ready during a clip shows its text immediately, generates final speech, and queues that audio behind the clip's natural end. Speech, Stop, a new turn, a hidden page, mic off, or disabling it stop the clip at once. Eligibility is checked per accepted request against the actual recorded words and current rules, on the existing progress path. On this Mac's current settings all five lines are eligible, read as counts and IDs only; memory was not changed.
+
+**The five clips are real.** `npm run prepare:acknowledgments` generated them with local Kokoro `am_fenrir`, natural delivery, speed 1: `ack_01` 2.87 s, `ack_02` 2.17 s, `ack_03` 3.07 s, `ack_04` 2.98 s, `ack_05` 3.23 s, all within the two-to-four-second aim without rushing. Speech levels are matched and leading silence is under 60 ms. All five validate against the manifest.
+
+**Verification:** **1,055 automated tests pass** (1,000 before; 55 added), with fake timers and a fake audio player for the coordinator, plus the real app sandbox, session, socket, server, policy and asset checks. `git diff --check` passes. `npm run check:acknowledgments` passed in real headless Chrome with the real clip files and scripted providers, using a real pointer click and a fake microphone device with a scripted wake detector: no clip on a fast reply; answer text during the clip; the clip reaching its full length, then the final answer 1 to 2 ms later with no overlap; Stop; disable; voice with reasoning still pending after the clip; and speech over the clip. Those are playback events with output muted, not evidence that anyone heard sound.
+
+**Real transcription of the clips (one pass of five, plus one repeat of `ack_03`, standard Meta, synthetic text only, about 15 seconds of audio):** `ack_01` and `ack_04` came back exact. `ack_02` as “Alright,” and `ack_05` as “Right, oh mister,” which are the same sounds. `ack_03` came back once with a doubled “at at that” and exact on the repeat; the phonemes sent to the voice contain one “at”, so this looks like transcription noise, which a person should confirm by listening.
+
+**Not verified:** **no person has listened to these clips or this feature**, so natural delivery and the volume match against live replies are unconfirmed. No physical-room test of echo: the check above used no speakers or real microphone. If speaker sound leaks past browser echo cancellation, the local check stops it becoming a new request, but a false interruption would still cancel the running request under the existing rule. Safari and physical iPad autoplay were not tried.
+
+**Limits.** Typed requests poll progress every 300 ms, so their clip usually starts about 300 ms after sending, not 200 ms. Any saved general guidance silences every clip, which errs toward quiet. The model does not know a clip played, so a reply can open with the same idiom as the clip that preceded it; adding the clip to the prompt was explicitly ruled out. Eligibility is English pattern matching for the greeting, thanks and about-speech filters. The owner's running server needs a restart on this code to load it.
+
+**Next useful step:** the owner tries it on real speakers: enable the microphone, say “MERLIN” and ask something that takes a moment, then judge the wording, volume, and whether a clip ever interrupts itself. Tune `MERLIN_ACK_GRACE_MS` and `MERLIN_ACK_COOLDOWN_MS` from that.
+
+Contribution: original coordinator, eligibility checks, preparation script, session echo check, tests and documentation, plus five generated clips from Apache-2.0 Kokoro-82M. No new dependency or household data.
+
 ## Memory engine v2 (selectable, legacy still the repository default, this Mac on v2) — November 2, 2026
 
 The owner asked to implement their *Home Agent Memory Procedure* while keeping the existing system as a usable backup. Design, run steps, rollback and limits: [MEMORY_V2.md](MEMORY_V2.md).

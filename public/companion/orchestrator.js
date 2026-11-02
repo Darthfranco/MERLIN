@@ -9,8 +9,11 @@ export const toolPanel = tool => /^(create|cancel|list)_timer/.test(tool) ? 'tim
 const labels = {timer:'Your timer',music:'Spotify',lights:'Lights',oven:'Oven',schedule:'Schedules',routine:'Your routine','routine-saved':'Your routine',connections:'Connect your home'};
 const surfaces = {left:['left'],right:['right'],both:['left','right'],seatedLeft:['left'],seatedRight:['right'],ceiling:['right']};
 const faceStates = new Set(['face','faceThink','search','camera']);
+const workPhases = new Set(['thinking','action','searching']);
 export const panelSides = destination => [...(surfaces[destination?.replace(/Think$/, '')] || [])];
 export const isFacePresentation = destination => faceStates.has(destination);
+const speakingPose = (destination,bodyLayout) => faceStates.has(destination) ? 'face' : destination==='bodyThink' ? bodyLayout : destination.replace(/Think$/, '');
+const thinkingPose = destination => faceStates.has(destination) ? 'faceThink' : destination==='ready' ? 'bodyThink' : destination+'Think';
 const identity = panel => panel?.type==='connections' ? 'connections' : panel?.id ? `${panel.type?.startsWith('routine')?'routine':panel.type}:${panel.id}` : ['music','lights','oven','schedule'].includes(panel?.type) ? panel.type : null;
 const sameTimer = (a,b) => ['id','label','status','durationSeconds','endsAt','timeZone'].every(key=>a?.[key]===b?.[key]);
 export function presentationLayout(view, states) {
@@ -43,12 +46,24 @@ export class Orchestrator {
   constructor({render=()=>{},now=()=>Date.now(),reducedMotion=false,actionRepliesInBody=true}={}) {
     this.render=render;this.now=now;this.reducedMotion=reducedMotion;this.actionRepliesInBody=actionRepliesInBody;this.epoch=0;this.idleIndex=0;
     this.phase='idle';this.deadline=now()+IDLE_DELAY;this.panel=null;this.panels={left:null,right:null};this.focusSide='right';this.turn=null;this.lastActionAt=0;
-    this.bodyLayout='ready';this.speechDestination='face';this.pending=null;this.turnHadAction=false;this.restoredTimers=false;
+    this.bodyLayout='ready';this.speechDestination='face';this.pending=null;this.turnHadAction=false;this.restoredTimers=false;this.acknowledging=false;
     this.show('ready','Here when you need me');
   }
   show(destination,label,panel=this.panel,{dismiss=false}={}) {
-    this.view={destination,label,panel,panels:{...this.panels},pending:this.pending,bodyLayout:this.bodyLayout,speechDestination:this.speechDestination,focusSide:this.focusSide,phase:this.phase,epoch:this.epoch,dismiss};
+    this.intended={destination,label};
+    const pose=this.acknowledging&&!this.reducedMotion&&workPhases.has(this.phase)?speakingPose(destination,this.bodyLayout):destination;
+    this.view={destination:pose,label,panel,panels:{...this.panels},pending:this.pending,bodyLayout:this.bodyLayout,speechDestination:this.speechDestination,focusSide:this.focusSide,phase:this.phase,epoch:this.epoch,dismiss,acknowledging:this.acknowledging};
     this.render(this.view);return this.view;
+  }
+  /** An audible filler borrows a speaking pose. The turn's phase, panels and deadlines stay exactly as they were. */
+  acknowledgment(audible,{resume=true}={}){
+    if(this.acknowledging===audible)return false;
+    this.acknowledging=audible;
+    if(!resume||this.reducedMotion)return true;
+    if(workPhases.has(this.phase))this.show(this.intended.destination,this.intended.label);
+    // The reply text is up but its audio is still being prepared: thinking until it is ready.
+    else if(this.phase==='reply'&&!audible)this.show(thinkingPose(this.speechDestination),this.view.label);
+    return true;
   }
   refreshLayout({seated=false}={}) {
     // The connection touchscreen owns the ceiling; a retained panel on the other side waits behind it.

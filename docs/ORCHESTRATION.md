@@ -2,6 +2,38 @@
 
 Planned October 27, 2026, before implementation. This combines the existing local assistant, voice session, and authored 3D character; it does not select production hardware or a new device provider.
 
+## Prerecorded acknowledgments — November 2, 2026
+
+**Owner request:** when MERLIN accepts a request, it quickly says a short recorded line while the real work runs. This reduces the felt wait, not the model's actual processing time. **Owner requirement:** a clip that has started always finishes its whole sentence; it must never sound like “Let me work on tha—your answer is…”.
+
+| Step | What happens |
+| --- | --- |
+| Request accepted | The assistant starts immediately. A voice turn arms the timer on its finalized transcript, a typed turn on submit. No wake word, partial, ambient, or empty speech is acknowledged. |
+| Eligibility | The turn's existing `received` progress event carries the allowed clip IDs, checked at that moment against current rules and settings. Voice receives it over the socket, typed through its existing progress poll. There is no new request. |
+| 200 ms grace (`MERLIN_ACK_GRACE_MS`) | If the deadline passes, the request is still pending, speech output is on, and a cached clip is allowed, one plays. Otherwise nothing does. |
+| Answer known first | An unstarted clip is skipped, including on a terminal error. |
+| Answer known during the clip | Its text shows immediately, final speech is generated, and that audio waits for the clip's `ended` event, then starts directly. |
+| Clip ends with work pending | The character returns to thinking. The request, follow-up state, and timers are untouched. |
+| Person acts | Speech, Stop, a new turn, hiding the page, turning the microphone off, or disabling the feature stops the clip at once and invalidates its callbacks. Apart from disabling the feature, these also cancel the request under the existing rules. |
+
+**Where it lives.** `public/companion/acknowledgments.js` holds the one coordinator that owns the race between starting a clip and the answer being ready, plus a dedicated player on its own `<audio id="ack-audio">`, so a filler can never be mistaken for the reply. Every path that plays real speech (voice replies, typed replies on either path, timer alerts) awaits `beforeAnswer()` first. `src/acknowledgments.js` holds the exact lines, the eligibility check, and the asset format. `VoiceSession.announce()` is not used: it invalidates active work. The clip's state is separate from the turn: the orchestrator's `acknowledgment()` only borrows a speaking pose, because mouth motion runs only in the `face` and body states, and it leaves the phase, panels, and deadlines alone. With reduced motion there are no pose changes.
+
+**Which clips are allowed.** All checks are local and fail closed, so the result is a smaller set or silence:
+
+- `prepareSpokenReply` must return the recorded words unchanged. A required prefix, suffix, or `address_as` rule would change them, so the unchanged recording is not compliant, and these lines then all stay silent. Word bans, phrase bans, and conflicts remove what they apply to.
+- `checkPersonalityDraft` removes address lines when the address is opted out or custom, since no name is invented or synthesized, and repeats of a recent opening.
+- Plain style and calm turns get silence, because all five lines are optional ceremony (agent decision).
+- **Any saved general guidance silences every clip**, as does a saved preference about wording, and any unpublished v2 conversation fact or statement. These cannot be checked without a model call (agent decision, following the owner's rule to skip rather than bypass).
+- Greetings, thanks, and requests about how MERLIN talks get silence, since “I'll work on that right now” would be wrong for them (agent decision).
+
+**Controls.** The **Acknowledge requests aloud** checkbox persists only that preference, in `localStorage`. Typed requests also need **Read typed replies aloud**, so muted text chat stays silent. A muted or zero-volume reply player counts as speech output off. Autoplay rejection or a missing or corrupt file is a silent skip, with no extra button or prompt.
+
+**Variety and timing.** A shuffle bag over the allowed set never repeats a line back to back, and a single eligible line can repeat. The 3-second cooldown (`MERLIN_ACK_COOLDOWN_MS`) runs between clips. A watchdog at the clip's length plus four seconds releases only a player that has stopped advancing. These are tuning values, not measured promises.
+
+**Echo.** The microphone stays on, and the clip uses the same browser echo cancellation as replies. As a backstop, the browser tells the session when a clip is audible, and a transcript that is essentially a recorded line, captured during that window plus one second, starts no turn. A false barge-in from speaker leakage still cancels the running request under the existing interruption rule, and this has not been tested in a real room.
+
+**Clips.** `npm run prepare:acknowledgments` records all five once with the configured voice, trims edge silence, matches speech levels, and writes `public/companion/acknowledgments/` with a manifest of ID, exact text, path, generation settings, measured duration, and SHA-256. `--check` validates without generating and `--force` records again. The browser verifies each file's hash before using it. If the voice is not set up, the script says so and generates nothing. The files are generic generated speech from Apache-2.0 Kokoro with no household data, so they are committed.
+
 ## Connection touchscreen plan — October 31, 2026
 
 > **Superseded in part, November 1, 2026.** The simulated "preview connections" described below no longer exist: `src/connections.js`, `data/connections.json`, `/api/connections*` and every Connect/Disconnect preview button were removed. The screen now shows **real** status from the shared connector hub ([CONNECTORS.md](CONNECTORS.md)): a service is Connected only after MERLIN contacted it and it accepted the credentials. Tiles say Connected, Setup unfinished, Needs attention, Set up, Through Home Assistant, or Not supported; setup views show the live status line, what you need, what MERLIN can do afterward and what is still missing. Credentials are never typed on the big screen: its **Set up** buttons open the Connection Center page (`/connections/#<id>`) in a normal tab, while **Check connection** and **Disconnect** work on the screen itself. A category already covered by a verified connector no longer reopens the screen; the device tools handle it. The paragraphs below are kept as the original plan and design history.

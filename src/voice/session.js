@@ -5,7 +5,7 @@ import { validateSpeechDelivery } from './prosody.js';
 export const VOICE_SESSION_LIMITS = Object.freeze({
   sampleRate: 16000, idleBufferSeconds: 4, followupMs: 10_000,
   extendedFollowupMs: 15_000, longPauseMs: 8000, onsetGraceMs: 400,
-  maxConversationMs: 180_000, maxUtteranceSeconds: 60, maxTurns: 12,
+  maxConversationMs: 180_000, maxUtteranceSeconds: 60, maxTurns: 12, acknowledgmentEchoTailMs: 1000,
 });
 const RATE = VOICE_SESSION_LIMITS.sampleRate;
 
@@ -21,10 +21,12 @@ function wavOf(pcm) {
 
 /** Local turn boundaries only. No provider calls are permitted in wake standby. */
 export class VoiceSession {
-  constructor({ listener, meta, tts, send, sendAudio, respond, prepareSpeech = text => text, now = () => performance.now(), limits = {} }) {
+  constructor({ listener, meta, tts, send, sendAudio, respond, prepareSpeech = text => text, isAcknowledgmentEcho, now = () => performance.now(), limits = {} }) {
     this.listener = listener; this.meta = meta; this.tts = tts;
     this.respond = respond;
     this.prepareSpeech = prepareSpeech;
+    this.isAcknowledgmentEcho = isAcknowledgmentEcho;
+    this.acknowledgmentUntil = -Infinity;
     this.send = send; this.sendAudio = sendAudio; this.now = now;
     this.limits = { ...VOICE_SESSION_LIMITS, ...limits };
     this.state = 'off'; this.revision = 0; this.sample = 0;
@@ -101,6 +103,12 @@ export class VoiceSession {
     this.#followup('I’m listening.');
   }
 
+  /** The browser's filler is audible. This only informs the self-echo check: it owns no turn, timer, or playback state. */
+  acknowledgmentPlayback({ playing }) {
+    if (typeof playing !== 'boolean') throw new AppError('Invalid voice control.');
+    this.acknowledgmentUntil = playing ? Infinity : this.now() + this.limits.acknowledgmentEchoTailMs;
+  }
+
   /** Already-checked receipt or stored reply; this path never invokes the assistant. */
   announce(reply, presentation = [], { presentationMode = 'body', kind = 'timer', requestId } = {}) {
     if (this.closed || !['wake', 'followup'].includes(this.state)) return false;
@@ -171,7 +179,7 @@ export class VoiceSession {
     const chunks = this.ring.filter(chunk => chunk.end > from).map(chunk =>
       Buffer.from(chunk.pcm.subarray(Math.max(0, from - chunk.start) * 2)));
     if (prefix?.length) chunks.unshift(prefix);
-    this.capture = { start: from, chunks, bytes: chunks.reduce((n, chunk) => n + chunk.length, 0), prefixBytes: prefix?.length || 0, stripWake };
+    this.capture = { start: from, chunks, bytes: chunks.reduce((n, chunk) => n + chunk.length, 0), prefixBytes: prefix?.length || 0, stripWake, duringAcknowledgment: this.now() < this.acknowledgmentUntil };
   }
 
   #beginSpeech(event) {
@@ -277,16 +285,18 @@ export class VoiceSession {
     const controller = new AbortController(); this.controller = controller;
     this.deadline = null;
     this.setState('transcribing', 'Meta is transcribing your request…');
-    this.work = this.#respond(clip, { revision, controller, stripWake });
+    this.work = this.#respond(clip, { revision, controller, stripWake, duringAcknowledgment: capture.duringAcknowledgment });
   }
 
-  async #respond(pcm, { revision, controller, stripWake }) {
+  async #respond(pcm, { revision, controller, stripWake, duringAcknowledgment }) {
     const current = () => !this.closed && revision === this.revision && !controller.signal.aborted;
     try {
       const result = await this.meta.transcribe(wavOf(pcm), { signal: controller.signal });
       if (!current()) return;
       const text = (stripWake ? result.text.replace(/^\s*(?:hey\s+)?merlin\b[\s,.!?:;—-]*/iu, '') : result.text).trim();
       if (!text) { this.pendingPcm = null; this.#followup('I’m listening.'); return; }
+      // Sound that leaked past browser echo cancellation must not become a new request.
+      if (duringAcknowledgment && this.isAcknowledgmentEcho?.(text)) { this.pendingPcm = null; this.#followup('I’m listening.'); return; }
       const requestId = this.respond ? randomUUID() : undefined;
       this.emit('transcript', { text, ...(requestId ? { requestId } : {}) });
       let spokenText = text;

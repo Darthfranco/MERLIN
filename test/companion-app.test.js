@@ -6,6 +6,7 @@ import {randomUUID} from 'node:crypto';
 import * as orchestration from '../public/companion/orchestrator.js';
 import {floatingActivityPlan} from '../public/companion/floating-activities.js';
 import {TimerAlertQueue} from '../public/companion/timer-alerts.js';
+import * as acknowledgmentsModel from '../public/companion/acknowledgments.js';
 import * as connectionsModel from '../public/companion/connections-panel.js';
 import {connectionTargets,pageCount} from '../assets/merlin-character/viewer/panels/connections.js';
 import {AnimationMixer,AnimationClip,Object3D} from '../assets/merlin-character/viewer/vendor/three/build/three.module.min.js';
@@ -17,7 +18,7 @@ const timer=(id='one')=>({id,label:'Timer',duration_seconds:300,ends_at:new Date
 const receipt=t=>({reply:'Your timer is running.',tool_events:[{tool:'create_timer',status:'completed',message:'Timer started.'}],presentation:[{type:'timer',...t}],timers:[t]});
 function deferred(){let resolve;const promise=new Promise(done=>{resolve=done;});return {promise,resolve};}
 
-async function fixture(t,{timers=[],chatResult,tts,realDriver=false,musicSnapshot={connected:false},connectors=[],connectorApi}={}){
+async function fixture(t,{timers=[],chatResult,chat,progress,tts,realDriver=false,musicSnapshot={connected:false},connectors=[],connectorApi}={}){
   class Element{
     constructor(tag='div'){this.style={};this.clientWidth=1200;this.tag=tag;this.children=[];this.dataset={};this.hidden=false;this.handlers=new Map();this.attributes={};this.value='';this.textContent='';this.src='';this.currentSrc='';this.paused=true;this.plays=0;}
     addEventListener(name,fn,{signal}={}){if(signal?.aborted)return;const list=this.handlers.get(name)||[];list.push(fn);this.handlers.set(name,list);signal?.addEventListener('abort',()=>this.removeEventListener(name,fn),{once:true});}
@@ -57,11 +58,11 @@ async function fixture(t,{timers=[],chatResult,tts,realDriver=false,musicSnapsho
   }
   class Voice{
     constructor(options){this.options=options;this.active=false;this.state='off';this.readouts=[];}
-    endConversation(){this.sleeps=(this.sleeps||0)+1;}interrupt(){this.interrupted=true;}stop(){this.active=false;}destroy(){this.stop();}unlockPlayback(){return Promise.resolve(true);}announceTimer(id){this.timer=id;return true;}
+    endConversation(){this.sleeps=(this.sleeps||0)+1;}interrupt(){this.interrupted=true;}stop(){this.active=false;}destroy(){this.stop();}unlockPlayback(){return Promise.resolve(true);}reportAcknowledgment(playing){(this.acknowledgmentReports||=[]).push(playing);}announceTimer(id){this.timer=id;return true;}
     async speakReply(id){this.readouts.push(id);const utteranceId='typed-'+id;const allowed=await this.options.playbackGate({requestId:id,revision:10,utteranceId,presentationMode:'face'});if(allowed)this.options.onEvent({type:'playback',playing:true,utteranceId,revision:10,presentationMode:'face'});return allowed;}
   }
   let urlCount=0;class ObjectURL extends URL{static createObjectURL(){return 'blob:app-'+(++urlCount);}static revokeObjectURL(){}}
-  const storage={getItem(){return null;},setItem(){}};
+  const stored=new Map(),storage={getItem(key){return stored.get(key)??null;},setItem(key,value){stored.set(key,value);}};
   class SceneOverlays{
     constructor(){this.cards=new Map();}
     setPresentation(mode){this.mode=mode;}
@@ -69,19 +70,19 @@ async function fixture(t,{timers=[],chatResult,tts,realDriver=false,musicSnapsho
     hide(id){this.cards.delete(id);}
     destroy(){this.cards.clear();}
   }
-  const context=createContext({...orchestration,...connectionsModel,connectionTargets,pageCount,floatingActivityPlan,SceneOverlays,TimerAlertQueue,document,window,URL:ObjectURL,Blob,AbortController,AbortSignal,Date,Intl,crypto:{randomUUID},sessionStorage:storage,localStorage:storage,innerWidth:1200,location:{reload(){}},
+  const context=createContext({...orchestration,...connectionsModel,...acknowledgmentsModel,connectionTargets,pageCount,floatingActivityPlan,SceneOverlays,TimerAlertQueue,document,window,URL:ObjectURL,Blob,AbortController,AbortSignal,Date,Intl,crypto:{randomUUID},sessionStorage:storage,localStorage:storage,innerWidth:1200,location:{reload(){}},
     CompanionVoiceClient:Voice,unlockAudioPlayback:()=>Promise.resolve(true),formatDuration:seconds=>String(seconds),
     createCharacter:async options=>{notify=options.onStatus;notify({state:'ready',desired:'ready',phase:'idle',clip:'ReadyIdle'});return runtime;},
     matchMedia:()=>({matches:false,addEventListener(){}}),Option:class extends Element{constructor(text,value){super('option');this.textContent=text;this.value=value;}},
     setInterval:()=>0,clearInterval(){},setTimeout,clearTimeout,
-    fetch:async(path,options={})=>{requests.push({path,options});if(path.includes('/speak')||path.includes('/timer-speech')){if(tts)await tts.promise;return {ok:true,blob:async()=>new Blob(['synthetic audio'])};}if(path.startsWith('/api/connectors/')){const reply=connectorApi?connectorApi(path,options):{status:200,body:{}};return {ok:reply.status<400,status:reply.status,json:async()=>reply.body};}const data=path==='/api/companion/state'?{configured:true,timers,connectors:currentConnectors,services:{spotify:{connected:musicSnapshot.connected},lights:{connected:currentConnectors.some(item=>item.id==='philips-hue'&&item.status==='connected')}}}:path==='/api/spotify?refresh=1'?musicSnapshot:path==='/api/chat'?chatResult||{reply:'Hello.',tool_events:[],timers}:path.includes('/progress?')?{status:'complete',events:[]}:{};return {ok:true,json:async()=>data};},
+    fetch:async(path,options={})=>{requests.push({path,options});if(path.includes('/speak')||path.includes('/timer-speech')){if(tts)await tts.promise;return {ok:true,blob:async()=>new Blob(['synthetic audio'])};}if(path==='/api/chat'&&chat)return {ok:true,json:()=>chat(options)};if(path.includes('/progress?')&&progress)return {ok:true,json:async()=>progress()};if(path.startsWith('/api/connectors/')){const reply=connectorApi?connectorApi(path,options):{status:200,body:{}};return {ok:reply.status<400,status:reply.status,json:async()=>reply.body};}const data=path==='/api/companion/state'?{configured:true,timers,connectors:currentConnectors,services:{spotify:{connected:musicSnapshot.connected},lights:{connected:currentConnectors.some(item=>item.id==='philips-hue'&&item.status==='connected')}}}:path==='/api/spotify?refresh=1'?musicSnapshot:path==='/api/chat'?chatResult||{reply:'Hello.',tool_events:[],timers}:path.includes('/progress?')?{status:'complete',events:[]}:{};return {ok:true,json:async()=>data};},
   });
   const source=await readFile(new URL('../public/companion/app.js',import.meta.url),'utf8');
   runInContext(source.replace(/^import .*;\n/gm,''),context);
   const run=code=>runInContext(code,context);
   await flush();await flush();
   t.after(()=>{run('destroyed=true;invalidate();sceneCleanup?.abort();voice.destroy();character?.destroy();');});
-  return {element,document,run,runtime,calls,requests,physical,opened,setMusicSnapshot(value){musicSnapshot=value;},setConnectors(value){currentConnectors=value;},async advance(seconds=30){for(let i=0;i<seconds*60;i++)controller.update(1/60);await flush();},get voice(){return run('voice');},get o(){return run('orchestration');},async until(predicate){for(let i=0;i<100;i++){if(predicate())return;await new Promise(resolve=>setTimeout(resolve,10));}assert.fail('Expected app state did not arrive.');}};
+  return {element,document,window,stored,run,runtime,calls,requests,physical,opened,setMusicSnapshot(value){musicSnapshot=value;},setConnectors(value){currentConnectors=value;},async advance(seconds=30){for(let i=0;i<seconds*60;i++)controller.update(1/60);await flush();},get voice(){return run('voice');},get o(){return run('orchestration');},async until(predicate){for(let i=0;i<100;i++){if(predicate())return;await new Promise(resolve=>setTimeout(resolve,10));}assert.fail('Expected app state did not arrive.');}};
 }
 
 test('actual app startup restores running timers and clearing conversation keeps both identities',async t=>{
@@ -368,4 +369,177 @@ test('actual app opens the connection screen from the Activity list unless a rep
   assert.equal(h.o.view.destination,'ceiling');assert.equal(h.run("connectionsUi.category"),'appliances');
   const busy=await fixture(t);busy.run("orchestration.begin('x')");busy.run("openConnections({category:'lights'})");
   assert.notEqual(busy.o.view.destination,'ceiling');assert.match(busy.element('notice').textContent,/Finish this reply first/);
+});
+
+// Real coordinator in the real app, with synthetic clips and no real audio.
+const ackClip={id:'ack_02',url:'blob:ack',durationMs:3000};
+const accepted={stage:'received',at_ms:1,acknowledgments:{version:'v1',clips:['ack_02']}};
+async function acknowledging(t,options={}){
+  const chat=deferred(),h=await fixture(t,{chat:()=>chat.promise,progress:()=>({status:'running',events:[accepted]}),...options});
+  h.run(`acknowledgments.setClips('v1',[${JSON.stringify(ackClip)}]);acknowledgments.configure({grace_ms:0,cooldown_ms:0});`);
+  const ack=h.element('ack-audio');
+  return {...h,chat,ack,finishFiller(){ack.ended=true;ack.paused=true;void ack.dispatch('pause');void ack.dispatch('ended');},audible(){void ack.dispatch('playing');},phaseOf:()=>h.o.phase};
+}
+
+test('typed filler plays while the request runs, shows the answer at once, and the answer audio follows its last word',async t=>{
+  const h=await acknowledging(t);await h.element('message').dispatch('focus');
+  const work=h.run("submit('Plan my week')");
+  assert.equal(h.runtime.desired,'faceThink');
+  await h.until(()=>h.ack.plays===1);
+  assert.ok(h.requests.some(request=>request.path==='/api/chat'),'the request was already running');
+  assert.equal(h.requests.some(request=>request.path.includes('/speak')),false,'the clip needed no speech generation');
+  h.audible();
+  assert.equal(h.o.phase,'thinking','filler playback is not a processing state');
+  assert.equal(h.o.acknowledging,true);assert.equal(h.runtime.speaking,.65);assert.equal(h.runtime.desired,'face','the speaking face, not a completion state');
+  assert.equal(h.voice.readouts.length,0);
+  h.chat.resolve({reply:'Your week is planned.',tool_events:[],timers:[]});
+  await h.until(()=>h.element('reply').textContent==='Your week is planned.');
+  assert.equal(h.ack.paused,false,'the answer being ready never stops the clip');
+  await h.until(()=>h.requests.some(request=>request.path==='/api/companion/speak'));
+  await flush();
+  assert.equal(h.element('typed-audio').plays,0,'final speech is buffered, not played over the clip');
+  assert.equal(h.ack.src,ackClip.url);
+  h.finishFiller();
+  await h.until(()=>h.element('typed-audio').plays===1);
+  assert.equal(h.ack.plays,1,'exactly one clip, with no second opening line');
+  assert.equal(h.o.phase,'speaking');
+  h.element('typed-audio').ended=true;await h.element('typed-audio').dispatch('ended');await work;
+  assert.equal(h.o.phase,'followup');
+});
+
+test('a filler ending while reasoning continues returns to thinking and touches nothing else',async t=>{
+  const a=timer('a'),h=await acknowledging(t,{timers:[a]}),work=h.run("submit('Plan my week')");
+  await h.until(()=>h.ack.plays===1);h.audible();await flush();
+  assert.equal(h.runtime.desired,'right','a retained timer keeps its screen and the mouth moves in that pose');
+  h.finishFiller();await flush();
+  assert.equal(h.o.phase,'thinking');assert.equal(h.o.acknowledging,false);assert.equal(h.runtime.speaking,0);
+  assert.equal(h.runtime.desired,'rightThink');
+  assert.equal(h.o.panels.right.id,'a');assert.equal(h.physical.right.data().id,'a');
+  assert.equal(h.run('turnId')!==null,true,'the turn is still open');
+  assert.equal(h.run('requestController.signal.aborted'),false,'the request is still running');
+  h.chat.resolve({reply:'Done.',tool_events:[],timers:[a]});
+  await h.until(()=>h.element('typed-audio').plays===1);
+  h.element('typed-audio').ended=true;await h.element('typed-audio').dispatch('ended');await work;
+  assert.equal(h.ack.plays,1);
+});
+
+test('text arriving before a filler ends, with audio not ready, returns to thinking until it is',async t=>{
+  const tts=deferred(),h=await acknowledging(t,{tts}),work=h.run("submit('Plan my week')");
+  await h.until(()=>h.ack.plays===1);h.audible();
+  h.chat.resolve({reply:'Ready.',tool_events:[],timers:[]});
+  await h.until(()=>h.requests.some(request=>request.path==='/api/companion/speak'));
+  assert.equal(h.o.phase,'reply');assert.equal(h.runtime.desired,'face');
+  h.finishFiller();await flush();
+  assert.equal(h.runtime.desired,'faceThink');assert.equal(h.runtime.speaking,0);
+  tts.resolve();
+  await h.until(()=>h.element('typed-audio').plays===1);
+  assert.equal(h.runtime.desired,'face');
+  h.element('typed-audio').ended=true;await h.element('typed-audio').dispatch('ended');await work;
+});
+
+test('a fast typed reply gets no filler, and a request the server never accepted gets none',async t=>{
+  const h=await fixture(t,{progress:()=>({status:'running',events:[accepted]})});
+  h.run(`acknowledgments.setClips('v1',[${JSON.stringify(ackClip)}]);`);
+  const work=h.run("submit('Hello')");
+  await h.until(()=>h.element('typed-audio').plays===1);
+  h.element('typed-audio').ended=true;await h.element('typed-audio').dispatch('ended');await work;
+  assert.equal(h.element('ack-audio').plays,0);
+  const rejected=await acknowledging(t,{progress:()=>({status:'pending',events:[]})}),turn=rejected.run("submit('Plan my week')");
+  await new Promise(resolve=>setTimeout(resolve,30));
+  assert.equal(rejected.ack.plays,0);
+  rejected.chat.resolve({error:'Add a key.',tool_events:[]});await rejected.until(()=>rejected.element('typed-audio').plays===1);
+  rejected.element('typed-audio').ended=true;await rejected.element('typed-audio').dispatch('ended');await turn;
+  assert.equal(rejected.ack.plays,0);
+});
+
+for(const [name,action] of [
+  ['Stop',h=>h.element('stop').dispatch('click')],
+  ['hiding the page',h=>{h.document.visibilityState='hidden';return h.document.dispatch('visibilitychange');}],
+  ['disabling acknowledgments',h=>{h.element('acknowledgments').checked=false;return h.element('acknowledgments').dispatch('change');}],
+])test(`${name} stops the filler at once and leaves nothing audible or animating`,async t=>{
+  const h=await acknowledging(t),work=h.run("submit('Plan my week')");
+  await h.until(()=>h.ack.plays===1);h.audible();
+  await action(h);
+  assert.equal(h.ack.src,'');assert.equal(h.ack.paused,true);assert.equal(h.o.acknowledging,false);assert.equal(h.runtime.speaking,0);
+  void h.ack.dispatch('playing');void h.ack.dispatch('ended');await flush();
+  assert.equal(h.o.acknowledging,false,'a late event from the stopped clip does not animate');
+  if(name==='disabling acknowledgments'){
+    assert.equal(h.o.phase,'thinking','disabling the filler does not cancel the request');assert.equal(h.runtime.desired,'bodyThink');
+    h.chat.resolve({reply:'Ready.',tool_events:[],timers:[]});
+    await h.until(()=>h.element('typed-audio').plays===1);
+    h.element('typed-audio').ended=true;await h.element('typed-audio').dispatch('ended');
+    await work;assert.equal(h.stored.get('merlin-acknowledgments'),'false');
+    assert.deepEqual([...h.stored.keys()].filter(key=>key.includes('merlin-ack')),['merlin-acknowledgments'],'only the preference is remembered');
+  }else{h.chat.resolve({reply:'STALE',tool_events:[]});await work;await flush();assert.notEqual(h.element('reply').textContent,'STALE');assert.equal(h.element('typed-audio').plays,0);}
+});
+
+test('read-aloud off keeps typed chat silent, and the disable preference is honoured on reload',async t=>{
+  const h=await acknowledging(t);h.element('read-aloud').checked=false;
+  const work=h.run("submit('Plan my week')");
+  await new Promise(resolve=>setTimeout(resolve,30));
+  assert.equal(h.ack.plays,0);
+  h.chat.resolve({reply:'Ready.',tool_events:[],timers:[]});await work;
+  assert.equal(h.element('typed-audio').plays,0);
+  const off=await acknowledging(t);off.element('acknowledgments').checked=false;
+  const turn=off.run("submit('Plan my week')");
+  await new Promise(resolve=>setTimeout(resolve,30));
+  assert.equal(off.ack.plays,0);
+  off.chat.resolve({reply:'Ready.',tool_events:[],timers:[]});await off.until(()=>off.element('typed-audio').plays===1);
+  off.element('typed-audio').ended=true;await off.element('typed-audio').dispatch('ended');await turn;
+  const muted=await acknowledging(t);muted.element('typed-audio').muted=true;
+  const quiet=muted.run("submit('Plan my week')");
+  await new Promise(resolve=>setTimeout(resolve,30));
+  assert.equal(muted.ack.plays,0,'a muted reply player means speech output is off');
+  muted.chat.resolve({reply:'Ready.',tool_events:[],timers:[]});await muted.until(()=>muted.element('typed-audio').plays===1);
+  muted.element('typed-audio').ended=true;await muted.element('typed-audio').dispatch('ended');await quiet;
+});
+
+test('autoplay rejection and missing clips leave the normal reply and its fallback alone',async t=>{
+  const h=await acknowledging(t);h.ack.blockPlayback=true;
+  const work=h.run("submit('Plan my week')");
+  await new Promise(resolve=>setTimeout(resolve,30));
+  assert.equal(h.ack.plays,0);assert.equal(h.element('notice').hidden,true,'no extra prompt or play button');
+  h.chat.resolve({reply:'Ready.',tool_events:[],timers:[]});
+  await h.until(()=>h.element('typed-audio').plays===1);
+  h.element('typed-audio').ended=true;await h.element('typed-audio').dispatch('ended');await work;
+  const empty=await acknowledging(t);empty.run("acknowledgments.setClips('v1',[])");empty.element('typed-audio').blockPlayback=true;
+  const turn=empty.run("submit('Plan my week')");
+  await new Promise(resolve=>setTimeout(resolve,30));
+  assert.equal(empty.ack.plays,0);
+  empty.chat.resolve({reply:'Ready.',tool_events:[],timers:[]});await turn;
+  assert.equal(empty.element('reply').textContent,'Ready.');
+  assert.equal(empty.element('typed-audio').hidden,false,'the final answer keeps its manual player');
+});
+
+test('a voice turn acknowledges from its transcript once, queues the answer behind the clip, and interruption stops it',async t=>{
+  const h=await acknowledging(t);h.voice.active=true;h.voice.state='processing';
+  h.element('read-aloud').checked=false;
+  h.run("voiceEvent({type:'state',state:'transcribing',revision:7})");
+  await new Promise(resolve=>setTimeout(resolve,20));
+  assert.equal(h.ack.plays,0,'no transcript yet: no wake word or partial speech is acknowledged');
+  const transcript=`{type:'transcript',text:'Plan my week',requestId:'voice-1',revision:7}`,progress=`{type:'progress',requestId:'voice-1',revision:7,progress:${JSON.stringify(accepted)}}`;
+  h.run(`voiceEvent(${transcript});voiceEvent(${progress});`);
+  await h.until(()=>h.ack.plays===1);h.audible();
+  assert.deepEqual(h.voice.acknowledgmentReports,[true]);
+  h.run(`voiceEvent(${transcript});voiceEvent(${progress});`);await flush();
+  assert.equal(h.ack.plays,1,'duplicate events cannot trigger another');
+  h.run(`voiceEvent({type:'response',revision:7,requestId:'voice-1',response:{reply:'Your week is planned.',tool_events:[]}})`);
+  assert.equal(h.element('reply').textContent,'Your week is planned.');
+  let allowed;const gate=h.voice.options.playbackGate({revision:7,utteranceId:'voice-clip'}).then(value=>{allowed=value;return value;});
+  await new Promise(resolve=>setTimeout(resolve,20));
+  assert.equal(allowed,undefined,'the answer audio waits');
+  assert.equal(h.ack.src,ackClip.url);
+  h.finishFiller();
+  assert.equal(await gate,true);
+  assert.deepEqual(h.voice.acknowledgmentReports,[true,false]);
+  assert.equal(h.ack.plays,1);
+  h.run("voiceEvent({type:'state',state:'transcribing',revision:9})");
+  h.run(`voiceEvent({type:'transcript',text:'Next',requestId:'voice-2',revision:9});voiceEvent({type:'progress',requestId:'voice-2',revision:9,progress:${JSON.stringify(accepted)}});`);
+  await h.until(()=>h.ack.plays===2);h.audible();
+  // Typed read-aloud's own audio handshake is not an interruption of the person speaking.
+  h.run("voiceEvent({type:'interrupt',revision:10,reason:'reply-audio'})");
+  assert.equal(h.ack.src,ackClip.url);
+  h.run("voiceEvent({type:'interrupt',revision:10})");
+  assert.equal(h.ack.src,'','speech stops the filler immediately');assert.equal(h.o.acknowledging,false);
+  assert.equal(h.o.phase,'listening');
 });

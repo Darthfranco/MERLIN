@@ -77,7 +77,7 @@ test('foreground progress strips household evidence and correlates real timer re
   const progress = (await app.request(`/api/companion/progress?request_id=${request.request_id}`)).body;
   assert.equal(progress.status, 'complete');
   assert.ok(progress.events.some(event => event.stage === 'tool_start' && event.tool === 'create_timer'));
-  assert.ok(progress.events.every(event => Object.keys(event).every(key => ['stage', 'at_ms', 'tool', 'ok'].includes(key))));
+  assert.ok(progress.events.every(event => Object.keys(event).every(key => ['stage', 'at_ms', 'tool', 'ok', 'acknowledgments'].includes(key))));
   assert.equal(JSON.stringify(progress).includes('Synthetic tea'), false);
   assert.deepEqual(presentationEvent('tool_result', 10, { tool: 'spotify_control', ok: true, result: secret, args: secret }), { stage: 'tool_result', at_ms: 10, tool: 'spotify_control', ok: true });
   assert.equal(presentationEvent('routine_context', 2, { private: secret }), null);
@@ -264,4 +264,31 @@ test('Meta cancellation reaches fetch and never becomes an ordinary connection e
     throw new Error('synthetic aborted fetch');
   } });
   await assert.rejects(meta.respond([], [], '', { signal: controller.signal }), error => error.status === 499);
+});
+
+test('typed requests learn their allowed clips from the progress path, following current rules and settings', async t => {
+  const replies = () => [answer('Ready.')];
+  const app = await fixture(t, script(replies, replies, replies, replies));
+  const state = (await app.request('/api/companion/state')).body;
+  assert.deepEqual(state.acknowledgments, { available: true, grace_ms: 200, cooldown_ms: 3000 });
+  const clipsFor = async message => {
+    const request = body(message);
+    assert.equal((await app.request('/api/chat', request)).status, 200);
+    const progress = await app.request(`/api/companion/progress?request_id=${request.request_id}`);
+    return progress.body.events.find(event => event.stage === 'received').acknowledgments;
+  };
+  const all = await clipsFor('Plan my week');
+  assert.deepEqual(all.clips, ['ack_01', 'ack_02', 'ack_03', 'ack_04', 'ack_05']);
+  assert.equal(all.version, (await app.request('/companion/acknowledgments/manifest.json')).body.version);
+  await app.store.putRule(normalizeRule({ kind: 'avoid_word', value: 'mister', scope: 'assistant_reply', original: 'Never say mister.', source_id: 'manual', source_quote: '', explanation: 'Synthetic.' }));
+  assert.deepEqual((await clipsFor('Plan my week')).clips, ['ack_02', 'ack_04'], 'a saved rule applies to the next request');
+  await app.store.setPersonality({ style: 'plain', address: '' });
+  assert.deepEqual((await clipsFor('Plan my week')).clips, [], 'a changed setting applies to the next request');
+  assert.equal(app.spoken.length, 0, 'no speech was generated to choose or play a clip');
+  assert.equal(app.meta.calls.length, 3, 'one model call per request and none for clips');
+  const instructions = JSON.stringify(app.meta.calls.map(call => [call.input, call.instructions]));
+  assert.ok(!instructions.includes("I'll work on that right now"));
+  const audio = await fetch(`${app.origin}/companion/acknowledgments/ack_01.wav`);
+  assert.equal(audio.headers.get('content-type'), 'audio/wav');
+  assert.equal(audio.status, 200);
 });

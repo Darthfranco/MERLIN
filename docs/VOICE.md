@@ -6,6 +6,10 @@ Updated **October 27, 2026**. The owner requested a separate local page to type 
 
 The separate echo lab described below remains isolated. The later [combined MERLIN surface](ORCHESTRATION.md) runs at `/companion/` on the assistant server (`npm start`): directed speech now goes through the existing assistant, memory and checked tools, then Fenrir speaks the response. Its transcripts/replies follow household memory retention, unlike this echo lab; raw audio is still transient. Interruption after assistant execution begins starts a new turn, so previously completed actions cannot replay. Spotify remains unavailable to voice. Both modes retain explicit microphone activation, local idle detection, quiet follow-ups and cleanup.
 
+## Prerecorded acknowledgments
+
+At `/companion/`, an accepted request can get one short recorded Fenrir line while the real work runs. The lines are generated once by `npm run prepare:acknowledgments` and played in the browser, with no speech generation, model, or provider call per clip. A started clip always finishes its sentence and the reply queues behind it. The standalone echo lab, voice comparison, and phone demo do not use them. Timing, eligibility, controls and echo handling: [ORCHESTRATION.md](ORCHESTRATION.md#prerecorded-acknowledgments--november-2-2026). `npm run check:acknowledgments` runs a real-browser smoke check with scripted providers.
+
 ## Start
 
 Requirements: Node.js 22.16+, and `uv` or Python 3.12. Initial setup downloads the Python dependencies, official Kokoro weights, Fenrir voice, English pronunciation data, and local keyword/speech-detection models into ignored `local/` directories. Keep enough space for PyTorch and the models. Node dependencies are pinned in `package-lock.json`.

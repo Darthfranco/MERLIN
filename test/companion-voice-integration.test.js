@@ -9,6 +9,7 @@ import { WebSocket } from 'ws';
 import { createApp } from '../src/server.js';
 import { AppError } from '../src/errors.js';
 import { TimerStore } from '../src/timers.js';
+import { ACKNOWLEDGMENT_LINES } from '../src/acknowledgments.js';
 
 const answer = text => [{ type: 'message', role: 'assistant', phase: 'final_answer', content: [{ type: 'output_text', text, annotations: [] }] }];
 const timerCall = () => [{ type: 'function_call', status: 'completed', call_id: randomUUID(), name: 'create_timer', arguments: JSON.stringify({ label: 'Synthetic tea', duration: 90, unit: 'seconds' }) }];
@@ -98,7 +99,7 @@ test('unified voice socket runs actual assistant tools and archives only directe
   assert.equal(archive.find(item => item.role === 'assistant').text, event.response.reply);
   const progress = h.messages.filter(message => message.type === 'progress');
   assert.ok(progress.some(message => message.progress.stage === 'tool_start' && message.progress.tool === 'create_timer'));
-  assert.ok(progress.every(message => Object.keys(message.progress).every(key => ['stage', 'at_ms', 'tool', 'ok'].includes(key))));
+  assert.ok(progress.every(message => Object.keys(message.progress).every(key => ['stage', 'at_ms', 'tool', 'ok', 'acknowledgments'].includes(key))));
   assert.ok(h.modelCalls.every(call => !call.tools.some(tool => tool.name?.startsWith('spotify_'))));
 });
 
@@ -231,4 +232,40 @@ test('timer notifications expand label shorthand only for speech without changin
   assert.match(h.spoken[0].text, /5 minutes tea/);
   assert.equal((await h.timers.list())[0].label, '5 min tea');
   assert.equal(h.modelCalls.length, 0);
+});
+
+test('an accepted voice request carries its allowed clips with no extra model or speech call, and clips stay out of history', { timeout: 7000 }, async t => {
+  const lines = ACKNOWLEDGMENT_LINES.map(line => line.text);
+  const h = await fixture(t, [answer('Your week is planned.')], ['Merlin, plan my week.']);
+  h.utterance({ wake: true });
+  const received = await h.waitFor(message => message.type === 'progress' && message.progress.stage === 'received');
+  assert.deepEqual(received.progress.acknowledgments.clips, ACKNOWLEDGMENT_LINES.map(line => line.id));
+  assert.match(received.requestId, /^[a-f0-9-]{36}$/);
+  await h.waitFor(message => message.binary);
+  assert.equal(h.modelCalls.length, 1, 'clip selection made no model call');
+  assert.deepEqual(h.spoken.map(item => item.text), ['Your week is planned.'], 'clips are never synthesized at runtime');
+  const everything = JSON.stringify([h.modelCalls.map(call => [call.input, call.instructions]), h.store.snapshot(), h.messages]);
+  assert.ok(lines.every(line => !everything.includes(line)), 'recorded words reach no prompt, archive, or wire message');
+  assert.equal(JSON.stringify(h.store.snapshot()).includes('ack_01'), false);
+});
+
+test('filler state is accepted on the socket, and MERLIN hearing its own line starts no turn', { timeout: 7000 }, async t => {
+  let entered;
+  const waiting = new Promise(resolve => { entered = resolve; });
+  const h = await fixture(t, [
+    ({ options }) => new Promise((_resolve, reject) => {
+      entered();
+      options.signal.addEventListener('abort', () => reject(new AppError('Interrupted.', 499)), { once: true });
+    }),
+  ], ['Merlin, plan my week.', ACKNOWLEDGMENT_LINES[0].text]);
+  h.utterance({ wake: true }); await waiting;
+  h.socket.send(JSON.stringify({ type: 'acknowledgment', playing: true }));
+  await new Promise(resolve => setTimeout(resolve, 20));
+  h.utterance();
+  await h.waitFor(message => message.type === 'state' && message.state === 'followup');
+  assert.equal(h.uploads.length, 2);
+  assert.equal(h.modelCalls.length, 1, 'the leaked line reached no model');
+  assert.equal(h.messages.filter(message => message.type === 'transcript').length, 1);
+  assert.equal(h.spoken.length, 0);
+  assert.equal(JSON.stringify(h.store.snapshot()).includes(ACKNOWLEDGMENT_LINES[0].text), false);
 });

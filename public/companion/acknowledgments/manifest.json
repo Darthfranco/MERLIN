@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "version": "2212aae2d5ded9de",
+  "generation": {
+    "engine": "kokoro",
+    "model": "hexgrad/Kokoro-82M",
+    "model_revision": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+    "voice": "am_fenrir",
+    "delivery": "natural",
+    "speed": 1,
+    "sample_rate": 24000,
+    "processing": {
+      "lead_in_ms": 20,
+      "tail_ms": 150,
+      "fade_ms": 5,
+      "loudness": "speech RMS matched to the median of the set; no music or effects"
+    }
+  },
+  "clips": [
+    {
+      "id": "ack_01",
+      "text": "You got it, mister. I'll work on that right now.",
+      "path": "ack_01.wav",
+      "duration_ms": 2874,
+      "bytes": 137984,
+      "sha256": "f6e3d286b57ea74291298dc96e499cb2e15d15cdd39b9dd5578d0636dc9de862"
+    },
+    {
+      "id": "ack_02",
+      "text": "All right, I'll get to work on that right away.",
+      "path": "ack_02.wav",
+      "duration_ms": 2171,
+      "bytes": 104232,
+      "sha256": "1924505eb3d855c8ad3ccd1b4b15c101823a09c73680f527b54ae540a1003d62"
+    },
+    {
+      "id": "ack_03",
+      "text": "Let me take a look at that, mister. I'm on it.",
+      "path": "ack_03.wav",
+      "duration_ms": 3073,
+      "bytes": 147550,
+      "sha256": "6f9efb8a69a0fdf88043c96c562aa0fb7f63d56500c3513f97686a89aca2e3fd"
+    },
+    {
+      "id": "ack_04",
+      "text": "You bet. Give me a moment to work through that.",
+      "path": "ack_04.wav",
+      "duration_ms": 2983,
+      "bytes": 143224,
+      "sha256": "1a5662203a7499c129f6fc7773b628e6b56a197eb29843db73bb1d6e164339e1"
+    },
+    {
+      "id": "ack_05",
+      "text": "Righto, mister. Let me see what I can do for you.",
+      "path": "ack_05.wav",
+      "duration_ms": 3234,
+      "bytes": 155278,
+      "sha256": "6e2179e63fc4bf02fd0445e1482ea1ecefa9e0969df2fc8608ab0197d673913a"
+    }
+  ]
+}

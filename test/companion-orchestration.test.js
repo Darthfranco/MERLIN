@@ -195,3 +195,43 @@ test('a failed or missing show_connections event never opens the screen',()=>{
   const {o:none}=setup();ask(none,'b',{reply:'Hi.',tool_events:[],presentation:connectionsResult().presentation});
   assert.equal(none.panels.right,null);
 });
+test('an audible filler borrows a speaking pose without changing the phase, panels, or deadlines, then returns to thinking',()=>{
+  const {o}=setup();
+  o.listening();o.begin('a');assert.equal(o.view.destination,'faceThink');
+  const epoch=o.epoch,deadline=o.deadline;
+  o.acknowledgment(true);
+  assert.equal(o.view.destination,'face');assert.equal(o.view.acknowledging,true);assert.equal(o.phase,'thinking');assert.equal(o.view.label,'Thinking…');
+  o.progress('a',[{stage:'search_ready'}]);
+  assert.equal(o.phase,'searching');assert.equal(o.view.destination,'face','the mouth keeps moving while the search label updates');assert.equal(o.view.label,'Looking that up…');
+  o.acknowledgment(true);
+  o.acknowledgment(false);
+  assert.equal(o.view.destination,'search','real search work takes the pose back');assert.equal(o.view.acknowledging,false);
+  assert.equal(o.epoch,epoch);assert.equal(o.deadline,deadline);assert.equal(o.turn,'a');
+});
+test('a body turn speaks in its retained layout, and the filler ending keeps both records',()=>{
+  const {o}=setup();
+  complete(o,'first',[timer('tea')]);o.standby();
+  o.begin('b');assert.equal(o.view.destination,o.bodyLayout+'Think');
+  o.acknowledgment(true);assert.equal(o.view.destination,o.bodyLayout);assert.deepEqual(ids(o),['tea']);
+  o.acknowledgment(false);assert.equal(o.view.destination,o.bodyLayout+'Think');assert.deepEqual(ids(o),['tea']);
+  const empty=setup().o;empty.begin('c');assert.equal(empty.view.destination,'bodyThink');
+  empty.acknowledgment(true);assert.equal(empty.view.destination,'ready');
+});
+test('after the reply text, a finished filler thinks until audio is ready unless the answer is already queued',()=>{
+  const {o}=setup();
+  o.listening();o.begin('a');o.acknowledgment(true);o.reply('a');
+  assert.equal(o.phase,'reply');assert.equal(o.view.destination,'face');
+  o.acknowledgment(false);assert.equal(o.view.destination,'faceThink');assert.equal(o.phase,'reply');
+  o.prepareSpeech();assert.equal(o.view.destination,'face');
+  const queued=setup().o;queued.listening();queued.begin('b');queued.acknowledgment(true);queued.reply('b');
+  queued.acknowledgment(false,{resume:false});assert.equal(queued.view.destination,'face','no flicker before an answer that starts now');
+  const later=setup().o;later.listening();later.begin('c');later.acknowledgment(true);later.followup();
+  later.acknowledgment(false);assert.equal(later.phase,'followup');assert.equal(later.view.destination,'face');
+});
+test('reduced motion plays the filler with no pose changes',()=>{
+  const {o,views}=setup({reducedMotion:true});
+  o.listening();o.begin('a');const rendered=views.length;
+  o.acknowledgment(true);o.show(o.view.destination,o.view.label);
+  assert.equal(o.view.destination,'faceThink');assert.equal(o.acknowledging,true);
+  o.acknowledgment(false);assert.equal(o.view.destination,'faceThink');assert.equal(views.length,rendered+1,'only the explicit render above');
+});

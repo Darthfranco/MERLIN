@@ -19,6 +19,8 @@
     "calibrate:memory-v2": "node --env-file-if-exists=.env scripts/calibrate-memory-v2.js",
     "check:connectors": "node scripts/check-connectors.js",
     "setup:voice": "bash scripts/voice-setup.sh",
+    "prepare:acknowledgments": "node scripts/prepare-acknowledgments.js",
+    "check:acknowledgments": "node scripts/check-acknowledgments.js",
     "voice": "node --env-file-if-exists=.env src/voice-server.js",
     "voice:compare": "node src/voice-compare-server.js",
     "setup:voice-compare": "bash scripts/voice-compare-setup.sh",

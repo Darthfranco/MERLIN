@@ -21,6 +21,7 @@ import { VOICE_SESSION_LIMITS } from './voice/session.js';
 import { validateSpeechDelivery } from './voice/prosody.js';
 import { checkCancelled } from './cancellation.js';
 import { prepareSpokenReply } from './spoken-replies.js';
+import { acknowledgmentTiming, eligibleAcknowledgments, isAcknowledgmentEcho, loadAcknowledgmentCatalog } from './acknowledgments.js';
 import { companionAsset, companionCsp, connectionState, presentationEvent, presentationResult } from './companion.js';
 import { ConnectorHub } from './connectors/hub.js';
 import { createConnectors } from './connectors/index.js';
@@ -72,6 +73,16 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
   const routines = new RoutineService({ store: routineStore, memoryStore: store });
   engine.attachRoutines(routineStore);
   const assistant = new Assistant({ meta, timers, memory, routines, spotify, connections, pageReader });
+  const acknowledgmentCatalog = await loadAcknowledgmentCatalog();
+  const acknowledgmentSettings = { available: Boolean(acknowledgmentCatalog), ...acknowledgmentTiming() };
+  // Decided at acceptance from current rules and settings, so a change applies to the next request.
+  const acknowledgmentsFor = (message, sessionId) => {
+    if (!acknowledgmentCatalog) return undefined;
+    try {
+      const { facts, conversation_state: pending } = memory.inspect(sessionId);
+      return eligibleAcknowledgments({ catalog: acknowledgmentCatalog, rules: memory.rules(), policy: assistant.personalityPolicy({ message, session_id: sessionId }), message, facts, pending });
+    } catch { return { version: acknowledgmentCatalog.version, clips: [] }; }
+  };
   const searchStatus = () => ({ available: meta.configured, provider: 'Meta web search', page_reader: Boolean(pageReader),
     detail: meta.configured ? 'Web search is available. MERLIN searches whenever you ask it to look something up or ask for current facts.' : 'Web search is unavailable: add META_API_KEY to .env and restart the server.' });
   const traces = new Map();
@@ -178,6 +189,8 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         const onTrace = (stage, detail, data) => {
           const event = presentationEvent(stage, Math.round(performance.now() - started), data);
           if (event) {
+            // Fixed clip IDs on the foreground stream only; never in the trace, the prompt, or the archive.
+            if (stage === 'received') { const acknowledgments = acknowledgmentsFor(body.message, body.session_id); if (acknowledgments) event.acknowledgments = acknowledgments; }
             foreground.events.push(event);
             if (foreground.events.length > 256) foreground.events.shift();
             try { onProgress?.(event); } catch { /* Presentation cannot interrupt actions. */ }
@@ -304,7 +317,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       if (req.method === 'GET' && path === '/api/companion/state') {
         await tick();
         json(200, { configured: meta.configured, model: meta.model, chat_timeout_ms: MAX_MODEL_ROUNDS * MODEL_TIMEOUT_MS + 30_000,
-          ...await state(), services: connectionState(spotify, connections), connectors: connections.list().map(({ id, name, status, detail, verified_at, external }) => ({ id, name, status, detail, verified_at, external })), search: searchStatus(), voice: await voiceStatus() }); return;
+          ...await state(), acknowledgments: acknowledgmentSettings, services: connectionState(spotify, connections), connectors: connections.list().map(({ id, name, status, detail, verified_at, external }) => ({ id, name, status, detail, verified_at, external })), search: searchStatus(), voice: await voiceStatus() }); return;
       }
       if (req.method === 'GET' && path === '/api/voice/status') {
         json(200, await voiceStatus()); return;
@@ -512,6 +525,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
     } finally { req.off('aborted', abort); res.off('close', abort); }
   });
   const voiceSocket = attachVoiceSocket({ server, listener, meta: voiceMeta, tts, prepareSpeech: checkedSpeech, isBusy: () => speechPending.size > 0, timerAlert, replyAudio,
+    isAcknowledgmentEcho: text => isAcknowledgmentEcho(text, acknowledgmentCatalog),
     respond: async (text, { signal, onProgress, sessionId, timeZone: zone, requestId }) => {
       const result = await runChatTurn({ message: text, session_id: sessionId, time_zone: zone, request_id: requestId, channel: 'voice' }, { signal, onProgress });
       const { trace, ...response } = result.data;
