@@ -22,6 +22,7 @@
     "setup:voice": "bash scripts/voice-setup.sh",
     "prepare:acknowledgments": "node scripts/prepare-acknowledgments.js",
     "check:acknowledgments": "node scripts/check-acknowledgments.js",
+    "check:camera": "node --env-file-if-exists=.env scripts/check-camera.js",
     "voice": "node --env-file-if-exists=.env src/voice-server.js",
     "voice:compare": "node src/voice-compare-server.js",
     "setup:voice-compare": "bash scripts/voice-compare-setup.sh",

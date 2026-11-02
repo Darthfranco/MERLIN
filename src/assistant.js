@@ -13,6 +13,8 @@ import { parseSimpleTimerIntent, formatDuration } from './timer-intents.js';
 import { isPureAcknowledgment } from './conversation-intents.js';
 import { SPOKEN_REPLY_INSTRUCTIONS } from './spoken-replies.js';
 import { SPOTIFY_TOOLS, SPOTIFY_INSTRUCTIONS, isSpotifyTool, executeSpotifyTool, spotifyReply, parseSimpleSpotifyControl } from './spotify-tools.js';
+import { classifyCameraIntent, parseCameraConsent, isCameraOffer } from './camera-intents.js';
+import { CAMERA_TOOLS, CAMERA_INSTRUCTIONS, LOOK_TURN_TOOLS, CameraFailure, DECLINED_REPLY, cameraQuestion, unavailableReply, observationMessage } from './camera.js';
 import { DEFAULT_PERSONALITY, parsePersonalityRequest, personalityContext, personalityInstructions, withCourtesy, withPlayfulReceipt, checkPersonalityDraft } from './personality.js';
 
 const functionTool = (name, description, properties, required) => ({
@@ -59,7 +61,7 @@ const LOOKUP_NOTES = {
 };
 
 export class Assistant {
-  constructor({ meta, timers, memory, routines, spotify, connections, pageReader }) { this.meta = meta; this.timers = timers; this.memory = memory; this.routines = routines; this.spotify = spotify; this.connections = connections; this.pageReader = pageReader; }
+  constructor({ meta, timers, memory, routines, spotify, connections, pageReader, camera }) { this.meta = meta; this.timers = timers; this.memory = memory; this.routines = routines; this.spotify = spotify; this.connections = connections; this.pageReader = pageReader; this.camera = camera; }
 
   async run({ message, time_zone, request_id, session_id, source_id, history = [], onTrace = () => {}, channel = 'typed', signal }) {
     checkCancelled(signal);
@@ -73,7 +75,7 @@ export class Assistant {
     const policy = this.personalityPolicy({ message, session_id, tool_events: result.tool_events });
     const rules = this.memory?.rules() ?? [];
     const originalReply = result.reply;
-    const success = !result.conflict && !result.routine_confirmation && !result.personality_changed
+    const success = !result.conflict && !result.routine_confirmation && !result.personality_changed && result.camera?.state !== 'asking'
       && result.tool_events.length > 0 && result.tool_events.every(event => event.status === 'completed');
     const playful = withPlayfulReceipt(result.reply, policy, rules, { success, tool_events: result.tool_events });
     const decorated = withCourtesy(playful, policy, rules, { success });
@@ -105,6 +107,10 @@ export class Assistant {
     // Retrieval is prepared once per distinct query within this request, however many model rounds run.
     const retrieval = new Map();
     const context = { message, source_id, session_id, request_id, epoch: this.memory?.store.epoch, signal, retrieval };
+    // The camera question lasts for the person's next message only, and only their own plain yes opens the camera.
+    const cameraAsk = this.camera?.takeAsk(session_id) ?? null;
+    const cameraConsent = cameraAsk ? parseCameraConsent(message) : null;
+    const lookTurn = cameraConsent === 'yes';
     const spotifyEnabled = Boolean(this.spotify) && channel === 'typed';
     const emit = (stage, detail, data) => onTrace(stage, detail, data);
     const usedMemory = new Set();
@@ -119,7 +125,7 @@ export class Assistant {
     let routineSuggestion;
     const savedRoutineSources = new Set(this.routines?.store.list().map(routine => routine.source_id) ?? []);
     const routineMessages = this.memory?.store.snapshot().conversations.filter(item => item.session_id === session_id && item.id !== source_id).slice(-30).map(({ id, role, text }) => ({ role, text, ...(savedRoutineSources.has(id) ? { routine_saved: true } : {}) })) ?? [];
-    const initialRoutineIntent = this.routines ? detectRoutineIntent({ message, messages: routineMessages, routines: this.routines.store.list() }) : null;
+    const initialRoutineIntent = this.routines && !cameraConsent ? detectRoutineIntent({ message, messages: routineMessages, routines: this.routines.store.list() }) : null;
     let routineIntent = initialRoutineIntent;
     let readRoutine;
     const input = [...history, { role: 'user', content: [{ type: 'input_text', text: message }] }];
@@ -137,10 +143,26 @@ export class Assistant {
     // Meta accepts only tool_choice "auto", so required lookups are enforced here.
     const lookup = new LookupTracker();
     let lookupEnforcing = false;
-    const instructions = `${BASE_INSTRUCTIONS}\n${SPOKEN_REPLY_INSTRUCTIONS}\n${this.memory ? this.memory.instructions ?? MEMORY_INSTRUCTIONS : 'No persistent memory is enabled in this runtime.'}\n${this.routines ? ROUTINE_INSTRUCTIONS : ''}\n${spotifyEnabled ? SPOTIFY_INSTRUCTIONS : channel === 'voice' ? 'Spotify is unavailable for voice requests, including saved routines. No Spotify tool is enabled. If requested, briefly explain that music controls are available by typing or using the music panel. Complete independent supported work.' : 'Spotify is not enabled in this runtime.'}`;
+    let cameraResult;
+    let cameraAsked = false;
+    let cameraPromptText = '';
+    const instructions = `${BASE_INSTRUCTIONS}\n${SPOKEN_REPLY_INSTRUCTIONS}\n${this.memory ? this.memory.instructions ?? MEMORY_INSTRUCTIONS : 'No persistent memory is enabled in this runtime.'}\n${this.routines ? ROUTINE_INSTRUCTIONS : ''}\n${this.camera ? `${CAMERA_INSTRUCTIONS}\n` : ''}${spotifyEnabled ? SPOTIFY_INSTRUCTIONS : channel === 'voice' ? 'Spotify is unavailable for voice requests, including saved routines. No Spotify tool is enabled. If requested, briefly explain that music controls are available by typing or using the music panel. Complete independent supported work.' : 'Spotify is not enabled in this runtime.'}`;
     try {
       checkCancelled(signal);
-      const personalityRequest = this.memory && !routineIntent && parsePersonalityRequest(message);
+      if (cameraConsent === 'no') {
+        emit('camera', 'The person declined the camera; it stayed off.', { tool: 'camera_look', consent: 'no' });
+        tool_events.push({ tool: 'camera_look', status: 'completed', message: 'Left the camera off, as you asked.' });
+        return this.cameraReply({ text: DECLINED_REPLY, context, emit, tool_events, ids: usedMemory });
+      }
+      if (lookTurn) {
+        const seen = await this.runCameraLook({ ask: cameraAsk, context, emit, tool_events, ids: usedMemory });
+        if (seen.result) return seen.result;
+        // Only the words go into the conversation. The picture was left behind in the look itself.
+        input.push({ role: 'developer', content: [{ type: 'input_text', text: observationMessage({ question: cameraAsk.question, seen }) }] });
+        actionMessage = cameraAsk.question;
+        cameraResult = { state: 'looked', segments: seen.segments };
+      }
+      const personalityRequest = this.memory && !routineIntent && !cameraConsent && parsePersonalityRequest(message);
       if (personalityRequest) {
         const { remove_address, ...patch } = personalityRequest;
         const current = this.memory.store.personality();
@@ -183,7 +205,7 @@ export class Assistant {
           }
         }
         const pending = this.routines.store.getPending(session_id);
-        const exact = !routineIntent && (this.routines.store.list().find(routine => matchRoutineActivation(routine, message))
+        const exact = !routineIntent && !lookTurn && (this.routines.store.list().find(routine => matchRoutineActivation(routine, message))
           ?? (pending?.confirmation_request_id === request_id ? this.routines.store.list().find(routine => routine.id === pending.routine_id) : null));
         if (exact) {
           const decision = await this.routines.store.activate({ session_id, request_id, routine_id: exact.id, message });
@@ -195,7 +217,7 @@ export class Assistant {
           }
         }
       }
-      if (spotifyEnabled && !activeRoutine && !routineIntent) {
+      if (spotifyEnabled && !activeRoutine && !routineIntent && !lookTurn) {
         const control = parseSimpleSpotifyControl(message);
         if (control) {
           const selection = await this.memory?.prepareContext(message, session_id, retrieval, { signal });
@@ -203,7 +225,7 @@ export class Assistant {
           emit('route', 'Selected household guidance needs interpretation for the music request.', { route: 'model', fact_ids: selection.selected.fact_ids });
         }
       }
-      if (this.memory && !activeRoutine && !routineIntent) {
+      if (this.memory && !activeRoutine && !routineIntent && !lookTurn) {
         const intent = parseSimpleTimerIntent(message);
         if (intent && (intent.default_seconds !== undefined || this.memory.rules().some(rule => rule.kind === 'timer_default_seconds'))) {
           const selection = await this.memory.prepareContext(message, session_id, retrieval, { signal });
@@ -215,11 +237,18 @@ export class Assistant {
       }
       // Exact saved triggers and routine setup have already been resolved above.
       // Appreciation alone never renews an earlier action's authorization.
-      const acknowledgmentOnly = !activeRoutine && !routineIntent && isPureAcknowledgment(message);
+      const acknowledgmentOnly = !activeRoutine && !routineIntent && !lookTurn && isPureAcknowledgment(message);
+      // Which camera a request means is decided from the request itself, before any model is involved.
+      const cameraIntent = this.camera && !lookTurn && !acknowledgmentOnly && !(routineIntent && !activeRoutine) ? classifyCameraIntent(actionMessage) : null;
+      if (cameraIntent) emit('camera', cameraIntent.kind === 'home' ? 'This is about a home camera or doorbell; the device camera stays out of it.' : 'The person is showing MERLIN something, which means this device\'s own camera.', { kind: cameraIntent.kind, topic: cameraIntent.topic, refused_home: cameraIntent.refused_home });
+      // Nothing else to do but look: ask directly. There is no reason to spend a model call on a question whose wording is fixed.
+      if (cameraIntent?.kind === 'device' && cameraIntent.pure) return this.askBeforeLooking({ question: cameraIntent.question, find: cameraIntent.find, refused_home: cameraIntent.refused_home, context, emit, tool_events, ids: usedMemory });
       // The large connection screen opens from the user's own words, never from model or page text.
-      const connectionIntent = this.connections && !activeRoutine && !routineIntent && !acknowledgmentOnly
+      let connectionIntent = this.connections && !activeRoutine && !routineIntent && !acknowledgmentOnly && !lookTurn && cameraIntent?.kind !== 'device'
         ? classifyConnectionIntent(message, { coveredCategories: this.connections.coveredCategories(), spotifyConnected: this.spotify?.status().connected === true, spotifyAvailable: Boolean(this.spotify) && channel === 'typed' })
         : null;
+      // "Show me the living room" is a home camera too. Nothing can show one yet, so it gets the same honest screen.
+      if (!connectionIntent && cameraIntent?.kind === 'home' && this.connections && !this.connections.coveredCategories().has('cameras')) connectionIntent = { kind: 'unconnected', category: 'cameras', entry: '', query: '', reason: 'That needs a connection first.' };
       let lastShown = null;
       if (connectionIntent) {
         const { category, entry, query, reason } = connectionIntent;
@@ -238,9 +267,9 @@ export class Assistant {
         }
         const searchGate = checkTool(rules, { name: 'web_search', args: {}, message });
         // Routine setup/lookup and bare appreciation never authorize a search.
-        let policy = (routineIntent && !activeRoutine) || acknowledgmentOnly ? classifyLookup('') : classifyLookup(actionMessage, { evidence: [...(selection?.evidence ?? []), ...userStatements(history)] });
+        let policy = (routineIntent && !activeRoutine) || acknowledgmentOnly || lookTurn ? classifyLookup('') : classifyLookup(actionMessage, { evidence: [...(selection?.evidence ?? []), ...userStatements(history)] });
         // "How do I connect my Ring?" belongs to the connection screen, not a web search. An explicit "look it up" still always searches.
-        if (connectionIntent && policy.level !== 'explicit') policy = classifyLookup('');
+        if ((connectionIntent || cameraIntent) && policy.level !== 'explicit') policy = classifyLookup('');
         if (policy.level !== lookup.level) emit('lookup', LOOKUP_NOTES[policy.level] ?? `Web lookup required (${policy.level}).`, { level: policy.level, reason: policy.reason });
         lookup.setPolicy(policy);
         // A household question has no web tool to reach for, so web text cannot enter its answer.
@@ -268,6 +297,10 @@ export class Assistant {
         if (spotifyEnabled) availableTools.push(...SPOTIFY_TOOLS);
         if (this.connections) availableTools.push(SHOW_CONNECTIONS, ...this.connections.tools());
         if (this.pageReader && searchGate.ok && remainingSearches && !lookupEnforcing && !homeOnly) availableTools.push(READ_WEB_PAGE);
+        // A request about a doorbell or room is never given the device camera to reach for.
+        if (this.camera && !lookTurn && cameraIntent?.kind !== 'home') availableTools.push(...CAMERA_TOOLS);
+        // Camera text is data. The reply round after a look can read and search, but cannot change anything.
+        if (lookTurn) availableTools = availableTools.filter(tool => tool.type === 'web_search' || LOOK_TURN_TOOLS.has(tool.name));
         let routineSetup = routineIntent && !activeRoutine;
         if (routineSetup) {
           const allowed = routineIntent.mode === 'authoring' ? ['routine_save', 'routine_read', 'memory_search'] : ['routine_read', 'memory_search'];
@@ -299,7 +332,7 @@ export class Assistant {
           routineSetup = true;
           emit('routine_intent', 'Routine saving keeps proposed actions inactive.', routineIntent);
         }
-        const blockedRoutineCall = name => routineSetup && (['create_timer', 'cancel_timer', 'list_timers', 'prepare_web_search', 'routine_use', 'show_connections', 'read_web_page'].includes(name) || isSpotifyTool(name) || isHomeTool(name));
+        const blockedRoutineCall = name => routineSetup && (['create_timer', 'cancel_timer', 'list_timers', 'prepare_web_search', 'routine_use', 'show_connections', 'read_web_page', 'camera_look', 'camera_status'].includes(name) || isSpotifyTool(name) || isHomeTool(name));
         if ((this.memory || !availableTools.length) && calls.some(call => !availableTools.some(tool => tool.type === 'function' && tool.name === call.name) && !(blockedRoutineCall(call.name) && !repairCount && !styleRepairCount))) throw new AppError('Meta requested a tool that was not enabled. No calls from this response were executed.', 502);
         // Apply standing instructions/corrections before dependent action calls in a batch.
         const callPriority = name => /^(memory_(save|forget|resolve)|routine_(save|delete))/.test(name) ? 0 : name === 'routine_use' ? 1 : 2;
@@ -396,6 +429,17 @@ export class Assistant {
             // invite repeating an already completed action. Exact rules still run.
             emit('personality_check', 'Delivered the factual answer after the bounded style repair; wording remains model-dependent.', { violations: styleViolations, repair_exhausted: true });
           }
+          // A compound request still asks even if the model skipped it, and a yes to a question the model
+          // phrased itself needs the same exact target as one the tool asked.
+          const offered = this.camera && !lookTurn && !cameraAsked && cameraIntent?.kind !== 'home' && isCameraOffer(reply);
+          if (this.camera && !cameraAsked && (cameraIntent?.kind === 'device' || offered)) {
+            const prompt = this.cameraPrompt({ question: cameraIntent?.question ?? message, find: cameraIntent?.find ?? [], refused_home: cameraIntent?.refused_home, session_id });
+            cameraAsked = true;
+            if (prompt.camera) cameraResult = prompt.camera;
+            if (!offered || !prompt.camera) reply = `${reply} ${prompt.text}`.trim();
+            const last = output.findLast(item => item.type === 'message' && item.phase !== 'commentary');
+            if (last) last.content = [{ type: 'output_text', text: reply }];
+          }
           if (lookup.needsGeneralLabel && reply) {
             // Code-written, so web text about a possible household subject can never read as a household fact.
             reply = `${LOOKUP_REPLIES.general} ${reply}`;
@@ -446,7 +490,9 @@ export class Assistant {
           // Meta does not always return citations. Show the pages it actually retrieved instead of nothing.
           const finalSources = (sources.size || !lookup.satisfied ? [...sources.values()] : lookup.retrievedSources())
             .map(source => source.snippet || !lookup.snippetFor(source.url) ? source : { ...source, snippet: lookup.snippetFor(source.url) });
-          return { reply, tool_events, sources: finalSources, turn: input.slice(start), ...(this.memory ? { memory_ids: [...usedMemory], conflict: finalConflict } : {}), ...(routineSuggestion ? { routine_confirmation: true } : {}), ...(lookupSummary ? { lookup: lookupSummary } : {}) };
+          // Saved wording can block the question itself. A question that was never delivered cannot be answered yes.
+          if (cameraResult?.state === 'asking' && !reply.includes('camera')) { this.camera.forget(session_id); cameraResult = undefined; }
+          return { reply, tool_events, sources: finalSources, turn: input.slice(start), ...(this.memory ? { memory_ids: [...usedMemory], conflict: finalConflict } : {}), ...(routineSuggestion ? { routine_confirmation: true } : {}), ...(lookupSummary ? { lookup: lookupSummary } : {}), ...(cameraResult ? { camera: cameraResult } : {}) };
         }
         for (const call of calls) {
           checkCancelled(signal);
@@ -520,6 +566,25 @@ export class Assistant {
                   const category = args.category ?? (entry ? CONNECTIONS.find(route => route.id === entry).categoryIds[0] : categoryFor(query) || 'all');
                   lastShown = { category, entry, query, reason: 'MERLIN opened the options for this request.' };
                   result = { ok: true, result: { ...lastShown, shown: true, note: 'The options are on the large screen. Nothing was connected.' } };
+                }
+              } else if (this.camera && call.name === 'camera_status') {
+                objectArgs(args, []);
+                const { state } = this.camera.status(session_id);
+                result = { ok: true, result: { device_camera: state === 'available' ? 'available' : 'not available', turned_on: false } };
+              } else if (this.camera && call.name === 'camera_look') {
+                objectArgs(args, ['question', 'find']);
+                if (typeof args.question !== 'string' || !args.question.trim() || args.question.length > 400) throw new AppError('Say what the person wants to know, in under 400 characters.');
+                const gate = checkTool(this.memory?.rules() ?? [], { name: 'camera_look', args: {}, message });
+                emit('tool_check', gate.ok ? 'A camera look can be asked about.' : 'A saved instruction blocks the camera.', { tool: 'camera_look', applied_rule_ids: gate.applied_rule_ids, conflicts: gate.conflicts, violations: gate.violations });
+                // The model can only ask. Its wording can also describe a doorbell, which is never this camera.
+                if (!gate.ok) result = { ok: false, error: 'A saved instruction says not to use the camera. It stayed off.' };
+                else if (classifyCameraIntent(args.question)?.kind === 'home') result = { ok: false, error: 'That is about a doorbell or home camera, which this camera is not for. It stayed off.' };
+                else {
+                  const prompt = this.cameraPrompt({ question: args.question, find: args.find, refused_home: cameraIntent?.refused_home, session_id });
+                  cameraAsked = true;
+                  if (prompt.camera) cameraResult = prompt.camera;
+                  cameraPromptText = prompt.text;
+                  result = { ok: true, result: { asked: Boolean(prompt.camera), turned_on: false } };
                 }
               } else if (this.memory && call.name === 'prepare_web_search') {
                 objectArgs(args, []);
@@ -596,6 +661,12 @@ export class Assistant {
           input.push({ type: 'function_call_output', call_id: call.call_id, output: JSON.stringify(result) });
         }
         context.routineExpanded = false;
+        // The question is the code's own wording, so a model reply can never replace it.
+        if (cameraPromptText) {
+          const finished = tool_events.filter(event => event.status === 'completed' && ['create_timer', 'cancel_timer'].includes(event.tool) && event.message).slice(0, 4).map(event => event.message);
+          const answer = this.cameraReply({ text: [...finished, cameraPromptText].join(' '), context, emit, tool_events, ids: usedMemory, camera: cameraResult });
+          return { ...answer, turn: [...input.slice(start), ...answer.turn.slice(1)] };
+        }
         if (routineSuggestion) {
           const rules = this.memory?.rules() ?? [];
           const checked = checkOutput(rules, `Did you mean to start your “${routineSuggestion.routine.name}” routine?`);
@@ -620,6 +691,82 @@ export class Assistant {
       error.memory_ids = [...usedMemory];
       throw error;
     }
+  }
+
+  /** Records the question for the person's next message, or says why there is no camera to ask about. */
+  cameraPrompt({ question, find, refused_home, session_id }) {
+    const { state } = this.camera.status(session_id);
+    if (state !== 'available') return { text: unavailableReply(state) };
+    this.camera.ask(session_id, { question, find });
+    const policy = this.personalityPolicy({ message: question, session_id });
+    return { text: cameraQuestion({ refused_home, address: policy.address_allowed ? policy.address : '' }), camera: { state: 'asking' } };
+  }
+
+  /** Fixed camera wording still answers to the household's saved output rules. */
+  cameraReply({ text, context, emit, tool_events, ids, camera }) {
+    const rules = this.memory?.rules() ?? [];
+    const checked = checkOutput(rules, text);
+    checked.applied_rule_ids.forEach(id => ids.add(id));
+    const blocked = checked.violations.length > 0 || checked.conflicts.length > 0;
+    const reply = blocked ? safeClarification(rules, checked.conflicts) : checked.text;
+    emit('output_check', 'Checked the fixed camera wording against current reply instructions.', { applied_rule_ids: checked.applied_rule_ids, violations: checked.violations, conflicts: checked.conflicts });
+    // A question that was never delivered cannot be answered yes.
+    if (blocked) this.camera.forget(context.session_id);
+    return { reply, tool_events, sources: [], memory_ids: [...ids], conflict: checked.conflicts.length > 0, ...(camera && !blocked ? { camera } : {}), turn: [
+      { role: 'user', content: [{ type: 'input_text', text: context.message }] },
+      { role: 'assistant', content: [{ type: 'output_text', text: reply }] },
+    ] };
+  }
+
+  askBeforeLooking({ question, find, refused_home, context, emit, tool_events, ids }) {
+    const gate = checkTool(this.memory?.rules() ?? [], { name: 'camera_look', args: {}, message: context.message });
+    gate.applied_rule_ids.forEach(id => ids.add(id));
+    emit('tool_check', gate.ok ? 'A camera look can be asked about.' : 'A saved instruction blocks the camera.', { tool: 'camera_look', applied_rule_ids: gate.applied_rule_ids, conflicts: gate.conflicts, violations: gate.violations });
+    if (!gate.ok) {
+      tool_events.push({ tool: 'camera_look', status: 'failed', message: 'A saved instruction says not to use the camera. It stayed off.' });
+      return this.cameraReply({ text: gate.conflicts.length ? safeClarification(this.memory.rules(), gate.conflicts) : 'Your settings don’t allow me to use the camera, so I didn’t look.', context, emit, tool_events, ids });
+    }
+    const prompt = this.cameraPrompt({ question, find, refused_home, session_id: context.session_id });
+    emit('camera', prompt.camera ? 'Asked before using the camera; it stays off until the person says yes.' : 'No camera is available on this device.', { tool: 'camera_look', asked: Boolean(prompt.camera) });
+    tool_events.push({ tool: 'camera_look', status: prompt.camera ? 'completed' : 'failed', message: prompt.camera ? 'Asked before turning on the camera.' : 'No camera was available, so nothing was turned on.' });
+    return this.cameraReply({ text: prompt.text, context, emit, tool_events, ids, camera: prompt.camera });
+  }
+
+  /** The person just said yes: one frame, then it is read and dropped. A failure here is reported, never guessed around. */
+  async runCameraLook({ ask, context, emit, tool_events, ids }) {
+    const { signal, session_id } = context;
+    const failed = code => {
+      const failure = new CameraFailure(code);
+      emit('tool_result', 'The camera look did not complete.', { tool: 'camera_look', ok: false });
+      tool_events.push({ tool: 'camera_look', status: 'failed', message: failure.message });
+      return { result: this.cameraReply({ text: failure.message, context, emit, tool_events, ids }) };
+    };
+    const gate = checkTool(this.memory?.rules() ?? [], { name: 'camera_look', args: {}, message: context.message });
+    gate.applied_rule_ids.forEach(id => ids.add(id));
+    if (!gate.ok) {
+      tool_events.push({ tool: 'camera_look', status: 'failed', message: 'A saved instruction says not to use the camera. It stayed off.' });
+      return { result: this.cameraReply({ text: 'Your settings don’t allow me to use the camera, so I didn’t look.', context, emit, tool_events, ids }) };
+    }
+    emit('tool_start', 'The person said yes, so the camera may take one frame.', { tool: 'camera_look' });
+    let frame;
+    try {
+      frame = await this.camera.capture({ sessionId: session_id, signal, onRequest: capture_id => emit('camera_capture', 'Asked this page for one camera frame.', { tool: 'camera_look', capture_id }) });
+    } catch (error) {
+      if (error instanceof CameraFailure) return failed(error.code);
+      throw error;
+    }
+    checkCancelled(signal);
+    emit('camera_analyzing', 'Reading the frame with SAM 3.1 and Muse Spark.', { tool: 'camera_look' });
+    let seen;
+    try { seen = await this.camera.look(frame, { question: ask.question, find: ask.find, signal }); }
+    catch (error) {
+      checkCancelled(signal);
+      return failed('unreadable');
+    }
+    emit('tool_result', 'Looked once; the frame was not kept.', { tool: 'camera_look', ok: true, result: { located: seen.detected } });
+    // Kept with the turn, so a later "what color was my shirt?" can be answered from what was seen.
+    tool_events.push({ tool: 'camera_look', status: 'completed', message: `Looked through this device's camera once and did not keep the picture. It showed: ${seen.observation}`.slice(0, 300) });
+    return seen;
   }
 
   async runSimpleSpotify({ control, context, emit, tool_events, ids }) {
@@ -773,6 +920,8 @@ export class Assistant {
     if (name.startsWith('routine_')) return result.started ? 'Activated the saved routine request.' : result.read ? 'Read the saved routine without starting it.' : result.mode === 'suggest' ? 'Suggested a routine; waiting for confirmation.' : result.mode === 'ignored' ? 'Kept the routine inactive for this informational message.' : name === 'routine_delete' ? 'Deleted the saved routine.' : 'Saved the routine request.';
     if (name === 'prepare_web_search') return 'Checked permission to search the web.';
     if (name === 'show_connections') return 'Opened the connection options on the large screen.';
+    if (name === 'camera_status') return `Checked this device's camera: ${result.device_camera}. It was not turned on.`;
+    if (name === 'camera_look') return result.asked ? 'Asked before turning on the camera.' : 'No camera was available, so nothing was turned on.';
     if (name.startsWith('memory_') && result?.applies_now) return result.publishes_after_close ? 'Applied for this conversation; it is reviewed for permanent memory after the conversation closes.' : 'Applied for this conversation only.';
     if (name === 'memory_read_sources') return 'Read original messages.';
     if (name.startsWith('memory_')) return ({ memory_save_rule: 'Saved and compiled the standing instruction.', memory_save_fact: 'Saved general household information.', memory_search: 'Searched retained memory.', memory_read_document: 'Read the requested document section.', memory_forget: 'Deleted the requested memory and related recall records.', memory_resolve_conflict: 'Applied your rule-conflict choice.' })[name] || 'Memory updated.';

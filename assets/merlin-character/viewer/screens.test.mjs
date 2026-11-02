@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Mesh,MeshStandardMaterial,PlaneGeometry} from './vendor/three/build/three.module.min.js';
-import {ScreenSurface,surfaceBasis,syncScreenAspect,drawMessage} from './screens.js';
+import {ScreenSurface,collectScreens,surfaceBasis,syncScreenAspect,drawMessage} from './screens.js';
 import {ScreenHandoff,beginScreenEdit,screenEditPlan} from './screen-layout.js';
 
 class Context {
@@ -137,4 +137,12 @@ test('HTML images must be decoded before assignment without disturbing existing 
   const screen=surface('right');screen.draw(()=>{});const prior=screen.content,image=new Picture();image.naturalWidth=image.naturalHeight=0;
   assert.throws(()=>screen.setSource(image),/Load or decode/);assert.equal(screen.content,prior);
   image.naturalWidth=640;image.naturalHeight=480;assert.doesNotThrow(()=>screen.setSource(image));
+});
+
+test('the camera viewfinder knows its real shape from geometry, and has no animated basis to reflow it',()=>{
+  const material=new MeshStandardMaterial();material.name='MERLIN_Screen_camera';
+  const screens=collectScreens(new Mesh(new PlaneGeometry(5.65,1.96),material));
+  assert.ok(Math.abs(screens.camera.shape-5.65/1.96)<1e-6);
+  assert.equal(screens.camera.basis,undefined);
+  assert.equal(screens.camera.aspect,1280/720,'It stays at its authored texture shape until live content needs otherwise');
 });

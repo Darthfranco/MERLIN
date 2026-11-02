@@ -479,3 +479,41 @@ test('actual exported geometry can snap to full face and hide every carried prop
   assert.equal(smile.morphTargetInfluences[smile.morphTargetDictionary.Whistle], .52);
   speech.restore(); assert.deepEqual(smile.morphTargetInfluences, original);
 });
+
+function viewfinderFixture(options) {
+  const built = fixture(options), {screens} = built, paints = [];
+  screens.camera = {width: 1280, height: 720, aspect: 1280 / 720, shape: 5.65 / 1.96, ticks: 0, resets: 0, cleared: 0, canvas: {width: 1280, height: 720},
+    context: {clearRect() {paints.push('cleared');}},
+    draw(painter, drawOptions) {this.painter = painter; this.options = drawOptions;}, tick() {this.ticks++;},
+    setAspect(aspect) {this.aspect = aspect;}, reset() {this.resets++; this.painter = null;}};
+  return {...built, paints};
+}
+
+test('the viewfinder paints live content at its true shape, every rendered frame, until cleared', () => {
+  const {driver, screens, paints} = viewfinderFixture(), painter = () => {};
+  assert.equal(driver.viewfinderLive, false);
+  assert.equal(driver.clearViewfinder(), false, 'Nothing to clear yet');
+  assert.equal(driver.showViewfinder(painter), true);
+  assert.equal(driver.viewfinderLive, true);
+  assert.equal(screens.camera.painter, painter);
+  assert.deepEqual(screens.camera.options, {animate: true, reflow: true});
+  assert.ok(Math.abs(screens.camera.aspect - 5.65 / 1.96) < 1e-9, 'The band is about 2.88:1, and a person must not be stretched to fit it');
+  driver.syncScreens(); driver.syncScreens();
+  assert.equal(screens.camera.ticks, 2);
+  assert.equal(driver.clearViewfinder(), true);
+  assert.equal(driver.viewfinderLive, false);
+  assert.equal(screens.camera.resets, 1, 'Back to the authored synthetic viewfinder');
+  assert.equal(screens.camera.aspect, 1280 / 720, 'At its authored texture shape');
+  assert.deepEqual(paints, ['cleared'], 'No camera pixels stay behind in the surface');
+  driver.syncScreens();
+  assert.equal(screens.camera.ticks, 2, 'Nothing paints once it is cleared');
+});
+
+test('a character without a viewfinder, or one being destroyed, declines politely', () => {
+  const {driver} = fixture();
+  assert.equal(driver.showViewfinder(() => {}), false);
+  assert.equal(driver.clearViewfinder(), false);
+  const other = viewfinderFixture();
+  other.driver.destroy();
+  assert.equal(other.driver.showViewfinder(() => {}), false);
+});

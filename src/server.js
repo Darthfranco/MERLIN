@@ -26,6 +26,8 @@ import { companionAsset, companionCsp, connectionState, presentationEvent, prese
 import { ConnectorHub } from './connectors/hub.js';
 import { createConnectors } from './connectors/index.js';
 import { readWebPage } from './web-page.js';
+import { CameraService } from './camera.js';
+import { MAX_CAMERA_FRAME_BYTES } from './limits.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_FILES = new Map([
@@ -72,7 +74,9 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
   const routineStore = await new RoutinesStore({ filePath: join(dataDir, 'routines.json') }).init();
   const routines = new RoutineService({ store: routineStore, memoryStore: store });
   engine.attachRoutines(routineStore);
-  const assistant = new Assistant({ meta, timers, memory, routines, spotify, connections, pageReader });
+  // Asks and frames live only in memory: a restart forgets any pending yes, and a frame is never written anywhere.
+  const camera = new CameraService({ meta });
+  const assistant = new Assistant({ meta, timers, memory, routines, spotify, connections, pageReader, camera });
   const acknowledgmentCatalog = await loadAcknowledgmentCatalog();
   const acknowledgmentSettings = { available: Boolean(acknowledgmentCatalog), ...acknowledgmentTiming() };
   // Decided at acceptance from current rules and settings, so a change applies to the next request.
@@ -307,6 +311,8 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
       if (['GET', 'HEAD'].includes(req.method) && (path.startsWith('/companion') || path.startsWith('/character/') || path === '/voice/recorder-worklet.js' || path === '/connections' || path.startsWith('/connections/'))) {
         const asset = await companionAsset(ROOT, path);
         if (!asset) throw new AppError('Not found.', 404);
+        // Only the home surface can reach the camera, and it still asks every time.
+        if (path.startsWith('/companion')) res.setHeader('Permissions-Policy', 'microphone=(self), camera=(self)');
         // The Connection Center page runs in live mode only when MERLIN itself serves it.
         const content = asset.type.startsWith('text/html') && asset.live ? Buffer.from(asset.content.toString('utf8').replace('<html lang="en">', '<html lang="en" data-live="true">')) : asset.content;
         res.setHeader('Content-Security-Policy', companionCsp(asset.hashes));
@@ -375,7 +381,17 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         json(200, document); return;
       }
       if (req.method !== 'POST') throw new AppError('Not found.', 404);
-      const body = await bodyOf(req, path === '/api/documents' ? 650_000 : path === '/api/routines' ? 90_000 : 16_384);
+      const body = await bodyOf(req, path === '/api/documents' ? 650_000 : path === '/api/routines' ? 90_000 : path === '/api/companion/camera/frame' ? Math.ceil(MAX_CAMERA_FRAME_BYTES * 4 / 3) + 512 : 16_384);
+      if (path === '/api/companion/camera/status') {
+        objectArgs(body, ['session_id', 'state', 'count']); uuid(body.session_id);
+        json(200, camera.report(body.session_id, body)); return;
+      }
+      if (path === '/api/companion/camera/frame') {
+        // Lands only in a capture this server is already waiting on, which only a yes can start. It is never written to disk.
+        objectArgs(body, ['capture_id', 'image', 'error']); uuid(body.capture_id);
+        camera.deliver(body);
+        json(200, { ok: true }); return;
+      }
       if (['/api/companion/speak', '/api/companion/timer-speech', '/api/companion/audio-check'].includes(path)) {
         const announcement = path === '/api/companion/timer-speech';
         const audioCheck = path === '/api/companion/audio-check';
@@ -459,7 +475,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         } else if (path === '/api/documents') {
           objectArgs(body, ['id', 'title', 'description', 'content']); await memory.putDocument(body); if (body.id) clearCaches();
         } else if (path === '/api/memory/clear') {
-          objectArgs(body, []); await memory.clearAll(learning); await routineStore.clear(); sessions.clear(); clearCaches();
+          objectArgs(body, []); await memory.clearAll(learning); await routineStore.clear(); camera.clear(); sessions.clear(); clearCaches();
         } else if (path === '/api/memory/retry-learning') {
           objectArgs(body, []); await learning.retry();
         } else throw new AppError('Not found.', 404);
@@ -501,6 +517,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         if (sessions.get(body.session_id)?.busy) throw new AppError('Wait for the current reply before clearing the conversation.', 409);
         await memory.clearConversation(body.session_id);
         await routineStore.clearSession(body.session_id);
+        camera.forget(body.session_id);
         await learning.clear();
         sessions.delete(body.session_id); clearCaches();
         json(200, { ok: true });
@@ -536,7 +553,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
   });
   const closeVoice = () => { voiceSocket.close(); listener.close(); for (const pending of speechPending) pending.abort(); Promise.resolve(tts.close()).catch(() => {}); };
   server.on('close', () => { clearInterval(interval); closeVoice(); learning.close().catch(() => {}); });
-  return { server, timers, meta, store, memory, learning, engine, routines, routineStore, spotify, connections, runChatTurn, timerAlert, replyAudio, closeVoice };
+  return { server, timers, meta, store, memory, learning, engine, routines, routineStore, spotify, connections, camera, runChatTurn, timerAlert, replyAudio, closeVoice };
 
 }
 

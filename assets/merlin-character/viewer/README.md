@@ -63,6 +63,8 @@ merlin.screens.left.draw((ctx, w, h, seconds) => {
 merlin.screens.camera.setSource(myCanvasOrImageOrVideo);
 merlin.screens.camera.reset(); // restore the bundled synthetic viewfinder
 merlin.go('camera'); // expand from the current body context
+// The companion's runtime paints a live look with driver.showViewfinder(painter) and clearViewfinder(),
+// which also correct the viewfinder's true 2.88:1 shape and wipe its pixels afterward.
 merlin.body(); // zoom back out to that activity and its open panels
 merlin.pause();
 merlin.resume();

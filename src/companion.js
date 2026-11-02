@@ -3,13 +3,13 @@ import { readFile, realpath } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
 
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.glb': 'model/gltf-binary', '.png': 'image/png', '.svg': 'image/svg+xml', '.wav': 'audio/wav' };
-const STAGES = new Set(['received', 'context', 'model', 'routine', 'memory', 'search_ready', 'tool_start', 'tool_result', 'output_check', 'delivered', 'interrupted', 'failed']);
-const TOOLS = new Set(['create_timer', 'list_timers', 'cancel_timer', 'show_connections', 'web_search', 'read_web_page', 'home_list_devices', 'home_get_state', 'home_control', 'spotify_search', 'spotify_playlists', 'spotify_status', 'spotify_control', 'routine_save', 'routine_read', 'routine_use', 'routine_delete', 'memory_save_fact', 'memory_save_rule', 'memory_search', 'memory_read_document', 'memory_forget', 'memory_resolve_conflict']);
+const STAGES = new Set(['received', 'context', 'model', 'routine', 'memory', 'search_ready', 'tool_start', 'tool_result', 'camera_capture', 'camera_analyzing', 'output_check', 'delivered', 'interrupted', 'failed']);
+const TOOLS = new Set(['create_timer', 'list_timers', 'cancel_timer', 'show_connections', 'web_search', 'read_web_page', 'camera_status', 'camera_look', 'home_list_devices', 'home_get_state', 'home_control', 'spotify_search', 'spotify_playlists', 'spotify_status', 'spotify_control', 'routine_save', 'routine_read', 'routine_use', 'routine_delete', 'memory_save_fact', 'memory_save_rule', 'memory_search', 'memory_read_document', 'memory_forget', 'memory_resolve_conflict']);
 
 // Deliberately discard free text, arguments, evidence, results and provider metadata.
 export function presentationEvent(stage, at_ms, data) {
   if (!STAGES.has(stage)) return null;
-  return { stage, at_ms, ...(TOOLS.has(data?.tool) ? { tool: data.tool } : {}), ...(typeof data?.ok === 'boolean' ? { ok: data.ok } : {}) };
+  return { stage, at_ms, ...(TOOLS.has(data?.tool) ? { tool: data.tool } : {}), ...(typeof data?.ok === 'boolean' ? { ok: data.ok } : {}), ...(stage === 'camera_capture' && typeof data?.capture_id === 'string' ? { capture_id: data.capture_id } : {}) };
 }
 
 export function connectionState(spotify, hub) {

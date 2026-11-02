@@ -128,7 +128,7 @@ function visiblePanels(controller) {
 export function createCharacterDriver({controller, screens, panelArt = {}, reducedMotion = false, onStatus = () => {}, invalidate = () => {}}) {
   let wanted = 'ready', destroyed = false, lastSide = 'right', speaking = 0, listening = false, transitionPace = 1;
   let bridge = null, requestedAlias = 'ready', moving = false, retainedBody = 'ready';
-  const panels = {left: null, right: null}; let panelPaints = 0;
+  const panels = {left: null, right: null}; let panelPaints = 0, viewfinder = false;
   const handoff = typeof screens.left?.copyFrom === 'function' && screens.right ? new ScreenHandoff(screens, () => {
     // The left texture needs its own record so live polling follows the card,
     // while later edits to the retained right record remain independent.
@@ -306,12 +306,31 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     }
     invalidate(); return true;
   }
+  /** Paints the camera face's own viewfinder every rendered frame, until it is cleared. */
+  function showViewfinder(painter) {
+    if (destroyed || !screens.camera) return false;
+    screens.camera.draw(painter, {animate: true, reflow: true});
+    // The authored picture is made for its stretched 16:9 texture. Live content must not be stretched.
+    if (screens.camera.shape) screens.camera.setAspect(screens.camera.shape);
+    viewfinder = true; invalidate(); return true;
+  }
+  /** Back to the authored synthetic viewfinder, leaving no camera pixels behind in the surface. */
+  function clearViewfinder() {
+    if (!viewfinder) return false;
+    viewfinder = false;
+    const surface = screens.camera;
+    surface.aspect = surface.width / surface.height;
+    surface.reset?.();
+    surface.context?.clearRect(0, 0, surface.canvas.width, surface.canvas.height);
+    invalidate(); return true;
+  }
   function syncScreens() {
     handoff?.sync(controller.clip);
     for (const side of visiblePanels(controller)) if (screens[side]) syncScreenAspect(screens[side]);
+    if (viewfinder) screens.camera.tick(performance.now() / 1000);
   }
   return {
-    go, body, ready, dismissScreen, resolveDestination, showPanel, updatePanel, clearPanel, refreshPanels, syncScreens, motionChanged, capabilities,
+    go, body, ready, dismissScreen, resolveDestination, showPanel, updatePanel, clearPanel, refreshPanels, showViewfinder, clearViewfinder, syncScreens, motionChanged, capabilities,
     setSpeaking(level) { speaking = Number.isFinite(level) ? Math.max(0, Math.min(1, level)) : level === true ? .5 : 0; },
     setListening(value) { listening = Boolean(value); },
     get state() { return state(); }, get desired() { return wanted; }, get phase() { return phase(); },
@@ -320,6 +339,7 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     get reducedMotion() { return reducedMotion; }, get panel() { return readPanel(); },
     get panelPaints() { return panelPaints; },
     get hasDynamicPanels() { return Object.values(panels).some(panel => typeof panel?.data === 'function'); },
+    get viewfinderLive() { return viewfinder; },
     get panels() { return {left: readPanel(panels.left), right: readPanel(panels.right)}; },
     setReducedMotion(value) { reducedMotion = Boolean(value); go(wanted, {urgent: true}); },
     whenSettled(next, signal) {
@@ -462,8 +482,9 @@ export async function createCharacter({canvas, stage, onStatus = () => {}, onErr
     let elapsed = 0;
     renderLoop = createRenderLoop({visible: !document.hidden,
       animated: () => !driver.reducedMotion && !controller.paused,
-      dynamic: () => driver.hasDynamicPanels && visiblePanels(controller).size > 0,
-      poll: () => driver.refreshPanels(visiblePanels(controller)),
+      // With reduced motion the scene otherwise sleeps, and a live feed still has to keep moving.
+      dynamic: () => driver.viewfinderLive || (driver.hasDynamicPanels && visiblePanels(controller).size > 0),
+      poll: () => driver.refreshPanels(visiblePanels(controller)) || driver.viewfinderLive,
       render: delta => {
       if (disposed) return;
       speech.restore(); controller.update(delta);

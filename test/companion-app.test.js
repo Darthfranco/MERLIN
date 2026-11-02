@@ -8,6 +8,7 @@ import {floatingActivityPlan} from '../public/companion/floating-activities.js';
 import {TimerAlertQueue} from '../public/companion/timer-alerts.js';
 import * as acknowledgmentsModel from '../public/companion/acknowledgments.js';
 import * as connectionsModel from '../public/companion/connections-panel.js';
+import * as deviceCameraModel from '../public/companion/device-camera.js';
 import {connectionTargets,pageCount} from '../assets/merlin-character/viewer/panels/connections.js';
 import {AnimationMixer,AnimationClip,Object3D} from '../assets/merlin-character/viewer/vendor/three/build/three.module.min.js';
 import {MotionController} from '../assets/merlin-character/viewer/motion.js';
@@ -70,7 +71,7 @@ async function fixture(t,{timers=[],chatResult,chat,progress,tts,realDriver=fals
     hide(id){this.cards.delete(id);}
     destroy(){this.cards.clear();}
   }
-  const context=createContext({...orchestration,...connectionsModel,...acknowledgmentsModel,connectionTargets,pageCount,floatingActivityPlan,SceneOverlays,TimerAlertQueue,document,window,URL:ObjectURL,Blob,AbortController,AbortSignal,Date,Intl,crypto:{randomUUID},sessionStorage:storage,localStorage:storage,innerWidth:1200,location:{reload(){}},
+  const context=createContext({...orchestration,...connectionsModel,...acknowledgmentsModel,...deviceCameraModel,connectionTargets,pageCount,floatingActivityPlan,SceneOverlays,TimerAlertQueue,document,window,URL:ObjectURL,Blob,AbortController,AbortSignal,Date,Intl,crypto:{randomUUID},sessionStorage:storage,localStorage:storage,innerWidth:1200,location:{reload(){}},
     CompanionVoiceClient:Voice,unlockAudioPlayback:()=>Promise.resolve(true),formatDuration:seconds=>String(seconds),
     createCharacter:async options=>{notify=options.onStatus;notify({state:'ready',desired:'ready',phase:'idle',clip:'ReadyIdle'});return runtime;},
     matchMedia:()=>({matches:false,addEventListener(){}}),Option:class extends Element{constructor(text,value){super('option');this.textContent=text;this.value=value;}},
@@ -542,4 +543,155 @@ test('a voice turn acknowledges from its transcript once, queues the answer behi
   h.run("voiceEvent({type:'interrupt',revision:10})");
   assert.equal(h.ack.src,'','speech stops the filler immediately');assert.equal(h.o.acknowledging,false);
   assert.equal(h.o.phase,'listening');
+});
+
+// A stand-in camera for the real page. captureFrame itself has its own tests and a real-Chrome check.
+function cameraPage(h,{frame='data:image/jpeg;base64,/9j/4A==',failure}={}){
+  const painters=[];let clears=0,release,started=0;
+  h.runtime.showViewfinder=painter=>{painters.push(painter);return true;};
+  h.runtime.clearViewfinder=()=>{clears++;return true;};
+  h.run('globalThis.__capture={}');
+  const context=h.run('globalThis');
+  context.captureFrame=async options=>{
+    started++;context.__capture.options=options;options.onLive();options.onCountdown(3);
+    await new Promise((resolve,reject)=>{release=resolve;options.signal.addEventListener('abort',()=>reject(Object.assign(new Error('cancelled'),{code:'cancelled'})),{once:true});});
+    if(failure)throw Object.assign(new Error(failure),{code:failure});
+    return frame;
+  };
+  context.paintViewfinder=()=>{};
+  const posted=()=>h.requests.filter(request=>request.path==='/api/companion/camera/frame').map(request=>JSON.parse(request.options.body));
+  return {painters,posted,get clears(){return clears;},get started(){return started;},release:()=>release?.()};
+}
+const capturing=id=>({status:'running',events:[{stage:'camera_capture',tool:'camera_look',capture_id:id,at_ms:1}]});
+
+test('the page reports what camera it has at startup, and never opens one to do it',async t=>{
+  const h=await fixture(t);await flush();
+  const report=h.requests.find(request=>request.path==='/api/companion/camera/status');
+  assert.ok(report,'The server needs to know before it can offer to look');
+  assert.deepEqual(JSON.parse(report.options.body).state,'unsupported','This sandbox has no camera API');
+  assert.equal(h.element('camera-state').textContent,'');
+});
+
+test('the camera question shows its buttons, and each sends the person\'s answer as words',async t=>{
+  const h=await fixture(t,{chatResult:{reply:'Shall I turn on the camera and take a look, mister?',tool_events:[],timers:[],camera:{state:'asking'}}});
+  h.element('read-aloud').checked=false;
+  await h.run("submit('Does my outfit match?')");
+  assert.equal(h.element('camera-consent').hidden,false);
+  const sent=()=>h.requests.filter(request=>request.path==='/api/chat').map(request=>JSON.parse(request.options.body).message);
+  await h.element('camera-allow').dispatch('click');
+  assert.equal(h.element('camera-consent').hidden,true,'The buttons go as soon as they are answered');
+  await h.until(()=>sent().length===2);
+  assert.equal(sent()[1],'Yes, turn on the camera.');
+  await h.until(()=>h.element('camera-consent').hidden===false);
+  await h.element('camera-decline').dispatch('click');await h.until(()=>sent().length===3);
+  assert.equal(sent()[2],'No, leave the camera off.');
+});
+
+test('an ordinary reply never shows the camera buttons',async t=>{
+  const h=await fixture(t,{chatResult:{reply:'Hello.',tool_events:[],timers:[]}});
+  h.element('read-aloud').checked=false;
+  h.element('camera-consent').hidden=true;
+  await h.run("submit('Hello')");
+  assert.equal(h.element('camera-consent').hidden,true);
+});
+
+test('a look runs on MERLIN\'s own viewfinder: visible, then off, and one frame goes to the server',async t=>{
+  const answer=deferred();
+  const h=await fixture(t,{chat:()=>answer.promise,progress:()=>capturing('capture-a')});
+  h.element('read-aloud').checked=false;
+  const camera=cameraPage(h),work=h.run("submit('Yes, turn on the camera.')");
+  await h.until(()=>camera.started===1);
+  const clearsWhenOpened=camera.clears;
+  assert.equal(camera.painters.length,1,'The feed is painted on the camera face');
+  assert.equal(h.runtime.desired,'camera');
+  assert.equal(h.o.view.label,'Get in frame…');
+  assert.equal(h.element('camera-state').textContent,'Camera on · 3');
+  assert.equal(h.element('camera-state').dataset.on,'true');
+  assert.equal(h.element('camera-close').hidden,false,'The person can always turn it off');
+  camera.release();
+  await h.until(()=>camera.posted().length===1);
+  assert.equal(camera.posted()[0].capture_id,'capture-a');
+  assert.match(camera.posted()[0].image,/^data:image\/jpeg/u);
+  assert.equal(h.element('camera-state').textContent,'Camera off');
+  assert.equal(h.element('camera-close').hidden,true);
+  await flush();
+  assert.equal(camera.started,1,'Repeated progress events do not take another frame');
+  answer.resolve({reply:'That matches.',tool_events:[],timers:[],camera:{state:'looked',segments:[{label:'shirt',x1:1,y1:1,x2:5,y2:5,width:10,height:10}]}});
+  await h.until(()=>h.o.view.label==='Here’s what I found');
+  assert.equal(h.runtime.desired,'camera','What SAM found holds on the camera face before MERLIN turns to answer');
+  assert.equal(h.run('viewfinder.segments.length'),1);
+  assert.equal(camera.clears,clearsWhenOpened,'Still on the viewfinder during the hold');
+  await work;
+  assert.equal(h.runtime.desired,'face','The mouth is hidden in camera mode, so it answers from the face');
+  assert.ok(camera.clears>clearsWhenOpened,'The picture is gone from the viewfinder');
+  assert.equal(h.run('viewfinder.source'),null);
+  assert.equal(h.run('viewfinder.segments.length'),0);
+});
+
+test('turning the camera off tells the server, so MERLIN can say it did not look',async t=>{
+  const answer=deferred();
+  const h=await fixture(t,{chat:()=>answer.promise,progress:()=>capturing('capture-b')});
+  h.element('read-aloud').checked=false;
+  const camera=cameraPage(h),work=h.run("submit('Yes, turn on the camera.')");
+  await h.until(()=>camera.started===1);
+  const clearsWhenOpened=camera.clears;
+  await h.element('camera-close').dispatch('click');
+  await h.until(()=>camera.posted().length===1);
+  assert.deepEqual(camera.posted()[0],{capture_id:'capture-b',error:'cancelled'});
+  assert.equal(h.element('camera-state').textContent,'Camera off');
+  assert.ok(camera.clears>clearsWhenOpened);
+  answer.resolve({reply:'Righto, the camera’s off and I didn’t look.',tool_events:[],timers:[]});
+  await work;
+});
+
+test('a browser refusal reaches the server as a reason, not a picture',async t=>{
+  const answer=deferred();
+  const h=await fixture(t,{chat:()=>answer.promise,progress:()=>capturing('capture-c')});
+  h.element('read-aloud').checked=false;
+  const camera=cameraPage(h,{failure:'denied'}),work=h.run("submit('Yes, turn on the camera.')");
+  await h.until(()=>camera.started===1);
+  camera.release();
+  await h.until(()=>camera.posted().length===1);
+  assert.deepEqual(camera.posted()[0],{capture_id:'capture-c',error:'denied'});
+  answer.resolve({reply:'The browser blocked my camera, so I didn’t look.',tool_events:[],timers:[]});
+  await work;
+});
+
+test('stopping the turn shuts the camera, and the server is not sent a frame it gave up on',async t=>{
+  const h=await fixture(t,{chat:()=>new Promise(()=>{}),progress:()=>capturing('capture-d')});
+  h.element('read-aloud').checked=false;
+  const camera=cameraPage(h);
+  void h.run("submit('Yes, turn on the camera.')");
+  await h.until(()=>camera.started===1);
+  const clearsWhenOpened=camera.clears;
+  h.run('invalidate()');
+  await flush();await flush();
+  assert.equal(camera.posted().length,0);
+  assert.equal(h.element('camera-state').textContent,'Camera off');
+  assert.equal(h.element('camera-close').hidden,true);
+  assert.ok(camera.clears>clearsWhenOpened);
+});
+
+test('hiding the page shuts the camera too',async t=>{
+  const h=await fixture(t,{chat:()=>new Promise(()=>{}),progress:()=>capturing('capture-e')});
+  h.element('read-aloud').checked=false;
+  const camera=cameraPage(h);
+  void h.run("submit('Yes, turn on the camera.')");
+  await h.until(()=>camera.started===1);
+  h.document.visibilityState='hidden';await h.document.dispatch('visibilitychange');
+  await flush();await flush();
+  assert.equal(h.element('camera-state').textContent,'Camera off');
+  assert.equal(camera.posted().length,0);
+});
+
+test('a voice look takes the same path from a progress event',async t=>{
+  const h=await fixture(t);
+  const camera=cameraPage(h);
+  h.run("voiceEvent({type:'state',state:'transcribing',revision:7})");
+  h.run(`voiceEvent({type:'progress',revision:7,requestId:'voice-a',progress:${JSON.stringify(capturing('capture-v').events[0])}})`);
+  await h.until(()=>camera.started===1);
+  assert.equal(h.runtime.desired,'camera');
+  camera.release();
+  await h.until(()=>camera.posted().length===1);
+  assert.equal(camera.posted()[0].capture_id,'capture-v');
 });

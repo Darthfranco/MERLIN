@@ -10,6 +10,8 @@ Built for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Ce
 
 **Spoken acknowledgments:** when MERLIN takes a slower request at `/companion/`, it says one short prerecorded line in Fenrir, such as “You got it, mister,” while the real work runs, then moves straight into the answer. This shortens the felt wait, not the model's actual processing time. Turn it off with **Acknowledge requests aloud** on the page. The clips ship in the repository; `npm run prepare:acknowledgments -- --force` records them again. See [how it works](docs/ORCHESTRATION.md#prerecorded-acknowledgments--november-2-2026).
 
+**MERLIN's camera:** ask “Does my outfit match?” at `/companion/`. MERLIN always asks before turning on the camera, then its face switches to camera mode: lens eyes and a live viewfinder. SAM 3.1 finds what's in the picture, Muse Spark reads it, and MERLIN answers and remembers what it saw in words. The picture isn't kept. Doorbells and home cameras such as Ring are never used for this. See [how it works and its limits](docs/CAMERA.md).
+
 **Separate voice lab:** run `npm ci` and `npm run setup:voice` once, then `npm run voice` and open [localhost:3001](http://127.0.0.1:3001). Choose a Fenrir delivery and type, record, or enable local “MERLIN” wake detection. The lab supports automatic speech completion, interruption, and follow-ups. Idle audio stays local; active clips go to Meta for transcription, then local Kokoro reads the words back. See [voice setup and privacy](docs/VOICE.md).
 
 **Four-model voice comparison:** run `npm run setup:voice-compare` once on an Apple Silicon Mac, then `npm run voice:compare` and open [localhost:3004](http://127.0.0.1:3004). Compare actual Pocket 100M, Chatterbox Nano, Qwen 0.6B Base ANE, and Kokoro Fenrir audio with first/warm timings. Reference conditioning is supported; no model weights are trained. See [setup, reference requirements, and timing definitions](docs/VOICE_COMPARISON.md).
@@ -51,6 +53,7 @@ Meta models are a core product requirement. Kokoro is the tentative speech synth
 | [Project status](docs/STATUS.md) | Current implementation state, decisions, and next steps |
 | [Hosting options](docs/HOSTING.md) and [optional toolkit](deploy/README.md) | Compare home/cloud routes, inspect prerequisites, and supervise the current local assistant; shared-device access remains pending |
 | [Phone companion](docs/PHONE.md) | Standalone phone demo, shared text/voice browser memory, attachments, and branded connection settings |
+| [MERLIN's camera](docs/CAMERA.md) | Asking first, device versus home cameras, SAM 3.1 and Muse Spark, what leaves the home, verification, and limits |
 | [Spotify setup and privacy](docs/SPOTIFY.md) | Connect an account, playback controls, data boundaries, and limitations |
 | [Memory and routines](docs/MEMORY.md) | Memory lab, rule scopes, retention, routine activation, and testing (legacy engine) |
 | [Memory engine v2](docs/MEMORY_V2.md) | Owner's replacement memory procedure: lifecycle, hybrid retrieval, setup, rollback, and limits |

@@ -51,7 +51,8 @@ export class Orchestrator {
   }
   show(destination,label,panel=this.panel,{dismiss=false}={}) {
     this.intended={destination,label};
-    const pose=this.acknowledging&&!this.reducedMotion&&workPhases.has(this.phase)?speakingPose(destination,this.bodyLayout):destination;
+    // The camera face stays up through a filler: its viewfinder is how the person gets in frame.
+    const pose=this.acknowledging&&!this.reducedMotion&&workPhases.has(this.phase)&&destination!=='camera'?speakingPose(destination,this.bodyLayout):destination;
     this.view={destination:pose,label,panel,panels:{...this.panels},pending:this.pending,bodyLayout:this.bodyLayout,speechDestination:this.speechDestination,focusSide:this.focusSide,phase:this.phase,epoch:this.epoch,dismiss,acknowledging:this.acknowledging};
     this.render(this.view);return this.view;
   }
@@ -96,6 +97,8 @@ export class Orchestrator {
     for(const event of events || []){
       const key=JSON.stringify(event);if(this.seen.has(key))continue;this.seen.add(key);
       if(event.stage==='search_ready'){this.phase='searching';this.show('search','Looking that up…');continue;}
+      if(event.stage==='camera_capture'){this.phase='searching';this.show('camera','Get in frame…');continue;}
+      if(event.stage==='camera_analyzing'){this.phase='searching';this.show('camera','Taking a good look…');continue;}
       if(['tool_start','tool_result'].includes(event.stage)){
         if(event.tool==='web_search'||event.tool==='prepare_web_search') {
           this.phase='searching';this.show('search','Looking that up…');continue;
@@ -136,6 +139,8 @@ export class Orchestrator {
     }
     return true;
   }
+  /** Holds the camera face on what was found, for the moment before MERLIN turns to answer. */
+  looked(id){if(id!==this.turn)return false;this.show('camera','Here’s what I found');return true;}
   reply(id){if(id!==this.turn)return false;this.pending=null;this.speechDestination=this.actionRepliesInBody&&this.turnHadAction&&this.panel?this.bodyLayout:'face';this.phase='reply';this.show(this.speechDestination,'MERLIN');return true;}
   prepareSpeech({destination=this.speechDestination}={}){this.pending=null;this.speechDestination=destination;this.phase='reply';this.show(destination,'MERLIN');}
   speaking({destination,body=false}={}){this.speechDestination=destination||(body?this.bodyLayout:this.speechDestination);this.phase='speaking';this.show(this.speechDestination,'Speaking');}

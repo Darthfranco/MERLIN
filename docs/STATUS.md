@@ -2,6 +2,22 @@
 
 Last updated: **November 2, 2026**.
 
+## Device camera — November 2, 2026
+
+The owner asked MERLIN to check for a device camera, see with it through the SAM 3.1 API, and have a tool to look: for “does my outfit match?”, always ask first, remember what was seen, and never use Ring or other home cameras for this, telling the two apart. Full design, decisions and limits: [CAMERA.md](CAMERA.md).
+
+**Works:** at `/companion/`, on the typed and voice paths. MERLIN asks without a model call. Only the person's own plain yes in the next message opens the camera, for one frame. The look runs on MERLIN's authored camera mode: lens eyes and the live viewfinder, then the still with SAM 3.1's boxes, then back to the speaking face with the picture wiped. SAM 3.1 finds things and Muse Spark interprets, because Meta documents SAM 3.1 as geometry only. The description in words is stored with the turn, so follow-ups are answered without reopening the camera; the picture is never stored. Home-camera requests never get the camera tools and open the connection screen. Asking to use a doorbell for an outfit is refused, and MERLIN offers its own camera. The model has `camera_look` and `camera_status`, and `camera_look` can only ask.
+
+**Verification:** **1,162 automated tests pass** (81 added, 1,081 before). The safety rules were deliberately broken 29 ways in a throwaway copy, and tests failed all 29 times; two further attempted breakages changed no behavior and don't count. `npm run check:camera` passed 28 of 28 in real Chrome with real `getUserMedia`, real clicks and a scripted model. `npm run check:camera -- --live` passed 27 of 27 on each of four runs against the real Meta APIs, with a synthetic mannequin picture as the camera feed. From the frame to the answer took 4.7, 5.5 and 6.8 seconds in three of those runs. `npm run check:acknowledgments` still passes. Screenshots of each stage were reviewed, which caught three defects no check had: Chrome cropping a portrait feed when asked for a height, a stretched viewfinder, and a spoken filler that would have hidden the camera face during the countdown. All three are fixed.
+
+**Not verified:** no real person, real camera or physical device. Chrome's fake camera fed a still picture, so real lighting, real clothes, framing from a distance, Safari, iPad, and the quality of outfit opinions on real people are all unknown. No voice look was run against a real microphone; the voice path was exercised through the real page's voice events and the shared server path.
+
+**Limits.** **No home camera is actually connected:** there is no Ring connector, and the catalog records that Ring has no public API for individuals, so “you have access to Ring” is not yet true. The boundary is built so it holds once one exists. The viewfinder is small for a portrait feed, about 100 pixels wide in a 1280-pixel window. Browser home-camera refusal reads labels, so a bridge with a generic name can't be told apart. The classifier is English pattern matching. Outlines are boxes, because mask encoding is undocumented and `@meta-sam/parser` has an unreviewed custom license. The owner's running server needs a restart to load this.
+
+**Next useful step:** the owner restarts the server and tries it with a real camera and real clothes, then judges the viewfinder size, the answers, and whether pictures should ever be kept.
+
+Contribution: original consent gate, request classifier, SAM 3.1 parser, look pipeline, viewfinder painter and driver hook, capture client, browser check, tests and documentation, on top of the character's existing camera state. One synthetic test picture from standard Muse Image. No new dependency or household data.
+
 ## Prerecorded acknowledgments — November 2, 2026
 
 The owner asked MERLIN to say a short recorded line while a request runs, to show it heard the person. This reduces the felt wait, not processing time; no speed improvement is claimed. Design, eligibility and controls: [ORCHESTRATION.md](ORCHESTRATION.md#prerecorded-acknowledgments--november-2-2026).

@@ -145,6 +145,10 @@ The single-line request field, Send button, and explicit microphone toggle form 
 
 A compact state line keeps presentation and microphone state readable together. Replies use a polite live region; source links appear below the answer. Notices use warm text and concrete recovery wording. Character loading and failure states stay inside the stage, including a Reload character button; typing and voice controls remain available.
 
+### Camera mode
+
+A look uses the character's authored camera state, with lens eyes and the viewfinder in place of the mouth, rather than a separate preview window. The viewfinder fits the picture whole on a dark band with pale cyan corner brackets, a countdown, and SAM 3.1's boxes with pale tags beside the picture. The status line beside the microphone state always says whether the camera is on, in a warm color when it is, with a Turn camera off button. Primary and secondary consent buttons sit below the reply only while MERLIN is asking. The picture is wiped when the speaking face returns.
+
 ### Action controls
 
 Every retained panel has a visible side and label. Timer Cancel/Dismiss accessible names include its side and timer label; Close names its side. These controls are DOM buttons below the stage, distinct from the drawn panel content. Closing one panel preserves the other and uses the authored seated-survivor pose. Close panel changes presentation only; Cancel timer changes the real timer. A single panel can be enlarged and docked left or right without changing its identity.

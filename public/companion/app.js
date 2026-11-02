@@ -8,6 +8,7 @@ import {TimerAlertQueue} from './timer-alerts.js';
 import {panelState,initialUi,applyAction,connectionsPanelRecord,connectorSummary} from './connections-panel.js';
 import {connectionTargets,pageCount} from '/character/viewer/panels/connections.js';
 import {AcknowledgmentCoordinator,AcknowledgmentPlayer,loadAcknowledgmentClips} from './acknowledgments.js';
+import {captureFrame,cameraErrorCode,checkDeviceCamera,paintViewfinder} from './device-camera.js';
 
 const $=id=>document.getElementById(id);
 const timeZone=Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';
@@ -25,6 +26,8 @@ let panelControlsKey='';
 let connectionsUi=initialUi({}), touchKey='', connectionsBusy=false;
 let timerRowsKey='';
 let destroyed=false, stateBusy=false, musicBusy=false, timerBusy=new Set(), voiceEnabled=false;
+let cameraCapture=null, consentTimer=null;const seenCaptures=new Set(),viewfinder={source:null,segments:[],count:0,note:'',scanning:false};
+const VIEWFINDER_HOLD=1600;
 const motionQuery=matchMedia('(prefers-reduced-motion: reduce)');
 try{const saved=localStorage.getItem('merlin-read-aloud');$('read-aloud').checked=saved===null||saved==='true';}catch{$('read-aloud').checked=true;}
 try{$('acknowledgments').checked=localStorage.getItem('merlin-acknowledgments')!=='false';}catch{$('acknowledgments').checked=true;}
@@ -184,7 +187,48 @@ function changeLayout(change){
   }
   change();
 }
-function invalidate({keepAlert=false}={}){generation++;clearSpeech();acknowledgments.cancel();if(!keepAlert)timerAlerts.interrupt();requestController?.abort();requestController=null;stopTyped();$('stop').hidden=true;$('send').disabled=!connected;turnId=null;pollingTurn=null;}
+const cameraMedia=()=>globalThis.navigator?.mediaDevices;
+// Availability only: this never opens the camera or prompts for it. The server needs to know before it offers to look.
+async function reportCamera(){try{await api('/api/companion/camera/status',{session_id:sessionId,...await checkDeviceCamera(cameraMedia())});}catch{}}
+function showCameraOn(on,count=0){$('camera-state').textContent=on?`Camera on${count?` · ${count}`:''}`:'Camera off';$('camera-state').dataset.on=String(on);}
+function hideConsent(){clearTimeout(consentTimer);consentTimer=null;$('camera-consent').hidden=true;}
+// The server stops honoring a yes after two minutes, so the buttons don't outlast it.
+function showConsent(){hideConsent();$('camera-consent').hidden=false;consentTimer=setTimeout(hideConsent,120000);}
+function closeCameraView(){
+  character?.clearViewfinder?.();Object.assign(viewfinder,{source:null,segments:[],count:0,note:'',scanning:false});
+  $('camera-close').hidden=true;const still=$('camera-still');if(still.width){still.width=0;still.height=0;}
+}
+function endCapture(){if(!cameraCapture)return;cameraCapture.controller.abort();cameraCapture=null;}
+/** The server asked for the one frame a yes allows. Whatever happens, the camera is off again when this returns. */
+async function runCapture(id){
+  if(seenCaptures.has(id))return;seenCaptures.add(id);hideConsent();
+  const capture={id,controller:new AbortController(),closed:false};cameraCapture=capture;
+  // Shown on the camera face's own viewfinder, so the authored synthetic picture never reads as a real feed.
+  viewfinder.note='Starting the camera…';$('camera-close').hidden=false;
+  character?.showViewfinder?.((context,width,height,seconds)=>paintViewfinder(context,width,height,{...viewfinder,seconds}));
+  let answer;
+  try{
+    const image=await captureFrame({media:cameraMedia(),video:$('camera-video'),canvas:$('camera-still'),signal:capture.controller.signal,
+      onLive:()=>{showCameraOn(true);Object.assign(viewfinder,{source:$('camera-video'),note:''});},
+      onCountdown:left=>{viewfinder.count=left;showCameraOn(true,left);}});
+    answer={capture_id:id,image};
+  }catch(error){answer={capture_id:id,error:cameraErrorCode(error)};}
+  showCameraOn(false);$('camera-close').hidden=true;
+  if(cameraCapture===capture)cameraCapture=null;
+  // The whole turn was stopped, so the server has already given up on this frame.
+  const stale=capture.controller.signal.aborted&&!capture.closed;
+  if(answer.image&&!stale)Object.assign(viewfinder,{source:$('camera-still'),count:0,scanning:!motionQuery.matches});
+  else closeCameraView();
+  if(!stale)try{await api('/api/companion/camera/frame',answer,{timeout:30000});}catch{}
+}
+function cameraEvents(events){for(const event of events||[])if(event.stage==='camera_capture'&&event.capture_id)void runCapture(event.capture_id);}
+function showCameraResult(camera){
+  if(camera?.state==='asking'){showConsent();return;}
+  hideConsent();
+  if(camera?.state==='looked'&&viewfinder.source)Object.assign(viewfinder,{segments:camera.segments||[],scanning:false});
+  else closeCameraView();
+}
+function invalidate({keepAlert=false}={}){endCapture();hideConsent();closeCameraView();generation++;clearSpeech();acknowledgments.cancel();if(!keepAlert)timerAlerts.interrupt();requestController?.abort();requestController=null;stopTyped();$('stop').hidden=true;$('send').disabled=!connected;turnId=null;pollingTurn=null;}
 function showReply(result){
   $('reply').textContent=result.reply||result.error||'The request finished.';
   $('sources').replaceChildren();for(const source of result.sources||[]){try{const url=new URL(source.url);if(!['https:','http:'].includes(url.protocol))continue;const a=el('a',source.title||url.hostname);if(source.snippet)a.title=String(source.snippet).slice(0,280);a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';const li=el('li','');li.append(a);$('sources').append(li);}catch{}}
@@ -201,7 +245,9 @@ async function finish(id,result,before,g,voiceContext={}){
   const connectionCard=(result.presentation||[]).find(card=>card.type==='connections');
   if(connectionCard&&(result.tool_events||[]).some(event=>event.tool==='show_connections'&&event.status==='completed')){connectionsUi=initialUi(connectionCard);touchKey='';}
   orchestration.result(id,result,{timers:snapshot.timers,previousTimers:before,spotify});
-  showReply(result);
+  showReply(result);showCameraResult(result.camera);
+  // What SAM 3.1 found stays on the viewfinder for a moment before MERLIN turns to speak.
+  if(viewfinder.segments.length){orchestration.looked(id);await new Promise(resolve=>setTimeout(resolve,VIEWFINDER_HOLD));if(g!==generation)return;}
   // The accepted reply owns one exact body/face destination through every audio path.
   if(orchestration.phase==='action'){await settleCharacter(lastDestination,g);if(g!==generation)return;await new Promise(resolve=>setTimeout(resolve,ACTION_HOLD));}
   if(g!==generation)return;
@@ -209,12 +255,14 @@ async function finish(id,result,before,g,voiceContext={}){
   const presentation=pinSpeech(resolveDestination(orchestration.speechDestination),{requestId:id,...voiceContext});
   await settleCharacter(presentation.destination,g);
   if(g!==generation)return;
+  // The speaking face has covered the viewfinder, so the picture can go.
+  closeCameraView();
   $('stop').hidden=!orchestration.acknowledging;
   return presentation;
 }
 async function pollProgress(id,g){
   while(g===generation&&pollingTurn===id){
-    try{const progress=await api(`/api/companion/progress?request_id=${encodeURIComponent(id)}`);if(g!==generation||pollingTurn!==id)return;orchestration.progress(id,progress.events);acknowledgments.allow(id,progress.events?.find(event=>event.stage==='received')?.acknowledgments);if(['complete','failed','interrupted'].includes(progress.status)){acknowledgments.settled(id);return;}}catch{}
+    try{const progress=await api(`/api/companion/progress?request_id=${encodeURIComponent(id)}`);if(g!==generation||pollingTurn!==id)return;orchestration.progress(id,progress.events);cameraEvents(progress.events);acknowledgments.allow(id,progress.events?.find(event=>event.stage==='received')?.acknowledgments);if(['complete','failed','interrupted'].includes(progress.status)){acknowledgments.settled(id);return;}}catch{}
     await new Promise(resolve=>setTimeout(resolve,300));
   }
 }
@@ -305,6 +353,7 @@ function voiceEvent(event){
   }else if(event.type==='progress'){
     if(!voiceTurn){voiceTurn=`voice-${event.revision}`;orchestration.begin(voiceTurn);}
     orchestration.progress(voiceTurn,[event.progress]);
+    cameraEvents([event.progress]);
     acknowledgments.allow(event.requestId,event.progress?.acknowledgments);
   }else if(event.type==='response'){
     if(!voiceTurn){voiceTurn=`voice-${event.revision}`;orchestration.begin(voiceTurn);}
@@ -427,7 +476,7 @@ async function musicControl(action){
 }
 async function pollState(){
   if(destroyed||stateBusy)return;stateBusy=true;
-  try{const state=await api('/api/companion/state');connected=state.configured===true;acceptSnapshot(state);
+  try{const state=await api('/api/companion/state');const reconnected=!connected&&state.configured===true;connected=state.configured===true;acceptSnapshot(state);if(reconnected)void reportCamera();
     $('connection').textContent=connected?'At home · Ready':'Assistant not connected';
     if(!connected)notice('The assistant is not connected yet. You can still view local timers.');
     $('send').disabled=!connected||Boolean(turnId);
@@ -510,6 +559,10 @@ $('message').addEventListener('blur',()=>{if(orchestration.phase==='listening'&&
 $('message').addEventListener('input',()=>{$('send').textContent=pendingRetry?.message===$('message').value.trim()?'Retry':'Send';});
 $('microphone').addEventListener('click',async()=>{notice();if(voice.active){invalidate();voice.stop();return;}invalidate();if($('acknowledgments').checked)void unlockAudioPlayback($('ack-audio'));try{await voice.start({sessionId,timeZone});}catch(error){notice(error.message);$('voice-troubleshooting').hidden=false;}});
 $('stop').addEventListener('click',()=>{invalidate();voice.interrupt();if(voice.active)orchestration.listening();else orchestration.followup();notice('Reply stopped. Completed actions are still in Activity.');});
+$('camera-allow').addEventListener('click',()=>{hideConsent();void submit('Yes, turn on the camera.');});
+$('camera-decline').addEventListener('click',()=>{hideConsent();void submit('No, leave the camera off.');});
+$('camera-close').addEventListener('click',()=>{if(!cameraCapture)return;cameraCapture.closed=true;cameraCapture.controller.abort();});
+cameraMedia()?.addEventListener?.('devicechange',()=>void reportCamera());
 $('close-panel').addEventListener('click',()=>changeLayout(()=>orchestration.dismiss()));$('reload-scene').addEventListener('click',()=>location.reload());
 for(const button of document.querySelectorAll('[data-service]'))button.addEventListener('click',()=>{const type=button.dataset.service;if(['lights','oven','connections'].includes(type)){openConnections({category:type==='lights'?'lights':type==='oven'?'appliances':'all'});return;}orchestration.inspect(type==='music'?musicPanel(spotify):pendingPanel(type,'offline'));if(type!=='music')notice(type==='schedule'?'Schedules aren’t available yet.':'This home service isn’t connected yet.');});
 $('previous').addEventListener('click',()=>musicControl('previous'));$('next').addEventListener('click',()=>musicControl('next'));$('play-pause').addEventListener('click',()=>musicControl(spotify.playback?.is_playing?'pause':'play'));$('spotify-device').addEventListener('change',renderMusic);$('refresh-music').addEventListener('click',()=>refreshMusic().catch(()=>{}));

@@ -49,7 +49,7 @@ For text models, **input / cached input / output** prices below are **per one mi
 | Muse Spark 1.1 | `muse-spark-1.1` | $1.25 / $0.15 / $4.25 | Earlier alternative; Standard mode only |
 | Muse Voice Transcribe | `muse-voice-transcribe-1.0` | $0.18 per hour of audio processed | Voice input and transcription |
 | Muse Image 1.0 | `muse-image-1.0` | $0.01 per generated image | Quick timer labels and optional visual assets |
-| SAM 3.1 | `sam-3.1` | $2.50 per 1,000 images; $0.20 per 1,000 video frames | Optional object segmentation and tracking |
+| SAM 3.1 | `sam-3.1` | $2.50 per 1,000 images; $0.20 per 1,000 video frames | Finds things in a device-camera picture, in use; see [MERLIN's camera](CAMERA.md). Video tracking unused |
 | Muse Spark Open | Download / self-host / third-party hosted inference; outside Meta Model API | Compute or provider costs to evaluate | Optional deployment exploration |
 | Muse Glimmer | Download / self-host; outside Meta Model API | Hardware and operating costs to evaluate | Optional local home-agent exploration |
 
@@ -65,7 +65,7 @@ Keep background preference learning separate from explicit do/don't instructions
 
 The founder linked the [official Kokoro demo Space](https://huggingface.co/spaces/hexgrad/Kokoro-TTS). The [Kokoro-82M model card](https://huggingface.co/hexgrad/Kokoro-82M) describes an open-weight, Apache-licensed text-to-speech model. The lab now runs official Python `KPipeline` locally with Fenrir; no text goes to the public Space. Production hardware/hosting, packaging obligations, and costs remain open.
 
-For cameras, separate general visual questions such as “what is this?” from optional SAM segmentation. A model's ability to interpret images does not grant access to a camera. Integrations must enforce device permissions and disclose when capture is active.
+For cameras, separate general visual questions such as “what is this?” from SAM segmentation: the device camera uses both, as described in [MERLIN's camera](CAMERA.md). The live contract observed on November 2, 2026: `POST /v1/responses` with model `sam-3.1`, `store:false`, one short noun phrase and one `input_image` data URL per request, and `metadata` of `include_confidence:"true"` and `mask_encoding:"one_bit"`. A non-streaming reply carries special-token text in `output_text`, one `<0f>` line of `id<|box;x1;y1;x2;y2;w;h;c|><|mask;…|>` records with inclusive `x2`/`y2`, and an empty string for no match. SAM 3.1 returned geometry only, as Meta documents, in about 1 to 3 seconds per concept on one synthetic picture. Images reach Muse Spark only in `user` messages, so the look uses a separate `muse-spark-1.3` request with `store:false`, and only its words enter the conversation. A model's ability to interpret images does not grant access to a camera. Integrations must enforce device permissions and disclose when capture is active.
 
 ## Privacy and evaluation requirements
 

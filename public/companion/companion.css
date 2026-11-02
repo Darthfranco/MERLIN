@@ -20,3 +20,6 @@ main{max-width:1600px;margin:auto;display:flex;align-items:flex-start;padding:0 
 .touch-target:hover{background:rgba(36,108,167,.10)}.touch-target:active{background:rgba(36,108,167,.22)}
 .touch-target:focus-visible{outline:3px solid #246ca7;outline-offset:2px;background:rgba(36,108,167,.08)}
 @media(prefers-reduced-motion:no-preference){.touch-target{transition:background .12s}}
+#camera-state{color:var(--soft);padding-left:12px;border-left:1px solid var(--line)}#camera-state[data-on=true]{color:#f2c7a8;font-weight:600}.camera-consent{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin:0 0 18px}.camera-consent[hidden]{display:none}#camera-allow{background:var(--action);color:var(--dark-ink);border-color:var(--action);font-weight:600}#camera-allow:hover{background:#d0f1fd}
+/* The feed is only ever seen on MERLIN's own viewfinder. These stay rendered so browsers keep decoding, but are not shown. */
+.camera-feed{position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none}

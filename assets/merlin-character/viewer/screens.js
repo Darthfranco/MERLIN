@@ -116,7 +116,7 @@ export function syncScreenAspect(screen){
 }
 
 export function collectScreens(root){
-  const groups={},surfaces={};
+  const groups={},surfaces={},shapes={};
   root.traverse(obj=>{
     if(!obj.isMesh)return;
     for(const mat of Array.isArray(obj.material)?obj.material:[obj.material]){
@@ -125,10 +125,12 @@ export function collectScreens(root){
         (groups[id]??=new Set()).add(mat);
         let owner=obj;while(owner&&!owner.userData.merlin_screen_role)owner=owner.parent;
         if(owner?.userData.merlin_screen_role==='surface'&&!surfaces[id])surfaces[id]=surfaceBasis(obj);
+        // The viewfinder doesn't change shape as it animates, so its real proportions come from its geometry once.
+        if(id==='camera'&&!shapes[id]){const size=new THREE.Box3().setFromBufferAttribute(obj.geometry.attributes.position).getSize(new THREE.Vector3());if(size.x>0&&size.y>0)shapes[id]=size.x/size.y;}
       }
     }
   });
-  return Object.fromEntries(Object.entries(groups).map(([id,set])=>{const screen=new ScreenSurface(id,[...set],id==='camera'?1280:900,id==='camera'?720:1080);screen.basis=surfaces[id];return [id,screen];}));
+  return Object.fromEntries(Object.entries(groups).map(([id,set])=>{const screen=new ScreenSurface(id,[...set],id==='camera'?1280:900,id==='camera'?720:1080);screen.basis=surfaces[id];screen.shape=shapes[id];return [id,screen];}));
 }
 
 function linesFor(ctx,text,width){
