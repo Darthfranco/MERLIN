@@ -1,8 +1,8 @@
 # MERLIN status and handoff
 
-Last updated: **November 1, 2026**.
+Last updated: **November 2, 2026**.
 
-## Memory engine v2 (selectable, legacy still default) — November 1, 2026
+## Memory engine v2 (selectable, legacy still the repository default, this Mac on v2) — November 2, 2026
 
 The owner asked to implement their *Home Agent Memory Procedure* while keeping the existing system as a usable backup. Design, run steps, rollback and limits: [MEMORY_V2.md](MEMORY_V2.md).
 
@@ -10,7 +10,7 @@ The owner asked to implement their *Home Agent Memory Procedure* while keeping t
 
 **Selector:** `MERLIN_MEMORY_ENGINE=v2|legacy`. **Legacy remains the default.** The owner's condition for switching, a usable real semantic adapter, is now met on this Mac: Ollama 0.40.13 runs as a Homebrew login service on `127.0.0.1:11434` with `nomic-embed-text`, and `npm run check:memory-v2` reports `READY`. Whether to switch is the owner's call.
 
-**Verification:** **999 automated tests pass**, 48 of them in `test/memory-v2-*.test.js`, using temporary storage, scripted Meta and injected clocks and embeddings. Run under v2, the existing lookup, timer, routine, personality, Spotify, companion and connection suites gave 145 of 152 passing; the 7 failures each assert legacy storage directly (reading `memory.json` or expecting immediate `store.snapshot()` publication), and those test files now pin legacy explicitly. Local retrieval, embedding excluded, was about 12 ms p50 and 17 ms p95 at 2,000 synthetic items and 768 dimensions over 200 queries; this is not a scale or recall claim.
+**Verification:** **1,000 automated tests pass**, 49 of them in `test/memory-v2-*.test.js`, using temporary storage, scripted Meta and injected clocks and embeddings. Run under v2, the existing lookup, timer, routine, personality, Spotify, companion and connection suites gave 145 of 152 passing; the 7 failures each assert legacy storage directly (reading `memory.json` or expecting immediate `store.snapshot()` publication), and those test files now pin legacy explicitly. Local retrieval, embedding excluded, was about 12 ms p50 and 17 ms p95 at 2,000 synthetic items and 768 dimensions over 200 queries; this is not a scale or recall claim.
 
 **Live checks (synthetic text, temp storage, standard Meta):** `npm run check:memory-v2 -- --meta` passed the provider on both new contracts and proposed the correct `supersede` for one clear correction. One end-to-end v2 conversation also worked: the fact applied in the same conversation with an honest receipt, a second conversation before close saw nothing, close published a sourced record plus summary with no backlog, and a new conversation then recalled it.
 
@@ -18,9 +18,11 @@ The owner asked to implement their *Home Agent Memory Procedure* while keeping t
 
 **Known problem, both engines:** household questions such as "Where does Biscuit nap?" trigger a web search, even when memory holds the answer. In the second live run, a conversation with no memory of Biscuit searched the web and answered with claims about unrelated pets, including one found "on the dishwasher rack," as though they described Biscuit. This comes from the existing lookup policy and was not changed here.
 
-**Not exercised:** recall on real household queries, and extraction or consolidation quality beyond those two synthetic conversations. No household data was migrated: the owner's running instance stays on legacy until they opt in.
+**Not exercised:** recall on real household queries, and extraction or consolidation quality beyond those two synthetic conversations.
 
-**Next:** decide with the owner whether to run v2 on this Mac with `MERLIN_MEMORY_ENGINE=v2` in `.env`, then whether to flip `DEFAULT_MEMORY_ENGINE`. Other machines would need their own embedding service.
+**This Mac, from November 2, 2026:** at the owner's request, the running instance uses v2 through `MERLIN_MEMORY_ENGINE=v2` in the ignored `.env`. The repository default is still legacy. The one-time migration ran: its counts match the legacy file, the private backup is byte-identical to it, and `data/memory.json` was unchanged. Legacy's finalized memory was nearly empty, so there is little to search until new conversations publish, and no real conversation had run on v2 at the time of this note. The same restart moved the instance from October 27 code to current `main`. The server runs detached with no launch agent, so it does not return after a reboot; Ollama does.
+
+**Next:** watch real use on this Mac, then decide with the owner whether to flip `DEFAULT_MEMORY_ENGINE`. Other machines would need their own embedding service.
 
 ## Real connectors, setup guides, and stronger web lookup — November 1, 2026
 

@@ -510,7 +510,7 @@ export class MemoryLifecycle {
       capture_backlog: backlog,
       candidates: { pending: count(`SELECT COUNT(*) AS n FROM candidates WHERE status = 'pending'`), failed: count(`SELECT COUNT(*) AS n FROM candidates WHERE status = 'failed'`) },
       segments: { open: open.map(({ id, session_id, opened_at, last_activity_ms }) => ({ id, session_id, opened_at, last_activity_at: iso(last_activity_ms) })), consolidating: closed.map(item => ({ ...item, failed: Boolean(item.failed), has_prepared: Boolean(item.has_prepared) })), close_after_seconds: this.#closeAfterMs / 1000 },
-      semantic: { ...semantic, state: !semantic.provider || semantic.provider === 'none' ? 'unconfigured' : semantic.ready ? 'ready' : 'degraded' },
+      semantic: { ...semantic, state: !semantic.provider || semantic.provider === 'none' ? 'unconfigured' : semantic.ready ? 'ready' : semantic.checked_at ? 'degraded' : 'checking' },
       index: { items: count('SELECT COUNT(*) AS n FROM search_items'), vectors: count('SELECT COUNT(*) AS n FROM item_vectors'), records_current: count(`SELECT COUNT(*) AS n FROM records WHERE status = 'current'`) },
       documents: this.#db.prepare('SELECT id, version, status FROM documents_index ORDER BY updated_at DESC LIMIT 30').all(),
       retry: { available: failed > 0, max_attempts: MAX_ATTEMPTS },

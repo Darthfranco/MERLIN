@@ -6,7 +6,7 @@ import { EmbeddingGate, encodeVector, OllamaEmbedder } from '../src/memory-v2/em
 import { chunkDocument } from '../src/memory-v2/documents.js';
 import { Retriever, fuseRanks } from '../src/memory-v2/retrieval.js';
 import { validateCandidates, validateProposal } from '../src/memory-v2/validation.js';
-import { call, chat, contextFor, createOperation, currentFacts, fakeEmbedder, memoryData, publishFact, reply, retrieved, saveFact, scriptedMeta, v2App } from './memory-v2-helpers.js';
+import { call, chat, contextFor, createOperation, currentFacts, deferred, fakeEmbedder, memoryData, publishFact, reply, retrieved, saveFact, scriptedMeta, v2App } from './memory-v2-helpers.js';
 
 const NOW = '2026-11-01T00:00:00.000Z';
 function seed(db, key, fields = {}, entityIds = []) {
@@ -160,6 +160,18 @@ test('an embedding outage degrades semantic search only; lexical and entity sear
   assert.ok(JSON.parse(context.text).retrieved.some(item => /boiler/u.test(item.text)));
   assert.equal(app.learning.status().semantic.state, 'degraded');
   assert.equal(app.learning.status().semantic.ready, false);
+});
+
+test('semantic status says checking until the first check finishes, so a normal start is not reported as degraded', async t => {
+  const embedder = fakeEmbedder();
+  const firstCheck = deferred();
+  const embed = embedder.embed;
+  embedder.embed = async (...args) => { await firstCheck.promise; return embed(...args); };
+  const { app } = await v2App(t, { meta: scriptedMeta(), embedder });
+  assert.equal(app.learning.status().semantic.state, 'checking');
+  firstCheck.resolve();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(app.learning.status().semantic.state, 'ready');
 });
 
 test('the Ollama adapter uses the documented endpoints and pins model identity', async () => {
