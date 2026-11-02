@@ -134,7 +134,8 @@ export class MemoryService {
       catalog_incomplete: snapshot.documents.length > catalog.length,
     };
     return { text: JSON.stringify(data), selected: { fact_ids: facts.map(x => x.id), rule_ids: snapshot.rules.map(x => x.id),
-      document_ids: catalog.map(x => x.id), message_ids: data.recalled_messages.map(x => x.id) } };
+      document_ids: catalog.map(x => x.id), message_ids: data.recalled_messages.map(x => x.id) },
+      evidence: [...facts.map(item => `${item.subject}: ${item.content}`), ...selected.documents.map(item => `${item.title}: ${item.snippet}`)] };
   }
   source(context, quote) {
     if (typeof quote !== 'string' || !quote.trim() || !context.message.includes(quote)) {

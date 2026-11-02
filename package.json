@@ -15,6 +15,7 @@
     "test": "node --test",
     "check:meta": "node --env-file-if-exists=.env scripts/check-meta.js",
     "check:lookup": "node --env-file-if-exists=.env scripts/check-lookup.js",
+    "check:household": "node --env-file-if-exists=.env scripts/check-household.js",
     "check:memory-v2": "node --env-file-if-exists=.env scripts/check-memory-v2.js",
     "calibrate:memory-v2": "node --env-file-if-exists=.env scripts/calibrate-memory-v2.js",
     "check:connectors": "node scripts/check-connectors.js",
