@@ -7,6 +7,7 @@ import {Orchestrator,ACTION_HOLD,pendingPanel,timerPanel,musicPanel,presentation
 import {TimerAlertQueue} from './timer-alerts.js';
 import {panelState,initialUi,applyAction,connectionsPanelRecord,connectorSummary} from './connections-panel.js';
 import {connectionTargets,pageCount} from '/character/viewer/panels/connections.js';
+import {playOfferTargets,playOfferDescription} from '/character/viewer/panels/play-offer.js';
 import {AcknowledgmentCoordinator,AcknowledgmentPlayer,loadAcknowledgmentClips} from './acknowledgments.js';
 import {captureFrame,cameraErrorCode,checkDeviceCamera,paintViewfinder} from './device-camera.js';
 
@@ -23,7 +24,8 @@ let sceneRevision=0, sceneCleanup, sceneStatus=null, renderedView=null, firstSna
 const speechTurns=new Map(),speechClips=new Map();
 const timerAlerts=new TimerAlertQueue();
 let panelControlsKey='';
-let connectionsUi=initialUi({}), touchKey='', connectionsBusy=false;
+let connectionsUi=initialUi({}), touchKey='', connectionsBusy=false, offerUi={status:'ready'};
+const largeScreen=type=>type==='connections'||type==='music-offer';
 let timerRowsKey='';
 let destroyed=false, stateBusy=false, musicBusy=false, timerBusy=new Set(), voiceEnabled=false;
 let cameraCapture=null, consentTimer=null;const seenCaptures=new Set(),viewfinder={source:null,segments:[],count:0,note:'',scanning:false};
@@ -40,6 +42,7 @@ async function api(path,body,{signal,timeout=15000}={}){
 }
 function livePanel(panel){
   if(panel?.type==='connections')return {...panel,...panelState(connectionsUi,{connectors:snapshot.connectors||[],spotify})};
+  if(panel?.type==='music-offer')return {...panel,...offerUi};
   if(panel?.type==='timer'&&panel.id){const t=snapshot.timers.find(t=>t.id===panel.id);return t?timerPanel(t,Date.now()+serverOffset):panel;}
   return panel;
 }
@@ -171,7 +174,7 @@ function renderPanelControls(){
     const location=layout==='ceiling'?'Large screen':side==='left'?'Left':'Right';
     const group=el('div','','panel-controls'),label=el('span',`${location} · ${p.type==='connections'?'Connect your home':p.label||p.title||'Action'}`);group.dataset.panelId=p.id||'';group.dataset.panelSide=side;group.append(label);
     if(p.type==='timer'&&p.id){const timer=snapshot.timers.find(t=>t.id===p.id);if(timer){const action=el('button',timer.status==='running'?'Cancel timer':'Dismiss timer');action.dataset.panelId=p.id;action.setAttribute('aria-label',`${timer.status==='running'?'Cancel':'Dismiss'} ${location.toLowerCase()} timer: ${timer.label||'Timer'}`);action.addEventListener('click',()=>changeTimer(timer));action.disabled=timerBusy.has(timer.id);group.append(action);}}
-    if(p.type!=='connections'&&Object.values(activePanels).filter(Boolean).length===1){
+    if(!largeScreen(p.type)&&Object.values(activePanels).filter(Boolean).length===1){
       if(layout==='ceiling')for(const dockSide of ['left','right']){const dock=el('button',`Dock ${dockSide}`);dock.dataset.panelId=p.id||'';dock.addEventListener('click',()=>changeLayout(()=>orchestration.dockPanel(dockSide)));group.append(dock);}
       else if(!character||character.capabilities.states.includes('ceiling')){const enlarge=el('button','Enlarge');enlarge.dataset.panelId=p.id||'';enlarge.setAttribute('aria-label',`Enlarge ${location.toLowerCase()} panel: ${p.label||p.title||'Action'}`);enlarge.addEventListener('click',()=>changeLayout(()=>orchestration.expandPanel(side)));group.append(enlarge);}
     }
@@ -244,6 +247,7 @@ async function finish(id,result,before,g,voiceContext={}){
   if(g!==generation)return;
   const connectionCard=(result.presentation||[]).find(card=>card.type==='connections');
   if(connectionCard&&(result.tool_events||[]).some(event=>event.tool==='show_connections'&&event.status==='completed')){connectionsUi=initialUi(connectionCard);touchKey='';}
+  if((result.presentation||[]).some(card=>card.type==='music-offer')){offerUi={status:'ready'};touchKey='';}
   orchestration.result(id,result,{timers:snapshot.timers,previousTimers:before,spotify});
   showReply(result);showCameraResult(result.camera);
   // What SAM 3.1 found stays on the viewfinder for a moment before MERLIN turns to speak.
@@ -504,15 +508,15 @@ function openConnections(card){
 }
 function announceConnections(){$('touch-status').textContent=connectionsUi.announce||connectionsUi.notice||'';}
 function refreshConnections(){
-  if(activePanels.right?.type!=='connections')return;
+  if(!largeScreen(activePanels.right?.type))return;
   character?.refreshPanels?.(['right']);renderTouchLayer();
 }
 function renderTouchLayer(){
   const layer=$('touch-layer'),panel=activePanels.right,geometry=character?.screenGeometry?.('right');
   // Real buttons sit over the painted touchscreen only once MERLIN has finished pulling it down.
-  const showing=geometry&&panel?.type==='connections'&&sceneStatus?.phase==='idle'&&sceneStatus.state==='ceiling'&&scenePresentation(renderedView).destination==='ceiling';
+  const showing=geometry&&largeScreen(panel?.type)&&sceneStatus?.phase==='idle'&&sceneStatus.state==='ceiling'&&scenePresentation(renderedView).destination==='ceiling';
   if(!showing){if(!layer.hidden){layer.replaceChildren();layer.hidden=true;touchKey='';}return;}
-  const {width,height}=geometry.logical,{rect}=geometry,state=livePanel(panel),targets=connectionTargets(state,width,height);
+  const {width,height}=geometry.logical,{rect}=geometry,state=livePanel(panel),targets=panel.type==='music-offer'?playOfferTargets(state,width,height):connectionTargets(state,width,height);
   // Phone-sized screens shrink a painted chip or pill below a comfortable touch size; grow its hit area, not its look.
   const px=Math.max(.05,$('scene-frame').clientWidth*rect.width/width),MIN_TOUCH=30;
   const hit=target=>{
@@ -533,7 +537,22 @@ function renderTouchLayer(){
   }));
   if(focused)layer.querySelector(`[data-touch-id="${CSS.escape(focused)}"]`)?.focus({preventScroll:true});
 }
+/** The person's own tap is the only thing that starts Spotify; the spoken request only put the button up. */
+async function playOffer(){
+  const panel=activePanels.right;if(panel?.type!=='music-offer'||offerUi.status==='starting')return;
+  offerUi={status:'starting'};touchKey='';refreshConnections();$('touch-status').textContent=playOfferDescription(livePanel(panel));
+  try{
+    const device=$('spotify-device').value;
+    const result=await api('/api/spotify/control',{request_id:crypto.randomUUID(),action:'play',query:panel.query||panel.title,type:'playlist',...(device?{device_id:device}:{})});
+    if(result.status==='choice_required')throw new Error(`Choose “${panel.title}” or a device in the Spotify panel.`);
+    offerUi={status:'playing'};touchKey='';refreshConnections();$('touch-status').textContent=playOfferDescription(livePanel(panel));
+    await refreshMusic().catch(()=>{});
+    // A moment on "Enjoy your workout!", then the screens go back up and the music card takes over.
+    setTimeout(()=>{if(activePanels.right===panel&&offerUi.status==='playing')changeLayout(()=>orchestration.dismiss());},2500);
+  }catch(error){offerUi={status:'error',notice:error.message||'That didn’t start. Tap to try again.'};touchKey='';refreshConnections();$('touch-status').textContent=playOfferDescription(livePanel(panel));}
+}
 async function tapTarget(target){
+  if(activePanels.right?.type==='music-offer'){if(target.action==='play')await playOffer();return;}
   const geometry=character?.screenGeometry?.('right');if(!geometry||activePanels.right?.type!=='connections')return;
   const pages=pageCount(livePanel(activePanels.right),geometry.logical.width,geometry.logical.height);
   const {ui,effect}=applyAction(connectionsUi,target,{pages});connectionsUi=ui;touchKey='';

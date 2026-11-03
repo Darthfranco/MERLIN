@@ -11,9 +11,10 @@ import { planRoute, stateScreens, contentDestination, dismissalDestination } fro
 import { SceneClock } from './scene-clock.js';
 import { PANEL_TYPES, paintPanel, loadPanelArt } from './panels/render.js';
 import { CONNECTIONS_PANEL, paintConnections } from './panels/connections.js';
+import { PLAY_OFFER_PANEL, paintPlayOffer } from './panels/play-offer.js';
 
 // The connection touchscreen is a scene-only panel; it is not part of the 5:6 gallery collection.
-const panelTypes = new Set([...PANEL_TYPES.map(panel => panel.id), CONNECTIONS_PANEL]);
+const panelTypes = new Set([...PANEL_TYPES.map(panel => panel.id), CONNECTIONS_PANEL, PLAY_OFFER_PANEL]);
 const ambient = new Set(['walk', 'walkReverse', 'toss', 'nap', 'dance']);
 const assetURL = path => new URL(path, import.meta.url).href;
 const validData = value => value && typeof value === 'object' && !Array.isArray(value);
@@ -289,6 +290,7 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
         // The connection screen reflows to the surface it is on (the landscape ceiling card);
         // the 5:6 designs keep their authored canvas.
         if (panel.type === CONNECTIONS_PANEL) screens[side].draw((context, width, height) => paintConnections(context, width, height, panel.snapshot), {animate: true, reflow: true});
+        else if (panel.type === PLAY_OFFER_PANEL) screens[side].draw((context, width, height) => paintPlayOffer(context, width, height, panel.snapshot), {animate: true, reflow: true});
         else screens[side].draw((context, width, height) => paintPanel(context, width, height, panel.snapshot, {art: panelArt, controls: false}), {animate: true, reflow: false});
         panel.initialized = true;
       } else screens[side].tick(0);

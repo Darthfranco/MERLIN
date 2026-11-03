@@ -42,6 +42,28 @@ export function parseSimpleSpotifyControl(message) {
   return null;
 }
 
+export const PLAY_TAP_LINE = 'Just tap the play button to play Spotify.';
+
+/**
+ * The playlist a spoken request names, so the page can offer one tap to play it. Spotify's developer policy forbids
+ * voice control, so this reads only the person's own words: nothing is looked up or played until someone taps Play.
+ */
+export function requestedPlaylist(message) {
+  if (typeof message !== 'string' || message.length > 2000) return null;
+  const value = message.normalize('NFKC').replace(/[“”]/gu, '"');
+  if (/\b(?:don'?t|do not|never|stop|no need to)\s+(?:play|put on|start)\b/iu.test(value)) return null;
+  const name = '(?:"([^"\\n]{1,60})"|([\\p{L}\\p{N}][\\p{L}\\p{N}\'&\\- ]{0,40}?))';
+  const patterns = [
+    new RegExp(`\\b(?:play|put on|start|queue up)\\s+(?:(?:my|our|the)\\s+)?(?:spotify\\s+)?${name}\\s+(?:spotify\\s+)?playlist\\b`, 'iu'),
+    new RegExp(`\\bplaylist\\s+(?:called|named)\\s+${name}(?=[.,!?;]|\\s+(?:on|in|at|and|then)\\b|$)`, 'iu'),
+  ];
+  for (const pattern of patterns) {
+    const match = pattern.exec(value), found = (match?.[1] ?? match?.[2])?.trim();
+    if (found && !/^(?:a|an|some|any|spotify|music|that|this|my|the|new)$/iu.test(found)) return found;
+  }
+  return null;
+}
+
 const FAILURE = Object.freeze({
   SPOTIFY_NOT_CONFIGURED: 'Connect Spotify below first.',
   SPOTIFY_NOT_CONNECTED: 'Connect Spotify below first.',

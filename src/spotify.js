@@ -352,9 +352,12 @@ export class SpotifyService {
     const epoch = this.#epoch;
     let uri = args.uri;
     if (args.query !== undefined) {
-      const { results } = await this.search({ query: args.query, type: args.type ?? 'track' });
-      this.#checkEpoch(epoch);
       const query = normalized(args.query);
+      // "My workout playlist" means the person's own playlist, not one of the many public ones with that name.
+      const own = args.type === 'playlist' ? (await this.playlists()).results.filter(item => normalized(item.name) === query) : [];
+      this.#checkEpoch(epoch);
+      const { results } = own.length === 1 ? { results: own } : await this.search({ query: args.query, type: args.type ?? 'track' });
+      this.#checkEpoch(epoch);
       let exact = results.filter(item => normalized(item.name) === query);
       if (!exact.length) {
         const split = /^(.*?)\s+by\s+(.+)$/u.exec(query);

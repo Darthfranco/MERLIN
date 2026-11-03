@@ -29,6 +29,11 @@ export function connectionState(spotify, hub) {
 const HOME_PANELS = { light: 'lights', room: 'lights', oven: 'oven', media: 'speaker' };
 
 export function presentationResult(stage, data) {
+  // The person's own words for a playlist they asked for by voice. Nothing has reached Spotify; the page waits for a tap.
+  if (stage === 'music_offer' && typeof data?.playlist === 'string' && data.playlist.trim()) {
+    const query = data.playlist.trim().slice(0, 60);
+    return { type: 'music-offer', id: 'spotify', query, title: query.charAt(0).toUpperCase() + query.slice(1), status: 'ready' };
+  }
   const result = data?.result ?? (stage === 'routine' ? data : undefined);
   if (!result || data?.ok === false) return null;
   if (data?.tool === 'show_connections') {

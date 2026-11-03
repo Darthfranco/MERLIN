@@ -9,7 +9,9 @@ export const toolPanel = tool => /^(create|cancel|list)_timer/.test(tool) ? 'tim
 // One home_control call becomes the panel for whichever device it reached.
 const homePanels = new Set(['lights','oven','speaker']);
 const panelGroup = type => homePanels.has(type) ? 'lights' : type;
-const labels = {timer:'Your timer',music:'Spotify',lights:'Lights',oven:'Oven',speaker:'Speaker',schedule:'Schedules',routine:'Your routine','routine-saved':'Your routine',connections:'Connect your home'};
+// Landscape screens that own the ceiling: the connection touchscreen and the tap-to-play playlist.
+const largeScreens = new Set(['connections','music-offer']);
+const labels = {'music-offer':'Ready to play',timer:'Your timer',music:'Spotify',lights:'Lights',oven:'Oven',speaker:'Speaker',schedule:'Schedules',routine:'Your routine','routine-saved':'Your routine',connections:'Connect your home'};
 const surfaces = {left:['left'],right:['right'],both:['left','right'],seatedLeft:['left'],seatedRight:['right'],ceiling:['right']};
 const faceStates = new Set(['face','faceThink','search','camera']);
 const workPhases = new Set(['thinking','action','searching']);
@@ -71,7 +73,7 @@ export class Orchestrator {
   }
   refreshLayout({seated=false}={}) {
     // The connection touchscreen owns the ceiling; a retained panel on the other side waits behind it.
-    if(this.bodyLayout==='ceiling'&&this.panels.right?.type==='connections'){this.focusSide='right';this.panel=this.panels.right;return;}
+    if(this.bodyLayout==='ceiling'&&largeScreens.has(this.panels.right?.type)){this.focusSide='right';this.panel=this.panels.right;return;}
     const sides=['left','right'].filter(side=>this.panels[side]);
     if(!sides.includes(this.focusSide))this.focusSide=sides.includes('right')?'right':sides[0]||'right';
     this.panel=this.panels[this.focusSide];
@@ -123,6 +125,8 @@ export class Orchestrator {
     const completed=new Set(events.filter(event=>event.status==='completed').map(event=>toolPanel(event.tool))),confirmed=new Map();
     for(const presented of result.presentation||[]){
       const type=presented.type;
+      // A playlist ready to play is a code-written offer, not a tool outcome: nothing played yet.
+      if(type==='music-offer'){confirmed.set(identity(presented),presented);this.turnHadAction=true;continue;}
       if(!completed.has(panelGroup(type))&&!(type==='routine-saved'&&completed.has('routine')))continue;
       if(type==='timer'){
         const actual=timers.find(timer=>timer.id===presented.id) || (presented.id&&presented.ends_at&&presented.duration_seconds?presented:null);
@@ -135,8 +139,8 @@ export class Orchestrator {
       for(const timer of timers)if(list||!previous.has(timer.id)||previous.get(timer.id)!==timer.status)confirmed.set('timer:'+timer.id,timerPanel(timer,this.now()));
     }
     if(completed.has('music'))confirmed.set('music',musicPanel(spotify));
-    for(const panel of confirmed.values())panel.type==='connections'?this.openLargeScreen(panel):this.remember(panel);
-    if(events.length){
+    for(const panel of confirmed.values())largeScreens.has(panel.type)?this.openLargeScreen(panel):this.remember(panel);
+    if(events.length||confirmed.has(identity({type:'music-offer',id:'spotify'}))){
       this.phase='action';this.lastActionAt=this.now();
       this.show(this.bodyLayout,events.some(event=>event.status==='failed')?'That action needs attention':confirmed.size?'Here’s the result':'Check the action outcome below');
     }
@@ -158,7 +162,11 @@ export class Orchestrator {
   dismiss(side){
     if(side&&!['left','right'].includes(side))return false;
     const paired=this.bodyLayout==='both',wasBody=!isFacePresentation(this.view.destination);
+    const leavingLarge=side==='right'&&this.panels.right?.type==='music-offer';
     if(side)this.panels[side]=null;else this.panels={left:null,right:null};
+    // The Play screen shrinks back in place: a kept panel takes its side, so the authored ceiling-to-left
+    // move (which carries the big screen's picture along) is never used to close it.
+    if(leavingLarge){if(this.panels.left){this.panels.right=this.panels.left;this.panels.left=null;this.focusSide='right';}this.bodyLayout='ready';}
     this.pending=null;this.refreshLayout({seated:paired&&Boolean(side)});
     if(!isFacePresentation(this.speechDestination))this.speechDestination=this.bodyLayout;
     if(['panel','idle','ambient','error'].includes(this.phase)){this.phase=this.panel?'panel':'idle';this.deadline=this.panel?Infinity:this.now()+IDLE_DELAY;}
@@ -178,12 +186,12 @@ export class Orchestrator {
     this.epoch++;this.turn=null;this.openLargeScreen(panel);this.phase='panel';this.show('ceiling',panel.label||labels[panel.type]);return true;
   }
   expandPanel(side=this.focusSide){
-    if(this.panels[side]?.type==='connections')return false;
+    if(largeScreens.has(this.panels[side]?.type))return false;
     if(!this.panels[side]||Object.values(this.panels).filter(Boolean).length!==1||['listening','thinking','action','searching','speaking'].includes(this.phase))return false;
     const panel=this.panels[side];this.panels={left:null,right:panel};this.focusSide='right';this.panel=panel;this.bodyLayout='ceiling';this.phase='panel';this.pending=null;this.show('ceiling',panel.label||labels[panel.type]);return true;
   }
   dockPanel(side){
-    if(this.panels.right?.type==='connections')return false;
+    if(largeScreens.has(this.panels.right?.type))return false;
     if(!['left','right'].includes(side)||Object.values(this.panels).filter(Boolean).length!==1||['listening','thinking','action','searching','speaking'].includes(this.phase))return false;
     const panel=this.panels.left||this.panels.right;this.panels={left:null,right:null};this.panels[side]=panel;this.focusSide=side;this.panel=panel;this.bodyLayout=side;this.phase='panel';this.pending=null;this.show(side,panel.label||labels[panel.type]);return true;
   }
