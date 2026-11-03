@@ -101,3 +101,58 @@ test('in a normal round an invented tool still rejects the whole response before
   assert.ok(rejection, 'the inspector records the rejection');
   assert.deepEqual(rejection.data.tools, ['create_timer', 'execute_code'], 'and names the tools the model asked for');
 });
+
+test('a made-up search tool name becomes the real search instead of failing the reply', async t => {
+  const meta = scriptedMeta([
+    (_input, { tools }) => {
+      assert.ok(tools.some(tool => tool.name === 'prepare_web_search') && !tools.some(tool => tool.type === 'web_search'), 'search is reachable but not yet enabled');
+      return [call('browser.search', { query: 'weather Brooklyn' })];
+    },
+    (input, { tools, instructions }) => {
+      assert.ok(tools.some(tool => tool.type === 'web_search'), 'the retry offers the real search');
+      assert.ok(!tools.some(tool => tool.name === 'prepare_web_search'));
+      assert.match(instructions, /Web search is enabled for this request/);
+      assert.ok(!input.some(item => item.type === 'function_call'), 'the rejected response is not replayed');
+      assert.match(input.at(-1).content[0].text, /"browser\.search", which does not exist, so nothing in it ran/);
+      return [search('weather Brooklyn', [{ type: 'text_result', title: 'NWS', url: 'https://forecast.weather.gov/b', snippet: '' }]), reply('Got it. It is sunny in Brooklyn today.')];
+    },
+  ]);
+  const app = await fixture(t, meta);
+  const { status, body } = await app.post('/api/chat', chat('Whenever I ask about the weather, just assume Brooklyn New York.'));
+  assert.equal(status, 200, JSON.stringify(body.error));
+  assert.deepEqual(meta.failures, []);
+  assert.match(body.reply, /sunny in Brooklyn/);
+  assert.ok(body.tool_events.some(event => event.tool === 'web_search' && event.status === 'completed'));
+  const recovered = body.trace.events.find(event => event.stage === 'tool_check' && /named a search tool that does not exist/.test(event.detail));
+  assert.deepEqual(recovered?.data.tools, ['browser.search'], 'the inspector names the made-up tool');
+});
+
+test('nothing in a response with a made-up search name runs, and a second one still fails safely', async t => {
+  let app;
+  const meta = scriptedMeta([
+    [call('create_timer', { label: 'Tea', duration: 30, unit: 'seconds' }), call('browser.search', { query: 'tea' })],
+    async () => {
+      assert.equal((await app.timers.list()).length, 0, 'the timer in the rejected response never started');
+      return [call('web.search', { query: 'tea' })];
+    },
+  ]);
+  app = await fixture(t, meta);
+  const { status, body } = await app.post('/api/chat', chat('Give me an idea for dinner tonight.'));
+  assert.equal(status, 502);
+  assert.match(body.error, /tool that was not enabled/);
+  assert.equal((await app.timers.list()).length, 0);
+  assert.deepEqual(body.trace.events.find(event => /Rejected the whole response/.test(event.detail ?? '')).data.tools, ['web.search']);
+});
+
+test('a made-up search name stays a hard failure when search is off or the name is not a search', async t => {
+  const blocked = scriptedMeta([[call('browser.search', { query: 'weather' })]]);
+  const app = await fixture(t, blocked);
+  assert.equal((await app.post('/api/memory/rule', { kind: 'tool_deny', value: 'web_search', scope: 'tools' })).status, 200);
+  const banned = await app.post('/api/chat', chat('Give me an idea for dinner tonight.'));
+  assert.equal(banned.status, 502, 'a saved search ban is not bypassed');
+  assert.equal(blocked.calls.length, 1);
+  const mixed = scriptedMeta([[call('browser.search', { query: 'x' }), call('execute_code', { code: 'x' })]]);
+  const other = await fixture(t, mixed);
+  assert.equal((await other.post('/api/chat', chat('Tell me something fun about octopuses.'))).status, 502, 'a non-search invented tool still rejects');
+  assert.equal(mixed.calls.length, 1);
+});

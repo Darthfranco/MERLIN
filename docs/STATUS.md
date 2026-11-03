@@ -2,6 +2,18 @@
 
 Last updated: **November 3, 2026**.
 
+## Made-up search tool names no longer silence a reply — November 3, 2026
+
+The owner reported that MERLIN stopped talking. Two causes were found:
+- Two server restarts during the personality work closed the page's voice connection. The page then turns the microphone off and does not reconnect; a reload and one tap restore it.
+- A real request failed: “whenever I ask what's the weather just assume Brooklyn New York.” MERLIN saved the preference. Then, in a round where search was available through `prepare_web_search`, Meta called `browser.search`, a tool that does not exist. The whole response was rejected, as designed, and the request failed with no reply.
+
+**Fix (`src/assistant.js`):** when every tool a round did not offer is a search name (`browser.search`, `web.search`, `search` and similar) and that round could reach search, nothing in the response runs. Search is enabled the same way `prepare_web_search` enables it. The model is told the name does not exist and the round is asked again, once. A second made-up name, a non-search invented tool, a saved search ban, and the restricted rewrite or search-only rounds keep their earlier behavior. Details: [PROTOTYPE.md](PROTOTYPE.md#web-lookups).
+
+**Verification:** **1,196 automated tests pass**, 3 added in `test/unavailable-tools.test.js`. They cover the recovery and that nothing in the rejected response ran, including a timer. They also cover a second made-up name, a saved search ban, and a mixed response with a non-search tool. With the fix switched off, the two recovery tests fail. Live with real Meta, throwaway storage, the v2 engine and the demo home, the Brooklyn preference and weather question were run nine times in six conversations, typed and voice. Meta never made up a search name in those runs, so the live recovery itself was not observed. Every request but one succeeded, taking 5–29 s. The exception was the first request of one run: “Meta could not be reached or timed out” after 10.5 s.
+
+**Still open:** “Meta could not be reached or timed out” has now been seen on the very first Meta request of a fresh process three times in eight live script runs today: twice for chat, after 10.5 s, and once for transcription. The next attempt succeeded each time. A failed Meta request is still not retried. The owner's running server was restarted outside the agent sandbox on this fix.
+
 ## Home display `/companionfull/` — November 3, 2026
 
 At the owner's request, `http://127.0.0.1:3000/companionfull/` shows only MERLIN: no masthead, text box, reply text, settings or Activity list. Voice starts on its own, and anything that needs a hand is a large control on MERLIN's own panels. Design, decisions and limits: [ORCHESTRATION.md](ORCHESTRATION.md#home-display-companionfull--november-3-2026).
