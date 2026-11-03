@@ -445,6 +445,18 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         objectArgs(body, []); requireTool('spotify_playlists', {});
         json(200, await spotify.playlists()); return;
       }
+      if (path === '/api/home/control') {
+        // A tap on a device panel: the same rules, hub and receipt as a spoken request, and only on or off.
+        objectArgs(body, ['request_id', 'connector', 'device', 'action']);
+        uuid(body.request_id);
+        if (!['turn_on', 'turn_off'].includes(body.action)) throw new AppError('Choose turn on or turn off.');
+        const result = await ledger.run(`home:${body.request_id}`, body, async () => {
+          const args = requireTool('home_control', { device: body.device, action: body.action, ...(body.connector ? { connector: body.connector } : {}) });
+          const receipt = await connections.executeTool('home_control', args);
+          return { ok: receipt.ok, message: receipt.message, card: presentationResult('tool_result', { tool: 'home_control', ok: receipt.ok, result: receipt }) };
+        });
+        json(200, result); return;
+      }
       if (path === '/api/spotify/control') {
         objectArgs(body, ['request_id', 'action', 'uri', 'query', 'type', 'device_id', 'device_name', 'volume_percent', 'state']);
         uuid(body.request_id);

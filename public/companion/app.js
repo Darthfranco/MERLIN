@@ -1,7 +1,7 @@
 import {createCharacter} from '/character/viewer/character.js';
 import {SceneOverlays} from '/character/viewer/overlays/scene-overlays.js';
 import {floatingActivityPlan} from './floating-activities.js';
-import {formatDuration} from '/character/viewer/panels/render.js';
+import {formatDuration,panelActions,PANEL_WIDTH,PANEL_HEIGHT} from '/character/viewer/panels/render.js';
 import {CompanionVoiceClient,unlockAudioPlayback} from './voice-client.js';
 import {Orchestrator,ACTION_HOLD,pendingPanel,timerPanel,musicPanel,presentationLayout,panelSides} from './orchestrator.js';
 import {TimerAlertQueue} from './timer-alerts.js';
@@ -26,6 +26,9 @@ const timerAlerts=new TimerAlertQueue();
 let panelControlsKey='';
 let connectionsUi=initialUi({}), touchKey='', connectionsBusy=false, offerUi={status:'ready'};
 const largeScreen=type=>type==='connections'||type==='music-offer';
+// /companionfull/: the robot-only home display. Voice is the input; speech and acknowledgments are always on.
+const FULL=document.documentElement?.dataset?.mode==='full';
+let micMuted=false, touchKeyLeft='';
 let timerRowsKey='';
 let destroyed=false, stateBusy=false, musicBusy=false, timerBusy=new Set(), voiceEnabled=false;
 let cameraCapture=null, consentTimer=null;const seenCaptures=new Set(),viewfinder={source:null,segments:[],count:0,note:'',scanning:false};
@@ -33,6 +36,7 @@ const VIEWFINDER_HOLD=1600;
 const motionQuery=matchMedia('(prefers-reduced-motion: reduce)');
 try{const saved=localStorage.getItem('merlin-read-aloud');$('read-aloud').checked=saved===null||saved==='true';}catch{$('read-aloud').checked=true;}
 try{$('acknowledgments').checked=localStorage.getItem('merlin-acknowledgments')!=='false';}catch{$('acknowledgments').checked=true;}
+if(FULL){$('read-aloud').checked=true;$('acknowledgments').checked=true;}
 function notice(text=''){ $('notice').textContent=text;$('notice').hidden=!text; }
 function el(tag,text,className){const n=document.createElement(tag);n.textContent=text;if(className)n.className=className;return n;}
 async function api(path,body,{signal,timeout=15000}={}){
@@ -41,8 +45,8 @@ async function api(path,body,{signal,timeout=15000}={}){
   if(!response.ok)throw Object.assign(new Error(data.error||'That request could not finish.'),{data,status:response.status});return data;
 }
 function livePanel(panel){
-  if(panel?.type==='connections')return {...panel,...panelState(connectionsUi,{connectors:snapshot.connectors||[],spotify})};
-  if(panel?.type==='music-offer')return {...panel,...offerUi};
+  if(panel?.type==='connections')return {...panel,...panelState(connectionsUi,{connectors:snapshot.connectors||[],spotify}),closable:FULL};
+  if(panel?.type==='music-offer')return {...panel,...offerUi,closable:FULL};
   if(panel?.type==='timer'&&panel.id){const t=snapshot.timers.find(t=>t.id===panel.id);return t?timerPanel(t,Date.now()+serverOffset):panel;}
   return panel;
 }
@@ -65,7 +69,8 @@ function syncFloatingActivities(plan=scenePresentation(renderedView)){
   for(const card of visiblePlan.cards){
     const signature=JSON.stringify(card.data);
     if(floatingSignatures.get(card.id)===signature)continue;
-    floatingOverlays.show(card.type,card.data,{id:card.id});floatingSignatures.set(card.id,signature);
+    // On the home display the music card's own button pauses and resumes; Spotify is only ever touched by a tap.
+    floatingOverlays.show(card.type,card.data,{id:card.id,...(FULL&&card.type==='music'?{onAction:({action})=>void musicControl(action==='pause'?'pause':'play')}:{})});floatingSignatures.set(card.id,signature);
   }
 }
 function refreshActivityPresentation(){
@@ -349,7 +354,7 @@ for(const event of ['pause','ended'])$('typed-audio').addEventListener(event,()=
 $('typed-audio').addEventListener('error',()=>{const clip=typedPlayback;if(!clip||!validTyped(clip))return;clip.finish(false);character?.setSpeaking(0);notice('The spoken reply could not play. Your answer is on screen.');});
 function voiceEvent(event){
   if(event.type==='state'){
-    const state=event.state;voiceEnabled=!['off','requesting'].includes(state)&&voice.active;
+    const state=event.state;voiceEnabled=!['off','requesting'].includes(state)&&voice.active;if(FULL)renderFullMic(state);
     $('microphone').setAttribute('aria-pressed',String(voice.active));$('microphone').querySelector('span').textContent=voice.active?'Microphone off':'Enable microphone';
     $('mic-state').dataset.on=String(voice.active);
     const names={off:'Microphone off',requesting:'Microphone permission…',starting:'Preparing local listening…',wake:'Mic on · say MERLIN',listening:'Mic on · listening',transcribing:'Transcribing',processing:'Thinking',generating:'Preparing speech',speaking:'Speaking',followup:'Mic on · follow-up'};
@@ -393,7 +398,7 @@ function voiceEvent(event){
     if(timerAlerts.active)timerAlerts.release(timerAlerts.active);
     acknowledgments.settled();
     $('voice-troubleshooting').hidden=false;
-    notice(event.message);if(event.fatal)orchestration.error('Voice is unavailable');
+    notice(event.message);if(event.fatal)orchestration.error('Voice is unavailable');if(FULL&&event.fatal&&!micMuted)showStart(event.message);
     else if(/player|paused/.test(event.message))$('voice-audio').hidden=false;
   }
 }
@@ -484,7 +489,7 @@ function renderMusic(){
 }
 async function musicControl(action){
   if(musicBusy)return;musicBusy=true;orchestration.inspect(pendingPanel('music'));renderMusic();$('music-notice').textContent='';
-  try{await api('/api/spotify/control',{request_id:crypto.randomUUID(),action,device_id:$('spotify-device').value});await refreshMusic();orchestration.inspect(musicPanel(spotify));}
+  try{const device=$('spotify-device').value;await api('/api/spotify/control',{request_id:crypto.randomUUID(),action,...(device?{device_id:device}:{})});await refreshMusic();orchestration.inspect(musicPanel(spotify));}
   catch(error){$('music-notice').textContent=error.message;orchestration.inspect(pendingPanel('music','error'));}finally{musicBusy=false;renderMusic();}
 }
 async function pollState(){
@@ -511,31 +516,68 @@ function refreshConnections(){
   if(!largeScreen(activePanels.right?.type))return;
   character?.refreshPanels?.(['right']);renderTouchLayer();
 }
-function renderTouchLayer(){
-  const layer=$('touch-layer'),panel=activePanels.right,geometry=character?.screenGeometry?.('right');
-  // Real buttons sit over the painted touchscreen only once MERLIN has finished pulling it down.
-  const showing=geometry&&largeScreen(panel?.type)&&sceneStatus?.phase==='idle'&&sceneStatus.state==='ceiling'&&scenePresentation(renderedView).destination==='ceiling';
-  if(!showing){if(!layer.hidden){layer.replaceChildren();layer.hidden=true;touchKey='';}return;}
-  const {width,height}=geometry.logical,{rect}=geometry,state=livePanel(panel),targets=panel.type==='music-offer'?playOfferTargets(state,width,height):connectionTargets(state,width,height);
-  // Phone-sized screens shrink a painted chip or pill below a comfortable touch size; grow its hit area, not its look.
-  const px=Math.max(.05,$('scene-frame').clientWidth*rect.width/width),MIN_TOUCH=30;
+function renderTouchLayer(){renderSideTouch('right');renderSideTouch('left');}
+/** What can be tapped on one screen, in that screen's drawing units. */
+function sideTargets(side,panel,width,height){
+  const state=livePanel(panel);
+  if(side==='right'&&panel.type==='music-offer')return {targets:playOfferTargets(state,width,height),width,height};
+  if(side==='right'&&panel.type==='connections')return {targets:connectionTargets(state,width,height),width,height};
+  // The home display: each regular panel's own large controls, in its 900 × 1080 design units, at their full tap areas.
+  if(FULL&&!largeScreen(panel.type))return {targets:panelActions(state,{touch:true}).map(target=>({...target,...target.hit})),width:PANEL_WIDTH,height:PANEL_HEIGHT};
+  return null;
+}
+function renderSideTouch(side){
+  const layer=$(side==='right'?'touch-layer':'touch-layer-left'),panel=activePanels[side],geometry=character?.screenGeometry?.(side);
+  const clear=()=>{if(!layer.hidden){layer.replaceChildren();layer.hidden=true;}if(side==='right')touchKey='';else touchKeyLeft='';};
+  // Real buttons sit over a painted screen only once MERLIN has finished bringing it out.
+  const settled=geometry&&panel&&sceneStatus?.phase==='idle'&&scenePresentation(renderedView).destination===sceneStatus.state;
+  const placedHere=settled&&(largeScreen(panel.type)?side==='right'&&sceneStatus.state==='ceiling':panelSides(sceneStatus.state).includes(side));
+  const spec=placedHere?sideTargets(side,panel,geometry.logical.width,geometry.logical.height):null;
+  if(!spec){clear();return;}
+  const {targets,width,height}=spec,{rect}=geometry;
+  // Small screens shrink a painted control below a comfortable touch size; grow its hit area, not its look.
+  const px=Math.max(.05,$('scene-frame').clientWidth*rect.width/width),MIN_TOUCH=FULL?48:30;
   const hit=target=>{
     const w=Math.max(target.w,MIN_TOUCH/px),h=Math.max(target.h,MIN_TOUCH/px),bounds=target.within||{x:0,y:0,w:width,h:height};
     const x=Math.min(Math.max(target.x+target.w/2-w/2,bounds.x),bounds.x+bounds.w-Math.min(w,bounds.w)),y=Math.min(Math.max(target.y+target.h/2-h/2,bounds.y),bounds.y+bounds.h-Math.min(h,bounds.h));
     return {x,y,w:Math.min(w,bounds.w),h:Math.min(h,bounds.h)};
   };
   const placed=targets.map(target=>({target,box:hit(target)}));
-  const key=JSON.stringify([placed.map(({target,box})=>[target.id,target.label,Math.round(box.x),Math.round(box.y),Math.round(box.w),Math.round(box.h)]),[rect.left,rect.top,rect.width,rect.height].map(v=>Math.round(v*1000))]);
-  if(key===touchKey&&!layer.hidden)return;touchKey=key;
+  const key=JSON.stringify([panel.type,panel.id||'',placed.map(({target,box})=>[target.id,target.label,Math.round(box.x),Math.round(box.y),Math.round(box.w),Math.round(box.h)]),[rect.left,rect.top,rect.width,rect.height].map(v=>Math.round(v*1000))]);
+  if(key===(side==='right'?touchKey:touchKeyLeft)&&!layer.hidden)return;
+  if(side==='right')touchKey=key;else touchKeyLeft=key;
   const focused=document.activeElement?.dataset?.touchId;
   layer.hidden=false;
   Object.assign(layer.style,{left:rect.left*100+'%',top:rect.top*100+'%',width:rect.width*100+'%',height:rect.height*100+'%'});
   layer.replaceChildren(...placed.map(({target,box})=>{
     const button=document.createElement('button');button.type='button';button.className='touch-target';button.dataset.touchId=target.id;button.setAttribute('aria-label',target.label);
     Object.assign(button.style,{left:box.x/width*100+'%',top:box.y/height*100+'%',width:box.w/width*100+'%',height:box.h/height*100+'%'});
-    button.addEventListener('click',()=>void tapTarget(target));return button;
+    button.addEventListener('click',()=>void tapTarget(target,side));return button;
   }));
   if(focused)layer.querySelector(`[data-touch-id="${CSS.escape(focused)}"]`)?.focus({preventScroll:true});
+}
+/** A tap on a regular panel's own control. Only what MERLIN really supports is ever drawn. */
+async function panelTap(target,side,panel){
+  if(target.id==='close'){changeLayout(()=>orchestration.dismiss(side));return;}
+  if(panel.type==='timer'){
+    // One tap: a cancelled timer is cleared straight away instead of waiting for a second "Dismiss".
+    const timer=snapshot.timers.find(t=>t.id===panel.id);if(!timer)return;await changeTimer(timer);
+    const after=snapshot.timers.find(t=>t.id===panel.id);if(target.id==='cancel'&&after&&after.status!=='running')await changeTimer(after);return;
+  }
+  if(panel.type==='music'){await musicControl(target.id==='toggle'?(spotify.playback?.is_playing?'pause':'play'):target.id);return;}
+  if(['lights','oven','speaker'].includes(panel.type))await deviceToggle(panel);
+}
+/** The same rules, hub and code-written receipt as a spoken request. The panel shows what the service reported. */
+async function deviceToggle(panel){
+  if(!['on','off'].includes(panel.status))return;
+  const connector=String(panel.id||'').split(':')[0];
+  const pending={...panel,status:'pending'};orchestration.remember(pending);orchestration.show(orchestration.view.destination,orchestration.view.label);
+  try{
+    const data=await api('/api/home/control',{request_id:crypto.randomUUID(),device:panel.label,action:panel.status==='on'?'turn_off':'turn_on',...(connector?{connector}:{})});
+    orchestration.remember(data.card||{...panel,status:'error'});
+    if(!data.ok)notice(data.message);
+  }catch(error){orchestration.remember({...panel,status:'error'});notice(error.message);}
+  orchestration.show(orchestration.view.destination,orchestration.view.label);
 }
 /** The person's own tap is the only thing that starts Spotify; the spoken request only put the button up. */
 async function playOffer(){
@@ -551,7 +593,10 @@ async function playOffer(){
     setTimeout(()=>{if(activePanels.right===panel&&offerUi.status==='playing')changeLayout(()=>orchestration.dismiss());},2500);
   }catch(error){offerUi={status:'error',notice:error.message||'That didn’t start. Tap to try again.'};touchKey='';refreshConnections();$('touch-status').textContent=playOfferDescription(livePanel(panel));}
 }
-async function tapTarget(target){
+async function tapTarget(target,side='right'){
+  const panel=activePanels[side];
+  if(panel&&!largeScreen(panel.type)){await panelTap(target,side,panel);return;}
+  if(target.action==='close'){changeLayout(()=>orchestration.dismiss('right'));return;}
   if(activePanels.right?.type==='music-offer'){if(target.action==='play')await playOffer();return;}
   const geometry=character?.screenGeometry?.('right');if(!geometry||activePanels.right?.type!=='connections')return;
   const pages=pageCount(livePanel(activePanels.right),geometry.logical.width,geometry.logical.height);
@@ -587,6 +632,37 @@ $('message').addEventListener('focus',()=>{if(!turnId&&!voice.active){invalidate
 $('message').addEventListener('blur',()=>{if(orchestration.phase==='listening'&&!voice.active&&!turnId)orchestration.followup();});
 $('message').addEventListener('input',()=>{$('send').textContent=pendingRetry?.message===$('message').value.trim()?'Retry':'Send';});
 $('microphone').addEventListener('click',async()=>{notice();if(voice.active){invalidate();voice.stop();return;}invalidate();if($('acknowledgments').checked)void unlockAudioPlayback($('ack-audio'));try{await voice.start({sessionId,timeZone});}catch(error){notice(error.message);$('voice-troubleshooting').hidden=false;}});
+/** The home display listens for "MERLIN" on its own. One tap is needed only when the browser requires a gesture for sound. */
+function audioUnlocked(){try{const probe=new AudioContext(),running=probe.state==='running';void probe.close().catch(()=>{});return running;}catch{return false;}}
+// No message: the browser only needs one tap for sound, so the whole screen is the button. A real microphone
+// problem is a smaller notice that leaves MERLIN's panels usable.
+function showStart(message=''){$('full-start-text').textContent=message?`${message} Tap to try again.`:'Tap to start MERLIN';$('full-start').dataset.variant=message?'notice':'start';$('full-start').hidden=false;}
+async function startFullVoice({gesture=false}={}){
+  if(!FULL||micMuted||voice.active||document.visibilityState==='hidden')return;
+  if(!gesture&&!audioUnlocked()){showStart();return;}
+  $('full-start').hidden=true;void unlockAudioPlayback($('ack-audio'));void unlockAudioPlayback($('typed-audio'));
+  try{await voice.start({sessionId,timeZone});}catch(error){showStart(error.message);}
+}
+/** The microphone stays visible and in the household's hands: one big tap mutes or unmutes it. */
+function renderFullMic(state=voice.state){
+  const button=$('full-mic');button.hidden=!FULL;button.setAttribute('aria-pressed',String(micMuted));
+  button.setAttribute('aria-label',micMuted?'Microphone muted. Tap to turn it back on.':voice.active?'Microphone on. Tap to mute.':'Microphone off. Tap to turn it on.');
+  button.dataset.hearing=String(['listening','transcribing'].includes(state));
+}
+if(FULL){
+  $('full-start').addEventListener('click',()=>{micMuted=false;void startFullVoice({gesture:true});});
+  $('full-mic').addEventListener('click',()=>{if(voice.active){micMuted=true;invalidate();voice.stop('Microphone muted.');}else{micMuted=false;void startFullVoice({gesture:true});}renderFullMic();});
+  // Tapping MERLIN while he talks stops the reply, as the Stop button does elsewhere.
+  $('scene').addEventListener('click',()=>{if(!$('stop').hidden)$('stop').click();});
+  renderFullMic('off');void startFullVoice();
+  // Tapping a floating card brings out its full panel, where the large controls are.
+  $('scene-frame').addEventListener('click',event=>{
+    const card=event.target.closest?.('.floating-overlay');if(!card||event.target.closest('.floating-action'))return;
+    const id=card.dataset.overlayId||'';
+    if(id.startsWith('timer:')){const timer=snapshot.timers.find(t=>t.id===id.slice(6));if(timer)orchestration.inspect(timerPanel(timer,Date.now()+serverOffset));}
+    else if(id.startsWith('music:'))orchestration.inspect(musicPanel(spotify));
+  });
+}
 $('stop').addEventListener('click',()=>{invalidate();voice.interrupt();if(voice.active)orchestration.listening();else orchestration.followup();notice('Reply stopped. Completed actions are still in Activity.');});
 $('camera-allow').addEventListener('click',()=>{hideConsent();void submit('Yes, turn on the camera.');});
 $('camera-decline').addEventListener('click',()=>{hideConsent();void submit('No, leave the camera off.');});
@@ -617,10 +693,10 @@ $('test-speaker').addEventListener('click',async()=>{
 motionQuery.addEventListener('change',()=>{orchestration.reducedMotion=motionQuery.matches;if(motionQuery.matches&&orchestration.phase==='ambient')orchestration.standby();});
 const ticker=setInterval(()=>{if(document.hidden)return;if(!floatingCount||!['idle','ambient'].includes(orchestration.phase))orchestration.tick();countdowns();syncFloatingActivities();void drainAlerts();if(orchestration.phase==='speaking'||orchestration.acknowledging)character?.setSpeaking(.65);},500);
 const statePoll=setInterval(()=>{if(document.visibilityState!=='hidden')void pollState();},2000);
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){invalidate();voice.stop();orchestration.standby();}else void pollState();});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){invalidate();voice.stop();orchestration.standby();}else{void pollState();if(FULL)void startFullVoice();}});
 window.addEventListener('pagehide',()=>{destroyed=true;invalidate();voice.destroy();floatingOverlays?.destroy();character?.destroy();clearInterval(ticker);clearInterval(statePoll);},{once:true});
 void pollState();
-createCharacter({canvas:$('scene'),stage:$('scene-frame'),onStatus:info=>{
+createCharacter({canvas:$('scene'),stage:$('scene-frame'),touchPanels:FULL,onStatus:info=>{
   if(info?.message)$('loading').textContent=info.message;
   if(info?.state){sceneStatus=info;Object.assign($('stage').dataset,{characterState:info.state,characterDesired:info.desired||'',characterClip:info.clip||'',motionPhase:info.phase||''});if(character){updateControlVisibility();syncFloatingActivities();}}
 },onError:()=>{$('scene-error').hidden=false;}}).then(runtime=>{character=runtime;floatingOverlays=new SceneOverlays($('scene-frame'),{clock:runtime,presentation:'companion'});$('loading').hidden=true;lastDestination='';renderView(orchestration.view);}).catch(()=>{$('loading').hidden=true;$('scene-error').hidden=false;});

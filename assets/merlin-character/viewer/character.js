@@ -126,7 +126,7 @@ function visiblePanels(controller) {
 }
 
 /** Presentation only: no microphone, model, service credentials or demo outcomes. */
-export function createCharacterDriver({controller, screens, panelArt = {}, reducedMotion = false, onStatus = () => {}, invalidate = () => {}}) {
+export function createCharacterDriver({controller, screens, panelArt = {}, reducedMotion = false, touchPanels = false, onStatus = () => {}, invalidate = () => {}}) {
   let wanted = 'ready', destroyed = false, lastSide = 'right', speaking = 0, listening = false, transitionPace = 1;
   let bridge = null, requestedAlias = 'ready', moving = false, retainedBody = 'ready';
   const panels = {left: null, right: null}; let panelPaints = 0, viewfinder = false;
@@ -291,7 +291,8 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
         // the 5:6 designs keep their authored canvas.
         if (panel.type === CONNECTIONS_PANEL) screens[side].draw((context, width, height) => paintConnections(context, width, height, panel.snapshot), {animate: true, reflow: true});
         else if (panel.type === PLAY_OFFER_PANEL) screens[side].draw((context, width, height) => paintPlayOffer(context, width, height, panel.snapshot), {animate: true, reflow: true});
-        else screens[side].draw((context, width, height) => paintPanel(context, width, height, panel.snapshot, {art: panelArt, controls: false}), {animate: true, reflow: false});
+        // On the touch display the panels draw their own large controls; the page lays real buttons over them.
+        else screens[side].draw((context, width, height) => paintPanel(context, width, height, panel.snapshot, {art: panelArt, controls: false, touch: touchPanels}), {animate: true, reflow: false});
         panel.initialized = true;
       } else screens[side].tick(0);
       panelPaints++; changed = true; if (side === 'right') sourceChanged = true;
@@ -387,7 +388,7 @@ export function createSpeechOverlay(root) {
   };
 }
 
-export async function createCharacter({canvas, stage, onStatus = () => {}, onError = () => {}, reducedMotion} = {}) {
+export async function createCharacter({canvas, stage, onStatus = () => {}, onError = () => {}, reducedMotion, touchPanels = false} = {}) {
   if (!canvas || !stage) throw new TypeError('The character needs a canvas and stage.');
   let renderer, composer, observer, sceneClock, driver, destroyDriver, controller, model, scene, surfaces, renderLoop, disposed = false;
   const renderStats = {frames: 0, drawCalls: 0, triangles: 0, visibleMeshes: 0, width: 0, height: 0, fpsCap: RENDER_BUDGET.fps};
@@ -467,7 +468,7 @@ export async function createCharacter({canvas, stage, onStatus = () => {}, onErr
     controller = new MotionController(new THREE.AnimationMixer(model), gltf.animations, manifest, info => {
       sceneClock.sync({...info, current: info.state}); driver?.motionChanged();
     });
-    driver = createCharacterDriver({controller, screens, panelArt, reducedMotion: reducedMotion ?? media.matches,
+    driver = createCharacterDriver({controller, screens, panelArt, touchPanels, reducedMotion: reducedMotion ?? media.matches,
       invalidate: () => renderLoop?.invalidate(), onStatus});
     destroyDriver = driver.destroy;
     composer = new EffectComposer(renderer); composer.addPass(new RenderPass(scene, camera));

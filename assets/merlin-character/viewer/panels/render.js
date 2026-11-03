@@ -88,8 +88,29 @@ function art(c,source,x,y,size){
   else icon(c,'spark',x+size*.25,y+size*.25,size*.5);
   c.restore();
 }
-export function panelActions(s){
+/* Touch mode (the full-screen home display): every control is as large as the panel allows, every
+   panel can be closed, and only actions MERLIN can really perform are drawn. `hit` is the larger
+   area the page makes tappable; `x,y,w,h` is what is painted. Logical 900 × 1080 units. */
+const TOUCH_BUTTON={x:60,y:792,w:780,h:160,hit:{x:0,y:770,w:900,h:310}};
+const TOUCH_CLOSE={x:774,y:50,w:88,h:88,hit:{x:660,y:0,w:240,h:210}};
+const TOUCH_MUSIC={previous:{x:130,y:672,w:170,h:170,hit:{x:0,y:640,w:300,h:290}},toggle:{x:355,y:657,w:190,h:190,hit:{x:300,y:640,w:300,h:290}},next:{x:600,y:672,w:170,h:170,hit:{x:600,y:640,w:300,h:290}}};
+const deviceTypes=new Set(['lights','oven','speaker']);
+function touchActions(s){
+  const out=[];
+  if(!unavailable(s)){
+    const label=s.label||s.title||'';
+    if(s.type==='timer'){const over=['done','cancelled'].includes(s.status);out.push({id:over?'dismiss':'cancel',label:`${over?'Dismiss':'Cancel'} ${label||'timer'}`.trim(),text:over?'Dismiss':'Cancel timer',...TOUCH_BUTTON});}
+    if(deviceTypes.has(s.type))out.push({id:'toggle',label:`${s.status==='on'?'Turn off':'Turn on'} ${label}`.trim(),text:s.status==='on'?'Turn off':'Turn on',...TOUCH_BUTTON});
+    if(s.type==='music'&&s.status!=='empty')out.push({id:'previous',label:'Previous track',...TOUCH_MUSIC.previous},{id:'toggle',label:s.status==='playing'?'Pause music':'Play music',...TOUCH_MUSIC.toggle},{id:'next',label:'Next track',...TOUCH_MUSIC.next});
+  }
+  out.push({id:'close',label:`Close ${s.label||s.title||'panel'}`.trim(),...TOUCH_CLOSE});
+  return out;
+}
+function bigButton(c,{x,y,w,h,text:caption}){rr(c,x,y,w,h,44,COLORS.blue);text(c,caption,x+w/2,y+h/2,48,{align:'center',color:COLORS.paper,weight:650,max:w-60});}
+function closeButton(c,{x,y,w}){const r=w/2,cx=x+r,cy=y+r;c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fillStyle=COLORS.quiet;c.fill();line(c,cx-r*.36,cy-r*.36,cx+r*.36,cy+r*.36,COLORS.muted,6);line(c,cx+r*.36,cy-r*.36,cx-r*.36,cy+r*.36,COLORS.muted,6);}
+export function panelActions(s,{touch=false}={}){
   if(!s||!types.has(s.type))return [];
+  if(touch)return touchActions(s);
   if(unavailable(s))return [];
   if(s.type==='timer')return ['done','cancelled'].includes(s.status)?[{id:'restart',label:'Start again',x:76,y:839,w:748,h:90}]:[{id:'toggle',label:s.status==='paused'?'Resume timer':'Pause timer',x:76,y:839,w:532,h:90},{id:'cancel',label:'Cancel timer',x:632,y:839,w:192,h:90}];
   if(['lights','oven','speaker'].includes(s.type))return [{id:'toggle',label:s.status==='on'?'Turn off':'Turn on',x:76,y:839,w:748,h:90}];
@@ -109,13 +130,16 @@ export function panelDescription(s){
     default:return `${s.label}. ${s.status==='saved'?'Routine saved':s.status}. ${(Array.isArray(s.steps)?s.steps:[]).join('. ')}.`;
   }
 }
-export function paintPanel(c,width,height,s,{art:images={},controls=true}={}){
+export function paintPanel(c,width,height,s,{art:images={},controls=true,touch=false}={}){
   if(!s||!types.has(s.type))throw new TypeError('A valid panel type is required.');
   c.save();c.scale(width/900,height/1080);c.fillStyle=COLORS.paper;c.fillRect(0,0,900,1080);c.lineCap='round';c.lineJoin='round';
   const blocked=unavailable(s);
   const title={timer:['Timer','timer'],lights:['Lights','bulb'],oven:['Oven','oven'],speaker:['Speaker','speaker'],music:['Music','music'],schedule:['Schedule','calendar'],'routine-saved':['Routine','spark'],routine:['Routine','spark']}[s.type];
   header(c,...title);
-  if(s.simulated){rr(c,640,62,184,64,32,COLORS.amber);text(c,'DEMO',732,94,34,{align:'center',color:COLORS.paper,weight:700,max:150});}
+  if(s.simulated){const x=touch?568:640;rr(c,x,62,184,64,32,COLORS.amber);text(c,'DEMO',x+92,94,34,{align:'center',color:COLORS.paper,weight:700,max:150});}
+  // Touch mode draws its own large controls below; the smaller authored ones stay for previews.
+  const touchControls=touch?touchActions(s):null;if(touch)controls=false;
+  if(touchControls){for(const action of touchControls)if(action.id==='close')closeButton(c,action);}
   if(blocked){
     icon(c,s.status==='pending'?title[1]:'alert',362,310,176,COLORS.muted);
     center(c,s.status==='pending'?'One moment…':s.status==='offline'?'Not connected':s.status==='error'?'Couldn’t finish':'State unknown',566,60,{weight:600});
@@ -155,6 +179,12 @@ export function paintPanel(c,width,height,s,{art:images={},controls=true}={}){
       center(c,s.title||'Unknown track',571,49,{weight:600,max:730});center(c,s.artist||'Unknown artist',626,29,{color:COLORS.muted});
       if(controls){c.save();c.translate(336,708);c.scale(-1,1);icon(c,'next',0,0,100,COLORS.ink);c.restore();
       rr(c,390,698,120,120,60,COLORS.blue);icon(c,s.status==='playing'?'pause':'play',424,732,52,COLORS.paper);icon(c,'next',564,708,100,COLORS.ink);}
+      if(touchControls){
+        const m=Object.fromEntries(touchControls.map(action=>[action.id,action]));
+        c.save();c.translate(m.previous.x+m.previous.w,m.previous.y);c.scale(-1,1);icon(c,'next',0,0,m.previous.w,COLORS.ink);c.restore();
+        const t=m.toggle;c.beginPath();c.arc(t.x+t.w/2,t.y+t.h/2,t.w/2,0,Math.PI*2);c.fillStyle=COLORS.blue;c.fill();icon(c,s.status==='playing'?'pause':'play',t.x+t.w*.25,t.y+t.h*.25,t.w*.5,COLORS.paper);
+        icon(c,'next',m.next.x,m.next.y,m.next.w,COLORS.ink);
+      }
       line(c,100,865,800,865,COLORS.line,6);line(c,100,865,100+700*Math.max(0,Math.min(1,(s.elapsed||0)/(s.duration||1))),865,COLORS.blue,6);
       text(c,formatDuration(s.elapsed),100,903,25,{color:COLORS.muted});text(c,formatDuration(s.duration),800,903,25,{align:'right',color:COLORS.muted});
     }
@@ -180,6 +210,7 @@ export function paintPanel(c,width,height,s,{art:images={},controls=true}={}){
     if(steps.length>2)text(c,`+ ${steps.length-2} more actions`,154,805,25,{color:COLORS.muted});
     if(controls)primary(c,saved?'View routine':done?'Run again':running?'Running…':'Run routine',{disabled:running});
   }
+  if(touchControls)for(const action of touchControls)if(action.id!=='close'&&action.text)bigButton(c,action);
   const foot=s.simulated?DEMO_LABEL:s.type==='music'?`${s.status==='playing'?'Playing':s.status==='paused'?'Paused':'Music'}${s.device?' · '+s.device:''}`:s.type==='schedule'?(s.zoneLabel||s.timezone||'Time zone required'):'MERLIN';
   footer(c,foot);c.restore();
 }

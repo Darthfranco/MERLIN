@@ -36,8 +36,25 @@ export function pageCount(state, width, height) { return Math.max(1, Math.ceil((
 
 const chipWidth = label => Math.round(44 + String(label).length * 17);
 
+/** The large close button on a big screen in the home display's top-right corner, clear of the robot and the chips. */
+export function closeTarget(width, height) {
+  const pad = (isLandscape(width, height) ? .045 : .06) * width, d = .1 * height;
+  return {x: width - pad - d, y: .03 * height, w: d, h: d, hit: {x: width - pad - d - .04 * width, y: 0, w: pad + d + .04 * width, h: .15 * height}};
+}
+export function paintClose(c, {x, y, w}) {
+  const r = w / 2, cx = x + r, cy = y + r, k = r * .36;
+  c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.fillStyle = COLORS.quiet; c.fill();
+  c.strokeStyle = COLORS.muted; c.lineWidth = Math.max(3, r * .12); c.lineCap = 'round';
+  c.beginPath(); c.moveTo(cx - k, cy - k); c.lineTo(cx + k, cy + k); c.moveTo(cx + k, cy - k); c.lineTo(cx - k, cy + k); c.stroke();
+}
+
 /** Every rectangle in logical canvas units. `action` marks tap targets. */
 export function connectionsLayout(state, width, height) {
+  const items = baseLayout(state, width, height);
+  if (state?.closable) items.push({kind: 'close', action: 'close', label: 'Close the connection screen', ...closeTarget(width, height)});
+  return items;
+}
+function baseLayout(state, width, height) {
   const w = width, h = height, wide = isLandscape(w, h), items = [];
   const add = item => { items.push(item); return item; };
   const pad = wide ? .045 * w : .06 * w;
@@ -165,7 +182,7 @@ function disconnectSpec(s, busy) {
 export function connectionTargets(state, width, height) {
   const targets = [];
   for (const item of connectionsLayout(state, width, height)) {
-    if (item.action && !item.disabled) targets.push({id: `${item.action}:${item.value ?? ''}`, action: item.action, value: item.value, label: item.label, x: item.x, y: item.y, w: item.w, h: item.h});
+    if (item.action && !item.disabled) targets.push({id: `${item.action}:${item.value ?? ''}`, action: item.action, value: item.value, label: item.label, ...(item.hit ?? {x: item.x, y: item.y, w: item.w, h: item.h})});
     if (item.kind !== 'tile') continue;
     const tile = item.tile;
     targets.push({id: `open:${tile.id}`, action: 'open', value: tile.id, label: `${tile.name}, ${DIFFICULTY[tile.difficulty]?.label.toLowerCase() || 'medium'} setup, ${statusStyle(tile.status).spoken}. Open details`, x: item.x, y: item.y, w: item.w, h: item.h});
@@ -228,6 +245,7 @@ export function paintConnections(c, width, height, state) {
     } else if (item.kind === 'paragraph') {
       item.lines.forEach((line, i) => wrap(c, line, item.w, item.size, 500, item.max).forEach((part, j) => text(c, part, item.x, item.y + (i + j) * item.size * 1.4, item.size, {color: COLORS.muted, max: item.w})));
     } else if (item.kind === 'list') paintList(c, item);
+    else if (item.kind === 'close') paintClose(c, item);
     else if (item.kind === 'note') paintNote(c, item);
     else if (item.kind === 'tile') paintTile(c, item);
   }

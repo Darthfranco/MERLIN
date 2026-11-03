@@ -2,6 +2,28 @@
 
 Last updated: **November 3, 2026**.
 
+## Home display `/companionfull/` — November 3, 2026
+
+At the owner's request, `http://127.0.0.1:3000/companionfull/` shows only MERLIN: no masthead, text box, reply text, settings or Activity list. Voice starts on its own, and anything that needs a hand is a large control on MERLIN's own panels. Design, decisions and limits: [ORCHESTRATION.md](ORCHESTRATION.md#home-display-companionfull--november-3-2026).
+
+**Verification:** **1,192 automated tests pass**, 4 of them in `test/companion-full.test.js`. They cover:
+- The route, its markers and its policy hash.
+- Touch actions per panel and state, including that every tap area covers its drawing and is at least 200 of 900 design units.
+- Close buttons on both big screens, clear of the category chips.
+- The device tap endpoint: the receipt and panel, on/off only, unknown devices, and a saved "never control home devices" rule blocking it.
+
+In the built-in browser at iPad landscape size (1180 × 820), with real Meta, the demo home and a fake Spotify on isolated ports:
+- The stage filled the screen at 1093 × 820, with nothing else on screen but the mic button.
+- A timer and lights request brought out both panels. Their buttons measured 344 × 119 CSS pixels and the close buttons 92 × 80.
+- Real clicks turned the lights off (the panel showed Off and Turn on), cancelled the timer and cleared it in one tap, and closed a panel with its X.
+- The voice gym routine showed the Play screen with its close X, and Play sent one request.
+- Tapping the floating music card brought out the Music panel, and its pause sent `pause`.
+- The normal `/companion/` page was unchanged.
+
+Two defects were found and fixed during the check. The blocked-microphone message covered the whole stage and swallowed taps; it is now a small notice beside the mic button. That notice then overlapped the music card, so it was moved.
+
+**Not verified:** a physical iPad, Safari, real touch, and working voice start-up. The built-in browser blocks microphones, so only the blocked-microphone notice was seen. An iPad also cannot reach this server yet (loopback only), and iPad Safari gives the microphone only to HTTPS or localhost pages.
+
 ## Cooler personality, no “mister” — November 3, 2026
 
 The owner asked to cool down MERLIN's personality: keep it jolly and fun, no more “mister,” and sound like a fun AI agent but less over the top. The decision is in [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) and the behavior in [PROTOTYPE.md](PROTOTYPE.md#merlins-personality).

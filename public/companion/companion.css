@@ -23,3 +23,32 @@ main{max-width:1600px;margin:auto;display:flex;align-items:flex-start;padding:0 
 #camera-state{color:var(--soft);padding-left:12px;border-left:1px solid var(--line)}#camera-state[data-on=true]{color:#f2c7a8;font-weight:600}.camera-consent{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin:0 0 18px}.camera-consent[hidden]{display:none}#camera-allow{background:var(--action);color:var(--dark-ink);border-color:var(--action);font-weight:600}#camera-allow:hover{background:#d0f1fd}
 /* The feed is only ever seen on MERLIN's own viewfinder. These stay rendered so browsers keep decoding, but are not shown. */
 .camera-feed{position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none}
+
+/* Home display (/companionfull/): only MERLIN's stage, for a wall- or counter-mounted iPad. Voice is the input;
+   anything else that needs a hand is a large control on MERLIN's own panels. */
+.full-start[hidden],.full-mic[hidden],.camera-consent[hidden]{display:none}
+html[data-mode=full],html[data-mode=full] body{height:100%;overflow:hidden;overscroll-behavior:none;background:var(--night)}
+html[data-mode=full] body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+html[data-mode=full] .masthead,html[data-mode=full] .activity,html[data-mode=full] audio{display:none!important}
+html[data-mode=full] main{max-width:none;height:100dvh;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);align-items:center;justify-content:center}
+html[data-mode=full] .presence{position:relative;height:100%;justify-content:center}
+html[data-mode=full] .stage{width:min(100%,calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom))*4/3));min-width:0;max-width:none}
+html[data-mode=full] .conversation{position:absolute;inset:0;width:auto;padding:0;pointer-events:none;z-index:6}
+html[data-mode=full] .conversation>:not(#camera-consent):not(.state-line),html[data-mode=full] .state-line>:not(#camera-close){display:none!important}
+html[data-mode=full] .state-line{position:absolute;top:28px;right:28px;min-height:0}
+html[data-mode=full] #camera-close,html[data-mode=full] #camera-consent button{pointer-events:auto;min-height:96px;padding:0 44px;font-size:28px;font-weight:600;border-radius:48px}
+html[data-mode=full] #camera-consent{position:absolute;left:0;right:0;bottom:7%;gap:28px;margin:0;pointer-events:none}
+html[data-mode=full] #camera-consent button{min-width:280px}
+html[data-mode=full] #camera-allow{background:var(--action);color:var(--dark-ink);border-color:var(--action)}
+.full-start{position:absolute;inset:0;z-index:7;display:flex;align-items:center;justify-content:center;border:0;border-radius:0;background:rgba(8,19,38,.55);padding:0;min-height:0;cursor:pointer}
+.full-start-pill{display:flex;align-items:center;gap:20px;padding:30px 52px;border-radius:72px;background:var(--action);color:var(--dark-ink);font-size:34px;font-weight:650;box-shadow:0 18px 60px rgba(0,0,0,.35)}
+.full-start svg{width:42px;height:42px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.full-mic{position:absolute;left:22px;bottom:22px;z-index:6;width:80px;height:80px;min-height:0;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(16,31,52,.72);border:1px solid var(--line);cursor:pointer}
+.full-mic svg{width:36px;height:36px;fill:none;stroke:var(--cyan);stroke-width:2;stroke-linecap:round}.full-mic .slash{display:none}
+.full-mic[aria-pressed=true]{background:#3a1d22;border-color:#a8545c}.full-mic[aria-pressed=true] svg{stroke:#ffb4b4}.full-mic[aria-pressed=true] .slash{display:inline}
+.full-mic[data-hearing=true]{border-color:var(--cyan);box-shadow:0 0 0 6px rgba(139,217,242,.18)}
+html[data-mode=full] .floating-overlay{cursor:pointer}
+html[data-mode=full] .floating-overlay .floating-action{flex-basis:64px;width:64px;height:64px;min-height:64px}
+html[data-mode=full] .floating-overlay .floating-action svg{width:30px;height:30px}
+.full-start[data-variant=notice]{inset:auto auto 22px 118px;max-width:46%;justify-content:flex-start;background:none;pointer-events:none}
+.full-start[data-variant=notice] .full-start-pill{pointer-events:auto;padding:16px 26px;font-size:19px;line-height:1.35;text-align:left;border-radius:26px}

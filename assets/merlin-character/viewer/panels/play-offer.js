@@ -4,7 +4,7 @@
    front of the middle of the ceiling card, so the button lives in the right column, clear of ROBOT_ZONE.
    Drawing is display-only; the caller performs the tap. */
 import {COLORS} from './render.js';
-import {ROBOT_ZONE} from './connections.js';
+import {ROBOT_ZONE, closeTarget, paintClose} from './connections.js';
 
 export const PLAY_OFFER_PANEL = 'music-offer';
 const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
@@ -28,12 +28,13 @@ export function playOfferLayout(state, width, height) {
   const caption = playing ? 'Enjoy your workout!' : busy ? 'Starting…' : status === 'error' ? (state?.notice || 'That didn’t start. Tap to try again.') : 'Tap to play';
   items.push({kind: 'caption', x: cx, y: cy + r + .07 * h, text: caption, size: Math.round((wide ? .036 : .028) * h), max: wide ? (1 - ROBOT_ZONE.x1) * w - pad : w - 2 * pad, error: status === 'error'});
   items.push({kind: 'note', x: pad, y: (wide ? .93 : .95) * h, text: NOTE, size: Math.round((wide ? .026 : .022) * h)});
+  if (state?.closable) items.push({kind: 'close', action: 'close', label: 'Close the playlist screen', ...closeTarget(w, h)});
   return items;
 }
 
 export function playOfferTargets(state, width, height) {
   return playOfferLayout(state, width, height).filter(item => item.action && !item.disabled)
-    .map(({action, label, x, y, w, h}) => ({id: action, action, label, x, y, w, h}));
+    .map(({action, label, x, y, w, h, hit}) => ({id: action, action, label, ...(hit ?? {x, y, w, h})}));
 }
 
 export function playOfferDescription(state) {
@@ -71,7 +72,8 @@ export function paintPlayOffer(c, width, height, state) {
       circle(c, item.cx, item.cy, item.r, item.disabled ? COLORS.quiet : COLORS.blue);
       const s = item.r * .42; c.beginPath(); c.moveTo(item.cx - s * .7, item.cy - s); c.lineTo(item.cx + s, item.cy); c.lineTo(item.cx - s * .7, item.cy + s); c.closePath();
       c.fillStyle = item.disabled ? COLORS.muted : COLORS.paper; c.fill();
-    } else if (item.kind === 'caption') text(c, item.text, item.x, item.y, item.size, {align: 'center', weight: 600, color: item.error ? COLORS.amber : COLORS.blue, max: item.max});
+    } else if (item.kind === 'close') paintClose(c, item);
+    else if (item.kind === 'caption') text(c, item.text, item.x, item.y, item.size, {align: 'center', weight: 600, color: item.error ? COLORS.amber : COLORS.blue, max: item.max});
   }
   c.restore();
 }

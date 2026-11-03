@@ -2,6 +2,46 @@
 
 Planned October 27, 2026, before implementation. This combines the existing local assistant, voice session, and authored 3D character; it does not select production hardware or a new device provider.
 
+## Home display: `/companionfull/` — November 3, 2026
+
+The owner asked for `http://127.0.0.1:3000/companionfull/` to show only MERLIN, as the shipped iPad version of the demo. Their requirements:
+- The screen shows only the robot's stage and whatever panels he brings out.
+- Voice turns on automatically.
+- There is no typing.
+- Acknowledgments and the microphone are always on.
+- There is no test-speaker button.
+- Everything Activity & services offered moves onto panels. Closing a timer, for example, is a tap on its panel.
+- Touch targets are as large as they can sensibly be, using Google Home as the reference.
+
+**How it works.** The server serves the same companion page with `data-mode="full"` and iPad web-app meta tags (`fullDisplay` in `src/companion.js`). It is the same assistant, memory and orchestration, not a fork.
+- **Layout.** CSS hides everything except the 4:3 stage, which fills the screen inside the safe areas. Text selection, the iOS callout, zoom and overscroll are off.
+- **Speech settings.** Read-aloud and acknowledgments are forced on.
+- **Voice.** It starts on load when the browser allows sound without a tap. Otherwise the whole screen becomes one "Tap to start MERLIN" button, because iPad Safari and Chrome need one tap before a page may play sound. The microphone permission itself is remembered by the browser. A real microphone problem shows a smaller notice beside the mic button that leaves the panels usable. Voice restarts when the page becomes visible again.
+- **Panels.** Regular panels are painted in touch mode (`paintPanel(..., {touch: true})` and `panelActions(state, {touch: true})`): a large primary button and a close X on every panel. Only real actions are drawn:
+  - Timer: Cancel, which cancels and clears in one tap; a finished timer gets Dismiss.
+  - Lights, oven and speaker: Turn on / Turn off, through the new `POST /api/home/control` with the same rules, hub and code-written receipt as speech.
+  - Music: previous, play/pause and next.
+  - Routines and schedules: only the close X, since they run by voice.
+
+  The page lays real buttons over each painted control on both sides, with a minimum of 48 CSS pixels. Both big screens (connections and the Play screen) get a large close X.
+- **Floating cards.** On the home display, tapping a timer or music card brings out its full panel. The music card's own button pauses and resumes.
+- **Camera.** The camera consent buttons and "Turn camera off" become large buttons over the stage. Saying "yes" also works.
+- **Stopping a reply.** Tapping MERLIN while he is talking stops the reply.
+
+**Agent decisions, not owner-confirmed:**
+- A small microphone button stays in the bottom-left corner. The owner's privacy rules require microphone use to stay visible and under the household's control, so it shows the mic state and mutes or unmutes with one tap.
+- The one-tap start appears only when the browser requires it.
+- Cancelling a timer clears it without a second tap.
+- Devices toggle only between on and off from a tap.
+- Routines are never run from a panel button.
+- Tap-to-stop on MERLIN.
+- Floating cards open panels.
+
+**Limits.**
+- The server still listens only on this computer. An iPad cannot open it without hosting work, see [HOSTING.md](HOSTING.md). iPad Safari also gives the microphone only to secure pages (HTTPS or localhost), so a plain `http://` address on the home network will not hear. Until then, run the home display full screen on this Mac, or mirror it.
+- Checked at iPad landscape size (1180 × 820) in the built-in browser, which blocks microphones. So voice start-up was seen only as the blocked-microphone notice, not as working listening.
+- Not yet tried on a physical iPad, in Safari, or with real touch.
+
 ## Prerecorded acknowledgments — November 2, 2026
 
 **Owner request:** when MERLIN accepts a request, it quickly says a short recorded line while the real work runs. This reduces the felt wait, not the model's actual processing time. **Owner requirement:** a clip that has started always finishes its whole sentence; it must never sound like “Let me work on tha—your answer is…”.

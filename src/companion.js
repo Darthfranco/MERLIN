@@ -65,8 +65,12 @@ export async function companionAsset(root, pathname) {
   let base;
   let relative;
   let live = false;
+  let full = false;
   if (pathname === '/companion' || pathname === '/companion/') {
     base = resolve(root, 'public/companion'); relative = 'index.html';
+  } else if (pathname === '/companionfull' || pathname === '/companionfull/') {
+    // The robot-only home display: the same page and assistant, marked so it shows only MERLIN's stage.
+    base = resolve(root, 'public/companion'); relative = 'index.html'; full = true;
   } else if (pathname.startsWith('/companion/')) {
     base = resolve(root, 'public/companion'); relative = pathname.slice('/companion/'.length);
   } else if (pathname.startsWith('/character/')) {
@@ -86,13 +90,22 @@ export async function companionAsset(root, pathname) {
   try {
     const actual = await realpath(file);
     if (!actual.startsWith(await realpath(base) + sep)) return null;
-    const content = await readFile(actual);
+    const content = full ? fullDisplay(await readFile(actual, 'utf8')) : await readFile(actual);
     const hashes = extname(relative) === '.html' ? [...content.toString('utf8').matchAll(/<script\s+type=["']importmap["']\s*>([\s\S]*?)<\/script>/gu)].map(match => `'sha256-${createHash('sha256').update(match[1]).digest('base64')}'`) : [];
     return { type: TYPES[extname(relative)], content, hashes, live };
   } catch (error) {
     if (['ENOENT', 'ENOTDIR', 'EISDIR'].includes(error.code)) return null;
     throw error;
   }
+}
+
+/** The home-display variant of the companion page: full screen, no zoom, and installable to an iPad home screen. */
+export function fullDisplay(html) {
+  const marked = html.replace('<html lang="en">', '<html lang="en" data-mode="full">')
+    .replace('<meta name="viewport" content="width=device-width,initial-scale=1">', '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="MERLIN">')
+    .replace(/<title>[^<]*<\/title>/u, '<title>MERLIN</title>');
+  if (!marked.includes('data-mode="full"')) throw new Error('The companion page no longer matches the full-display markers.');
+  return Buffer.from(marked, 'utf8');
 }
 
 export function companionCsp(hashes = []) {
