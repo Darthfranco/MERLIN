@@ -10,11 +10,11 @@ export const ACKNOWLEDGMENT_DIRECTORY = fileURLToPath(new URL('../public/compani
 
 /** The owner's exact lines. They acknowledge receipt, never a finished search, connection, or action. */
 export const ACKNOWLEDGMENT_LINES = Object.freeze([
-  Object.freeze({ id: 'ack_01', text: "You got it, mister. I'll work on that right now." }),
+  Object.freeze({ id: 'ack_01', text: "You got it. I'll work on that right now." }),
   Object.freeze({ id: 'ack_02', text: "All right, I'll get to work on that right away." }),
-  Object.freeze({ id: 'ack_03', text: "Let me take a look at that, mister. I'm on it." }),
+  Object.freeze({ id: 'ack_03', text: "Let me take a look at that. I'm on it." }),
   Object.freeze({ id: 'ack_04', text: 'You bet. Give me a moment to work through that.' }),
-  Object.freeze({ id: 'ack_05', text: 'Righto, mister. Let me see what I can do for you.' }),
+  Object.freeze({ id: 'ack_05', text: 'Sure thing. Let me see what I can do for you.' }),
 ]);
 
 // Tunable starting points, not measured latency promises. The owner chose about a second

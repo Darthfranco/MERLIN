@@ -129,7 +129,7 @@ function answer(state, text, channel, attachments, sourceId, now) {
     if (/\b(?:remember|prefer|favorite|favourite|learn|save)\b/.test(lower)) return { text: 'Spotify listening details stay out of my memory. Nothing was saved.' };
     if (!/^(?:please\s+)?(?:play|pause|resume|skip|stop|next|previous|shuffle|repeat|set|change|search|find|show)\b/.test(lower)) return { text: 'Spotify is a demo connection here. Text controls show previews; voice control is unavailable.' };
     if (!state.connections.spotify) return disconnected('Spotify', 'spotify');
-    return { text: 'Music control preview, mister. Nothing is playing on a real device.', receipt: receipt('music', 'Spotify · Demo preview', 'A playback request was simulated. No music or account data was accessed.', { connection_id: 'spotify' }) };
+    return { text: 'Music control preview. Nothing is playing on a real device.', receipt: receipt('music', 'Spotify · Demo preview', 'A playback request was simulated. No music or account data was accessed.', { connection_id: 'spotify' }) };
   }
   if (/^(?:please\s+)?(?:forget|clear|delete|erase)\s+(?:everything|all(?: of)? (?:my )?(?:memories|memory|history)|what you (?:know|remember)(?: about me)?)[.!]?$/i.test(text)) {
     state.memories = []; state.instructions = []; state.messages = [];
@@ -144,7 +144,7 @@ function answer(state, text, channel, attachments, sourceId, now) {
     return { text: 'Forgotten. I removed that memory and its saved conversation copies.', redactUserText: true };
   }
   if (/\b(?:what do you (?:remember|know)(?: about me)?|(?:show|list|read) (?:my |your )?(?:memories|memory|preferences)|what (?:are|is) my (?:preferences|name)|what do i (?:like|prefer)|how do i like my lights|do you remember)\b/.test(lower)) {
-    if (!state.memories.length) return { text: 'Nothing saved yet, mister. Tell me a preference and I’ll remember it here.' };
+    if (!state.memories.length) return { text: 'Nothing saved yet. Tell me a preference and I’ll remember it here.' };
     return { text: `Here’s what I remember:\n${state.memories.map(memory => `• ${memory.text}`).join('\n')}`, memoryIds: state.memories.map(memory => memory.id) };
   }
   const remember = /^(?:please\s+)?remember\s+(?:that\s+)?(.+?)[.!]?$/i.exec(text);
@@ -153,15 +153,15 @@ function answer(state, text, channel, attachments, sourceId, now) {
     const value = cleanText((remember || preference)[1], 1000).replace(/[.!]$/, '');
     if (!value || /^(?:you|to)\b/i.test(value) || /\b(?:must|should|turn|switch|set|start|stop|send|delete|unlock|open|connect|disconnect|call)\b/i.test(value)) return { text: 'I can remember a simple preference here. Actions and standing instructions need a separate request.' };
     const existing = state.memories.find(memory => memory.text.toLowerCase() === value.toLowerCase());
-    if (existing) return { text: 'Already remembered, mister. It’s available in text and voice.', memoryIds: [existing.id] };
+    if (existing) return { text: 'Already remembered. It’s available in text and voice.', memoryIds: [existing.id] };
     const memory = { id: nextId(state), text: value, sourceId, createdAt: now };
     state.memories.push(memory);
-    return { text: 'Remembered, mister. I’ll keep that with me in text and voice.', memoryIds: [memory.id] };
+    return { text: 'Got it. I’ll remember that in text and voice.', memoryIds: [memory.id] };
   }
   if (/\b(?:what|show|list|check)\b.*\b(?:calendar|schedule|agenda)\b|\bwhat'?s on (?:my |the )?(?:calendar|schedule|agenda)\b/.test(lower)) {
     const connectionId = state.connections['google-calendar'] ? 'google-calendar' : state.connections['outlook-calendar'] ? 'outlook-calendar' : null;
     if (!connectionId) return disconnected('Google Calendar', 'google-calendar');
-    return { text: 'Your sample day is looking rather manageable, mister.', receipt: receipt('calendar', 'Today · Sample calendar', '10:00 AM · Team catch-up\n6:30 PM · Dinner at home\nThese are fictional demo events, not your real calendar.', { connection_id: connectionId }) };
+    return { text: 'Your sample day looks pretty manageable.', receipt: receipt('calendar', 'Today · Sample calendar', '10:00 AM · Team catch-up\n6:30 PM · Dinner at home\nThese are fictional demo events, not your real calendar.', { connection_id: connectionId }) };
   }
   if (/^(?:please\s+)?(?:turn|switch|dim|set|brighten)\b.*\blights?\b/.test(lower)) {
     const connectionId = connectedFor(state, 'lights', 'philips-hue');
@@ -202,18 +202,18 @@ function answer(state, text, channel, attachments, sourceId, now) {
     if (!/remind|alarm/.test(lower) && (lower.match(/\b(?:seconds?|secs?|minutes?|mins?|hours?|hrs?)\b/g)?.length || 0) > 1) return { text: 'Use one duration for this timer preview, such as 90 minutes.' };
     const reminder = /remind|alarm/.test(lower);
     if (!reminder && !duration) return { text: 'How long should the timer preview be? Include seconds, minutes, or hours.' };
-    return { text: reminder ? 'Here’s a reminder preview. No notification has been scheduled.' : `A ${duration} timer preview, mister. No countdown or alert is running.`, receipt: receipt(reminder ? 'reminder' : 'timer', reminder ? 'Reminder · Preview only' : `${duration} · Timer preview`, 'This local demo does not run timers, notifications, or scheduled actions.') };
+    return { text: reminder ? 'Here’s a reminder preview. No notification has been scheduled.' : `A ${duration} timer preview. No countdown or alert is running.`, receipt: receipt(reminder ? 'reminder' : 'timer', reminder ? 'Reminder · Preview only' : `${duration} · Timer preview`, 'This local demo does not run timers, notifications, or scheduled actions.') };
   }
   if (attachments.length) return { text: `I’ve attached ${attachments.length === 1 ? 'your file' : `your ${attachments.length} files`} to our conversation. This demo keeps files locally; it can’t read or analyze their contents yet.` };
-  if (/^(?:hi|hello|hey|good morning|good evening)(?:\s+merlin)?[!.]?$/i.test(text)) return { text: 'At your service, mister. What can I help with at home?' };
-  if (/^(?:thanks|thank you|cheers|great|perfect)[!.]?$/i.test(text)) return { text: 'A pleasure, mister.' };
+  if (/^(?:hi|hello|hey|good morning|good evening)(?:\s+merlin)?[!.]?$/i.test(text)) return { text: 'Hi there! What can I help with at home?' };
+  if (/^(?:thanks|thank you|cheers|great|perfect)[!.]?$/i.test(text)) return { text: 'Happy to help!' };
   if (/\b(?:who are you|what can you do|help me|get started|how does this work)\b/.test(lower)) return { text: 'I’m MERLIN, your home companion. Try saving a preference, checking the sample calendar, or controlling demo lights. Text and voice share the same local memory.' };
   if (/\b(?:weather|forecast|news|stock|price|score)\b/.test(lower)) return { text: 'I don’t have live information in this local demo. A connected MERLIN will look that up for you.' };
   if (/\b(?:oven|unlock|door|camera|send|email|message|buy|purchase|routine|schedule|call|connect|disconnect)\b/.test(lower)) return { text: 'That action isn’t available in this local demo. You can try demo lights, a sample calendar, and shared memory.' };
   if (/\b(?:boil|boiling)\b/.test(lower) && /\bwater\b/.test(lower)) return { text: 'Water boils at about 100°C or 212°F at sea level. At higher altitudes, it boils at a lower temperature.' };
-  if (/\b(?:how many|what is|what's)\b.*\bminutes?\b.*\bhour\b/.test(lower)) return { text: 'There are 60 minutes in an hour, mister.' };
+  if (/\b(?:how many|what is|what's)\b.*\bminutes?\b.*\bhour\b/.test(lower)) return { text: 'There are 60 minutes in an hour.' };
   if (/\b(?:i ?pad|same assistant|sync|memory shared)\b/.test(lower)) return { text: 'Text and voice share memory on this phone demo. Connection to the home assistant and iPad will come later.' };
-  return { text: 'I’m running a small local demo, mister. Try “Remember I like the lights warm,” “Turn on the lights,” or “What’s on my calendar today?”' };
+  return { text: 'I’m running a small local demo. Try “Remember I like the lights warm,” “Turn on the lights,” or “What’s on my calendar today?”' };
 }
 
 export function respond(state, text, { channel = 'text', attachments = [], now = new Date().toISOString() } = {}) {

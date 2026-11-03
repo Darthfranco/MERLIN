@@ -44,8 +44,8 @@ const meta = LIVE ? new Proxy(real, { get(target, name) {
     // History repeats earlier turns, so only the newest item decides.
     const latest = JSON.stringify(input.at(-1));
     if (/what color/iu.test(latest)) return answer(JSON.stringify(input).includes('navy shirt') ? 'Navy, as far as I could see.' : 'I do not know.');
-    if (latest.includes('Camera observation')) return answer('Golly, that navy shirt and those khakis go nicely together, mister!');
-    return answer('Right you are.');
+    if (latest.includes('Camera observation')) return answer('Nice, that navy shirt and those khakis go well together!');
+    return answer('Got it.');
   },
 };
 const app = await createApp({ dataDir: directory, memoryEngine: 'legacy', learningDelayMs: 60_000, meta,

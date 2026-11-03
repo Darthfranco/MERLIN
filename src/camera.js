@@ -29,7 +29,7 @@ const REPLIES = {
   none: 'I can’t find a camera on this device, so I can’t look. Describe it to me and I’ll do my best.',
   home_only: 'The only camera I can find here is a doorbell or home camera, and I don’t use those for this. Describe it to me and I’ll do my best.',
   busy: 'Something else is using the camera, so I didn’t look. Close it and ask me again.',
-  cancelled: 'Righto, the camera’s off and I didn’t look.',
+  cancelled: 'Okay, the camera’s off and I didn’t look.',
   timeout: 'The camera didn’t come on in time, so I didn’t look. Ask me again when you’re ready.',
   failed: 'I couldn’t get a picture from the camera, so I didn’t look. Ask me again in a moment.',
   unreadable: 'I took the picture but couldn’t make sense of it, so I won’t guess. Ask me again in a moment.',

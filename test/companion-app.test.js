@@ -574,7 +574,7 @@ test('the page reports what camera it has at startup, and never opens one to do 
 });
 
 test('the camera question shows its buttons, and each sends the person\'s answer as words',async t=>{
-  const h=await fixture(t,{chatResult:{reply:'Shall I turn on the camera and take a look, mister?',tool_events:[],timers:[],camera:{state:'asking'}}});
+  const h=await fixture(t,{chatResult:{reply:'Shall I turn on the camera and take a look?',tool_events:[],timers:[],camera:{state:'asking'}}});
   h.element('read-aloud').checked=false;
   await h.run("submit('Does my outfit match?')");
   assert.equal(h.element('camera-consent').hidden,false);
@@ -641,7 +641,7 @@ test('turning the camera off tells the server, so MERLIN can say it did not look
   assert.deepEqual(camera.posted()[0],{capture_id:'capture-b',error:'cancelled'});
   assert.equal(h.element('camera-state').textContent,'Camera off');
   assert.ok(camera.clears>clearsWhenOpened);
-  answer.resolve({reply:'Righto, the camera’s off and I didn’t look.',tool_events:[],timers:[]});
+  answer.resolve({reply:'Okay, the camera’s off and I didn’t look.',tool_events:[],timers:[]});
   await work;
 });
 

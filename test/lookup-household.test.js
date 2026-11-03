@@ -30,7 +30,7 @@ for (const engine of ['legacy', 'v2']) {
       assert.match(instructions, /Remaining for this user request: 0 web-search calls/);
       assert.match(instructions, /sunporch/, 'the saved answer reaches the model');
       assert.doesNotMatch(instructions, /Lookup required/);
-      return [reply('On the sunporch, mister.')];
+      return [reply('On the sunporch.')];
     }]);
     await merlin.memory.putManualFact({ content: 'Biscuit naps on the sunporch.', subject: 'Biscuit' });
     const { status, data } = await chat(merlin, 'Where does Biscuit nap?');

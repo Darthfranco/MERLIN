@@ -2,6 +2,28 @@
 
 Last updated: **November 3, 2026**.
 
+## Cooler personality, no “mister” — November 3, 2026
+
+The owner asked to cool down MERLIN's personality: keep it jolly and fun, no more “mister,” and sound like a fun AI agent but less over the top. The decision is in [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) and the behavior in [PROTOTYPE.md](PROTOTYPE.md#merlins-personality).
+
+**What changed:**
+- `src/personality.js`: a new warm character (a friendly, upbeat AI home assistant with light humor, at most one playful beat per reply, often none). The default address is now empty. A reply that opens with one of the old style's exclamations (“golly,” “righto,” “in a jiffy,” “quick as a wink,” “at your service,” “tick-tock,” “splendid,” “swell”) gets a tool-free rewrite, because older conversation history is full of them. Local receipt openers are now “You got it!”, “All set!”, “Done!”, “Noted!”, “Here you go!”. The prompt names recent openers in words, so the model avoids repeating them.
+- Fixed wording: “Be more fun” now answers “Sure thing! I'll keep things a little more fun.” A cancelled camera look says “Okay, the camera's off and I didn't look.” The phone demo and the voice comparison page's sample text no longer say “mister.”
+- Acknowledgment clips: `ack_01`, `ack_03` and `ack_05` were reworded without “mister” and “Righto.” All five were re-recorded together with local Kokoro `am_fenrir`, using the same settings, so their levels stay matched: 2.73, 2.17, 2.65, 2.98 and 2.97 s. They validate against the manifest. Meta transcription returned the three new lines word for word.
+- The owner's running instance (port 3000, v2 engine) was switched from warm/mister to warm with no address through `PUT /api/personality`. The legacy store `data/memory.json` still says “mister”; it would apply only after a rollback to `MERLIN_MEMORY_ENGINE=legacy`.
+
+**Verification:** **1,180 automated tests pass.** One was added for the new prompt, and the tests tied to the old wording and default were updated. `npm run check:acknowledgments` passed 23 of 23 and `npm run check:camera` 28 of 28, in headless Chrome with scripted models. Live checks used real Meta, throwaway storage, the legacy engine, the demo home and the typed channel: 32 requests in four runs. Sample replies:
+- “Hey there, nice to see you! What can I do for you?”
+- “I'm MERLIN, your household's AI home assistant!”
+- “Sure thing! Your tea timer is set for thirty seconds.”
+- “Done! Your two minute timer is running.”
+- “Okay, tea timer cancelled.”
+- “Happy to help!”
+
+No reply said “mister,” and plain mode still answered “Tea timer set for three minutes.” In the first two runs the model reused the prompt's first example, “You got it!”, so the repeat check spent an extra model call. After the examples were varied, the next two runs (14 requests) needed no style repair. One “Hello!” failed with “Meta could not be reached or timed out” after 10.5 s and succeeded in 1.5 s on the next run. That matches the intermittent network failure recorded below.
+
+**Not verified:** no person has listened to the re-recorded clips, and replies on the voice channel were not sampled live. Tone was judged from single samples. The owner's running server needs a restart to load the new prompt and clips.
+
 ## Demo readiness and labeled demo devices — November 3, 2026
 
 The owner listed the demo scenes and asked how ready MERLIN is: lights and oven; a morning routine (coffee timer, weather); a workout routine (gym lights and speaker, today's workout from an uploaded plan); the phone app; entity-based memory; and a robot-only UI. The submission deadline is November 4, 9:00 PM ET.
@@ -387,7 +409,7 @@ The final full workspace suite passed 308 tests, including 34 voice-specific che
 | Memory and standing instructions | Learn useful preferences/context in the background; keep explicit do/don't instructions separately and check each outgoing response against them in context |
 | Instruction interpretation | Compile supported precise meanings once; irreducible semantic instructions stay labeled general guidance. Distinguish words from topics and explicit channel scopes. Flag conflicts at save time; ask on a later affected request |
 | Normal replies | MERLIN acts as the household's personal home assistant, gives concise practical outcomes, applies preferences quietly, and keeps internal memory/tool details in the inspector unless explicitly asked |
-| Personality | Friendly, cute, simple, and helpful without excessive chatter; the latest direction adds more playful, slightly over-the-top old-fashioned robot courtesy, using the owner's language guide as creative reference. Current task is words only; UI unchanged. Warm/mister default explicitly chosen by the owner, energetic “in a jiffy” wording, conversational plain mode, customizable shared-household address and opt-out; no separate speaker profiles or selected speech voice |
+| Personality | Owner, November 3, 2026: a friendly, upbeat AI assistant, jolly and fun but not over the top, with light modern humor. No default form of address (“mister” retired) and no old-fashioned robot idioms. Conversational plain mode, customizable shared-household address and opt-out; no separate speaker profiles or selected speech voice. Supersedes the October 27 over-the-top, default-“mister” direction |
 | Timer defaults | Whole duration and missing-unit defaults are separate; an explicit amount/unit overrides the applicable default for that request without removing saved conflicts or other restrictions |
 | Local test retention | Keep conversation and saved memory locally until deletion; provide a clear-all button. Production retention remains open |
 | Scheduling | Established schedules execute through ordinary scheduling logic without a new AI call for each run |

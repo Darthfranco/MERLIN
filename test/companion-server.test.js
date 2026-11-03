@@ -280,8 +280,8 @@ test('typed requests learn their allowed clips from the progress path, following
   const all = await clipsFor('Plan my week');
   assert.deepEqual(all.clips, ['ack_01', 'ack_02', 'ack_03', 'ack_04', 'ack_05']);
   assert.equal(all.version, (await app.request('/companion/acknowledgments/manifest.json')).body.version);
-  await app.store.putRule(normalizeRule({ kind: 'avoid_word', value: 'mister', scope: 'assistant_reply', original: 'Never say mister.', source_id: 'manual', source_quote: '', explanation: 'Synthetic.' }));
-  assert.deepEqual((await clipsFor('Plan my week')).clips, ['ack_02', 'ack_04'], 'a saved rule applies to the next request');
+  await app.store.putRule(normalizeRule({ kind: 'avoid_word', value: 'right', scope: 'assistant_reply', original: 'Never say right.', source_id: 'manual', source_quote: '', explanation: 'Synthetic.' }));
+  assert.deepEqual((await clipsFor('Plan my week')).clips, ['ack_03', 'ack_04', 'ack_05'], 'a saved rule applies to the next request');
   await app.store.setPersonality({ style: 'plain', address: '' });
   assert.deepEqual((await clipsFor('Plan my week')).clips, [], 'a changed setting applies to the next request');
   assert.equal(app.spoken.length, 0, 'no speech was generated to choose or play a clip');

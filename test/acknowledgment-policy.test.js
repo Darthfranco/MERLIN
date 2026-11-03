@@ -14,9 +14,8 @@ import { companionAsset } from '../src/companion.js';
 const ROOT = new URL('../', import.meta.url).pathname;
 const catalog = { version: 'v1', clips: ACKNOWLEDGMENT_LINES.map(({ id, text }) => ({ id, text })) };
 const ALL = ACKNOWLEDGMENT_LINES.map(line => line.id);
-const WITHOUT_ADDRESS = ['ack_02', 'ack_04'];
 const rule = (kind, value, extra = {}) => ({ ...normalizeRule({ kind, value, scope: 'assistant_reply', original: 'Synthetic instruction.', source_id: 'manual', source_quote: '', explanation: 'Synthetic fixture.' }), ...extra });
-const warm = (settings = {}, message = 'Plan my week') => personalityContext({ settings: { style: 'warm', address: 'mister', ...settings }, message });
+const warm = (settings = {}, message = 'Plan my week') => personalityContext({ settings: { style: 'warm', address: '', ...settings }, message });
 const allowed = ({ rules = [], policy = warm(), message = 'Plan my week', facts = [], pending = [] } = {}) =>
   eligibleAcknowledgments({ catalog, rules, policy, message, facts, pending }).clips;
 
@@ -25,9 +24,10 @@ test('the owner default allows all five lines, and nothing is added to them', ()
   assert.equal(eligibleAcknowledgments({ catalog, policy: warm(), message: 'Plan my week' }).version, 'v1');
 });
 
-test('an address line needs the current address: opt-outs and custom names keep only the lines without one', () => {
-  assert.deepEqual(allowed({ policy: warm({ address: '' }) }), WITHOUT_ADDRESS);
-  assert.deepEqual(allowed({ policy: warm({ address: 'Captain' }) }), WITHOUT_ADDRESS, 'no custom name is invented or synthesized');
+test('no line carries a form of address, so every address setting keeps all five', () => {
+  assert.ok(ACKNOWLEDGMENT_LINES.every(line => !/\b(?:mister|sir)\b/iu.test(line.text)));
+  assert.deepEqual(allowed({ policy: warm({ address: 'Captain' }) }), ALL, 'no custom name is invented or synthesized');
+  assert.deepEqual(allowed({ policy: warm({ address: 'mister' }) }), ALL, 'an older saved address does not need to be spoken');
 });
 
 test('plain style and calm turns get silence', () => {
@@ -37,10 +37,11 @@ test('plain style and calm turns get silence', () => {
 });
 
 test('word and phrase bans remove exactly the lines containing them', () => {
-  assert.deepEqual(allowed({ rules: [rule('avoid_word', 'mister')] }), WITHOUT_ADDRESS);
-  assert.deepEqual(allowed({ rules: [rule('avoid_word', 'right')] }), ['ack_03', 'ack_04', 'ack_05'], 'Righto is a different word');
+  assert.deepEqual(allowed({ rules: [rule('avoid_word', 'mister')] }), ALL);
+  assert.deepEqual(allowed({ rules: [rule('avoid_word', 'right')] }), ['ack_03', 'ack_04', 'ack_05']);
+  assert.deepEqual(allowed({ rules: [rule('avoid_word', 'sure')] }), ['ack_01', 'ack_02', 'ack_03', 'ack_04'], '"Sure thing" is the only sure');
   assert.deepEqual(allowed({ rules: [rule('avoid_phrase', 'work on that')] }), ['ack_03', 'ack_04', 'ack_05']);
-  assert.deepEqual(allowed({ rules: [rule('avoid_word', 'right'), rule('avoid_word', 'bet'), rule('avoid_word', 'mister')] }), []);
+  assert.deepEqual(allowed({ rules: [rule('avoid_word', 'right'), rule('avoid_word', 'bet'), rule('avoid_word', 'let')] }), []);
 });
 
 test('a checker that would change the recorded words makes the recording non-compliant', () => {
@@ -56,18 +57,18 @@ test('conflicting framing stays silent instead of choosing a winner', () => {
 });
 
 test('inactive rules do not restrict anything, and eligibility follows the current rules on each call', () => {
-  assert.deepEqual(allowed({ rules: [rule('avoid_word', 'mister', { status: 'deleted' })] }), ALL);
+  assert.deepEqual(allowed({ rules: [rule('avoid_word', 'right', { status: 'deleted' })] }), ALL);
   const rules = [];
   assert.deepEqual(allowed({ rules }), ALL);
-  rules.push(rule('avoid_word', 'mister'));
-  assert.deepEqual(allowed({ rules }), WITHOUT_ADDRESS);
+  rules.push(rule('avoid_word', 'right'));
+  assert.deepEqual(allowed({ rules }), ['ack_03', 'ack_04', 'ack_05']);
   rules.length = 0;
   assert.deepEqual(allowed({ rules }), ALL);
 });
 
 test('a recently used opening is not repeated by a clip', () => {
-  const policy = { ...warm(), recent_openings: ['you_bet', 'righto'] };
-  assert.deepEqual(allowed({ policy }), ['ack_01', 'ack_02', 'ack_03']);
+  const policy = { ...warm(), recent_openings: ['you_bet', 'you_got_it'] };
+  assert.deepEqual(allowed({ policy }), ['ack_02', 'ack_03', 'ack_05']);
 });
 
 test('broad instructions that cannot be checked locally silence the optional filler', () => {
@@ -90,12 +91,12 @@ test('thanks, greetings and requests about how MERLIN talks get no canned line',
 });
 
 test('echo detection matches only words from a recorded line', () => {
-  for (const text of ["You got it, mister. I'll work on that right now.", 'you got it mister ill work on that right now', 'You got it, Mr. I’ll work on that',
-    'Let me see what I can do for you.', 'give me a moment to work through', "I'm on it", 'You got it',
-    // How a real transcription service rendered these recordings.
-    "Alright, I'll get to work on that right away.", "Let me take a look at at that mister I'm on it.:", 'Right, oh mister. Let me see what I can do for you..']) assert.equal(isAcknowledgmentEcho(text, catalog), true, text);
-  for (const text of ['Start a tea timer', 'right now', 'can you get that done for me', 'set a timer and work on that thing tomorrow please', "You got it, mister. I'll work on that right now. Also start a timer.", '']) assert.equal(isAcknowledgmentEcho(text, catalog), false, text);
-  assert.equal(isAcknowledgmentEcho("You got it, mister. I'll work on that right now.", null), false);
+  for (const text of ["You got it. I'll work on that right now.", 'you got it ill work on that right now', 'You got it, I’ll work on that',
+    'Let me see what I can do for you.', 'give me a moment to work through', "I'm on it", 'You got it', 'Sure thing, let me see what I can do for you..',
+    // Variations real transcription produced from these lines and their earlier recordings: a changed spelling, a doubled word, the old "mister" wording.
+    "Alright, I'll get to work on that right away.", "Let me take a look at at that. I'm on it.:", "You got it, mister. I'll work on that right now."]) assert.equal(isAcknowledgmentEcho(text, catalog), true, text);
+  for (const text of ['Start a tea timer', 'right now', 'can you get that done for me', 'set a timer and work on that thing tomorrow please', "You got it. I'll work on that right now. Also start a timer.", '']) assert.equal(isAcknowledgmentEcho(text, catalog), false, text);
+  assert.equal(isAcknowledgmentEcho("You got it. I'll work on that right now.", null), false);
 });
 
 test('the catalog fails closed on missing files, invented lines and altered words', async t => {

@@ -105,7 +105,7 @@ test('asking for something never connected opens the matching category and admit
   const meta = scriptedMeta([(_input, { instructions }) => {
     assert.match(instructions, /showing lights options/);
     assert.match(instructions, /cannot do that yet because nothing is connected/);
-    return [reply("I can't control the lights yet, mister. Tap an option on the big screen.")];
+    return [reply("I can't control the lights yet. Tap an option on the big screen.")];
   }]);
   const app = await fixture(t, meta);
   const { body } = await app.send('/api/chat', chat('turn on the living room lights'));
@@ -125,7 +125,7 @@ test('a category covered by a verified connector does not reopen the screen; the
     input => {
       const output = JSON.parse(input.findLast(item => item.type === 'function_call_output').output);
       assert.deepEqual([output.ok, output.result.status, output.result.confirmed], [true, 'confirmed', true]);
-      return [reply('All done, mister!')];
+      return [reply('All done!')];
     },
   ]);
   const app = await fixture(t, meta);
@@ -179,7 +179,7 @@ test('the model can open the screen for phrasing the classifier misses, and a re
     input => {
       const output = JSON.parse(input.findLast(item => item.type === 'function_call_output').output);
       assert.match(output.result.note, /already on the large screen/);
-      return [reply('Righto, mister! Those options are already on the big screen.')];
+      return [reply('You got it! Those options are already on the big screen.')];
     },
   ]);
   const app = await fixture(t, meta);
@@ -314,7 +314,7 @@ test('the shared catalog is served to the companion page under its content secur
 
 test('a connection question is not turned into a web search, but an explicit "look it up" still always searches', async t => {
   const meta = scriptedMeta([
-    (_input, { tools }) => { assert.equal(tools.some(tool => tool.type === 'web_search'), false, 'no search is forced for a setup question'); return [reply('Tap Sonos on the big screen, mister.')]; },
+    (_input, { tools }) => { assert.equal(tools.some(tool => tool.type === 'web_search'), false, 'no search is forced for a setup question'); return [reply('Tap Sonos on the big screen.')]; },
     (_input, { tools }) => { assert.ok(tools.some(tool => tool.type === 'web_search')); return [{ type: 'web_search_call', id: 'ws_1', status: 'completed', action: { type: 'search', query: 'connect ring doorbell' } }, reply('Ring connects through its app, and the options are on the big screen.')]; },
   ]);
   const app = await fixture(t, meta);

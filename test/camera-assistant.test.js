@@ -100,11 +100,11 @@ test('does my outfit match: asks without a model call, and the camera stays off'
 });
 
 test('yes takes exactly one frame, SAM finds and Muse reads it, and the reply answers from the words', async t => {
-  const { meta, say } = await fixture(t, [reply('Golly, that navy shirt suits those khakis!')]);
+  const { meta, say } = await fixture(t, [reply('Nice, that navy shirt suits those khakis!')]);
   await say('Does my outfit match?');
   const looked = await say('yes');
   assert.equal(looked.captures.length, 1);
-  assert.equal(looked.reply, 'Golly, that navy shirt suits those khakis!');
+  assert.equal(looked.reply, 'Nice, that navy shirt suits those khakis!');
   assert.deepEqual(meta.segments.map(item => item.concept).sort(), ['dress', 'pants', 'shirt', 'shoes']);
   assert.equal(meta.views.length, 1);
   assert.equal(meta.views[0].question, 'Does my outfit match?', 'The question asked before the yes is what gets answered');

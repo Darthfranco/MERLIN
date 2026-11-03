@@ -21,7 +21,7 @@ Planned October 27, 2026, before implementation. This combines the existing loca
 **Which clips are allowed.** All checks are local and fail closed, so the result is a smaller set or silence:
 
 - `prepareSpokenReply` must return the recorded words unchanged. A required prefix, suffix, or `address_as` rule would change them, so the unchanged recording is not compliant, and these lines then all stay silent. Word bans, phrase bans, and conflicts remove what they apply to.
-- `checkPersonalityDraft` removes address lines when the address is opted out or custom, since no name is invented or synthesized, and repeats of a recent opening.
+- `checkPersonalityDraft` removes repeats of a recent opening, and would remove any line with an unchosen address or a retired old-fashioned opener. Since November 3, 2026 no line says “mister,” so every address setting keeps all five.
 - Plain style and calm turns get silence, because all five lines are optional ceremony (agent decision).
 - **Any saved general guidance silences every clip**, as does a saved preference about wording, and any unpublished v2 conversation fact or statement. These cannot be checked without a model call (agent decision, following the owner's rule to skip rather than bypass).
 - Greetings, thanks, and requests about how MERLIN talks get silence, since “I'll work on that right now” would be wrong for them (agent decision).

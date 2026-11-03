@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "2212aae2d5ded9de",
+  "version": "801832cd2dbe1768",
   "generation": {
     "engine": "kokoro",
     "model": "hexgrad/Kokoro-82M",
@@ -19,27 +19,27 @@
   "clips": [
     {
       "id": "ack_01",
-      "text": "You got it, mister. I'll work on that right now.",
+      "text": "You got it. I'll work on that right now.",
       "path": "ack_01.wav",
-      "duration_ms": 2874,
-      "bytes": 137984,
-      "sha256": "f6e3d286b57ea74291298dc96e499cb2e15d15cdd39b9dd5578d0636dc9de862"
+      "duration_ms": 2728,
+      "bytes": 130998,
+      "sha256": "badae165db8170fe629e1d84100d093f8ed5c49812565d3d5a783a7666a8b87a"
     },
     {
       "id": "ack_02",
       "text": "All right, I'll get to work on that right away.",
       "path": "ack_02.wav",
-      "duration_ms": 2171,
-      "bytes": 104232,
-      "sha256": "1924505eb3d855c8ad3ccd1b4b15c101823a09c73680f527b54ae540a1003d62"
+      "duration_ms": 2170,
+      "bytes": 104218,
+      "sha256": "891d9ca75a8a8c6ddd0cbd429b9fa329c46b029ce2e277242a0db55198926eec"
     },
     {
       "id": "ack_03",
-      "text": "Let me take a look at that, mister. I'm on it.",
+      "text": "Let me take a look at that. I'm on it.",
       "path": "ack_03.wav",
-      "duration_ms": 3073,
-      "bytes": 147550,
-      "sha256": "6f9efb8a69a0fdf88043c96c562aa0fb7f63d56500c3513f97686a89aca2e3fd"
+      "duration_ms": 2650,
+      "bytes": 127240,
+      "sha256": "4a0cf475fd9dc979252f86ae2e80452a7a8dfcb7670452e639c26646cf744346"
     },
     {
       "id": "ack_04",
@@ -47,15 +47,15 @@
       "path": "ack_04.wav",
       "duration_ms": 2983,
       "bytes": 143224,
-      "sha256": "1a5662203a7499c129f6fc7773b628e6b56a197eb29843db73bb1d6e164339e1"
+      "sha256": "ad0cdac1d33f1a4af1092c1e55b59483ff8491df4a93c806e57c49091e5833c7"
     },
     {
       "id": "ack_05",
-      "text": "Righto, mister. Let me see what I can do for you.",
+      "text": "Sure thing. Let me see what I can do for you.",
       "path": "ack_05.wav",
-      "duration_ms": 3234,
-      "bytes": 155278,
-      "sha256": "6e2179e63fc4bf02fd0445e1482ea1ecefa9e0969df2fc8608ab0197d673913a"
+      "duration_ms": 2971,
+      "bytes": 142670,
+      "sha256": "cf6dc86a37d9173c26dca96b9eb7a64e3dc9e9580b5edeaddbb06ff93ef8ee00"
     }
   ]
 }

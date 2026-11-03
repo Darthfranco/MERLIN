@@ -4,7 +4,7 @@ Updated **November 2, 2026**. How MERLIN looks through the home device's own cam
 
 ## Try it
 
-Run `npm start`, open [MERLIN at home](http://127.0.0.1:3000/companion/), and ask “Does my outfit match?” MERLIN asks “Shall I turn on the camera and take a look, mister?” Say or type yes, or press **Turn on camera**. The browser asks for camera permission the first time. MERLIN's face changes to its camera mode, and you have three seconds to get in frame. **Turn camera off** stops it at any point.
+Run `npm start`, open [MERLIN at home](http://127.0.0.1:3000/companion/), and ask “Does my outfit match?” MERLIN asks “Shall I turn on the camera and take a look?” Say or type yes, or press **Turn on camera**. The browser asks for camera permission the first time. MERLIN's face changes to its camera mode, and you have three seconds to get in frame. **Turn camera off** stops it at any point.
 
 It needs the page on the device that has the camera, and works only at `/companion/`. The testing page at `/` has no camera and says so.
 
