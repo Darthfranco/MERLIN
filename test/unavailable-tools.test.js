@@ -97,4 +97,7 @@ test('in a normal round an invented tool still rejects the whole response before
   assert.equal(status, 502);
   assert.match(body.error, /tool that was not enabled/);
   assert.equal((await app.timers.list()).length, 0);
+  const rejection = body.trace.events.find(event => event.stage === 'tool_check' && /Rejected the whole response/.test(event.detail));
+  assert.ok(rejection, 'the inspector records the rejection');
+  assert.deepEqual(rejection.data.tools, ['create_timer', 'execute_code'], 'and names the tools the model asked for');
 });

@@ -339,7 +339,11 @@ export class Assistant {
           // The exception is a round MERLIN itself restricted (a tool-free rewrite or a search-only retry). No function can
           // legitimately run there, so stray calls are dropped unexecuted and the written answer or search is kept.
           const restricted = !acknowledgmentOnly && (repairCount || styleRepairCount || lookupEnforcing);
-          if (!restricted) throw new AppError('Meta requested a tool that was not enabled. No calls from this response were executed.', 502);
+          if (!restricted) {
+            // Name the offending call in the inspector so a rejected reply can be diagnosed.
+            emit('tool_check', 'Rejected the whole response: it called a tool this round did not offer. Nothing in it was executed.', { tools: [...new Set(calls.map(call => String(call.name).slice(0, 40)))].slice(0, 6), offered: availableTools.map(tool => tool.name ?? tool.type).slice(0, 40) });
+            throw new AppError('Meta requested a tool that was not enabled. No calls from this response were executed.', 502);
+          }
           emit('tool_check', 'Ignored function calls in a round where only a rewrite or search was allowed; none were executed.', { tools: [...new Set(calls.map(call => String(call.name).slice(0, 40)))].slice(0, 6), tool_free_round: !availableTools.length });
           output = output.filter(item => item.type !== 'function_call');
           calls = [];
