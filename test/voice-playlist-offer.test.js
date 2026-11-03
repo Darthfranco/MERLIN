@@ -57,12 +57,12 @@ test('the offer card carries only the spoken name and a ready state', () => {
 });
 
 test('a spoken playlist request puts up the Play button and ends with the tap line, without touching Spotify', async t => {
-  const { ask, calls } = await app(t, [[reply('Righto! Today is legs: squats five by five.')]]);
+  const { ask, calls } = await app(t, [[reply('Sure thing! Today is legs: squats five by five.')]]);
   const data = await ask('Play my workout playlist and tell me what I am working out today.');
   assert.equal(calls[0].tools.some(name => name?.startsWith('spotify_')), false);
   assert.match(calls[0].instructions, /big Play button for the "workout" Spotify playlist/);
   assert.match(calls[0].instructions, /Do not mention music, Spotify or the playlist/);
-  assert.equal(data.reply, `Righto! Today is legs: squats five by five. ${PLAY_TAP_LINE}`);
+  assert.equal(data.reply, `Sure thing! Today is legs: squats five by five. ${PLAY_TAP_LINE}`);
   assert.deepEqual(data.presentation, [{ type: 'music-offer', id: 'spotify', query: 'workout', title: 'Workout', status: 'ready' }]);
 });
 
