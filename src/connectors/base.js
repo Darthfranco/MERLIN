@@ -18,17 +18,18 @@
 //   async devices(config, ctx)   Device[] (see below). Names are untrusted display text.
 //   async state(config, device, ctx)   Optional live state for one device.
 //   async act(config, device, action, value, ctx)
-//        Perform one validated action. Returns {message, confirmed}. `confirmed` is true only when
-//        the service reported the resulting state.
+//        Perform one validated action. Returns {message, confirmed, state?}. `confirmed` is true only when
+//        the service reported the resulting state; `state` is that reported state, when the service gives it.
 //   async disconnect(config, ctx) Revoke where the service supports it. Returns {revoked, message}.
+//   simulated                    Optional. true only for the labeled demo home; it is named as simulated everywhere.
 //   operations                   Optional named extra setup steps: {name: {label, run(config, input, ctx)}}.
 //   publicConfig(config)         Non-secret fields that are safe to show.
 //   ctx = {fetch, signal, now}
 //
 // Device = {id, name, kind, room?, state?, actions[]}
-//   state keys: on, brightness (0-100), position (0-100), locked, temperature, humidity, power_w, running
+//   state keys: on, brightness (0-100), position (0-100), locked, temperature, unit, humidity, power_w, running
 
-export const KINDS = Object.freeze(['light', 'room', 'switch', 'fan', 'cover', 'lock', 'climate', 'scene', 'media', 'vacuum', 'sprinkler', 'humidifier', 'button']);
+export const KINDS = Object.freeze(['light', 'room', 'switch', 'fan', 'cover', 'lock', 'climate', 'scene', 'media', 'vacuum', 'sprinkler', 'humidifier', 'button', 'oven']);
 
 // One small vocabulary. A connector lists the subset each device really supports.
 // There is deliberately no "unlock": MERLIN will lock, never unlock, a door.
@@ -41,6 +42,7 @@ export const ACTIONS = Object.freeze({
   // Optional so a vacuum can start; a sprinkler connector requires the minutes itself.
   start: { value: 'number', min: 1, max: 180, unit: 'minutes', optional: true },
   set_temperature: { value: 'number', min: 5, max: 35, unit: 'degrees Celsius' },
+  preheat: { value: 'number', min: 170, max: 550, unit: 'degrees Fahrenheit' },
 });
 
 export class ConnectorError extends Error {

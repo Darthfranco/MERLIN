@@ -491,7 +491,8 @@ async function pollState(){
     $('send').disabled=!connected||Boolean(turnId);
     acknowledgments.configure(state.acknowledgments);
     const status=state.services?.spotify;$('spotify-state').textContent=status?.connected?'Connected':'Not connected';
-    $('lights-state').textContent=state.services?.lights?.connected?'Connected':'Not connected';
+    const serviceState=service=>service?.connected?(service.simulated?'Demo (simulated)':'Connected'):'Not connected';
+    $('lights-state').textContent=serviceState(state.services?.lights);$('oven-state').textContent=serviceState(state.services?.oven);
     if(!status?.connected)acceptMusic({connected:false});
     else if(pollCount++%5===0)void refreshMusic().catch(()=>{});
   }catch{connected=false;$('connection').textContent='Connection lost · Reconnecting';$('send').disabled=true;}

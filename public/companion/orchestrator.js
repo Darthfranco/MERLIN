@@ -5,8 +5,11 @@ export const ACTION_HOLD = 400;
 const idleActivities = ['walk', 'walkReverse', 'toss'];
 export const toolPanel = tool => /^(create|cancel|list)_timer/.test(tool) ? 'timer'
   : tool?.startsWith('spotify_') ? 'music' : tool === 'routine_save' ? 'routine-saved'
-    : ['routine_read', 'routine_use'].includes(tool) ? 'routine' : tool === 'show_connections' ? 'connections' : null;
-const labels = {timer:'Your timer',music:'Spotify',lights:'Lights',oven:'Oven',schedule:'Schedules',routine:'Your routine','routine-saved':'Your routine',connections:'Connect your home'};
+    : ['routine_read', 'routine_use'].includes(tool) ? 'routine' : tool === 'show_connections' ? 'connections' : tool === 'home_control' ? 'lights' : null;
+// One home_control call becomes the panel for whichever device it reached.
+const homePanels = new Set(['lights','oven','speaker']);
+const panelGroup = type => homePanels.has(type) ? 'lights' : type;
+const labels = {timer:'Your timer',music:'Spotify',lights:'Lights',oven:'Oven',speaker:'Speaker',schedule:'Schedules',routine:'Your routine','routine-saved':'Your routine',connections:'Connect your home'};
 const surfaces = {left:['left'],right:['right'],both:['left','right'],seatedLeft:['left'],seatedRight:['right'],ceiling:['right']};
 const faceStates = new Set(['face','faceThink','search','camera']);
 const workPhases = new Set(['thinking','action','searching']);
@@ -14,7 +17,7 @@ export const panelSides = destination => [...(surfaces[destination?.replace(/Thi
 export const isFacePresentation = destination => faceStates.has(destination);
 const speakingPose = (destination,bodyLayout) => faceStates.has(destination) ? 'face' : destination==='bodyThink' ? bodyLayout : destination.replace(/Think$/, '');
 const thinkingPose = destination => faceStates.has(destination) ? 'faceThink' : destination==='ready' ? 'bodyThink' : destination+'Think';
-const identity = panel => panel?.type==='connections' ? 'connections' : panel?.id ? `${panel.type?.startsWith('routine')?'routine':panel.type}:${panel.id}` : ['music','lights','oven','schedule'].includes(panel?.type) ? panel.type : null;
+const identity = panel => panel?.type==='connections' ? 'connections' : panel?.id ? `${panel.type?.startsWith('routine')?'routine':panel.type}:${panel.id}` : ['music','lights','oven','speaker','schedule'].includes(panel?.type) ? panel.type : null;
 const sameTimer = (a,b) => ['id','label','status','durationSeconds','endsAt','timeZone'].every(key=>a?.[key]===b?.[key]);
 export function presentationLayout(view, states) {
   const available = new Set(states || ['ready','bodyThink','face','faceThink','search','camera','walk','walkReverse','toss','dance',...Object.keys(surfaces),...Object.keys(surfaces).map(state=>state+'Think')]);
@@ -120,7 +123,7 @@ export class Orchestrator {
     const completed=new Set(events.filter(event=>event.status==='completed').map(event=>toolPanel(event.tool))),confirmed=new Map();
     for(const presented of result.presentation||[]){
       const type=presented.type;
-      if(!completed.has(type)&&!(type==='routine-saved'&&completed.has('routine')))continue;
+      if(!completed.has(panelGroup(type))&&!(type==='routine-saved'&&completed.has('routine')))continue;
       if(type==='timer'){
         const actual=timers.find(timer=>timer.id===presented.id) || (presented.id&&presented.ends_at&&presented.duration_seconds?presented:null);
         if(actual)confirmed.set(identity(presented),timerPanel(actual,this.now()));

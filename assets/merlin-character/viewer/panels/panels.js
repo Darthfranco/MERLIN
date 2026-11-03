@@ -1,7 +1,7 @@
 import {PANEL_TYPES,createDemoState,paintPanel,loadPanelArt,panelActions,panelDescription} from './render.js';
 const $=id=>document.getElementById(id);
-const descriptions={timer:'A clear countdown, with just pause and cancel.',lights:'One room. One state. One switch.',oven:'The oven’s state, clear and simple.',music:'Your music, with room to breathe.',schedule:'What will happen, when, and how often.','routine-saved':'A quiet confirmation. Saving never starts the routine.',routine:'A familiar picture for your own little ritual.'};
-const variants={timer:[['running','Counting down'],['paused','Paused'],['done','Finished'],['cancelled','Cancelled']],lights:[['on','On'],['off','Off'],['pending','Waiting for device'],['offline','Not connected'],['error','Action failed']],oven:[['on','On'],['off','Off'],['pending','Waiting for device'],['offline','Not connected'],['error','Action failed']],music:[['playing','Playing'],['paused','Paused'],['empty','Nothing playing'],['offline','Not connected']],schedule:[['saved','Saved'],['removed','Removed'],['error','Save failed']],'routine-saved':[['saved','Saved'],['error','Save failed']],routine:[['ready','Ready'],['running','Running'],['done','Complete'],['error','Action failed']]};
+const descriptions={timer:'A clear countdown, with just pause and cancel.',lights:'One room. One state. One switch.',oven:'The oven’s state, clear and simple.',speaker:'A speaker, on or off.',music:'Your music, with room to breathe.',schedule:'What will happen, when, and how often.','routine-saved':'A quiet confirmation. Saving never starts the routine.',routine:'A familiar picture for your own little ritual.'};
+const variants={timer:[['running','Counting down'],['paused','Paused'],['done','Finished'],['cancelled','Cancelled']],lights:[['on','On'],['off','Off'],['pending','Waiting for device'],['offline','Not connected'],['error','Action failed']],oven:[['on','On'],['off','Off'],['pending','Waiting for device'],['offline','Not connected'],['error','Action failed']],speaker:[['on','On'],['off','Off'],['pending','Waiting for device'],['offline','Not connected'],['error','Action failed']],music:[['playing','Playing'],['paused','Paused'],['empty','Nothing playing'],['offline','Not connected']],schedule:[['saved','Saved'],['removed','Removed'],['error','Save failed']],'routine-saved':[['saved','Saved'],['error','Save failed']],routine:[['ready','Ready'],['running','Running'],['done','Complete'],['error','Action failed']]};
 let images={},state=null,timerDeadline=null,routineRun=null;
 const drawings=[];
 const artPromise=loadPanelArt();
@@ -10,7 +10,7 @@ for(const p of PANEL_TYPES){
   const open=document.createElement('button');open.type='button';open.className='panel-open';open.id=`open-${p.id}`;open.setAttribute('aria-label',`Preview ${p.label.toLowerCase()} panel`);
   const canvas=document.createElement('canvas');canvas.width=900;canvas.height=1080;canvas.setAttribute('aria-hidden','true');
   const caption=document.createElement('div');caption.className='tile-caption';const title=document.createElement('strong');title.textContent=p.label;const action=document.createElement('span');action.textContent='Try panel ↗';caption.append(title,action);
-  const subtitle=document.createElement('p');subtitle.className='tile-subtitle';subtitle.textContent={timer:'Time for a little tea.',lights:'On, off. That’s it.',oven:'Know where things stand.',music:'A moment for your music.',schedule:'All set for later.','routine-saved':'Remembered for next time.',routine:'Made yours.'}[p.id];
+  const subtitle=document.createElement('p');subtitle.className='tile-subtitle';subtitle.textContent={timer:'Time for a little tea.',lights:'On, off. That’s it.',oven:'Know where things stand.',speaker:'Sound, ready when you are.',music:'A moment for your music.',schedule:'All set for later.','routine-saved':'Remembered for next time.',routine:'Made yours.'}[p.id];
   open.append(canvas,caption);tile.append(open,subtitle);$('panel-grid').append(tile);
   const demo=createDemoState(p.id);paintPanel(canvas.getContext('2d'),900,1080,demo,{art:images});drawings.push({canvas,state:demo});open.addEventListener('click',()=>show(p.id));
 }
@@ -46,7 +46,7 @@ function act(action){
     if(action==='toggle'){state.status=state.status==='paused'?'running':'paused';timerDeadline=state.status==='running'?Date.now()+state.seconds*1000:null;}
     if(action==='cancel'){state.status='cancelled';timerDeadline=null;}
     if(action==='restart'){state.seconds=state.durationSeconds;state.status='running';timerDeadline=Date.now()+state.seconds*1000;}
-  }else if(state.type==='lights'||state.type==='oven'){state.status=state.status==='on'?'off':'on';$('feedback').textContent='Preview state changed. No device command was sent.';}
+  }else if(['lights','oven','speaker'].includes(state.type)){state.status=state.status==='on'?'off':'on';$('feedback').textContent='Preview state changed. No device command was sent.';}
   else if(state.type==='music'){
     if(action==='toggle')state.status=state.status==='playing'?'paused':'playing';
     else{state.title=state.title==='Slow mornings'?'Blue hour':'Slow mornings';state.elapsed=0;$('panel-name').value=state.title;}

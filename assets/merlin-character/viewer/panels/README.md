@@ -1,6 +1,6 @@
 # MERLIN screen panels
 
-Seven simple 2D designs for the white panels MERLIN pulls into the scene. They share the character's white, pale blue, cyan, and navy palette, large readable status text, and a small number of controls. The timer is a **countdown only**; there is no clock or time-of-day screen.
+Eight simple 2D designs for the white panels MERLIN pulls into the scene: the seven originally requested plus a speaker panel added November 3, 2026 for the demo home. They share the character's white, pale blue, cyan, and navy palette, large readable status text, and a small number of controls. The timer is a **countdown only**; there is no clock or time-of-day screen.
 
 Every design uses a **5:6 portrait** canvas, authored at **900 × 1080**. This matches both existing robot panels. The camera viewfinder has a different shape and is not a target for this collection. The same renderer supplies the gallery, PNG textures, and the left and right 3D panels, including their dismissal fragments.
 
@@ -23,12 +23,13 @@ The gallery's transparent HTML buttons align with the canvas controls and suppor
 | `timer` | Remaining time, progress ring, original duration | `running`, `paused`, `done`, `cancelled` | Pause/resume, cancel, start again |
 | `lights` | Room/device name and clear on/off state | `on`, `off` | Turn off/on |
 | `oven` | Oven name, on/off state, supplied heating detail | `on`, `off` | Turn off/on |
+| `speaker` | Speaker name and on/off state | `on`, `off` | Turn off/on |
 | `music` | Track, artist, playback position, output device | `playing`, `paused`, `empty` | Previous, play/pause, next; none when empty |
 | `schedule` | Saved action, target, time, recurrence, time zone | `saved`, `removed` | Remove while saved |
 | `routine-saved` | Routine name, illustration, saved acknowledgment, actions | `saved` | View routine |
 | `routine` | Routine name, illustration, activation phrase, actions | `ready`, `running`, `done` | Run/run again; disabled while running |
 
-All designs also render `pending`, `offline`, and `error` as a clear unavailable state with no action targets. The gallery exposes the relevant subset for each design. These are display states, not validators for provider or device responses; integrations must validate the supplied state before painting it.
+All designs also render `pending`, `offline`, and `error` as a clear unavailable state with no action targets. A state with `simulated: true` (the opt-in demo home) adds an amber **DEMO** pill and a “Demo device · simulated” badge in every state. The gallery exposes the relevant subset for each design. These are display states, not validators for provider or device responses; integrations must validate the supplied state before painting it.
 
 Routine panels show up to two actions and a count of any remaining actions. Saving and viewing a routine remain separate from running it. “Tea time” and its five-minute timer are synthetic examples, not installed household routines or defaults.
 

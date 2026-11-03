@@ -2,6 +2,8 @@
 
 Updated November 1, 2026. This replaces the earlier simulated connection previews: **nothing in MERLIN's connection screens is simulated any more.** A service is *connected* only after MERLIN has contacted it with the saved credentials and the service accepted them. Everything else is a guide or is marked unsupported, and following a guide never connects MERLIN by itself.
 
+**One opt-in exception, November 3, 2026:** the owner chose clearly labeled demo devices for the hackathon demo. With `MERLIN_DEMO_HOME=1`, a simulated [Demo home](#demo-home-opt-in-simulated) is added and labeled as simulated everywhere it appears. It is off by default and never looks like a real integration.
+
 Short version of what is real:
 
 | Service | What MERLIN can do | Live-tested? |
@@ -91,6 +93,15 @@ Deliberate limits (MERLIN decisions, open to the owner changing them):
 ### Spotify
 Unchanged, with its own page and OAuth flow ([SPOTIFY.md](SPOTIFY.md)). The hub reports its real status (*Connected* only when Spotify issued tokens; *Setup unfinished* when only the Client ID is saved) so the Connection Center and big screen agree with the Spotify panel.
 
+### Demo home (opt-in, simulated)
+Chosen by the owner on November 3, 2026, when asked how lights, the oven and the gym speaker should work in the hackathon demo: **labeled demo devices.** `src/connectors/demo-home.js`.
+
+- **Off by default.** It exists only when the server starts with `MERLIN_DEMO_HOME=1`, which also connects it once (recorded in ignored `data/connectors.json`, with no credentials). Remove the setting and restart, and it is gone: the hub drops records for connectors that are not registered.
+- **Devices:** Living room lights, Kitchen lights, Gym lights (on, off, toggle, brightness), Gym speaker (power on, off, toggle; it plays nothing), and Oven (on, preheat to 170–550 °F, off). They live in the server process and all start off after a restart. Nothing physical is controlled.
+- **Same path as a real connector:** the hub's tools, device-name matching, saved rules, the preheat range check and code-written receipts. A demo receipt reads "Turned on Gym lights in the demo home." Several in one reply share one label: "Turned on Gym lights and turned on Gym speaker in the demo home."
+- **Labeled everywhere:** the service is named *Demo home*. The model is told the devices are simulated and says so when asked. Each panel has an amber **DEMO** pill and a "Demo device · simulated" badge. The Activity list shows *Demo (simulated)*, and `/api/companion/state` marks the category `simulated: true`.
+- **Panels:** a confirmed device action now pulls out its panel: lights, oven (with "Preheating to 400°F") or the new speaker panel. Two devices in one request fill both sides. This works for real connectors too, but only when the service reported the result. A real light that only accepted the command shows "One moment…", never a guessed state.
+
 ## Services with guides only
 
 These do not connect MERLIN. The guide helps you set up the device or its Home Assistant integration; the "What MERLIN can do afterward" line is what actually becomes possible once **Home Assistant is also connected to MERLIN**.
@@ -150,6 +161,7 @@ See [PROTOTYPE.md](PROTOTYPE.md#web-lookups) for the policy. Changes on November
 | `META_MODEL` | Model choice | Default `muse-spark-1.3` |
 | `PORT` | Local server port | Default 3000 |
 | `SPOTIFY_CLIENT_ID` | Spotify (optional; can be set in the page instead) | Public identifier, no secret |
+| `MERLIN_DEMO_HOME` | The labeled, simulated demo home | `1` turns it on; anything else leaves it off |
 
 Home Assistant, Hue, Shelly, SwitchBot and Rachio take no environment variables: you enter their details in the Connection Center at <http://127.0.0.1:3000/connections/>, and they are stored in `data/connectors.json`. `npm run connections` (port 3002) is now a guide-only reference with no connect buttons.
 

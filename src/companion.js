@@ -16,12 +16,17 @@ export function connectionState(spotify, hub) {
   const status = spotify.status();
   const unavailable = () => ({ available: false, connected: false, status: 'unsupported' });
   const covered = hub?.coveredCategories?.() ?? new Set();
-  const category = id => covered.has(id) ? { available: true, connected: true, status: 'connected' } : unavailable();
+  // A category is "simulated" when only the labeled demo home covers it.
+  const real = new Set((hub?.connectors ?? []).filter(connector => !connector.simulated && hub.isConnected(connector.id)).flatMap(connector => connector.kinds ?? []));
+  const realKinds = { lights: ['light', 'room'], appliances: ['oven'] };
+  const category = id => covered.has(id) ? { available: true, connected: true, status: 'connected', ...(realKinds[id]?.some(kind => real.has(kind)) ? {} : { simulated: true }) } : unavailable();
   return {
     spotify: { available: true, configured: status.configured === true, connected: status.connected === true, status: status.connected ? 'connected' : 'not_connected', voice_control: false },
-    lights: category('lights'), oven: unavailable(), schedules: unavailable(), cameras: unavailable(),
+    lights: category('lights'), oven: category('appliances'), schedules: unavailable(), cameras: unavailable(),
   };
 }
+
+const HOME_PANELS = { light: 'lights', room: 'lights', oven: 'oven', media: 'speaker' };
 
 export function presentationResult(stage, data) {
   const result = data?.result ?? (stage === 'routine' ? data : undefined);
@@ -33,6 +38,14 @@ export function presentationResult(stage, data) {
   }
   if (['create_timer', 'cancel_timer'].includes(data?.tool) && result.id) {
     return { type: 'timer', ...Object.fromEntries(['id', 'label', 'duration_seconds', 'ends_at', 'status', 'time_zone'].map(key => [key, result[key]])) };
+  }
+  if (data?.tool === 'home_control' && result.device) {
+    // Only the code-written receipt: a reported state paints on/off, anything else stays "one moment".
+    const device = result.device, type = HOME_PANELS[device.kind];
+    if (!type) return null;
+    const on = device.state?.on, text = value => typeof value === 'string' ? value.slice(0, 80) : '';
+    const detail = type === 'oven' && on && Number.isFinite(device.state.temperature) ? `Preheating to ${device.state.temperature}${text(device.state.unit) || '°F'}` : '';
+    return { type, id: text(device.id), label: text(device.name), status: result.confirmed && typeof on === 'boolean' ? (on ? 'on' : 'off') : 'pending', ...(detail ? { detail } : {}), ...(device.simulated === true ? { simulated: true } : {}) };
   }
   const routine = result.routine;
   if (routine?.id && (result.saved || result.read || result.started)) {

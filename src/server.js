@@ -63,14 +63,16 @@ function publicError(error) {
 export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaClient({
   apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY,
   model: process.env.META_MODEL || 'muse-spark-1.3',
-}), timers: suppliedTimers, ledger: suppliedLedger, memoryStore: suppliedMemory, spotify: suppliedSpotify, connectorHub: suppliedHub, connectorFetch = fetch, pageReader = readWebPage, learningDelayMs = 750, memoryEngine, memoryOptions, voiceMeta = new MetaTranscriber({ apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY }), tts = new KokoroTts(), listener = new LocalVoiceListener() } = {}) {
+}), timers: suppliedTimers, ledger: suppliedLedger, memoryStore: suppliedMemory, spotify: suppliedSpotify, connectorHub: suppliedHub, connectorFetch = fetch, pageReader = readWebPage, learningDelayMs = 750, memoryEngine, memoryOptions, demoHome = process.env.MERLIN_DEMO_HOME === '1', voiceMeta = new MetaTranscriber({ apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY }), tts = new KokoroTts(), listener = new LocalVoiceListener() } = {}) {
   const timers = suppliedTimers || await new TimerStore({ filePath: join(dataDir, 'timers.json') }).init();
   const ledger = suppliedLedger || await new RequestLedger(join(dataDir, 'requests.jsonl')).init();
   const engine = await createMemoryEngine({ engine: memoryEngine, dataDir, meta, suppliedStore: suppliedMemory, learningDelayMs, options: memoryOptions });
   const { store, memory, learning } = engine;
   const spotify = suppliedSpotify || await new SpotifyService({ filePath: join(dataDir, 'spotify.json'), clientId: process.env.SPOTIFY_CLIENT_ID || '' }).init();
-  // Real connections only: credentials live in ignored data/connectors.json and never reach the browser, Meta or traces.
-  const connections = suppliedHub || await new ConnectorHub({ filePath: join(dataDir, 'connectors.json'), connectors: createConnectors({ spotify }), fetch: connectorFetch }).init();
+  // Real connections, plus the labeled simulated demo home only when MERLIN_DEMO_HOME=1. Credentials live in ignored
+  // data/connectors.json and never reach the browser, Meta or traces.
+  const connections = suppliedHub || await new ConnectorHub({ filePath: join(dataDir, 'connectors.json'), connectors: createConnectors({ spotify, demoHome }), fetch: connectorFetch }).init();
+  if (demoHome && !suppliedHub && !connections.isConnected('demo-home')) await connections.connect('demo-home', {});
   const routineStore = await new RoutinesStore({ filePath: join(dataDir, 'routines.json') }).init();
   const routines = new RoutineService({ store: routineStore, memoryStore: store });
   engine.attachRoutines(routineStore);
@@ -585,6 +587,7 @@ async function main() {
     await new Promise((done, fail) => { server.once('error', fail); server.listen(port, '127.0.0.1', done); });
     console.log(`MERLIN test UI: http://127.0.0.1:${port}`);
     console.log(`Memory engine: ${memory.kind}${memory.kind === 'v2' ? ` (semantic retrieval: ${learning.status().semantic.state})` : ''}.`);
+    if (process.env.MERLIN_DEMO_HOME === '1') console.log('Demo home is on: its lights, oven and speaker are simulated and labeled as such.');
     console.log(meta.configured ? `Meta adapter: ${meta.model} (credentials configured; use npm run check:meta to verify access).` : 'Meta key is not configured. Manual timers are available.');
     for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => {
       closeVoice();

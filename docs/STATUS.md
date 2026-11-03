@@ -1,6 +1,33 @@
 # MERLIN status and handoff
 
-Last updated: **November 2, 2026**.
+Last updated: **November 3, 2026**.
+
+## Demo readiness and labeled demo devices — November 3, 2026
+
+The owner listed the demo scenes and asked how ready MERLIN is: lights and oven; a morning routine (coffee timer, weather); a workout routine (gym lights and speaker, today's workout from an uploaded plan); the phone app; entity-based memory; and a robot-only UI. The submission deadline is November 4, 9:00 PM ET.
+
+**Dry run before this change** (real Meta, throwaway storage, v2 memory, voice channel unless noted). These are single samples, not latency guarantees:
+
+- Lights and oven: honest "nothing's connected" replies and the connection screen, in 6–11 s.
+- Morning routine: saved in 38 ms. It ran a real 4-minute timer and a real Brooklyn weather search in 16 s (voice) and 12 s (typed). The routine names the city because MERLIN has no household location.
+- Workout routine: answered Tuesday's plan exactly from an uploaded `.txt` document. Its lights and speaker failed and opened the connection screen mid-routine.
+- Memory: a fact about "my sister Maya" published after the 120-second close. A new conversation about "my sister" recalled her peanut allergy in 4 s.
+- Not ready: the robot-only presentation (the page still has masthead, reply text, input and sidebar) and the phone app (a labeled standalone simulation, not connected to the home MERLIN).
+
+**Owner decision:** asked how lights, the oven and the gym speaker should work in the demo, the owner chose **labeled demo devices**. Implemented as the opt-in *Demo home* (`MERLIN_DEMO_HOME=1`, off by default). It is labeled as simulated everywhere it appears. Device actions now pull out lights, oven and a new speaker panel from confirmed receipts. Details: [CONNECTORS.md](CONNECTORS.md#demo-home-opt-in-simulated).
+
+**Verification:** **1,179 automated tests pass**, 10 of them in `test/demo-home.test.js` plus a renderer test for the demo label. Live with real Meta and the demo home on, every request completed with the right panels:
+- "Turn on the living room lights" took 5–8 s.
+- "Preheat the oven to 400" took 12–15 s.
+- Lights plus oven in one request took 7–10 s.
+- "Is the oven a real oven?" got "that oven is simulated".
+- The gym routine took 11–16 s on voice and typed: today's legs workout, then "Turned on Gym lights and turned on Gym speaker in the demo home."
+
+The first live pass exposed a duplicated oven sentence and a typed reply that lost its workout sentence to the receipt rewrite. The claim filter now covers preheating, and the model is told receipts are appended, so the second pass was clean. In a browser on an isolated port, both panels and the oven panel (DEMO pill, "Preheating to 400°F", badge) were checked by screenshot. Three requests in a row then failed with "Meta could not be reached or timed out". The same requests through the API, and a five-request probe a minute later, all succeeded, so it was an intermittent network failure, not this code.
+
+**Demo risks still open:** replies take 4–16 s. A failed Meta request is not retried. Spotify stays typed-only by policy, so the demo speaker powers on but plays nothing. A running timer occupies one of the two panel slots. The owner's running server needs `MERLIN_DEMO_HOME=1` in `.env` and a restart to show the demo home.
+
+**Next:** robot-only stage mode, routine artwork for Morning and Workout, and a decision on how the phone app is presented.
 
 ## Device camera — November 2, 2026
 

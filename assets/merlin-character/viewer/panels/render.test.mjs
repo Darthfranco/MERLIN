@@ -32,9 +32,9 @@ function render(state,options){
   return ctx;
 }
 
-test('panel catalog has the seven requested portrait designs, including countdown only',()=>{
+test('panel catalog has the seven requested portrait designs plus the speaker, including countdown only',()=>{
   assert.equal(PANEL_WIDTH/PANEL_HEIGHT,5/6);
-  assert.deepEqual(PANEL_TYPES.map(p=>p.id),['timer','lights','oven','music','schedule','routine-saved','routine']);
+  assert.deepEqual(PANEL_TYPES.map(p=>p.id),['timer','lights','oven','speaker','music','schedule','routine-saved','routine']);
   assert.equal(new Set(PANEL_TYPES.map(p=>p.id)).size,PANEL_TYPES.length);
 });
 
@@ -82,7 +82,7 @@ test('routine save confirmation offers viewing and never running',()=>{
 });
 
 test('known device states give the opposite action without changing their evidence',()=>{
-  for(const type of ['lights','oven']){
+  for(const type of ['lights','oven','speaker']){
     for(const status of ['on','off']){
       const state={...createDemoState(type),status};
       const before=structuredClone(state);
@@ -91,6 +91,16 @@ test('known device states give the opposite action without changing their eviden
       assert.deepEqual(state,before,'rendering never changes reported device state');
     }
   }
+});
+
+test('simulated demo devices are labeled on the panel in every state',()=>{
+  for(const type of ['lights','oven','speaker'])for(const status of ['on','off','pending']){
+    const state={type,status,label:'Gym lights',simulated:true};
+    const {texts}=render(state);
+    assert.ok(texts.includes('Demo device · simulated')&&texts.includes('DEMO'),`${type} ${status}`);
+    assert.match(panelDescription(state),/simulated/);
+  }
+  assert.equal(render(createDemoState('lights')).texts.some(value=>/demo/i.test(value)),false);
 });
 
 test('finished timers, empty music, and removed schedules expose only valid next actions',()=>{
