@@ -17,8 +17,9 @@ export const ACKNOWLEDGMENT_LINES = Object.freeze([
   Object.freeze({ id: 'ack_05', text: 'Righto, mister. Let me see what I can do for you.' }),
 ]);
 
-// Tunable starting points, not measured latency promises.
-export const ACKNOWLEDGMENT_TIMING = Object.freeze({ grace_ms: 200, cooldown_ms: 3000 });
+// Tunable starting points, not measured latency promises. The owner chose about a second
+// of quiet before the first phrase (November 3, 2026); fast answers skip the clip entirely.
+export const ACKNOWLEDGMENT_TIMING = Object.freeze({ grace_ms: 1000, cooldown_ms: 3000 });
 
 export function acknowledgmentTiming(env = process.env) {
   const bounded = (value, fallback, maximum) => {

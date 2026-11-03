@@ -2,7 +2,7 @@
  * Prerecorded "working on it" lines. Presentation only: a clip never starts, delays,
  * finishes, or reaches a request, and it is not part of any assistant turn.
  */
-const DEFAULTS = Object.freeze({ graceMs: 200, cooldownMs: 3000, watchdogPaddingMs: 4000 });
+const DEFAULTS = Object.freeze({ graceMs: 1000, cooldownMs: 3000, watchdogPaddingMs: 4000 });
 const MANIFEST_URL = '/companion/acknowledgments/manifest.json';
 
 /** Fetch and verify the files once. Whatever is missing or corrupt is simply not available. */

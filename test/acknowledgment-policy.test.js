@@ -109,9 +109,9 @@ test('the catalog fails closed on missing files, invented lines and altered word
 });
 
 test('timing defaults are configurable within bounds', () => {
-  assert.deepEqual(acknowledgmentTiming({}), { grace_ms: 200, cooldown_ms: 3000 });
+  assert.deepEqual(acknowledgmentTiming({}), { grace_ms: 1000, cooldown_ms: 3000 }, 'about a second before the first phrase');
   assert.deepEqual(acknowledgmentTiming({ MERLIN_ACK_GRACE_MS: '350', MERLIN_ACK_COOLDOWN_MS: '0' }), { grace_ms: 350, cooldown_ms: 0 });
-  assert.deepEqual(acknowledgmentTiming({ MERLIN_ACK_GRACE_MS: 'soon', MERLIN_ACK_COOLDOWN_MS: '-1' }), { grace_ms: 200, cooldown_ms: 3000 });
+  assert.deepEqual(acknowledgmentTiming({ MERLIN_ACK_GRACE_MS: 'soon', MERLIN_ACK_COOLDOWN_MS: '-1' }), { grace_ms: 1000, cooldown_ms: 3000 });
 });
 
 test('all five real recordings match the manifest, the exact lines and the configured voice', async () => {

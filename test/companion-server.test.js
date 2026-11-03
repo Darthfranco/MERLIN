@@ -270,7 +270,7 @@ test('typed requests learn their allowed clips from the progress path, following
   const replies = () => [answer('Ready.')];
   const app = await fixture(t, script(replies, replies, replies, replies));
   const state = (await app.request('/api/companion/state')).body;
-  assert.deepEqual(state.acknowledgments, { available: true, grace_ms: 200, cooldown_ms: 3000 });
+  assert.deepEqual(state.acknowledgments, { available: true, grace_ms: 1000, cooldown_ms: 3000 });
   const clipsFor = async message => {
     const request = body(message);
     assert.equal((await app.request('/api/chat', request)).status, 200);

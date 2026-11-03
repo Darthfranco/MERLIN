@@ -10,9 +10,9 @@ Planned October 27, 2026, before implementation. This combines the existing loca
 | --- | --- |
 | Request accepted | The assistant starts immediately. A voice turn arms the timer on its finalized transcript, a typed turn on submit. No wake word, partial, ambient, or empty speech is acknowledged. |
 | Eligibility | The turn's existing `received` progress event carries the allowed clip IDs, checked at that moment against current rules and settings. Voice receives it over the socket, typed through its existing progress poll. There is no new request. |
-| 200 ms grace (`MERLIN_ACK_GRACE_MS`) | If the deadline passes, the request is still pending, speech output is on, and a cached clip is allowed, one plays. Otherwise nothing does. |
+| One-second wait (`MERLIN_ACK_GRACE_MS`, default 1000) | The assistant is already working throughout. If the deadline passes, the request is still pending, speech output is on, and a cached clip is allowed, one plays. Otherwise nothing does. |
 | Answer known first | An unstarted clip is skipped, including on a terminal error. |
-| Answer known during the clip | Its text shows immediately, final speech is generated, and that audio waits for the clip's `ended` event, then starts directly. |
+| Answer known during the clip | Its text shows immediately and final speech starts generating at once, on the server for voice and in parallel with the character's move for typed. That audio waits for the clip's `ended` event, then starts directly. |
 | Clip ends with work pending | The character returns to thinking. The request, follow-up state, and timers are untouched. |
 | Person acts | Speech, Stop, a new turn, hiding the page, turning the microphone off, or disabling the feature stops the clip at once and invalidates its callbacks. Apart from disabling the feature, these also cancel the request under the existing rules. |
 

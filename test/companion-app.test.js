@@ -168,7 +168,8 @@ test('closing a panel while HTTP or wake-socket speech is pending cannot restore
     const a=timer('a'),tts=deferred(),h=await fixture(t,{chatResult:receipt(a),tts});
     if(socket){h.voice.active=true;h.voice.state='wake';const original=h.voice.speakReply.bind(h.voice);h.voice.speakReply=async id=>{h.voice.waiting=true;await tts.promise;return original(id);};}
     const work=h.run("submit('Start a timer')");
-    await h.until(()=>socket?h.voice.waiting:h.requests.some(request=>request.path==='/api/companion/speak'));
+    // Speech is generating early now; wait until the reply has also settled into its pinned pose.
+    await h.until(()=>socket?h.voice.waiting:h.requests.some(request=>request.path==='/api/companion/speak')&&h.run('speechPresentation')!==null);
     h.run("changeLayout(()=>orchestration.dismiss('right'))");assert.equal(h.runtime.desired,'ready');
     const afterClose=h.calls.length;tts.resolve();await work;await flush();
     assert.equal(h.element('typed-audio').plays,0);assert.equal(h.runtime.desired,'ready');
@@ -428,8 +429,8 @@ test('text arriving before a filler ends, with audio not ready, returns to think
   const tts=deferred(),h=await acknowledging(t,{tts}),work=h.run("submit('Plan my week')");
   await h.until(()=>h.ack.plays===1);h.audible();
   h.chat.resolve({reply:'Ready.',tool_events:[],timers:[]});
-  await h.until(()=>h.requests.some(request=>request.path==='/api/companion/speak'));
-  assert.equal(h.o.phase,'reply');assert.equal(h.runtime.desired,'face');
+  await h.until(()=>h.o.phase==='reply'&&h.requests.some(request=>request.path==='/api/companion/speak'));
+  assert.equal(h.runtime.desired,'face');
   h.finishFiller();await flush();
   assert.equal(h.runtime.desired,'faceThink');assert.equal(h.runtime.speaking,0);
   tts.resolve();
@@ -694,4 +695,27 @@ test('a voice look takes the same path from a progress event',async t=>{
   camera.release();
   await h.until(()=>camera.posted().length===1);
   assert.equal(camera.posted()[0].capture_id,'capture-v');
+});
+
+test('typed final speech starts generating when the answer arrives, while the character is still moving',async t=>{
+  const a=timer('a'),tts=deferred(),h=await fixture(t,{chatResult:receipt(a),tts});h.runtime.auto=false;
+  const work=h.run("submit('Start a timer')");
+  await h.until(()=>h.requests.some(request=>request.path==='/api/companion/speak'));
+  assert.equal(h.runtime.phase,'transition','speech was requested before the pose settled');
+  assert.equal(h.element('typed-audio').plays,0);
+  tts.resolve();h.runtime.settle();
+  await h.until(()=>h.element('typed-audio').plays===1);
+  assert.equal(h.requests.filter(request=>request.path==='/api/companion/speak').length,1,'generated exactly once');
+  h.element('typed-audio').ended=true;await h.element('typed-audio').dispatch('ended');await work;
+});
+
+test('an answer abandoned while its speech generates is never played',async t=>{
+  const tts=deferred(),h=await fixture(t,{tts});h.runtime.auto=false;
+  const work=h.run("submit('Plan my week')");
+  await h.until(()=>h.requests.some(request=>request.path==='/api/companion/speak'));
+  assert.equal(h.requests.find(request=>request.path==='/api/companion/speak').options.signal.aborted,false);
+  await h.element('stop').dispatch('click');
+  assert.equal(h.requests.find(request=>request.path==='/api/companion/speak').options.signal.aborted,true);
+  tts.resolve();h.runtime.settle();await work;await flush();
+  assert.equal(h.element('typed-audio').plays,0);
 });

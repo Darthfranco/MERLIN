@@ -279,8 +279,10 @@ async function submit(message){
   try{
     const result=await api('/api/chat',{message,request_id:id,session_id:sessionId,time_zone:timeZone,channel:'typed'},{signal:requestController.signal,timeout:snapshot.chat_timeout_ms||510000});
     if(g!==generation)return;pendingRetry=null;pollingTurn=null;acknowledgments.settled(id);
+    // Final speech generates while the reply settles on screen and any filler finishes, not after.
+    const speech=$('read-aloud').checked&&!voice.active?requestSpeech(id):null;
     completion=finish(id,result,previousTimers,g);const presentation=await completion;if(g!==generation||!presentation||presentation.cancelled)return;
-    if($('read-aloud').checked){if(voice.active)await voice.speakReply(id);else await speak(id,g,{presentation});}
+    if($('read-aloud').checked){if(voice.active)await voice.speakReply(id);else await speak(id,g,{presentation,...(speech?{request:speech}:{})});}
     if(g!==generation||presentation.cancelled||speechPresentation!==presentation)return;orchestration.followup();
   }catch(error){
     if(g!==generation)return;pollingTurn=null;acknowledgments.settled(id);
@@ -290,12 +292,19 @@ async function submit(message){
     if(!error.data){$('message').value=message;$('send').textContent='Retry';}
   }finally{if(g===generation){turnId=null;pollingTurn=null;requestController=null;$('send').disabled=!connected;$('stop').hidden=true;}}
 }
-async function speak(id,g,{timer=false,presentation=speechPresentation}={}){
+function requestSpeech(id,{timer=false}={}){
   speechController=new AbortController();const signal=speechController.signal;
-  try{
-    const response=await fetch(timer?'/api/companion/timer-speech':'/api/companion/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({[timer?'timer_id':'request_id']:id,delivery:'natural',speed:1}),signal});
+  const blob=fetch(timer?'/api/companion/timer-speech':'/api/companion/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({[timer?'timer_id':'request_id']:id,delivery:'natural',speed:1}),signal}).then(async response=>{
     if(!response.ok){const data=await response.json();throw new Error(data.error||'Speech is unavailable. Your reply is on screen.');}
-    const blob=await response.blob();if(g!==generation||signal.aborted||!presentation||presentation.cancelled)return;
+    return response.blob();
+  });
+  blob.catch(()=>{});
+  return {signal,blob};
+}
+async function speak(id,g,{timer=false,presentation=speechPresentation,request=requestSpeech(id,{timer})}={}){
+  const {signal}=request;
+  try{
+    const blob=await request.blob;if(g!==generation||signal.aborted||!presentation||presentation.cancelled)return;
     typedUrl=URL.createObjectURL(blob);const clipUrl=typedUrl;$('typed-audio').src=clipUrl;
     await new Promise(resolve=>{
       const clip={url:clipUrl,presentation,signal,ready:false,gating:false,task:null,finish:resolve};typedPlayback=clip;

@@ -20,7 +20,7 @@ const answer = text => [{ type: 'message', role: 'assistant', phase: 'final_answ
 const tone = new Int16Array(24000).map((_, index) => Math.round(6000 * Math.sin(index / 12)));
 
 // Each request names its own synthetic delay, so the model script needs no state.
-const REPLY_DELAYS = { fast: 0, slow: 1200, long: 6000, stopped: 30_000 };
+const REPLY_DELAYS = { fast: 0, slow: 2500, long: 6000, stopped: 30_000 };
 const directory = await mkdtemp(join(tmpdir(), 'merlin-ack-smoke-'));
 const modelCalls = [], ttsCalls = [], detector = [];
 const delayFor = input => {
@@ -128,7 +128,7 @@ try {
   await page.until(`${ackAudio}.currentTime > 0`, 'clip started');
   const firstPlaying = events(await page.log(), 'ack-audio', 'playing')[0];
   check('The model was already running when the clip started', modelCalls.length === callsBefore + 1);
-  check('The clip waited for the grace period', firstPlaying.at - started >= 200, `started ${Math.round(firstPlaying.at - started)} ms after the click`);
+  check('The clip waited about a second first', firstPlaying.at - started >= 1000, `started ${Math.round(firstPlaying.at - started)} ms after the click`);
   check('The clip made no speech request', ttsCalls.length === ttsBefore);
   await page.until(`document.getElementById('reply').textContent.includes('synthetic answer') && document.getElementById('reply').textContent.length > 0 && ${ackAudio}.currentTime > 1`, 'answer text during clip');
   const textDuringClip = await page.evaluate(`!${ackAudio}.ended && ${ackAudio}.currentTime > 0`);

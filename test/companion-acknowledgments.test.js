@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { AcknowledgmentCoordinator, AcknowledgmentPlayer, loadAcknowledgmentClips } from '../public/companion/acknowledgments.js';
+import { ACKNOWLEDGMENT_TIMING } from '../src/acknowledgments.js';
 
 const flush = () => new Promise(setImmediate);
 const CLIPS = ['ack_01', 'ack_02', 'ack_03', 'ack_04', 'ack_05'].map(id => ({ id, url: `blob:${id}`, durationMs: 3000 }));
@@ -22,7 +23,7 @@ function fixture({ clips = CLIPS, cooldownMs = 3000, play } = {}) {
     finishNaturally() { this.ended = true; this.paused = true; this.dispatch('pause'); this.dispatch('ended'); },
   };
   const coordinator = new AcknowledgmentCoordinator({
-    player: new AcknowledgmentPlayer(audio), cooldownMs,
+    player: new AcknowledgmentPlayer(audio), cooldownMs, graceMs: 200,
     onAudible: (audible, detail) => reports.push({ audible, ...detail }),
     now: () => clock, random: () => 0.42,
     setTimer: (fn, ms) => { const id = nextId++; pending.set(id, { at: clock + ms, fn }); return id; },
@@ -68,6 +69,11 @@ test('the request is not waited on: the timer arms immediately and a slow reply 
   h.advance(2000);
   assert.equal(h.audio.plays.length, 1);
   assert.equal(h.reports.filter(report => report.audible).length, 1);
+});
+
+test('the page waits about a second by default, matching the server setting', () => {
+  assert.equal(new AcknowledgmentCoordinator({ player: {} }).graceMs, ACKNOWLEDGMENT_TIMING.grace_ms);
+  assert.equal(ACKNOWLEDGMENT_TIMING.grace_ms, 1000);
 });
 
 test('a fast reply suppresses a clip that has not started', () => {
