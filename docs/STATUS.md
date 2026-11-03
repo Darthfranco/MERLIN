@@ -2,6 +2,20 @@
 
 Last updated: **November 3, 2026**.
 
+## One retry when Meta can't be reached, and prerecorded clips play again — November 3, 2026
+
+**Retry (`src/provider-retry.js`, used by `src/meta.js` and `src/voice/meta.js`):** MERLIN now tries once more, after 400 ms, when a Meta request could not complete at all or got HTTP 502, 503 or 504. Both attempts share the request's existing 60-second deadline, so the longest wait does not grow. Cancellation and that deadline are never retried. Other HTTP errors (400, 401, 403, 429, 500) are not retried either. A retry is safe because requests are stateless (`store: false`) and nothing runs locally until a response arrives. The server log gets one line per retry with a short reason code, never request content. The 10.5-second failures seen earlier match Node's ten-second connection timeout. They could not be reproduced: 20 more fresh-process probes all succeeded in 0.2–1.3 s.
+
+**Prerecorded clips:** the owner reported that the clips had stopped playing. Two causes were found on the owner's live server, checked read-only:
+- A saved preference about the gym routine says “turns on the gym speakers.” The wording filter matched “speak” inside “speakers,” so it silenced every clip from 3:47 PM.
+- Five v2 conversation notes were open in the current conversation. They come from ordinary wording such as “actually,” “today” or “don't,” and any note used to silence every clip.
+
+The fix matches whole words, ignores the person's own “I say” or “we say,” and lets a note silence the clips only when it reads as being about speech. A note it cannot read, guidance, and an unknown kind still silence them. On the owner's current memory the fixed filter allows all five clips; before, it allowed none. Details: [ORCHESTRATION.md](ORCHESTRATION.md#prerecorded-acknowledgments--november-2-2026).
+
+**Verification:** **1,206 automated tests pass**, 10 of them new. There are 6 in `test/provider-retry.test.js` and 2 in `test/acknowledgment-notes.test.js`, which runs the real v2 engine. The other 2 are filter cases in `test/acknowledgment-policy.test.js`. With the old filter restored, 4 clip tests fail. `npm run check:acknowledgments` passed 23 of 23 in headless Chrome.
+
+**Not verified:** the retry has not been seen recovering a real network failure, which could not be reproduced. No person has yet heard the clips play on the owner's display after this fix.
+
 ## Made-up search tool names no longer silence a reply — November 3, 2026
 
 The owner reported that MERLIN stopped talking. Two causes were found:
@@ -12,7 +26,7 @@ The owner reported that MERLIN stopped talking. Two causes were found:
 
 **Verification:** **1,196 automated tests pass**, 3 added in `test/unavailable-tools.test.js`. They cover the recovery and that nothing in the rejected response ran, including a timer. They also cover a second made-up name, a saved search ban, and a mixed response with a non-search tool. With the fix switched off, the two recovery tests fail. Live with real Meta, throwaway storage, the v2 engine and the demo home, the Brooklyn preference and weather question were run nine times in six conversations, typed and voice. Meta never made up a search name in those runs, so the live recovery itself was not observed. Every request but one succeeded, taking 5–29 s. The exception was the first request of one run: “Meta could not be reached or timed out” after 10.5 s.
 
-**Still open:** “Meta could not be reached or timed out” has now been seen on the very first Meta request of a fresh process three times in eight live script runs today: twice for chat, after 10.5 s, and once for transcription. The next attempt succeeded each time. A failed Meta request is still not retried. The owner's running server was restarted outside the agent sandbox on this fix.
+**Seen during this work:** “Meta could not be reached or timed out” failed the very first Meta request of a fresh process three times in eight live script runs: twice for chat, after 10.5 s, and once for transcription. The next attempt succeeded each time. That is now retried; see the entry above.
 
 ## Home display `/companionfull/` — November 3, 2026
 
@@ -85,7 +99,7 @@ The first live pass exposed a duplicated oven sentence and a typed reply that lo
 
 In a real browser, using real Meta, the demo home and a fake Spotify on isolated ports, the voice gym routine ran three times. Each run read Tuesday's legs workout, reported the demo lights and speaker, ended with the tap line, and showed the Workout screen behind MERLIN. A real click on the painted Play sent exactly one `play` request for the "workout" playlist, showed "Enjoy your workout!", raised the screen and showed the playing music card. The check caught one defect: closing the big screen with a device panel kept behind it used the authored ceiling-to-left move. That move carried the Workout picture onto the "Gym lights" panel. The kept panel now takes the big screen's side, and the close was re-checked by screenshot. The connection screen still closes the old way and may show the same stale picture; that path was not checked. Not verified: a real Spotify account, Premium playback, or a real Spotify device.
 
-**Demo risks still open:** replies take 4–16 s. A failed Meta request is not retried. Spoken Spotify requests get the one-tap button; the demo speaker itself powers on but plays nothing. A running timer occupies one of the two panel slots. The owner's running server needs `MERLIN_DEMO_HOME=1` in `.env` and a restart to show the demo home.
+**Demo risks still open:** replies take 4–16 s. A Meta request that cannot connect is now retried once (November 3). Spoken Spotify requests get the one-tap button; the demo speaker itself powers on but plays nothing. A running timer occupies one of the two panel slots. The owner's running server needs `MERLIN_DEMO_HOME=1` in `.env` and a restart to show the demo home.
 
 **Next:** robot-only stage mode, routine artwork for Morning and Workout, and a decision on how the phone app is presented.
 

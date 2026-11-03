@@ -79,7 +79,32 @@ test('broad instructions that cannot be checked locally silence the optional fil
   assert.deepEqual(allowed({ facts: [fact('guidance', 'Old guidance.', 'superseded')] }), ALL);
   assert.deepEqual(allowed({ pending: [{ kind: 'fact' }] }), [], 'v2 conversation state may be guidance it cannot read');
   assert.deepEqual(allowed({ pending: [{ kind: 'statement' }] }), []);
+  assert.deepEqual(allowed({ pending: [{ kind: 'something new' }] }), [], 'an unknown note stays silent');
   assert.deepEqual(allowed({ pending: [{ kind: 'rule' }] }), ALL, 'a pending rule is already in the checked rules');
+});
+
+test('only whole words about speech count, so a speaker or a chore does not silence the clips', () => {
+  const fact = (kind, content) => ({ kind, content, status: 'active' });
+  for (const content of ['User wants a workout routine that turns on the gym speakers.', 'Sam is responsible for the recycling.', 'Keeps the briefcase by the door.', 'Wants the speakerphone on for calls.']) {
+    assert.deepEqual(allowed({ facts: [fact('preference', content)] }), ALL, content);
+  }
+  for (const content of ['Prefers brief answers.', 'Wants MERLIN to speak more slowly.', 'Likes shorter responses.', 'Keep it quiet after nine.', 'Do not say good night.', 'Call me Sam.', 'Less talking, please.']) {
+    assert.deepEqual(allowed({ facts: [fact('preference', content)] }), [], content);
+  }
+});
+
+test('v2 conversation notes silence the clips only when they read as being about speech', () => {
+  for (const pending of [[{ kind: 'statement', quote: 'Actually, make the timer ten minutes.' }], [{ kind: 'statement', quote: 'Turn on the gym speakers tonight.' }],
+    [{ kind: 'statement', quote: "From now on whenever I say I'm going to work out, turn on the gym lights." }], [{ kind: 'statement', quote: 'If we say movie time, dim the lights.' }],
+    [{ kind: 'fact', fact_kind: 'preference', content: 'Wants the gym speakers on for workouts.' }], [{ kind: 'fact', fact_kind: 'fact', content: 'Lives near a park.' }]]) {
+    assert.deepEqual(allowed({ pending }), ALL, JSON.stringify(pending));
+  }
+  for (const pending of [[{ kind: 'statement', quote: "Don't say that anymore." }], [{ kind: 'statement', quote: 'Stop calling me mister.' }],
+    [{ kind: 'statement', quote: "When I say tea, say 'brewing' and nothing else." }], [{ kind: 'statement', quote: 'I said never talk during the movie.' }],
+    [{ kind: 'statement', quote: 'Actually, use a calmer tone tonight.' }], [{ kind: 'fact', fact_kind: 'guidance', content: 'Keep the kitchen topics gentle.' }],
+    [{ kind: 'fact', fact_kind: 'preference', content: 'Prefers brief answers.' }], [{ kind: 'fact', fact_kind: 'mystery', content: 'Anything.' }]]) {
+    assert.deepEqual(allowed({ pending }), [], JSON.stringify(pending));
+  }
 });
 
 test('thanks, greetings and requests about how MERLIN talks get no canned line', () => {

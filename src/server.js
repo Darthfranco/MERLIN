@@ -85,7 +85,8 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
   const acknowledgmentsFor = (message, sessionId) => {
     if (!acknowledgmentCatalog) return undefined;
     try {
-      const { facts, conversation_state: pending } = memory.inspect(sessionId);
+      const { facts, conversation_state: state } = memory.inspect(sessionId);
+      const pending = memory.conversationNotes && sessionId ? memory.conversationNotes(sessionId) : state;
       return eligibleAcknowledgments({ catalog: acknowledgmentCatalog, rules: memory.rules(), policy: assistant.personalityPolicy({ message, session_id: sessionId }), message, facts, pending });
     } catch { return { version: acknowledgmentCatalog.version, clips: [] }; }
   };

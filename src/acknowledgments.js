@@ -53,11 +53,26 @@ export async function loadAcknowledgmentCatalog(directory = ACKNOWLEDGMENT_DIREC
 const SOCIAL_ONLY = /^(?:merlin[,\s]+)?(?:hi|hello|hey|yes|yeah|yep|no|nope|ok|okay|sure|good (?:morning|afternoon|evening|night)|goodbye|bye|never ?mind|stop|wait)(?:[,\s]+(?:there|merlin))?[.!?]*$/iu;
 // A request about how MERLIN talks should not be answered with the wording it may be objecting to.
 const ABOUT_SPEECH = /\b(?:mister|call(?:ing)? me|address(?:ing)? me|say|saying|said|words?|phrases?|wording|filler|acknowledg\w*|tone|style|speak|speaking|talk|talking|quiet|shut up)\b/iu;
-// Broad preferences have no exact check, and a model call is not allowed for optional audio.
-const SPEECH_PREFERENCE = /answer|respon[ds]|communicat|concise|brief|verbos|filler|acknowledg|wording|talk|speak|speech|\bsay\b|quiet|silent|chatty|call me|address(?:ed)? (?:me|as)/iu;
+// Broad preferences have no exact check, and a model call is not allowed for optional audio. Whole words only:
+// "gym speakers" or "responsible for recycling" is not about how MERLIN talks (owner report, November 3, 2026).
+const SPEECH_PREFERENCE = /\b(?:answer(?:s|ed|ing)?|respon(?:d|ds|ded|ding|se|ses|sive)|communicat\w*|concise\w*|brief(?:ly|er)?|verbos\w*|filler\w*|acknowledg\w*|wording|talk(?:s|ed|ing|ative)?|speak(?:s|ing)?|spoke|spoken|speech|say(?:s|ing)?|said|quiet(?:er|ly)?|silen(?:t|tly|ce)|chatty|call(?:ing)? me|address(?:ed|ing)? (?:me|as))\b/iu;
+
+// "Whenever I say workout" is the person's own words, a routine trigger; "don't say that" is about MERLIN's.
+const withoutOwnWords = text => text.replace(/\b(?:i|we)(?:'ll| will|'d| would)?\s+(?:say|says|said|saying)\b/giu, ' ');
 
 const uncheckedInstruction = item => item?.status === 'active'
-  && (item?.kind === 'guidance' || (item?.kind === 'preference' && SPEECH_PREFERENCE.test(item.content ?? '')));
+  && (item?.kind === 'guidance' || (item?.kind === 'preference' && SPEECH_PREFERENCE.test(withoutOwnWords(item.content ?? ''))));
+const aboutSpeech = text => { const words = withoutOwnWords(text); return ABOUT_SPEECH.test(words) || SPEECH_PREFERENCE.test(words); };
+/**
+ * A v2 conversation note silences the clips only when it could be about how MERLIN talks, by the same local test as
+ * saved preferences. A rule is already in `rules`; a note this code cannot read, or a kind it does not know, stays silent.
+ */
+function noteSilences(row) {
+  if (row?.kind === 'rule') return false;
+  if (row?.kind === 'statement') return typeof row.quote !== 'string' || aboutSpeech(row.quote);
+  if (row?.kind === 'fact') return typeof row.content !== 'string' || row.fact_kind === 'guidance' || (row.fact_kind === 'preference' && aboutSpeech(row.content)) || !['fact', 'preference'].includes(row.fact_kind);
+  return true;
+}
 
 function recordedWordsPass(text, rules, policy) {
   // A checker that adds a prefix or changes an address describes different words
@@ -69,8 +84,7 @@ function recordedWordsPass(text, rules, policy) {
 /**
  * Trusted local selection at request acceptance. Fails closed: when in doubt the
  * optional filler stays silent, and the ordinary reply is unaffected either way.
- * `pending` is the v2 engine's active conversation state: anything there other than
- * a compiled rule (already in `rules`) may be guidance this code cannot read or check.
+ * `pending` is the v2 engine's active conversation notes ({ kind, quote } or { kind, fact_kind, content }).
  */
 export function eligibleAcknowledgments({ catalog, rules = [], policy, message = '', facts = [], pending = [] }) {
   const none = { version: catalog.version, clips: [] };
@@ -78,7 +92,7 @@ export function eligibleAcknowledgments({ catalog, rules = [], policy, message =
   if (policy?.style !== 'warm' || policy.calm) return none;
   const text = message.trim();
   if (isPureAcknowledgment(text) || SOCIAL_ONLY.test(text) || ABOUT_SPEECH.test(text) || parsePersonalityRequest(text)) return none;
-  if (facts.some(uncheckedInstruction) || pending.some(row => row?.kind !== 'rule')) return none;
+  if (facts.some(uncheckedInstruction) || pending.some(noteSilences)) return none;
   return { version: catalog.version, clips: catalog.clips.filter(clip => recordedWordsPass(clip.text, rules, policy)).map(clip => clip.id) };
 }
 

@@ -2,18 +2,22 @@ import { AppError } from './errors.js';
 import { MAX_SEARCH_CALLS, MODEL_TIMEOUT_MS } from './limits.js';
 import { checkCancelled } from './cancellation.js';
 import { SAM_MODEL, parseSegmentation } from './sam.js';
+import { RETRY_DELAY_MS, fetchWithRetry } from './provider-retry.js';
+
+const logRetry = reason => console.warn(`Meta request did not complete (${reason}); trying once more.`);
 
 const outputText = response => (response.output ?? []).filter(item => item.type === 'message').flatMap(item => item.content ?? []).filter(item => item.type === 'output_text').map(item => item.text).join('');
 const imageMessage = (text, image) => [{ type: 'message', role: 'user', content: [{ type: 'input_text', text }, { type: 'input_image', image_url: image }] }];
 
 export class MetaClient {
-  constructor({ apiKey = '', model = 'muse-spark-1.3', fetchImpl = fetch } = {}) {
+  constructor({ apiKey = '', model = 'muse-spark-1.3', fetchImpl = fetch, retryDelayMs = RETRY_DELAY_MS, onRetry = logRetry } = {}) {
     if (!/^muse-(spark-1\.[123]|wonder-1\.0)$/.test(model)) {
       throw new AppError('Use a supported standard Meta text model. Contributor variants are disabled.');
     }
     this.apiKey = apiKey.trim();
     this.model = model;
     this.fetch = fetchImpl;
+    this.retry = { delayMs: retryDelayMs, onRetry };
   }
 
   get configured() { return Boolean(this.apiKey); }
@@ -23,13 +27,13 @@ export class MetaClient {
     if (!this.configured) throw new AppError('Add META_API_KEY to .env and restart the server to connect Meta.', 503);
     let response;
     try {
-      response = await this.fetch(`https://api.meta.ai/v1/${path}`, {
+      response = await fetchWithRetry(this.fetch, `https://api.meta.ai/v1/${path}`, {
         method: body ? 'POST' : 'GET',
         headers: { Authorization: `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' },
         ...(body ? { body: JSON.stringify(body) } : {}),
         signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(MODEL_TIMEOUT_MS)]) : AbortSignal.timeout(MODEL_TIMEOUT_MS),
         redirect: 'error',
-      });
+      }, this.retry);
     } catch {
       checkCancelled(signal);
       throw new AppError('Meta could not be reached or timed out. Check the connection and the tool results before submitting again.', 502);

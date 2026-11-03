@@ -83,6 +83,13 @@ export class MemoryServiceV2 extends MemoryService {
     this.#db.prepare(`INSERT OR IGNORE INTO control_items (id, session_id, request_id, kind, source_id, data, created_at) VALUES (?, ?, ?, 'statement', ?, ?, ?)`)
       .run(id, source.session_id, source.request_id, source.id, JSON.stringify({ quote: text.slice(0, MAX_STATEMENT_CHARS), temporary_wording: TEMPORARY_WORDING.test(text) }), source.created_at);
   }
+  /** This session's open conversation notes, readable enough for local code to tell whether one is about speech. */
+  conversationNotes(sessionId) {
+    return this.#db.prepare(`SELECT kind, data FROM control_items WHERE session_id = ? AND status = 'active' ORDER BY created_at`).all(sessionId).map(row => {
+      const data = parse(row.data, {});
+      return row.kind === 'statement' ? { kind: row.kind, quote: data.quote } : row.kind === 'fact' ? { kind: row.kind, fact_kind: data.kind, content: data.content } : { kind: row.kind };
+    });
+  }
   #controlItems(sessionId, kinds) {
     const rows = sessionId === undefined
       ? this.#db.prepare(`SELECT * FROM control_items WHERE status = 'active' ORDER BY created_at`).all()

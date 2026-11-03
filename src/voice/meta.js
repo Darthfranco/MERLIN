@@ -1,12 +1,16 @@
 import { randomUUID } from 'node:crypto';
 import { AppError } from '../errors.js';
 import { validateWav } from './audio.js';
+import { RETRY_DELAY_MS, fetchWithRetry } from '../provider-retry.js';
+
+const logRetry = reason => console.warn(`Meta transcription did not complete (${reason}); trying once more.`);
 
 export class MetaTranscriber {
-  constructor({ apiKey = '', fetchImpl = fetch, timeoutMs = 60_000 } = {}) {
+  constructor({ apiKey = '', fetchImpl = fetch, timeoutMs = 60_000, retryDelayMs = RETRY_DELAY_MS, onRetry = logRetry } = {}) {
     this.apiKey = apiKey.trim();
     this.fetch = fetchImpl;
     this.timeoutMs = timeoutMs;
+    this.retry = { delayMs: retryDelayMs, onRetry };
     this.model = 'muse-voice-transcribe-1.0';
   }
 
@@ -41,10 +45,10 @@ export class MetaTranscriber {
     let body;
     try {
       requestSignal.throwIfAborted();
-      response = await this.fetch(`https://api.meta.ai/v1/asr/transcribe?sessionId=${randomUUID()}`, {
+      response = await fetchWithRetry(this.fetch, `https://api.meta.ai/v1/asr/transcribe?sessionId=${randomUUID()}`, {
         method: 'POST', headers: { Authorization: `Bearer ${this.apiKey}`, Accept: 'application/json' },
         body: form, signal: requestSignal, redirect: 'error',
-      });
+      }, this.retry);
       if (response.ok) body = await response.json();
     } catch {
       if (signal?.aborted) throw new AppError('Transcription cancelled.', 499);
