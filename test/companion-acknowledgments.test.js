@@ -323,3 +323,101 @@ test('clip loading verifies files, drops what is missing or corrupt, and never p
   assert.ok(requested.includes('/companion/acknowledgments/good.wav'));
   assert.deepEqual(await loadAcknowledgmentClips({ fetchImpl: async () => ({ json: async () => ({ error: 'Not found.' }) }) }), { version: null, clips: [] });
 });
+
+// The three-part spoken answer for a search: filler, lookup line, answer (owner request, November 3, 2026).
+const LINE = () => { const line = { id: 'lookup', url: 'blob:lookup', durationMs: 2500, released: 0 }; line.release = () => { line.released++; }; return line; };
+
+test('a lookup line follows a started filler directly, and the answer queues behind the line', async () => {
+  const h = fixture();
+  h.coordinator.arm('search', { token: 1 });
+  h.coordinator.allow('search', policy());
+  h.advance(200);
+  h.audio.dispatch('playing');
+  const filler = h.audio.src, line = LINE();
+  assert.equal(h.coordinator.line('search', line), true);
+  assert.equal(h.audio.src, filler, 'the filler is never cut for the line');
+  h.audio.finishNaturally();
+  assert.equal(h.audio.src, 'blob:lookup', 'the line starts as the filler ends');
+  h.audio.dispatch('playing');
+  assert.deepEqual(h.reports.map(report => report.audible), [true, false, true]);
+  assert.equal(h.reports[1].resume, false, 'no return to thinking between the two lines');
+  h.coordinator.settled('search');
+  let answerMayPlay = false;
+  const queued = h.coordinator.beforeAnswer().then(() => { answerMayPlay = true; });
+  await flush();
+  assert.equal(answerMayPlay, false, 'the answer waits for the whole line');
+  h.audio.finishNaturally(); await queued;
+  assert.equal(answerMayPlay, true);
+  assert.deepEqual(h.audio.plays, [filler, 'blob:lookup']);
+  assert.equal(line.released, 1);
+});
+
+test('a line that arrives before the filler is due waits for it; with no filler it plays at once', () => {
+  const early = fixture();
+  early.coordinator.arm('search', { token: 1 });
+  early.coordinator.allow('search', policy());
+  early.coordinator.line('search', LINE());
+  assert.equal(early.audio.plays.length, 0, 'the filler still comes first');
+  early.advance(200);
+  assert.notEqual(early.audio.src, 'blob:lookup');
+  early.audio.dispatch('playing'); early.audio.finishNaturally();
+  assert.equal(early.audio.src, 'blob:lookup');
+
+  const none = fixture();
+  none.coordinator.arm('search', { token: 1 });
+  none.coordinator.allow('search', policy([]));
+  none.advance(200);
+  assert.equal(none.audio.plays.length, 0, 'no filler was allowed');
+  none.coordinator.line('search', LINE());
+  assert.deepEqual(none.audio.plays, ['blob:lookup']);
+
+  const waiting = fixture();
+  waiting.coordinator.arm('search', { token: 1 });
+  waiting.coordinator.line('search', LINE());
+  waiting.advance(200);
+  assert.deepEqual(waiting.audio.plays, ['blob:lookup'], 'a filler still waiting for its policy does not hold the line back');
+});
+
+test('the line is skipped once the answer is known, used once, and only for its own request', async () => {
+  const h = fixture();
+  h.coordinator.arm('search', { token: 1 });
+  h.coordinator.allow('search', policy());
+  h.advance(200);
+  h.audio.dispatch('playing');
+  const line = LINE();
+  h.coordinator.line('search', line);
+  h.coordinator.settled('search');
+  const queued = h.coordinator.beforeAnswer();
+  h.audio.finishNaturally();
+  await queued;
+  assert.equal(h.audio.plays.length, 1, 'an answer that is ready goes straight after the filler');
+  assert.equal(line.released, 1);
+  const late = LINE();
+  assert.equal(h.coordinator.line('search', late), false);
+  assert.equal(late.released, 1);
+  h.coordinator.arm('next', { token: 1 });
+  assert.equal(h.coordinator.line('search', LINE()), false, 'an old request cannot speak into a new one');
+  assert.equal(h.coordinator.line('next', LINE()), true);
+  assert.equal(h.coordinator.line('next', LINE()), false, 'one line per request');
+});
+
+test('Stop drops a queued line and ends a playing one; disabled output never plays it', () => {
+  const h = fixture();
+  h.coordinator.arm('search', { token: 1 });
+  h.coordinator.allow('search', policy());
+  h.advance(200);
+  h.audio.dispatch('playing');
+  const line = LINE();
+  h.coordinator.line('search', line);
+  h.coordinator.cancel();
+  assert.equal(h.audio.src, '');
+  assert.equal(line.released, 1);
+  assert.equal(h.audio.plays.length, 1);
+
+  const off = fixture();
+  off.coordinator.arm('search', { token: 1, isEnabled: () => false });
+  const quiet = LINE();
+  assert.equal(off.coordinator.line('search', quiet), false);
+  assert.equal(off.audio.plays.length, 0);
+  assert.equal(quiet.released, 1);
+});

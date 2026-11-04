@@ -135,6 +135,17 @@ const acknowledgments=new AcknowledgmentCoordinator({player:new AcknowledgmentPl
 }});
 void loadAcknowledgmentClips({fetchImpl:fetch,createObjectURL:blob=>URL.createObjectURL(blob),subtle:crypto.subtle}).then(({version,clips})=>acknowledgments.setClips(version,clips)).catch(()=>{});
 // Speech output is checked at the moment a clip would start, so a later change applies immediately.
+// The middle of the spoken answer for a search: the server's "looking it up" line, fetched as soon as it exists.
+const lookupLinesAsked=new Set();
+function lookupLine(id,events){
+  if(!id||lookupLinesAsked.has(id)||!events?.some(event=>event?.stage==='lookup_line')||!acknowledgments.wantsLine(id))return;
+  lookupLinesAsked.add(id);if(lookupLinesAsked.size>50)lookupLinesAsked.delete(lookupLinesAsked.values().next().value);
+  void fetch('/api/companion/lookup-speech',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request_id:id,delivery:'natural',speed:1})}).then(async response=>{
+    if(!response.ok)return;
+    const bytes=await response.arrayBuffer(),url=URL.createObjectURL(new Blob([bytes],{type:'audio/wav'}));
+    acknowledgments.line(id,{id:'lookup',url,durationMs:Math.max(500,(bytes.byteLength-44)/48),release:()=>URL.revokeObjectURL(url)});
+  }).catch(()=>{});
+}
 function armAcknowledgment(id,token,typed=false){
   acknowledgments.arm(id,{token,isEnabled:()=>{
     const reply=$(typed&&!voice.active?'typed-audio':'voice-audio');
@@ -271,7 +282,7 @@ async function finish(id,result,before,g,voiceContext={}){
 }
 async function pollProgress(id,g){
   while(g===generation&&pollingTurn===id){
-    try{const progress=await api(`/api/companion/progress?request_id=${encodeURIComponent(id)}`);if(g!==generation||pollingTurn!==id)return;orchestration.progress(id,progress.events);cameraEvents(progress.events);acknowledgments.allow(id,progress.events?.find(event=>event.stage==='received')?.acknowledgments);if(['complete','failed','interrupted'].includes(progress.status)){acknowledgments.settled(id);return;}}catch{}
+    try{const progress=await api(`/api/companion/progress?request_id=${encodeURIComponent(id)}`);if(g!==generation||pollingTurn!==id)return;orchestration.progress(id,progress.events);cameraEvents(progress.events);acknowledgments.allow(id,progress.events?.find(event=>event.stage==='received')?.acknowledgments);lookupLine(id,progress.events);if(['complete','failed','interrupted'].includes(progress.status)){acknowledgments.settled(id);return;}}catch{}
     await new Promise(resolve=>setTimeout(resolve,300));
   }
 }
@@ -362,6 +373,8 @@ function voiceEvent(event){
     $('test-speaker').disabled=voice.active;
     if(state==='listening'){invalidate();voiceTurn=null;orchestration.listening();notice();}
     else if(state==='transcribing'){voiceBefore=[...snapshot.timers];voiceTurn=`voice-${event.revision}`;orchestration.begin(voiceTurn);}
+    // Speech over a working request that turned out not to be one: back to thinking about the request still running.
+    else if(state==='processing'&&!voiceTurn){voiceTurn=`voice-${event.revision}`;orchestration.begin(voiceTurn);}
     else if(state==='wake'&&!turnId){orchestration.standby();}
     else if(state==='off'){if(!turnId){invalidate();voiceTurn=null;orchestration.standby();}}
     else if(state==='followup'&&!turnId){orchestration.followup({external:true});}
@@ -373,6 +386,7 @@ function voiceEvent(event){
     orchestration.progress(voiceTurn,[event.progress]);
     cameraEvents([event.progress]);
     acknowledgments.allow(event.requestId,event.progress?.acknowledgments);
+    lookupLine(event.requestId,[event.progress]);
   }else if(event.type==='response'){
     if(!voiceTurn){voiceTurn=`voice-${event.revision}`;orchestration.begin(voiceTurn);}
     acknowledgments.settled(event.requestId);

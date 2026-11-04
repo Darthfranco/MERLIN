@@ -871,24 +871,122 @@ test('an audible filler changes no turn state: pending work, timers and playback
   assert.deepEqual(h.synthesis.map(item => item.text), ['Your week is planned.']);
 });
 
-test('speech that overlaps a filler can interrupt it, but its own words never become a request', async t => {
+test('speech that overlaps a filler never becomes a request, and the request it overlapped still answers', async t => {
   const first = deferred(), calls = [];
   const h = harness(t, { isAcknowledgmentEcho: text => text.startsWith('You got it'), respond: async (text, context) => {
     calls.push({ text, ...context });
     return calls.length === 1 ? await first.promise : { reply: 'Here is the next answer.' };
   } });
-  h.transcripts.push('Merlin, plan my week.', "You got it, mister. I'll work on that right now.", 'You got it, what about tomorrow?');
+  h.transcripts.push('Merlin, plan my week.', "You got it. I'll work on that right now.", 'You got it, what about tomorrow?');
   await h.session.start(assistantContext); await h.wakeAndSpeak(); await flush();
+  const firstWork = h.session.work;
   h.session.acknowledgmentPlayback({ playing: true });
   await h.speech(); await h.session.work;
   assert.equal(calls.length, 1, 'the leaked line reached no assistant turn');
+  assert.equal(calls[0].signal.aborted, false, 'and the request it overlapped kept working');
   assert.equal(h.sent.some(event => event.type === 'transcript' && event.text.includes("I'll work on that")), false);
-  assert.equal(h.session.state, 'followup');
+  assert.equal(h.session.state, 'processing');
   h.session.acknowledgmentPlayback({ playing: false });
+  first.resolve({ reply: 'Your week is planned.' }); await firstWork;
+  assert.deepEqual(h.synthesis.map(item => item.text), ['Your week is planned.']);
+  assert.equal(h.session.state, 'speaking');
   h.now(5000);
   await h.speech(); await h.session.work;
   assert.equal(calls.length, 2, 'the same words away from a filler are an ordinary request');
+});
+
+test('noise over a working request is not a request: nothing is cancelled and the answer still arrives', async t => {
+  const first = deferred(), calls = [];
+  const h = harness(t, { respond: async (text, context) => { calls.push({ text, ...context }); return await first.promise; } });
+  h.transcripts.push('Merlin, find kosher pizza near me.', '');
+  await h.session.start(assistantContext); await h.wakeAndSpeak(); await flush();
+  const firstWork = h.session.work, before = h.sent.length;
+  await h.speech(); await h.session.work;
+  assert.equal(h.uploads.length, 2, 'the noise was transcribed once to find out');
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].signal.aborted, false);
+  assert.equal(h.session.state, 'processing');
+  assert.equal(h.sent.slice(before).some(event => event.type === 'interrupt'), false, 'the page is never told the request was cancelled');
+  first.resolve({ reply: 'Here are three kosher pizza places.' }); await firstWork;
+  assert.deepEqual(h.synthesis.map(item => item.text), ['Here are three kosher pizza places.']);
+  assert.equal(h.audio.length, 1);
+});
+
+test('a brief sound over a working request is ignored without any upload', async t => {
+  const first = deferred(), h = harness(t, { respond: async () => await first.promise });
+  h.transcripts.push('Merlin, plan my week.');
+  await h.session.start(assistantContext); await h.wakeAndSpeak(); await flush();
+  const firstWork = h.session.work;
+  await h.frame(8000, from => [{ type: 'speech_start', sample: from + 100, startSample: from }, { type: 'speech_end', sample: from + 1000, endSample: from + 1000 }]);
+  assert.equal(h.uploads.length, 1);
+  assert.equal(h.session.state, 'processing');
+  first.resolve({ reply: 'Your week is planned.' }); await firstWork;
+  assert.deepEqual(h.synthesis.map(item => item.text), ['Your week is planned.']);
+});
+
+test('an answer that is ready while someone talks waits, then plays once the talk was not a request', async t => {
+  const heard = deferred(), h = harness(t, { respond: async () => ({ reply: 'Your week is planned.' }) });
+  h.transcripts.push('Merlin, plan my week.', heard.promise);
+  const thinking = deferred();
+  h.voices.push(thinking.promise);
+  await h.session.start(assistantContext); await h.wakeAndSpeak(); await flush();
+  assert.equal(h.session.state, 'generating');
+  const firstWork = h.session.work;
+  await h.speech();
+  thinking.resolve(Buffer.alloc(48044)); await flush(); await flush();
+  assert.equal(h.audio.length, 0, 'no answer plays over someone talking');
+  heard.resolve({ text: '' }); await h.session.work; await firstWork;
+  assert.equal(h.audio.length, 1);
+  assert.equal(h.session.state, 'speaking');
+});
+
+test('a real request spoken over a working one replaces it only once its words are known', async t => {
+  const first = deferred(), heard = deferred(), calls = [];
+  const h = harness(t, { respond: async (text, context) => { calls.push({ text, ...context }); return calls.length === 1 ? await first.promise : { reply: 'Okay, only kosher places.' }; } });
+  h.transcripts.push('Merlin, find pizza near me.', heard.promise);
+  await h.session.start(assistantContext); await h.wakeAndSpeak(); await flush();
+  const firstWork = h.session.work;
+  await h.speech();
+  assert.equal(calls[0].signal.aborted, false, 'still working while the new words are transcribed');
+  heard.resolve({ text: 'Actually, only kosher places.' }); await h.session.work;
+  assert.equal(calls[0].signal.aborted, true);
+  first.resolve({ reply: 'STALE' }); await firstWork;
+  assert.deepEqual(calls.map(call => call.text), ['find pizza near me.', 'Actually, only kosher places.']);
+  assert.deepEqual(h.synthesis.map(item => item.text), ['Okay, only kosher places.']);
+});
+
+test('continuing to talk while overlapping speech is transcribed hears all of it before deciding', async t => {
+  const first = deferred(), early = deferred(), calls = [];
+  const h = harness(t, { respond: async (text, context) => { calls.push({ text, ...context }); return calls.length === 1 ? await first.promise : { reply: 'Okay.' }; } });
+  h.transcripts.push('Merlin, find pizza near me.', early.promise, 'Actually, only kosher places.');
+  await h.session.start(assistantContext); await h.wakeAndSpeak(); await flush();
+  await h.speech({ value: 5 });
+  assert.equal(h.session.state, 'transcribing');
+  await h.speech({ value: 6 }); await h.session.work;
+  early.resolve({ text: 'Actually' });
+  assert.equal(h.uploads[1].signal.aborted, true, 'the partial hearing was dropped');
+  assert.equal(h.uploads[2].wav.readInt16LE(44), 5, 'and the full clip starts with the earlier words');
+  assert.deepEqual(calls.map(call => call.text), ['find pizza near me.', 'Actually, only kosher places.']);
   first.resolve({ reply: 'STALE' });
+});
+
+test('the conversation time limit lets the request in progress answer, then ends without a new turn', async t => {
+  const first = deferred(), calls = [];
+  const h = harness(t, { respond: async (text, context) => { calls.push({ text, ...context }); return await first.promise; } });
+  h.transcripts.push('Merlin, find pizza near me.');
+  await h.session.start(assistantContext); await h.wakeAndSpeak(); await flush();
+  const firstWork = h.session.work;
+  h.now(VOICE_SESSION_LIMITS.maxConversationMs); h.session.tick();
+  assert.equal(h.session.state, 'processing');
+  assert.equal(calls[0].signal.aborted, false);
+  await h.speech();
+  assert.equal(h.uploads.length, 1, 'no new speech is uploaded after the limit');
+  first.resolve({ reply: 'Here are three pizza places.' }); await firstWork;
+  assert.deepEqual(h.synthesis.map(item => item.text), ['Here are three pizza places.']);
+  h.session.tick();
+  assert.equal(h.session.state, 'speaking', 'the answer is not cut off');
+  h.finishPlayback();
+  assert.equal(h.session.state, 'wake');
 });
 
 test('the echo check has no effect where no filler exists', async t => {

@@ -22,6 +22,7 @@ import { validateSpeechDelivery } from './voice/prosody.js';
 import { checkCancelled } from './cancellation.js';
 import { prepareSpokenReply } from './spoken-replies.js';
 import { acknowledgmentTiming, eligibleAcknowledgments, isAcknowledgmentEcho, loadAcknowledgmentCatalog } from './acknowledgments.js';
+import { queuedSpeech } from './voice/speech-queue.js';
 import { companionAsset, companionCsp, connectionState, presentationEvent, presentationResult } from './companion.js';
 import { ConnectorHub } from './connectors/hub.js';
 import { createConnectors } from './connectors/index.js';
@@ -64,6 +65,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
   apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY,
   model: process.env.META_MODEL || 'muse-spark-1.3',
 }), timers: suppliedTimers, ledger: suppliedLedger, memoryStore: suppliedMemory, spotify: suppliedSpotify, connectorHub: suppliedHub, connectorFetch = fetch, pageReader = readWebPage, learningDelayMs = 750, memoryEngine, memoryOptions, demoHome = process.env.MERLIN_DEMO_HOME === '1', voiceMeta = new MetaTranscriber({ apiKey: process.env.META_API_KEY || process.env.MODEL_API_KEY }), tts = new KokoroTts(), listener = new LocalVoiceListener() } = {}) {
+  tts = queuedSpeech(tts);
   const timers = suppliedTimers || await new TimerStore({ filePath: join(dataDir, 'timers.json') }).init();
   const ledger = suppliedLedger || await new RequestLedger(join(dataDir, 'requests.jsonl')).init();
   const engine = await createMemoryEngine({ engine: memoryEngine, dataDir, meta, suppliedStore: suppliedMemory, learningDelayMs, options: memoryOptions });
@@ -96,6 +98,9 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
   const progress = new Map();
   const speechReplies = new Map();
   const speechPending = new Set();
+  // The spoken "looking it up" line for each request that is searching. Presentation only: never history or memory.
+  const lookupLines = new Map();
+  const recentLookupLines = () => [...lookupLines.values()].filter(line => Date.now() - line.at < 60_000).map(line => line.text);
   // Links each answer showed as sources. Only these can be previewed later, so the endpoint is not a general page proxy.
   const answerSources = new Map();
   const inspect = sessionId => ({ ...memory.inspect(sessionId), ...routines.inspect(sessionId), memory_engine: memory.kind, learning: learning.status(), retention: 'Kept locally until you delete it. Clear all memory also removes transcripts, documents, routines, and learning jobs. Timers are separate.' });
@@ -194,6 +199,12 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         progress.set(body.request_id, foreground);
         while (progress.size > 50) progress.delete(progress.keys().next().value);
         const onTrace = (stage, detail, data) => {
+          if (stage === 'lookup_line') {
+            // Only while the request is still working: a line that arrives after the answer has nothing left to cover.
+            if (foreground.status !== 'running' || typeof data?.text !== 'string') return;
+            lookupLines.set(body.request_id, { text: data.text, at: Date.now() });
+            while (lookupLines.size > 50) lookupLines.delete(lookupLines.keys().next().value);
+          }
           const event = presentationEvent(stage, Math.round(performance.now() - started), data);
           if (event) {
             // Fixed clip IDs on the foreground stream only; never in the trace, the prompt, or the archive.
@@ -395,6 +406,18 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
         camera.deliver(body);
         json(200, { ok: true }); return;
       }
+      if (path === '/api/companion/lookup-speech') {
+        objectArgs(body, ['request_id', 'delivery', 'speed']);
+        uuid(body.request_id);
+        const line = lookupLines.get(body.request_id);
+        if (!line || progress.get(body.request_id)?.status !== 'running') throw new AppError('Nothing is being looked up for that request.', 409);
+        const delivery = validateSpeechDelivery(body.delivery);
+        const speed = body.speed ?? 1;
+        if (typeof speed !== 'number' || !Number.isFinite(speed) || speed < 0.75 || speed > 1.25) throw new AppError('Speech speed must be between 0.75 and 1.25.');
+        const audio = await tts.synthesize(checkedSpeech(line.text), { delivery, speed, signal: controller.signal });
+        if (!controller.signal.aborted && !res.destroyed) { res.writeHead(200, { 'Content-Type': 'audio/wav', 'Content-Length': audio.length }); res.end(audio); }
+        return;
+      }
       if (['/api/companion/speak', '/api/companion/timer-speech', '/api/companion/audio-check'].includes(path)) {
         const announcement = path === '/api/companion/timer-speech';
         const audioCheck = path === '/api/companion/audio-check';
@@ -557,7 +580,7 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
     } finally { req.off('aborted', abort); res.off('close', abort); }
   });
   const voiceSocket = attachVoiceSocket({ server, listener, meta: voiceMeta, tts, prepareSpeech: checkedSpeech, isBusy: () => speechPending.size > 0, timerAlert, replyAudio,
-    isAcknowledgmentEcho: text => isAcknowledgmentEcho(text, acknowledgmentCatalog),
+    isAcknowledgmentEcho: text => isAcknowledgmentEcho(text, acknowledgmentCatalog, recentLookupLines()),
     respond: async (text, { signal, onProgress, sessionId, timeZone: zone, requestId }) => {
       const result = await runChatTurn({ message: text, session_id: sessionId, time_zone: zone, request_id: requestId, channel: 'voice' }, { signal, onProgress });
       const { trace, ...response } = result.data;

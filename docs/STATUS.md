@@ -2,6 +2,27 @@
 
 Last updated: **November 3, 2026**.
 
+## MERLIN always answers, and searches answer in three spoken parts — November 3, 2026
+
+The owner reported that MERLIN kept getting stuck and not answering, and asked that it always answer. The owner also asked for internet answers in three parts that run at once: the prerecorded phrase, then a spoken "looking it up" line with context, then the real answer. Design and details: [ORCHESTRATION.md](ORCHESTRATION.md#always-answering-and-three-part-search-answers--november-3-2026).
+
+**Cause found on the live server:** the owner's request about kosher pizza was cancelled 17.6 s in, with no new request after it. In voice mode any detected speech cancelled a working request at once, and so did the three-minute conversation limit. The old code had no way to bring back a request cancelled by noise or an echo.
+
+**What changed:**
+- Voice turns: speech over a working request no longer cancels it, and only a transcribed real request replaces it. The answer waits for that decision. The time limit lets the request in progress answer before the conversation ends.
+- Search answers: a small second Meta call writes the lookup line while the search runs. The page queues it after the clip, and the answer queues behind it.
+- Speech requests to the local voice are queued instead of failing with "Fenrir is busy."
+- The echo check covers the lookup line too.
+
+**Verification:** **1,222 automated tests pass**, 16 of them new:
+- 6 voice-session tests: noise, a brief sound, a held answer, a real request, continued speech, and the time limit. Five of them, plus the rewritten echo test, fail on the old session code.
+- 4 coordinator tests for the line.
+- 6 tests in `test/lookup-line.test.js`: the line offered and spoken, 409 after the answer, never saved, skipped in plain style or under fixed-wording rules, the checks, the speech queue, and the echo check.
+
+Two existing tests that asserted the old cancel-on-echo behavior were updated. `npm run check:acknowledgments` passed 29 of 29 in headless Chrome, with 6 new checks. On a slow search the clip played, the line started 31 ms after it ended, and the answer followed the line. On a search answered during the clip, the line was skipped. Live with real Meta, five search questions each got a line 1.5–5.2 s in, with answers at 7–12 s; quotes are in ORCHESTRATION.md.
+
+**Not verified:** no real microphone, speaker or room was used, so real echo, a real cough or TV, and the felt timing of the three parts are unconfirmed. The voice-path overlap was exercised by unit tests and the socket integration test, not with a person talking.
+
 ## One retry when Meta can't be reached, and prerecorded clips play again — November 3, 2026
 
 **Retry (`src/provider-retry.js`, used by `src/meta.js` and `src/voice/meta.js`):** MERLIN now tries once more, after 400 ms, when a Meta request could not complete at all or got HTTP 502, 503 or 504. Both attempts share the request's existing 60-second deadline, so the longest wait does not grow. Cancellation and that deadline are never retried. Other HTTP errors (400, 401, 403, 429, 500) are not retried either. A retry is safe because requests are stateless (`store: false`) and nothing runs locally until a response arrives. The server log gets one line per retry with a short reason code, never request content. The 10.5-second failures seen earlier match Node's ten-second connection timeout. They could not be reproduced: 20 more fresh-process probes all succeeded in 0.2–1.3 s.

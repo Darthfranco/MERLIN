@@ -15,6 +15,7 @@ import { SPOKEN_REPLY_INSTRUCTIONS } from './spoken-replies.js';
 import { SPOTIFY_TOOLS, SPOTIFY_INSTRUCTIONS, isSpotifyTool, executeSpotifyTool, spotifyReply, parseSimpleSpotifyControl, requestedPlaylist, PLAY_TAP_LINE } from './spotify-tools.js';
 import { classifyCameraIntent, parseCameraConsent, isCameraOffer } from './camera-intents.js';
 import { CAMERA_TOOLS, CAMERA_INSTRUCTIONS, LOOK_TURN_TOOLS, CameraFailure, DECLINED_REPLY, cameraQuestion, unavailableReply, observationMessage } from './camera.js';
+import { checkedLookupLine } from './lookup-line.js';
 import { DEFAULT_PERSONALITY, parsePersonalityRequest, personalityContext, personalityInstructions, withCourtesy, withPlayfulReceipt, checkPersonalityDraft } from './personality.js';
 
 const functionTool = (name, description, properties, required) => ({
@@ -146,6 +147,24 @@ export class Assistant {
     // Meta accepts only tool_choice "auto", so required lookups are enforced here.
     const lookup = new LookupTracker();
     let lookupEnforcing = false;
+    // The middle of a spoken three-part answer: a line saying what MERLIN is looking up, written by its own small model
+    // call while the search runs. At most once per request, and only when a search has really just been enabled.
+    let lookupLineAsked = false;
+    const announceLookup = context => {
+      if (lookupLineAsked || typeof this.meta.lookupLine !== 'function') return;
+      const rules = this.memory?.rules() ?? [];
+      const policy = this.personalityPolicy({ message, session_id, tool_events });
+      if (policy.style !== 'warm' || policy.calm || rules.some(rule => ['response_prefix', 'response_suffix', 'address_as'].includes(rule.kind))) return;
+      lookupLineAsked = true;
+      // Earlier statements in this conversation ("I live in Brooklyn") count as context before memory has learned them.
+      const said = userStatements(history).slice(-3).map(text => `Earlier in this conversation: ${text}`);
+      this.meta.lookupLine({ message: actionMessage, context: [String(context ?? '').slice(0, 1500), ...said].filter(Boolean).join('\n'), signal }).then(text => {
+        if (signal?.aborted) return;
+        const line = checkedLookupLine(text, { rules, policy });
+        if (line) emit('lookup_line', 'Said aloud while the search runs; not part of the reply.', { text: line });
+        else emit('lookup_line_skipped', 'The lookup line did not pass its checks, so none was said.', { chars: String(text ?? '').length });
+      }).catch(() => emit('lookup_line_skipped', 'The lookup line could not be written, so none was said.', {}));
+    };
     let cameraResult;
     let cameraAsked = false;
     let cameraPromptText = '';
@@ -283,7 +302,7 @@ export class Assistant {
           // first. Required lookups do not depend on the model asking for it.
           searchPrepared = true;
           emit('tool_check', 'Enabled web search for this request because a lookup is required.', { tool: 'web_search', ...searchGate });
-          emit('search_ready', 'Web search is available for the next model round.', { tool: 'web_search' });
+          { emit('search_ready', 'Web search is available for the next model round.', { tool: 'web_search' }); announceLookup(selection?.text); }
         }
         lookup.blocked = lookup.required && !searchGate.ok ? (searchGate.conflicts.length ? 'conflict' : 'denied') : '';
         let availableTools = remainingSearches ? [...TOOLS] : TOOLS.filter(tool => tool.type !== 'web_search');
@@ -356,7 +375,7 @@ export class Assistant {
             if (!searchPrepared) {
               searchPrepared = true;
               emit('tool_check', 'Enabled web search for this request.', { tool: 'web_search', ...searchGate });
-              emit('search_ready', 'Web search is available for the next model round.', { tool: 'web_search' });
+              { emit('search_ready', 'Web search is available for the next model round.', { tool: 'web_search' }); announceLookup(selection?.text); }
             }
             input.push({ role: 'developer', content: [{ type: 'input_text', text: `Your last response called ${strays.map(name => JSON.stringify(name)).join(', ')}, which does not exist, so nothing in it ran. Web search is now enabled: call the web_search tool directly, then repeat any other calls you still need.` }] });
             continue;
@@ -639,7 +658,7 @@ export class Assistant {
                 searchPrepared = gate.ok;
                 result = gate.ok ? { ok: true, result: { enabled: true } } : { ok: false, error: 'A saved instruction blocks web search.' };
                 emit('tool_check', gate.ok ? 'Enabled web search for this request.' : 'Blocked web search before contacting the search service.', { tool: 'web_search', ...gate });
-                if (gate.ok) emit('search_ready', 'Web search is available for the next model round.', { tool: 'web_search' });
+                if (gate.ok) { emit('search_ready', 'Web search is available for the next model round.', { tool: 'web_search' }); announceLookup(selection?.text); }
               } else {
                 if (context.routineRejected && ['create_timer', 'cancel_timer', 'prepare_web_search'].includes(call.name)) throw new AppError('This message did not activate a routine. No routine actions are allowed.');
                 if (this.memory && call.name === 'create_timer') {

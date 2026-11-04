@@ -39,6 +39,10 @@ export class VoiceSession {
     this.followupWaitMs = this.limits.followupMs;
     this.quietSince = null; this.quietBeforeSpeech = null;
     this.notification = null;
+    // Speech heard while an accepted request is still working. It replaces that request only once it is a real request.
+    this.overlap = null;
+    // The conversation time limit passed during a turn: that turn still finishes, and no new one starts.
+    this.expiring = false;
   }
 
   configure({ delivery = this.delivery, speed = this.speed } = {}) {
@@ -74,6 +78,7 @@ export class VoiceSession {
 
   #invalidate(extra = {}) {
     this.revision += 1;
+    this.#settleOverlap();
     this.controller?.abort(); this.controller = null;
     this.utteranceId = null;
     this.notification = null;
@@ -86,10 +91,25 @@ export class VoiceSession {
     this.#invalidate(reason ? { reason } : {});
     this.capture = null; this.pendingPcm = null; this.ring = [];
     this.activeSince = null; this.deadline = null; this.firstUtterance = false;
-    this.turns = 0; this.wakeEnd = null;
+    this.turns = 0; this.wakeEnd = null; this.expiring = false;
     this.followupWaitMs = this.limits.followupMs;
     this.quietSince = null; this.quietBeforeSpeech = null;
     this.setState('wake', message);
+  }
+
+  #settleOverlap() {
+    const overlap = this.overlap;
+    this.overlap = null;
+    overlap?.hearing?.abort();
+    overlap?.resolve();
+  }
+  /** Resolves once no speech is waiting to be heard over the request in flight. */
+  async #overlapSettled() { while (this.overlap) await this.overlap.settled; }
+  /** The speech over a working request was noise, an echo or nothing: that request carries on and still answers. */
+  #resumeAfterOverlap() {
+    this.#settleOverlap();
+    this.capture = null; this.pendingPcm = null; this.deadline = null;
+    if (this.controller && !this.closed) this.setState(this.resumeState ?? 'processing', 'Thinking…');
   }
 
   interrupt() {
@@ -196,6 +216,26 @@ export class VoiceSession {
       this.followupWaitMs = interrupted || resumedAfterPause ? this.limits.extendedFollowupMs : this.limits.followupMs;
       this.quietSince = null;
     }
+    if (this.respond && this.overlap && this.state === 'transcribing') {
+      // Still talking: hear the whole thing, the earlier part included, before deciding anything.
+      this.overlap.hearing?.abort(); this.overlap.hearing = null;
+      this.#startCapture(event.startSample ?? event.sample, this.overlap.pcm);
+      this.setState('listening', 'Listening. Pause when you’re finished.');
+      this.deadline = null;
+      return;
+    }
+    if (this.respond && ['processing', 'generating'].includes(this.state) && this.controller && !this.overlap) {
+      // An accepted request keeps working while MERLIN listens. Cancelling it here would leave nothing to answer
+      // whenever this turns out to be a cough, the television or MERLIN's own filler (owner report, November 3, 2026).
+      if (this.expiring) return;
+      const settled = {}; settled.promise = new Promise(resolve => { settled.resolve = resolve; });
+      this.overlap = { settled: settled.promise, resolve: settled.resolve, hearing: null, pcm: null };
+      this.resumeState = this.state;
+      this.#startCapture(event.startSample ?? event.sample);
+      this.setState('listening', 'Listening. Pause when you’re finished.');
+      this.deadline = null;
+      return;
+    }
     if (this.state !== 'listening') {
       this.#invalidate();
       this.#startCapture(event.startSample ?? event.sample, prefix, Boolean(prefix && this.pendingStripWake));
@@ -258,6 +298,7 @@ export class VoiceSession {
     // boundaries. Preserve brief words after MERLIN instead of guessing that a
     // short activation contained only the wake word. This may upload one short
     // clip after activation; standby never reaches this path.
+    if (this.overlap && spokenSamples < RATE * .2 && !capture.prefixBytes) { this.#resumeAfterOverlap(); return; }
     if (spokenSamples < RATE * .2 && !capture.prefixBytes) {
       // A rejected tiny noise must not keep extending an otherwise quiet room.
       if (this.quietBeforeSpeech) {
@@ -275,6 +316,13 @@ export class VoiceSession {
     const bytes = Math.min(full.length, capture.prefixBytes + Math.max(0, end - capture.start + RATE * .12) * 2);
     const clip = Buffer.from(full.subarray(0, bytes));
     if (clip.length > RATE * 2 * this.limits.maxUtteranceSeconds) { this.sleep('That turn was too long. Say MERLIN to try again.'); return; }
+    if (this.overlap) {
+      if (this.expiring || this.turns >= this.limits.maxTurns) { this.#resumeAfterOverlap(); return; }
+      this.setState('transcribing', 'Meta is transcribing your request…');
+      this.work = this.#hearOverlap(clip, { duringAcknowledgment: capture.duringAcknowledgment });
+      return;
+    }
+    if (this.expiring) { this.sleep('Conversation time limit reached. Local wake only — say MERLIN.'); return; }
     if (this.turns >= this.limits.maxTurns) { this.sleep('Conversation limit reached. Say MERLIN to continue.'); return; }
     this.pendingPcm = clip;
     const stripWake = this.firstUtterance || capture.stripWake;
@@ -288,6 +336,22 @@ export class VoiceSession {
     this.work = this.#respond(clip, { revision, controller, stripWake, duringAcknowledgment: capture.duringAcknowledgment });
   }
 
+  /** Speech over a working request: only a real request replaces it, and only once its words are known. */
+  async #hearOverlap(pcm, { duringAcknowledgment }) {
+    const overlap = this.overlap, hearing = new AbortController();
+    overlap.hearing = hearing; overlap.pcm = pcm;
+    let text = '';
+    try { text = (await this.meta.transcribe(wavOf(pcm), { signal: hearing.signal })).text.trim(); } catch { text = ''; }
+    if (this.closed || this.overlap !== overlap || overlap.hearing !== hearing) return;
+    text = text.replace(/^\s*(?:hey\s+)?merlin\b[\s,.!?:;—-]*/iu, '').trim();
+    if (!text || (duringAcknowledgment && this.isAcknowledgmentEcho?.(text))) { this.#resumeAfterOverlap(); return; }
+    this.#invalidate();
+    this.turns += 1;
+    const revision = ++this.revision;
+    const controller = new AbortController(); this.controller = controller;
+    await this.#handleText(text, { revision, controller });
+  }
+
   async #respond(pcm, { revision, controller, stripWake, duringAcknowledgment }) {
     const current = () => !this.closed && revision === this.revision && !controller.signal.aborted;
     try {
@@ -297,6 +361,18 @@ export class VoiceSession {
       if (!text) { this.pendingPcm = null; this.#followup('I’m listening.'); return; }
       // Sound that leaked past browser echo cancellation must not become a new request.
       if (duringAcknowledgment && this.isAcknowledgmentEcho?.(text)) { this.pendingPcm = null; this.#followup('I’m listening.'); return; }
+      await this.#handleText(text, { revision, controller });
+    } catch (error) {
+      if (!current()) return;
+      this.pendingPcm = null; this.controller = null;
+      this.emit('error', { message: error instanceof AppError ? error.message : 'That voice turn could not finish. Please try again.' });
+      this.#followup('Ready for another try.');
+    }
+  }
+
+  async #handleText(text, { revision, controller }) {
+    const current = () => !this.closed && revision === this.revision && !controller.signal.aborted;
+    try {
       const requestId = this.respond ? randomUUID() : undefined;
       this.emit('transcript', { text, ...(requestId ? { requestId } : {}) });
       let spokenText = text;
@@ -312,6 +388,9 @@ export class VoiceSession {
         });
         if (!current()) return;
         if (!response || typeof response.reply !== 'string' || !response.reply.trim()) throw new AppError('The assistant did not return a reply.', 502);
+        // Someone is speaking over it: hold the answer until that is known to be a new request or not.
+        await this.#overlapSettled();
+        if (!current()) return;
         this.emit('response', { requestId, response });
         spokenText = response.reply;
       }
@@ -319,6 +398,8 @@ export class VoiceSession {
       if (spokenText.length > 2000) throw new AppError(this.respond ? 'Your answer is on screen. It is too long to read aloud.' : 'The transcript is too long to read aloud. Shorten the next turn.');
       this.setState('generating', 'Preparing Fenrir’s voice…');
       const audio = await this.tts.synthesize(spokenText, { delivery: this.delivery, speed: this.speed, signal: controller.signal });
+      if (!current()) return;
+      await this.#overlapSettled();
       if (!current()) return;
       this.pendingPcm = null; this.controller = null;
       this.utteranceId = randomUUID();
@@ -329,6 +410,8 @@ export class VoiceSession {
       this.deadline = this.now() + this.playbackBudgetMs;
     } catch (error) {
       if (!current()) return;
+      await this.#overlapSettled();
+      if (!current()) return;
       this.pendingPcm = null; this.controller = null;
       this.emit('error', { message: error instanceof AppError ? error.message : 'That voice turn could not finish. Please try again.' });
       this.#followup('Ready for another try.');
@@ -336,6 +419,7 @@ export class VoiceSession {
   }
 
   #followup(message = 'Still here. Speak when you’re ready; a longer quiet pause ends the conversation.') {
+    if (this.expiring) { this.sleep('Conversation time limit reached. Local wake only — say MERLIN.'); return; }
     if (this.turns >= this.limits.maxTurns) { this.sleep('Conversation limit reached. Say MERLIN to continue.'); return; }
     this.quietSince = this.now();
     this.deadline = this.#quietDeadline();
@@ -358,7 +442,10 @@ export class VoiceSession {
     if (this.closed || this.state === 'off') return;
     const now = this.now();
     if (this.activeSince !== null && now - this.activeSince >= this.limits.maxConversationMs) {
-      this.sleep('Conversation time limit reached. Local wake only — say MERLIN.'); return;
+      // A request already heard still gets its answer; the conversation ends right after, with no new turn.
+      const answering = this.controller || this.overlap || (this.state === 'speaking' && !this.notification);
+      if (this.respond && answering && ['transcribing', 'processing', 'generating', 'speaking', 'listening'].includes(this.state)) this.expiring = true;
+      else { this.sleep('Conversation time limit reached. Local wake only — say MERLIN.'); return; }
     }
     if (this.deadline !== null && now >= this.deadline) {
       if (this.state === 'speaking') {
@@ -374,6 +461,7 @@ export class VoiceSession {
   close() {
     if (this.closed) return;
     this.closed = true; this.revision += 1; this.state = 'off';
+    this.#settleOverlap();
     this.startController?.abort(); this.controller?.abort();
     this.listener.close();
     this.ring = []; this.capture = null; this.pendingPcm = null;

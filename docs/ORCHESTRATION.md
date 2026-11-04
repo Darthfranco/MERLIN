@@ -42,6 +42,23 @@ The owner asked for `http://127.0.0.1:3000/companionfull/` to show only MERLIN, 
 - Checked at iPad landscape size (1180 × 820) in the built-in browser, which blocks microphones. So voice start-up was seen only as the blocked-microphone notice, not as working listening.
 - Not yet tried on a physical iPad, in Safari, or with real touch.
 
+## Always answering and three-part search answers — November 3, 2026
+
+**Why MERLIN went quiet.** Two causes were found on the owner's live server. In voice mode, any speech the local detector heard while a request was working cancelled that request on the spot, before anyone knew whether it was a real request. That covered a cough, the television, or MERLIN's own filler leaking from the speaker. If the speech then turned out to be nothing, nothing replaced the cancelled request. Separately, the three-minute conversation limit cancelled whatever was in progress. One of the owner's requests ("make sure the pizza places are all kosher") was cut off by one of these 17.6 seconds in.
+
+**Always answer (`src/voice/session.js`).** Speech over a request that is working starts a capture without cancelling anything. MERLIN's answer waits, held before it is shown or spoken, until that capture is understood:
+- A brief sound, an empty transcript, or MERLIN's own words (a clip or the lookup line, while one was audible) means MERLIN goes back to thinking and the original answer arrives as usual.
+- A real new request replaces the old one, as speaking over MERLIN always has, but only once its words are known.
+- Continuing to talk during that transcription is heard in full before deciding.
+- At the conversation time limit, a request already heard still answers and is spoken in full; then the conversation ends, and no new speech is uploaded after the limit.
+- Speaking over MERLIN's spoken reply still interrupts it at once.
+
+**Three parts for a search.** When search is enabled for a request (a required lookup, `prepare_web_search`, or a recovered made-up search name), the assistant starts a second, small Meta call (`MetaClient.lookupLine`) alongside the main one. It writes one sentence saying what MERLIN is looking up, using the request, the selected memory and the last few things said in the conversation. `checkedLookupLine` keeps it only if it is short and says it is looking something up. It must also contain no question, no colon and no standalone number (a number inside a name, like PS5, is fine), pass the saved rules unchanged, and pass the personality check. Otherwise no line is said, and the inspector records `lookup_line_skipped`. Plain and calm style, and rules that fix a prefix, suffix or address, never get a line.
+
+The page learns a line exists from a `lookup_line` progress event, which carries no words. It fetches the audio from `POST /api/companion/lookup-speech`, which answers 409 once the request is finished, then queues it in the clip coordinator on the filler player. The coordinator plays the clip, then the line, then lets the answer through. A line that has not started when the answer is known is dropped; a started one finishes. Stop, a new turn or hiding the page ends both. The server's echo check includes recent lines, so MERLIN never takes its own line for a request. Speech requests are queued (`src/voice/speech-queue.js`), because the local voice refuses a second request while busy and could otherwise fail the answer.
+
+**Measured live (real Meta, throwaway storage, typed channel, synthetic text):** five search questions all got a line, 1.5–2.4 s after the request (5.2 s when the model chose to search on its own). Their answers took 7–12 s. Examples: "Checking the weather in Brooklyn for you now.", "Looking up kosher pizza places in Brooklyn for you.", "Checking Trader Joe's closing time in Brooklyn for you." The line costs one extra small Meta call per search request.
+
 ## Prerecorded acknowledgments — November 2, 2026
 
 **Owner request:** when MERLIN accepts a request, it quickly says a short recorded line while the real work runs. This reduces the felt wait, not the model's actual processing time. **Owner requirement:** a clip that has started always finishes its whole sentence; it must never sound like “Let me work on tha—your answer is…”.

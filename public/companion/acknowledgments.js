@@ -66,13 +66,15 @@ export class AcknowledgmentPlayer {
  * - unstarted when the answer is known: skipped;
  * - started: always finishes its sentence, and the answer's audio queues behind it;
  * - only people stop one early: interruption, Stop, a new turn, hiding the page, or disabling it.
+ * For a search, a second spoken line ("Checking the weather in Brooklyn") follows the same rules: it plays after a
+ * started filler, only while the answer is still unknown, and the answer queues behind it.
  */
 export class AcknowledgmentCoordinator {
   constructor({ player, onAudible = () => {}, graceMs = DEFAULTS.graceMs, cooldownMs = DEFAULTS.cooldownMs, watchdogPaddingMs = DEFAULTS.watchdogPaddingMs,
     now = () => performance.now(), random = Math.random, setTimer = (...args) => setTimeout(...args), clearTimer = id => clearTimeout(id) } = {}) {
     Object.assign(this, { player, onAudible, graceMs, cooldownMs, watchdogPaddingMs, now, random, setTimer, clearTimer });
     this.version = null; this.clips = new Map(); this.bag = [];
-    this.turn = null; this.active = null; this.lastArmed = null;
+    this.turn = null; this.active = null; this.lastArmed = null; this.request = null;
     this.lastClipId = null; this.lastFinishedAt = -Infinity;
   }
   configure({ grace_ms: graceMs = this.graceMs, cooldown_ms: cooldownMs = this.cooldownMs } = {}) { this.graceMs = graceMs; this.cooldownMs = cooldownMs; }
@@ -85,8 +87,13 @@ export class AcknowledgmentCoordinator {
     this.cancel();
     this.lastArmed = armed;
     const turn = { key, isEnabled, allowed: null, due: false, timer: null };
-    turn.timer = this.setTimer(() => { turn.due = true; this.#fire(turn); }, this.graceMs);
+    turn.timer = this.setTimer(() => {
+      turn.due = true; this.#fire(turn);
+      // The clip is still waiting for its policy: a ready lookup line need not wait for it.
+      if (this.turn === turn && this.request?.queued) { this.turn = null; this.#nextLine(); }
+    }, this.graceMs);
     this.turn = turn;
+    this.request = { key, isEnabled, answered: false, lineUsed: false, queued: null };
     return true;
   }
   /** The server's clip IDs for this accepted request, checked against its current rules. */
@@ -99,9 +106,30 @@ export class AcknowledgmentCoordinator {
   #fire(turn) {
     if (turn !== this.turn || !turn.due || !turn.allowed) return;
     this.turn = null;
-    if (!turn.isEnabled() || this.now() - this.lastFinishedAt < this.cooldownMs) return;
-    const clip = this.#pick(turn.allowed);
+    const clip = turn.isEnabled() && this.now() - this.lastFinishedAt >= this.cooldownMs ? this.#pick(turn.allowed) : null;
     if (clip) this.#start(clip);
+    else this.#nextLine();
+  }
+  /** Whether a lookup line for this request would still be heard, so nothing is synthesized for nobody. */
+  wantsLine(key) { const request = this.request; return Boolean(request && request.key === key && !request.answered && !request.lineUsed && request.isEnabled()); }
+  /** The spoken lookup line for this request: after a started filler, and never once the answer is known. */
+  line(key, clip) {
+    const request = this.request;
+    if (!request || request.key !== key || request.answered || request.lineUsed || !request.isEnabled()) { clip.release?.(); return false; }
+    request.lineUsed = true;
+    request.queued = clip;
+    // A filler that is playing, or still due within its grace period, goes first.
+    if (this.active || (this.turn?.key === key && !this.turn.due)) return true;
+    if (this.turn?.key === key) { this.clearTimer(this.turn.timer); this.turn = null; }
+    this.#nextLine();
+    return true;
+  }
+  #nextLine() {
+    const request = this.request, clip = request?.queued;
+    if (!clip || this.active) return;
+    request.queued = null;
+    if (request.answered || !request.isEnabled()) { clip.release?.(); return; }
+    this.#start(clip);
   }
   #pick(allowed) {
     const ready = allowed.filter(id => this.clips.has(id));
@@ -149,14 +177,29 @@ export class AcknowledgmentCoordinator {
     this.active = null;
     this.clearTimer(playback.watchdog);
     if (outcome === 'failed') this.clips.delete(playback.clip.id);
+    playback.clip.release?.();
+    const next = outcome !== 'stopped' && this.request?.queued && !this.request.answered;
+    if (!next && this.request?.queued) { this.request.queued.release?.(); this.request.queued = null; }
     if (playback.audible) {
       this.lastFinishedAt = this.now();
-      this.#report(false, { outcome, resume: resume && !playback.answerQueued });
+      this.#report(false, { outcome, resume: resume && !playback.answerQueued && !next });
+    }
+    if (next) {
+      // The lookup line follows the filler directly. The answer, when it comes, waits for the line instead.
+      this.#nextLine();
+      const following = this.active;
+      if (following && playback.answerQueued) following.answerQueued = true;
+      if (following) { void following.finished.then(playback.resolve); return; }
     }
     playback.resolve(outcome);
   }
   /** The answer or a terminal error is known: an unstarted filler is skipped, a started one is left alone. */
   settled(key) {
+    const request = this.request;
+    if (request && (key === undefined || request.key === key)) {
+      request.answered = true;
+      if (request.queued && !this.active) { request.queued.release?.(); request.queued = null; }
+    }
     const turn = this.turn;
     if (!turn || (key !== undefined && turn.key !== key)) return;
     this.clearTimer(turn.timer);
@@ -173,6 +216,7 @@ export class AcknowledgmentCoordinator {
   /** User-controlled stop. `resume: false` means the caller is about to choose the next pose itself. */
   cancel({ resume = false } = {}) {
     this.settled();
+    if (this.request?.queued) { this.request.queued.release?.(); this.request.queued = null; }
     const playback = this.active;
     if (!playback) return;
     this.player.stop();

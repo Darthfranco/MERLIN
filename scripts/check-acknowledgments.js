@@ -20,7 +20,10 @@ const answer = text => [{ type: 'message', role: 'assistant', phase: 'final_answ
 const tone = new Int16Array(24000).map((_, index) => Math.round(6000 * Math.sin(index / 12)));
 
 // Each request names its own synthetic delay, so the model script needs no state.
-const REPLY_DELAYS = { fast: 0, slow: 2500, long: 6000, stopped: 30_000 };
+const REPLY_DELAYS = { fast: 0, slow: 2500, long: 6000, stopped: 30_000, search: 6500, quicksearch: 1800 };
+// The spoken lookup line for a search (owner request, November 3, 2026), written by its own small model call.
+const LOOKUP_LINE = 'Looking up the smoke test forecast for you now.', LINE_DELAY_MS = 1200;
+const searchCall = { type: 'web_search_call', id: 'ws_smoke', status: 'completed', action: { type: 'search', query: 'smoke test forecast' }, results: [{ type: 'text_result', title: 'Smoke', url: 'https://example.com/forecast', snippet: '' }] };
 const directory = await mkdtemp(join(tmpdir(), 'merlin-ack-smoke-'));
 const modelCalls = [], ttsCalls = [], detector = [];
 const delayFor = input => {
@@ -32,14 +35,14 @@ const delayFor = input => {
 const app = await createApp({
   dataDir: directory, memoryEngine: 'legacy', learningDelayMs: 60_000,
   timers: await new TimerStore({ filePath: join(directory, 'timers.json') }).init(),
-  meta: { configured: true, model: 'synthetic-meta', async respond(input, _tools, _instructions, options) {
+  meta: { configured: true, model: 'synthetic-meta', lineCalls: 0, async respond(input, tools, _instructions, options) {
     modelCalls.push(Date.now());
     await new Promise((resolve, reject) => {
       const timer = setTimeout(resolve, delayFor(input));
       options?.signal?.addEventListener('abort', () => { clearTimeout(timer); reject(Object.assign(new Error('Interrupted.'), { name: 'AbortError' })); }, { once: true });
     });
-    return answer('Here is your synthetic answer.');
-  } },
+    return [...(tools.some(tool => tool.type === 'web_search') ? [searchCall] : []), ...answer('Here is your synthetic answer.')];
+  }, async lookupLine() { this.lineCalls++; await sleep(LINE_DELAY_MS); return LOOKUP_LINE; } },
   voiceMeta: { configured: true, model: 'synthetic-transcribe', async transcribe() { return { text: 'Merlin, smoke-long voice request.' }; } },
   tts: { status: () => ({ configured: true, voice: 'am_fenrir' }), async synthesize(text) { ttsCalls.push(text); return wavOf(tone); }, close() {} },
   listener: { sample: 0, status: () => ({ configured: true, wakeWord: 'MERLIN', localOnly: true }), async start() { this.sample = 0; },
@@ -167,6 +170,31 @@ try {
   await page.until(`document.getElementById('typed-audio').ended`, 'final audio end');
   check('Only the preference is remembered', await page.evaluate(`localStorage.getItem('merlin-acknowledgments') === 'false' && Object.keys(localStorage).filter(key => key.includes('ack')).length === 1`));
   await page.click('acknowledgments');
+  await page.clearLog();
+  await sleep(3200);
+
+  console.log('\nSearch: clip, then the lookup line, then the answer');
+  const lineTtsBefore = ttsCalls.filter(text => text === LOOKUP_LINE).length;
+  await page.ask('smoke-search please look up the forecast');
+  await page.until(`document.getElementById('typed-audio').currentTime > 0`, 'search answer audio', 20_000);
+  log = await page.log();
+  const ackPlays = events(log, 'ack-audio', 'playing'), ackEnds = events(log, 'ack-audio', 'ended'), searchAnswer = events(log, 'typed-audio', 'playing')[0];
+  check('The clip and then the lookup line both played, on the filler player', ackPlays.length === 2 && ackEnds.length >= 1, `${ackPlays.length} plays`);
+  check('The lookup line started only after the clip ended', ackPlays[1]?.at >= ackEnds[0]?.at, ackPlays[1] && ackEnds[0] ? `${Math.round(ackPlays[1].at - ackEnds[0].at)} ms later` : 'missing');
+  check('The answer started only after the lookup line ended', ackEnds.length === 2 && searchAnswer.at >= ackEnds[1].at, ackEnds[1] ? `${Math.round(searchAnswer.at - ackEnds[1].at)} ms later` : 'line never ended');
+  check('The lookup line was spoken once, in Fenrir, and is not in the reply', ttsCalls.filter(text => text === LOOKUP_LINE).length === lineTtsBefore + 1 && !(await page.evaluate(`document.getElementById('reply').textContent`)).includes('smoke test forecast for you'));
+  await page.until(`document.getElementById('typed-audio').ended`, 'search answer end');
+  await page.clearLog();
+  await sleep(3200);
+
+  console.log('\nSearch whose answer is ready during the clip: no lookup line');
+  await page.ask('smoke-quicksearch please look up the forecast');
+  await page.until(`document.getElementById('typed-audio').currentTime > 0`, 'quick search answer audio', 20_000);
+  await sleep(300);
+  log = await page.log();
+  check('Only the clip played; the line had nothing left to cover', events(log, 'ack-audio', 'playing').length <= 1, `${events(log, 'ack-audio', 'playing').length} plays`);
+  check('The answer followed the clip directly', events(log, 'typed-audio', 'playing')[0].at >= (events(log, 'ack-audio', 'ended')[0]?.at ?? 0));
+  await page.until(`document.getElementById('typed-audio').ended`, 'quick search answer end');
   await page.clearLog();
   await sleep(3200);
 

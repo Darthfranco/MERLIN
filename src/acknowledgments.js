@@ -114,10 +114,11 @@ function commonWords(a, b) {
  * itself. Tolerant because real transcription varies ("Alright", "Right, oh", a doubled word).
  * The session only asks while a filler was audible, so a similar request at other times is safe.
  */
-export function isAcknowledgmentEcho(text, catalog) {
+export function isAcknowledgmentEcho(text, catalog, lines = []) {
   const heard = words(text);
-  if (heard.length < 3 || !catalog) return false;
-  return catalog.clips.some(clip => commonWords(heard, words(clip.text)) >= heard.length * 0.8);
+  const said = [...(catalog?.clips ?? []).map(clip => clip.text), ...lines];
+  if (heard.length < 3 || !said.length) return false;
+  return said.some(line => commonWords(heard, words(line)) >= heard.length * 0.8);
 }
 
 // ---- Asset format, shared by the preparation script and its checks ----

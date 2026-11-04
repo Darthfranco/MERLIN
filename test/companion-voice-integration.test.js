@@ -249,21 +249,25 @@ test('an accepted voice request carries its allowed clips with no extra model or
   assert.equal(JSON.stringify(h.store.snapshot()).includes('ack_01'), false);
 });
 
-test('filler state is accepted on the socket, and MERLIN hearing its own line starts no turn', { timeout: 7000 }, async t => {
-  let entered;
+test('filler state is accepted on the socket, and MERLIN hearing its own line starts no turn and cancels nothing', { timeout: 7000 }, async t => {
+  let entered, signal;
   const waiting = new Promise(resolve => { entered = resolve; });
   const h = await fixture(t, [
     ({ options }) => new Promise((_resolve, reject) => {
-      entered();
+      signal = options.signal; entered();
       options.signal.addEventListener('abort', () => reject(new AppError('Interrupted.', 499)), { once: true });
     }),
   ], ['Merlin, plan my week.', ACKNOWLEDGMENT_LINES[0].text]);
   h.utterance({ wake: true }); await waiting;
   h.socket.send(JSON.stringify({ type: 'acknowledgment', playing: true }));
   await new Promise(resolve => setTimeout(resolve, 20));
+  const processing = () => h.messages.filter(message => message.type === 'state' && message.state === 'processing').length;
+  const before = processing();
   h.utterance();
-  await h.waitFor(message => message.type === 'state' && message.state === 'followup');
+  for (let wait = 0; wait < 300 && processing() === before; wait++) await new Promise(resolve => setTimeout(resolve, 10));
+  assert.equal(processing(), before + 1, `back to thinking: ${JSON.stringify(h.messages.filter(message => message.type === 'state').map(message => message.state))}`);
   assert.equal(h.uploads.length, 2);
+  assert.equal(signal.aborted, false, 'the request it overlapped is still working');
   assert.equal(h.modelCalls.length, 1, 'the leaked line reached no model');
   assert.equal(h.messages.filter(message => message.type === 'transcript').length, 1);
   assert.equal(h.spoken.length, 0);
