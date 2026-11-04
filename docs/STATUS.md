@@ -1,6 +1,16 @@
 # MERLIN status and handoff
 
-Last updated: **November 3, 2026**.
+Last updated: **November 4, 2026**.
+
+## B-roll dashboard — November 4, 2026
+
+The owner asked for a local server with a dashboard that plays every MERLIN animation and puts any picture on the panels as they open, for demo b-roll. Run `npm run broll` and open **http://127.0.0.1:3310/viewer/broll/** (loopback only). Details: [studio README](../assets/merlin-character/viewer/README.md#b-roll-dashboard).
+
+**What it does:** every authored destination is a button with a key, including the companion's back-and-forth walk, moving the big screen left or right, dismissals, the five face modes and an instant reset. The left panel, right panel, big ceiling screen and camera viewfinder each take a picture, a short video or a MERLIN panel design, with Fill or Fit, saved in the browser's IndexedDB and never uploaded. A picture goes on while its screen is still out of view, at the start of that screen's entry clip; the big screen and right panel share one surface, so each pull gets its own picture. **Open recording window** shows the scene alone (`?view=stage`) and follows the dashboard over a `BroadcastChannel`. There is also a synthetic talking mouth, a clock toggle, 0.5×–2× speed and an optional 16:9 frame. It is a separate page in the character studio (`assets/merlin-character/viewer/broll/`); the companion, studio and shared driver code are unchanged apart from a studio link and the server's new route.
+
+**Verification:** in the built-in browser on the local server, with synthetic test pictures: pictures survived a reload; the right panel opened with its picture, its shatter on leaving kept that picture, and the big screen that followed showed its own; moving the big screen left carried its picture, and a later fresh left pull showed the left picture again. The camera viewfinder showed its picture at the true shape. A MERLIN design, Fit, Clear and a generated WebM video (playing on the open right panel) all worked. The back-and-forth walk turned at both walls repeatedly. A recording window opened second snapped to the dashboard's state, reported itself as connected, and followed a "both screens" request with both pictures. 16:9 widened the scene with screens still entering from off frame. No console errors. **All 1,226 automated tests pass**, and the 110 studio tests pass on their own.
+
+**Not verified:** smooth real-time playback. The hidden browser pane throttles drawing to 1–3 frames a second, for the existing studio too, so animations were stepped in code for the checks. No real recording was made, and nobody has watched it at full speed on the owner's display. Safari was not tried.
 
 ## Animation cleanup — November 3, 2026
 

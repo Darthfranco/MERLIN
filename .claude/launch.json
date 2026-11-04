@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "merlin-broll",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["assets/merlin-character/viewer/serve.mjs"],
+      "port": 3310,
+      "url": "http://127.0.0.1:3310"
+    }
+  ]
+}

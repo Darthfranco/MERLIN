@@ -15,6 +15,8 @@ const server=createServer(async(req,res)=>{
     if(path==='/'){res.writeHead(302,{Location:'/viewer/'});res.end();return;}
     if(path==='/viewer/')path='/viewer/index.html';
     if(path==='/viewer/panels/'||path==='/viewer/panels')path='/viewer/panels/index.html';
+    if(path==='/viewer/broll'){res.writeHead(302,{Location:'/viewer/broll/'+url.search});res.end();return;}
+    if(path==='/viewer/broll/')path='/viewer/broll/index.html';
     const allowed=path.startsWith('/viewer/')||['/merlin-states.blend','/merlin-states.glb','/states.json','/merlin-interactions.glb','/interactions.json'].includes(path);
     const file=resolve(ROOT,'.'+path);
     if(!allowed||!file.startsWith(ROOT+sep)||(path.startsWith('/viewer/')&&!file.startsWith(resolve(ROOT,'viewer')+sep)))throw new Error('Not found');
@@ -23,4 +25,4 @@ const server=createServer(async(req,res)=>{
     res.end(req.method==='HEAD'?undefined:await readFile(file));
   }catch{res.writeHead(404,{'Content-Type':'text/plain; charset=utf-8'});res.end('Not found.');}
 });
-server.listen(port,'127.0.0.1',()=>console.log('MERLIN character studio: http://127.0.0.1:'+port+'/viewer/'));
+server.listen(port,'127.0.0.1',()=>console.log('MERLIN character studio: http://127.0.0.1:'+port+'/viewer/\nMERLIN b-roll dashboard: http://127.0.0.1:'+port+'/viewer/broll/'));

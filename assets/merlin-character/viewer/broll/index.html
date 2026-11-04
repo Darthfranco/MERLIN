@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MERLIN b-roll</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../studio.css">
+  <link rel="stylesheet" href="../scene-clock.css">
+  <link rel="stylesheet" href="./broll.css">
+  <script type="module" src="./broll.js"></script>
+</head>
+<body>
+<!-- THESIS: Record clean MERLIN footage: every authored animation one click away, with your own pictures on the screens.
+OWN-WORLD: The character studio's blue, native type and controls. The authored midnight scene owns the stage.
+STORY: Put pictures on the screens, open the clean stage window, record it while clicking here.
+FIRST VIEWPORT: Large stage left; animation buttons and screen pictures right. Primary action: an animation button. -->
+<main>
+  <header class="page-header">
+    <h1>MERLIN b-roll</h1>
+    <nav class="header-links" aria-label="Character resources">
+      <a href="../">Character studio</a>
+      <a href="../panels/">Panel designs</a>
+    </nav>
+  </header>
+  <div class="studio">
+    <section class="performance" aria-label="Character preview">
+      <div class="stage" id="stage">
+        <canvas id="scene" aria-label="Animated MERLIN robot"></canvas>
+        <p id="loading" class="loading" role="status">Loading MERLIN…</p>
+        <div id="stage-error" class="stage-error" hidden>
+          <p>The 3D preview couldn’t load.</p>
+          <p id="error-detail"></p>
+          <button id="retry" type="button">Try again</button>
+        </div>
+        <p id="stage-hint" class="stage-hint" hidden></p>
+      </div>
+      <div class="playback">
+        <p id="motion-status" role="status">Preparing the character</p>
+        <button id="pause" type="button" data-key="Space" disabled>Pause</button>
+        <button id="reset" type="button" data-key="0" disabled>Reset to ready</button>
+        <button id="clean" type="button" data-key="H" disabled>Clean view</button>
+        <button id="popout" type="button" class="primary-quiet" disabled>Open recording window</button>
+      </div>
+      <p id="remote-status" class="caption">Open the recording window, put it on any screen, and record it while you click here. Everything you press here plays there too.</p>
+    </section>
+    <aside class="controls" aria-label="B-roll controls">
+      <section aria-labelledby="animations-title">
+        <h2 id="animations-title">Animations</h2>
+        <div id="actions" class="action-groups"></div>
+        <p class="help">Pictures go on as each screen opens. Requests during a move wait for it to finish, the way MERLIN really moves.</p>
+      </section>
+      <section aria-labelledby="slots-title" class="slots-section">
+        <h2 id="slots-title">Screen pictures</h2>
+        <div id="slots" class="slots"></div>
+        <p class="help">Drop a picture or short video on a screen, or pick a MERLIN design. Saved in this browser only, never uploaded. If that screen is open, it changes right away.</p>
+        <p id="slot-status" class="help" role="status"></p>
+      </section>
+      <section aria-labelledby="look-title" class="look-section">
+        <h2 id="look-title">Look</h2>
+        <label class="check"><input id="talk" type="checkbox"> Talking mouth <kbd>M</kbd></label>
+        <label class="check"><input id="clock" type="checkbox" checked> Show the clock <kbd>K</kbd></label>
+        <label for="speed">Speed</label>
+        <select id="speed">
+          <option value="0.5">0.5× slow motion</option>
+          <option value="0.75">0.75×</option>
+          <option value="1" selected>1× normal</option>
+          <option value="1.25">1.25×</option>
+          <option value="1.5">1.5×</option>
+          <option value="2">2×</option>
+        </select>
+        <label for="frame">Frame</label>
+        <select id="frame">
+          <option value="4:3" selected>4:3, as authored</option>
+          <option value="16:9">16:9 widescreen</option>
+        </select>
+        <p class="help">Widescreen shows more of the room at the sides. Screens slide in from farther off, so check a take before you rely on it.</p>
+      </section>
+      <details>
+        <summary>Keyboard shortcuts</summary>
+        <p class="help">They work here and in the recording window. Each animation button shows its key.</p>
+        <dl class="shortcuts">
+          <dt><kbd>Space</kbd></dt><dd>Pause or resume</dd>
+          <dt><kbd>0</kbd></dt><dd>Snap straight back to ready</dd>
+          <dt><kbd>H</kbd></dt><dd>Hide or show these controls</dd>
+          <dt><kbd>M</kbd></dt><dd>Talking mouth on or off</dd>
+          <dt><kbd>K</kbd></dt><dd>Clock on or off</dd>
+        </dl>
+        <p class="help">In the recording window, double-click for full screen.</p>
+      </details>
+    </aside>
+  </div>
+</main>
+</body>
+</html>

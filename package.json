@@ -30,7 +30,8 @@
     "check:voice": "node --env-file-if-exists=.env scripts/voice-check.js",
     "check:voice-session": "node --env-file-if-exists=.env scripts/voice-session-check.js",
     "phone": "node src/phone-server.js",
-    "dev:phone": "node --watch src/phone-server.js"
+    "dev:phone": "node --watch src/phone-server.js",
+    "broll": "node assets/merlin-character/viewer/serve.mjs"
   },
   "dependencies": {
     "ws": "8.22.0"
