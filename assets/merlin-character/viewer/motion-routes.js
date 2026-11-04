@@ -29,6 +29,9 @@ export function planRoute(from, to, states, routes = [], context = 'ready') {
   if (from === to) return [];
   const allEdges = transitionEdges(states, routes), returnHub = faceReturnHub(context, states, allEdges);
   const edges = allEdges.filter(edge => {
+    // A one-way walk's exits start at the far wall. Arriving by its entry or a turn
+    // leaves MERLIN at the near wall, so walk the pass first rather than jump across.
+    if (states[edge.from]?.rest && edge.to !== states[edge.from].rest) return false;
     // A full face is an excursion, never a shortcut between two body poses.
     if (edge.to === 'face' && !isFaceState(edge.from, states)) return isFaceState(to, states);
     if (edge.from === 'face' && !isFaceState(edge.to, states)) return edge.to === returnHub;

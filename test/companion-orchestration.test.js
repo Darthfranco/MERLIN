@@ -12,10 +12,15 @@ const resultFor=(...timers)=>({reply:'The timers are set.',tool_events:timers.ma
 function complete(o,id,timers,extra={}) {o.begin(id);o.result(id,{...resultFor(...timers),...extra},{timers});o.reply(id);}
 const ids=o=>Object.values(o.panels).filter(Boolean).map(panel=>panel.id).sort();
 
-test('empty quiet scene alternates both walking directions and tossing without sweeping',()=>{
+test('empty quiet scene walks back and forth until called, then tosses on the next quiet spell',()=>{
   const {o,advance}=setup();
-  for(const activity of ['walk','walkReverse','toss','walk']){advance(activity==='walk'&&o.phase==='idle'?IDLE_DELAY:30000);assert.equal(o.view.destination,activity);}
+  advance(IDLE_DELAY);assert.equal(o.view.destination,'walk');
+  // The character turns at each wall itself; the scene keeps asking for the same walk.
+  for(let i=0;i<4;i++){advance(30000);assert.equal(o.view.destination,'walk');assert.equal(o.phase,'ambient');}
   o.listening();advance(100000);assert.equal(o.view.destination,'face');
+  o.standby();advance(IDLE_DELAY);assert.equal(o.view.destination,'toss');
+  advance(30000);assert.equal(o.view.destination,'walk');
+  o.musicPlaying=true;advance(30000);assert.equal(o.view.destination,'dance','music still interrupts walking');
 });
 test('reduced motion suppresses casual movement but uses body thought for real progress',()=>{
   const {o,advance}=setup({reducedMotion:true});advance(90000);assert.equal(o.view.destination,'ready');

@@ -9,7 +9,8 @@ const manifest=JSON.parse(readFileSync(new URL('../states.json',import.meta.url)
 function fixture({walkingPositions=false}={}){
   const model=new Object3D();
   const positions={WalkWhistle:[-3.1,3.1],WalkPaused:[3.1,3.1],WalkToThink:[3.1,3.1],WalkThinking:[3.1,3.1],
-    WalkWhistleReverse:[3.1,-3.1],WalkReversePaused:[-3.1,-3.1],WalkReverseToThink:[-3.1,-3.1],WalkReverseThinking:[-3.1,-3.1]};
+    WalkWhistleReverse:[3.1,-3.1],WalkReversePaused:[-3.1,-3.1],WalkReverseToThink:[-3.1,-3.1],WalkReverseThinking:[-3.1,-3.1],
+    WalkTurnAtRight:[3.1,3.1],WalkTurnAtLeft:[-3.1,-3.1]};
   const clips=Object.entries(manifest.clips).map(([name,meta])=>new AnimationClip(name,(meta.frames-1)/24,[new NumberKeyframeTrack('.position[x]',[0,(meta.frames-1)/24],walkingPositions&&positions[name]||[0,0])]));
   return new MotionController(new AnimationMixer(model),clips,manifest);
 }
@@ -152,6 +153,25 @@ test('walking in either direction completes one pass and holds its matching endp
     const x=c.mixer.getRoot().position.x;assert.ok(Math.abs(x-end)<1e-6);
     advance(c,24);assert.equal(c.current,rest);assert.ok(Math.abs(c.mixer.getRoot().position.x-x)<1e-6);
   }
+});
+test('a walk turns around at the wall and walks back without visiting ready',()=>{
+  for(const [walk,rest,back,turn,wall] of [['walk','walkRest','walkReverse','WalkTurnAtRight',3.1],['walkReverse','walkReverseRest','walk','WalkTurnAtLeft',-3.1]]){
+    const c=fixture({walkingPositions:true});c.go(walk);advance(c);assert.equal(c.current,rest);
+    const played=[];c.onChange=info=>played.push(info.clip);c.go(back);
+    assert.equal(c.clip,turn);c.update(1/60);assert.ok(Math.abs(c.mixer.getRoot().position.x-wall)<1e-6);
+    arrive(c,back);assert.ok(!played.includes('ReadyIdle'));
+  }
+});
+test('leaving a walk that has only just started finishes the pass first instead of jumping walls',()=>{
+  for(const [walk,target] of [['walk','face'],['walk','walkThink'],['walkReverse','face'],['walkReverse','walkReverseThink']]){
+    const c=fixture({walkingPositions:true});c.go(walk);
+    for(let i=0;i<40*60&&c.clip===manifest.states[walk].enter;i++)c.update(1/60);
+    assert.equal(c.current,walk);c.go(target);
+    assert.equal(c.clip,manifest.states[walk].idle,`${walk} → ${target} walks its pass before ${target}`);
+    arrive(c,target);
+  }
+  const c=fixture();c.go('walk');advance(c,1);c.go('walkReverse');advance(c);
+  assert.equal(c.current,'walkReverseRest');
 });
 test('a request after a naturally completed walk starts at the held endpoint without replaying travel',()=>{
   for(const [walk,rest,prefix] of [['walk','walkRest','Walk'],['walkReverse','walkReverseRest','WalkReverse']]){

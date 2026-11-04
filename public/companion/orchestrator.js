@@ -2,7 +2,8 @@
 export const IDLE_DELAY = 20_000;
 export const FOLLOWUP_DELAY = 10_000;
 export const ACTION_HOLD = 400;
-const idleActivities = ['walk', 'walkReverse', 'toss'];
+// Walking goes back and forth across the room until MERLIN is called; tossing takes turns with it.
+const idleActivities = ['walk', 'toss'];
 export const toolPanel = tool => /^(create|cancel|list)_timer/.test(tool) ? 'timer'
   : tool?.startsWith('spotify_') ? 'music' : tool === 'routine_save' ? 'routine-saved'
     : ['routine_read', 'routine_use'].includes(tool) ? 'routine' : tool === 'show_connections' ? 'connections' : tool === 'home_control' ? 'lights' : null;
@@ -219,6 +220,7 @@ export class Orchestrator {
     if(this.now()<this.deadline)return;
     if(['followup','error'].includes(this.phase)){this.standby();return;}
     if(!['idle','ambient'].includes(this.phase)||this.reducedMotion||this.panel)return;
+    if(this.phase==='ambient'&&this.view.destination==='walk'&&!this.musicPlaying){this.deadline=this.now()+30_000;return;}
     this.phase='ambient';const activity=this.musicPlaying?'dance':idleActivities[this.idleIndex++%idleActivities.length];
     this.deadline=this.now()+30_000;this.show(activity,'Here when you need me');
   }

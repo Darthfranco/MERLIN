@@ -234,6 +234,13 @@
       "parent": "ceiling",
       "bodyContext": "ceiling",
       "contextualThinking": true
+    },
+    "idea": {
+      "label": "Idea face",
+      "enter": "FaceToIdea",
+      "idle": "FaceIdea",
+      "exit": "IdeaToFace",
+      "parent": "face"
     }
   },
   "clips": {
@@ -1027,6 +1034,41 @@
       "source_frame": 1,
       "target": "CeilingIdle",
       "target_frame": 1
+    },
+    "WalkTurnAtRight": {
+      "frames": 22,
+      "source": "WalkWhistle",
+      "source_frame": 192,
+      "target": "WalkWhistleReverse",
+      "target_frame": 1
+    },
+    "WalkTurnAtLeft": {
+      "frames": 22,
+      "source": "WalkWhistleReverse",
+      "source_frame": 192,
+      "target": "WalkWhistle",
+      "target_frame": 1
+    },
+    "FaceToIdea": {
+      "frames": 24,
+      "source": "FullFaceIdle",
+      "source_frame": 1,
+      "target": "FaceIdea",
+      "target_frame": 1
+    },
+    "FaceIdea": {
+      "frames": 96,
+      "source": "FaceIdea",
+      "source_frame": 1,
+      "target": "FaceIdea",
+      "target_frame": 1
+    },
+    "IdeaToFace": {
+      "frames": 24,
+      "source": "FaceIdea",
+      "source_frame": 1,
+      "target": "FullFaceIdle",
+      "target_frame": 1
     }
   },
   "showcase": [
@@ -1721,6 +1763,16 @@
       "to": "ceiling",
       "clip": "FaceToCeiling",
       "context": "ceiling"
+    },
+    {
+      "from": "walkRest",
+      "to": "walkReverse",
+      "clip": "WalkTurnAtRight"
+    },
+    {
+      "from": "walkReverseRest",
+      "to": "walk",
+      "clip": "WalkTurnAtLeft"
     }
   ],
   "dual_screens": {

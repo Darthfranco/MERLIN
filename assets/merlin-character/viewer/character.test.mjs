@@ -170,6 +170,30 @@ test('transition pace shortens authored routes but restores normal idle playback
   driver.go('face', {urgent: true, pace: 4}); assert.equal(controller.active.getEffectiveTimeScale(), 1);
 });
 
+test('walking back and forth turns at each wall until called, and a hurried pass uses the caller pace', () => {
+  const {driver, controller, statuses} = fixture();
+  driver.go('walk', {patrol: true}); advance(controller, 60);
+  const played = clipsPlayed(statuses);
+  for (const clip of ['ReadyToWalkWhistle', 'WalkWhistle', 'WalkTurnAtRight', 'WalkWhistleReverse', 'WalkTurnAtLeft'])
+    assert.ok(played.includes(clip), clip);
+  assert.ok(!played.includes('WalkWhistleToReady') && !played.includes('ReadyToWalkWhistleReverse'), 'never runs back to the middle between passes');
+  assert.ok(['walk', 'walkReverse'].includes(driver.desired));
+  // Asking for the same back-and-forth walk again keeps the pass in progress.
+  const desired = driver.desired; driver.go('walk', {patrol: true}); assert.equal(driver.desired, desired);
+  for (let i = 0; i < 60 * 30 && !(controller.phase === 'idle' && controller.clip === manifest.states[driver.desired].idle); i++) advance(controller, 1 / 60);
+  driver.go('face', {pace: 2.5}); assert.equal(controller.phase, 'finishLoop');
+  assert.equal(controller.active.getEffectiveTimeScale(), 2.5);
+  advance(controller, 12); assert.equal(driver.state, 'face');
+  statuses.length = 0; driver.go('ready'); advance(controller, 20);
+  assert.equal(driver.state, 'ready'); assert.ok(!clipsPlayed(statuses).some(clip => /Turn/.test(clip)), 'a called-back walk stays stopped');
+});
+
+test('a single requested walk still makes one pass and holds its endpoint', () => {
+  const {driver, controller} = fixture();
+  driver.go('walk'); advance(controller, 30);
+  assert.equal(driver.state, 'walkRest'); assert.equal(driver.desired, 'walkRest');
+});
+
 test('conversation restores each exact retained screen layout without a dismissal clip', async () => {
   for (const context of ['right', 'left', 'both', 'seatedLeft', 'seatedRight', 'ceiling']) {
     const {driver, controller, statuses} = fixture();

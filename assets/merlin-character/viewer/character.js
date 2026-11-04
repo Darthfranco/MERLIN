@@ -16,6 +16,8 @@ import { PLAY_OFFER_PANEL, paintPlayOffer } from './panels/play-offer.js';
 // The connection touchscreen is a scene-only panel; it is not part of the 5:6 gallery collection.
 const panelTypes = new Set([...PANEL_TYPES.map(panel => panel.id), CONNECTIONS_PANEL, PLAY_OFFER_PANEL]);
 const ambient = new Set(['walk', 'walkReverse', 'toss', 'nap', 'dance']);
+// Walking back and forth: each finished pass turns at the wall and walks the other way.
+const walkBack = {walk: 'walkReverse', walkReverse: 'walk'};
 const assetURL = path => new URL(path, import.meta.url).href;
 const validData = value => value && typeof value === 'object' && !Array.isArray(value);
 
@@ -128,7 +130,7 @@ function visiblePanels(controller) {
 /** Presentation only: no microphone, model, service credentials or demo outcomes. */
 export function createCharacterDriver({controller, screens, panelArt = {}, reducedMotion = false, touchPanels = false, onStatus = () => {}, invalidate = () => {}}) {
   let wanted = 'ready', destroyed = false, lastSide = 'right', speaking = 0, listening = false, transitionPace = 1;
-  let bridge = null, requestedAlias = 'ready', moving = false, retainedBody = 'ready';
+  let bridge = null, requestedAlias = 'ready', moving = false, retainedBody = 'ready', patrol = false;
   const panels = {left: null, right: null}; let panelPaints = 0, viewfinder = false;
   const handoff = typeof screens.left?.copyFrom === 'function' && screens.right ? new ScreenHandoff(screens, () => {
     // The left texture needs its own record so live polling follows the card,
@@ -170,10 +172,22 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     waiter.signal?.removeEventListener('abort', waiter.abort);
     waiter.resolve(result);
   };
+  // Only with an authored turn at that wall; otherwise a walk stays one pass.
+  function canTurn(walk) {
+    const rest = controller.states[walk]?.rest, next = walkBack[walk];
+    return Boolean(rest && next && (controller.routes || []).some(route => route.from === rest && route.to === next));
+  }
   function motionChanged() {
     handoff?.sync(controller.clip);
     invalidate();
-    if (controller.active) controller.active.setEffectiveTimeScale(['idle', 'finishLoop'].includes(controller.phase) ? 1 : transitionPace);
+    // Loops keep their authored speed. A walk or toss finishing its cycle before a requested
+    // change uses the caller's pace, so being called back never waits a whole slow pass.
+    if (controller.active) controller.active.setEffectiveTimeScale(controller.phase === 'idle' ? 1 : transitionPace);
+    if (patrol && !bridge && !moving && controller.phase === 'idle' && controller.states[wanted]?.rest === controller.current && canTurn(wanted)) {
+      wanted = walkBack[wanted]; retainedBody = baseContext(wanted);
+      move(wanted);
+      return;
+    }
     // A cover is presentation only. Keep the final requested destination visible
     // to callers, and change the underlying body context only under a full face.
     if (bridge && !moving && controller.current === 'face' && controller.phase === 'idle' && bridge.stage === 'cover') {
@@ -208,13 +222,16 @@ export function createCharacterDriver({controller, screens, panelArt = {}, reduc
     } finally { moving = false; }
     motionChanged();
   }
-  function go(next, {urgent = false, pace = 1, preservePanels = true, dismiss = false, restorePanels = true} = {}) {
+  function go(next, {urgent = false, pace = 1, preservePanels = true, dismiss = false, restorePanels = true, patrol: backAndForth = false} = {}) {
     if (destroyed) return false;
     if (!controller.states[next]) throw new RangeError('Unknown MERLIN state: ' + next);
     if (!Number.isFinite(pace) || pace <= 0 || pace > 8) throw new RangeError('Animation pace must be greater than zero and at most eight.');
     const destination = resolveDestination(next, {preservePanels, dismiss, restorePanels});
     transitionPace = pace;
     requestedAlias = next;
+    // Asking again to walk back and forth keeps the pass in progress, whichever way it goes.
+    if (backAndForth && patrol && walkBack[wanted] && walkBack[destination] && !urgent) {motionChanged(); return true;}
+    patrol = backAndForth && Boolean(walkBack[destination]);
     if (destination === wanted && !(urgent || reducedMotion)) {motionChanged(); return true;}
     wanted = destination;
     if (!isFaceState(destination, controller.states)) retainedBody = baseContext(destination);

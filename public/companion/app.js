@@ -26,6 +26,8 @@ const timerAlerts=new TimerAlertQueue();
 let panelControlsKey='';
 let connectionsUi=initialUi({}), touchKey='', connectionsBusy=false, offerUi={status:'ready'};
 const largeScreen=type=>type==='connections'||type==='music-offer';
+// Conversation transitions play faster than authored so MERLIN keeps up; idle activities use their own speed.
+const TRANSITION_PACE=2.5;
 // /companionfull/: the robot-only home display. Voice is the input; speech and acknowledgments are always on.
 const FULL=document.documentElement?.dataset?.mode==='full';
 let micMuted=false, touchKeyLeft='';
@@ -102,7 +104,7 @@ function renderView(view){
       const panel=activePanels[side];
       character.showPanel(panel.type,()=>livePanel(panel),side,{navigate:false});
     }
-    if(lastDestination!==destination||character.desired!==destination)character.go(destination,{preservePanels:Object.values(view.panels||{}).some(Boolean),restorePanels:plan.restorePanels,dismiss:Boolean(view.dismiss),pace:['idle','ambient'].includes(view.phase)?1:4});
+    if(lastDestination!==destination||character.desired!==destination)character.go(destination,{preservePanels:Object.values(view.panels||{}).some(Boolean),restorePanels:plan.restorePanels,dismiss:Boolean(view.dismiss),pace:['idle','ambient'].includes(view.phase)?1:TRANSITION_PACE,patrol:view.phase==='ambient'});
     const runtime=character,revision=++sceneRevision;
     sceneCleanup?.abort();const cleanup=new AbortController();sceneCleanup=cleanup;
     void runtime.whenSettled(destination,cleanup.signal).then(settled=>{

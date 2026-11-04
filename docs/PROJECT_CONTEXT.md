@@ -107,6 +107,8 @@ The screen must sit **flush within the head**, without a protruding face panel. 
 
 **Optional floating cards requested October 27, 2026:** create compact timer and music overlays, similar in scale to the clock, using shorter versions of the existing panel designs with backgrounds. The owner explicitly requested assets and code only, **not enabled by default**. Keep them opt-in and separate from normal physical panels and live-service orchestration. The reusable module and explicitly selected synthetic studio previews are documented in the [floating overlay API](../assets/merlin-character/viewer/overlays/README.md).
 
+**Animation cleanup requested November 3, 2026:** the owner asked to slow the animations down a bit, and to make walking and whistling one continuous activity: walk to one side, then walk back to the other side, and keep going until MERLIN is called back, instead of finishing a pass and jumping or running back to the middle. The owner also asked for a more obvious full-face thinking expression whose eyes change, as they become magnifying glasses for search, suggesting lightbulbs. **Owner decision: make the lightbulb thinking face now, but do not use it in the companion yet.** The return to ready after being called back still runs to the middle and waves, as confirmed on October 26. Details: [ORCHESTRATION.md](ORCHESTRATION.md#animation-cleanup--november-3-2026).
+
 The character and room work does not select an application framework, establish a complete assistant interface, or define an MVP. The later combined-character request above authorizes local listening, processing, speaking, action-panel and automatic idle orchestration; final production hardware and deployment remain TBD.
 
 ### 3. Background memory and personalization

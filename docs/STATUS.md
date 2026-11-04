@@ -2,6 +2,23 @@
 
 Last updated: **November 3, 2026**.
 
+## Animation cleanup — November 3, 2026
+
+The owner asked to slow the animations down a bit, to make walking continuous (walk to one side, then back to the other, until called), and for a big-face thinking expression with lightbulb eyes, made now but not used yet. Design: [ORCHESTRATION.md](ORCHESTRATION.md#animation-cleanup--november-3-2026).
+
+**What was wrong:** recorded on a local companion page, switching idle walking direction finished the pass at the right wall, ran back to the middle and waved, then walked out to the right again. Separately, calling MERLIN while he was walking out to start a pass, or right after a turn, played an exit that starts at the far wall, so he jumped across the room. A unit test of the clock's route look-ahead showed the same jump for ready → walk thinking.
+
+**What changed:**
+- Two authored wall turns, `WalkTurnAtRight` and `WalkTurnAtLeft` (22 frames, a small hop-pivot through a forward-facing pose). The companion's idle walk now goes back and forth until MERLIN is called, alternating with tossing; music still switches to dancing.
+- The route planner leaves a one-way walk only from its far wall, so there is no cross-room jump in playback or in the clock's prediction.
+- Conversation transitions play at 2.5× (was 4×). A walk or toss finishing before a conversation uses the same pace instead of up to eight seconds at normal speed.
+- New face state `idea` (`FaceToIdea`, `FaceIdea`, `IdeaToFace`): lightbulb eyes that ponder, then light up with rays and a bigger smile. It is in the GLB and the studio menu only; the companion still uses `faceThink`.
+- `merlin-states.blend`/`.glb` now hold **118 clips** and **31 states**. Build: `scripts/build_idea_turn_states.py`, then `scripts/export_screen_states.py` and `scripts/build_motion_footprints.mjs`. Stills: `scripts/render_idea_turn_states.py` wrote [pondering](../assets/merlin-character/previews/merlin-state-face-idea-ponder.png), [lit](../assets/merlin-character/previews/merlin-state-face-idea-lit.png) and [mid-turn](../assets/merlin-character/previews/merlin-state-walk-turn.png).
+
+**Verification:** **1,226 automated tests pass**, 4 of them new: the wall turns route straight into the other walk, leaving a just-started walk finishes its pass first, the driver walks back and forth until called and hurries the last pass at the caller's pace, and a plain walk still makes one pass. The ambient orchestration test was rewritten for the new rotation. The Blender build's [own checks](../assets/merlin-character/previews/idea-turn-validation.json) passed: the 113 earlier clips are unchanged, every clip has all 106 owners, the bulbs are hidden everywhere else, and every new clip meets its neighbours exactly. In the exported GLB, all 113 earlier clips matched the previous GLB at 918,125 sampled values with zero difference and no mesh changes. Every seam (walk ↔ turn both ways, held endpoints ↔ turns, full face ↔ idea) meets within 4 × 10⁻⁷. Clock footprints were regenerated for all 118 clips. On a local companion page, the idle walk went walk → right-wall turn → walk back → left-wall turn → walk, past the 30-second idle tick, with no trip to the middle. A typed message sent while MERLIN was walking out to start a pass now finished the pass, then opened the face from the right wall (it used to jump). The studio plays the idea face, including the lit bulbs and rays.
+
+**Not verified:** no person has watched the new turn or the lightbulb face on the owner's display. The felt speed of 2.5× is a judgment call and easy to tune (`TRANSITION_PACE`). The walking speed itself is unchanged.
+
 ## MERLIN always answers, and searches answer in three spoken parts — November 3, 2026
 
 The owner reported that MERLIN kept getting stuck and not answering, and asked that it always answer. The owner also asked for internet answers in three parts that run at once: the prerecorded phrase, then a spoken "looking it up" line with context, then the real answer. Design and details: [ORCHESTRATION.md](ORCHESTRATION.md#always-answering-and-three-part-search-answers--november-3-2026).

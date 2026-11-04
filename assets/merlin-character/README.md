@@ -2,7 +2,25 @@
 
 An original Blender model built from the owner's visual brief: a clean, cute robot with matte cornflower-blue surfaces, rounded head and body forms, a flush dark display, restrained cyan lighting, and a visible pool of light beneath its feet. Its matte/satin finish uses gentle diffuse shading and minimal reflections. The eyes grade from cyan-blue above to pale ice below. Two fine, muted-blue panel joins mark the rear head cap and curve around the chest. The proportions and simplified mitten hands are deliberately softer than the mechanical detail in the supplied references. This character has a separate local browser studio and is also used by the local assistant companion. Production-device deployment remains open.
 
-## Latest: ceiling and paired screens, remembered poses, and walking both ways
+## Latest: turning at the walls and a lightbulb idea face
+
+[merlin-states.blend](merlin-states.blend) and [merlin-states.glb](merlin-states.glb) now contain **118 synchronized clips** and **31 states** (November 3, 2026). The accepted model, materials, camera and lighting are unchanged, and every earlier clip keeps its exact authored channels.
+
+- **Turn at either wall:** `WalkTurnAtRight` and `WalkTurnAtLeft` (22 frames) hop-pivot MERLIN through a forward-facing pose, from the end of one walk straight into the start of the other. They are routes from each held endpoint (`walkRest → walkReverse`, `walkReverseRest → walk`), so the companion can walk back and forth without returning to the middle. The head leads the turn, and a small hop lifts MERLIN during the pivot.
+- **Idea face:** `FaceToIdea`, `FaceIdea` (96-frame loop) and `IdeaToFace` add the `idea` state under `face`. As with the searching face, the display eyes fold away; here two lightbulbs take their place. Each loop ponders (flickering filaments, a gentle sway and a slow "hmm" in the mouth bars), then the bulbs light with rays and a bigger smile, then dim. Eight new face-state owners (`IdeaBulb`, `IdeaGlow`, `IdeaFilament`, `IdeaRays`, left and right) are hidden in every other clip. The companion does not use this state yet.
+
+Rebuild from the previous 113-clip scene with Blender 4.0.2, then regenerate the clock footprints:
+
+```sh
+blender --background --python-exit-code 1 --python assets/merlin-character/scripts/build_idea_turn_states.py
+blender --background --python-exit-code 1 --python assets/merlin-character/scripts/export_screen_states.py
+node assets/merlin-character/scripts/build_motion_footprints.mjs
+blender --background assets/merlin-character/merlin-states.blend --python assets/merlin-character/scripts/render_idea_turn_states.py
+```
+
+The build refuses to run twice and saves only when its checks pass ([report](previews/idea-turn-validation.json)). Previews: [pondering](previews/merlin-state-face-idea-ponder.png), [lit](previews/merlin-state-face-idea-lit.png), [mid-turn](previews/merlin-state-walk-turn.png), 1000 × 750 Cycles stills at 32 samples with denoising.
+
+## Previous: ceiling and paired screens, remembered poses, and walking both ways
 
 [merlin-states.blend](merlin-states.blend) and [merlin-states.glb](merlin-states.glb) now contain **113 synchronized clips** and **30 connected presentation states**. Open the [browser studio](viewer/README.md) to try them. The accepted model, materials, camera and lighting remain unchanged.
 

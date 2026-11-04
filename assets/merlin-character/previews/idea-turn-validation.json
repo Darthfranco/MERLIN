@@ -1,0 +1,121 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "existing clips unchanged",
+      "passed": true,
+      "clips": 113
+    },
+    {
+      "name": "existing meshes unchanged",
+      "passed": true,
+      "meshes": 144
+    },
+    {
+      "name": "eight new bulb owners",
+      "passed": true,
+      "owners": [
+        "IdeaBulbL",
+        "IdeaBulbR",
+        "IdeaFilamentL",
+        "IdeaFilamentR",
+        "IdeaGlowL",
+        "IdeaGlowR",
+        "IdeaRaysL",
+        "IdeaRaysR"
+      ]
+    },
+    {
+      "name": "every clip has every owner",
+      "passed": true,
+      "missing": []
+    },
+    {
+      "name": "bulbs hidden in every existing clip",
+      "passed": true,
+      "clips": []
+    },
+    {
+      "name": "WalkTurnAtRight starts on WalkWhistle",
+      "passed": true,
+      "error": 2.384185791015625e-07
+    },
+    {
+      "name": "WalkTurnAtRight ends on WalkWhistleReverse",
+      "passed": true,
+      "error": 2.384185791015625e-07
+    },
+    {
+      "name": "WalkTurnAtRight length",
+      "passed": true
+    },
+    {
+      "name": "WalkTurnAtLeft starts on WalkWhistleReverse",
+      "passed": true,
+      "error": 2.384185791015625e-07
+    },
+    {
+      "name": "WalkTurnAtLeft ends on WalkWhistle",
+      "passed": true,
+      "error": 2.384185791015625e-07
+    },
+    {
+      "name": "WalkTurnAtLeft length",
+      "passed": true
+    },
+    {
+      "name": "FaceToIdea meets FullFaceIdle",
+      "passed": true,
+      "error": 0.0
+    },
+    {
+      "name": "IdeaToFace meets FullFaceIdle",
+      "passed": true,
+      "error": 0.0
+    },
+    {
+      "name": "FaceToIdea:24 meets FaceIdea:1",
+      "passed": true,
+      "error": 0.0
+    },
+    {
+      "name": "FaceIdea:96 meets FaceIdea:1",
+      "passed": true,
+      "error": 0.0
+    },
+    {
+      "name": "FaceIdea:1 meets IdeaToFace:1",
+      "passed": true,
+      "error": 0.0
+    },
+    {
+      "name": "bulbs switch on mid-loop",
+      "passed": true,
+      "scale": 1.0
+    },
+    {
+      "name": "bulbs dark while pondering",
+      "passed": true
+    },
+    {
+      "name": "eyes folded away in the loop",
+      "passed": true
+    }
+  ],
+  "compaction": {
+    "clips": 5,
+    "curves_compacted": 3736,
+    "keyframes_removed": 120524,
+    "exact_constant_channels": true,
+    "durations_preserved": true
+  },
+  "clips_before": 113,
+  "clips_after": 118,
+  "added_clips": [
+    "FaceIdea",
+    "FaceToIdea",
+    "IdeaToFace",
+    "WalkTurnAtLeft",
+    "WalkTurnAtRight"
+  ]
+}
