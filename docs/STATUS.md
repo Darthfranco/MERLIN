@@ -9,7 +9,7 @@ The owner asked to slow the animations down a bit, to make walking continuous (w
 **What was wrong:** recorded on a local companion page, switching idle walking direction finished the pass at the right wall, ran back to the middle and waved, then walked out to the right again. Separately, calling MERLIN while he was walking out to start a pass, or right after a turn, played an exit that starts at the far wall, so he jumped across the room. A unit test of the clock's route look-ahead showed the same jump for ready → walk thinking.
 
 **What changed:**
-- Two authored wall turns, `WalkTurnAtRight` and `WalkTurnAtLeft` (22 frames, a small hop-pivot through a forward-facing pose). The companion's idle walk now goes back and forth until MERLIN is called, alternating with tossing; music still switches to dancing.
+- Two authored wall turns, `WalkTurnAtRight` and `WalkTurnAtLeft` (22 frames, a small hop-pivot through a forward-facing pose). During its turn in the idle rotation, the walk goes back and forth. **Owner follow-up:** keep every idle activity, so the rotation is back-and-forth walk, ball toss, nap (30 seconds each); music still switches to dancing. Napping was not in the companion's rotation before.
 - The route planner leaves a one-way walk only from its far wall, so there is no cross-room jump in playback or in the clock's prediction.
 - Conversation transitions play at 2.5× (was 4×). A walk or toss finishing before a conversation uses the same pace instead of up to eight seconds at normal speed.
 - New face state `idea` (`FaceToIdea`, `FaceIdea`, `IdeaToFace`): lightbulb eyes that ponder, then light up with rays and a bigger smile. It is in the GLB and the studio menu only; the companion still uses `faceThink`.

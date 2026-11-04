@@ -2,8 +2,8 @@
 export const IDLE_DELAY = 20_000;
 export const FOLLOWUP_DELAY = 10_000;
 export const ACTION_HOLD = 400;
-// Walking goes back and forth across the room until MERLIN is called; tossing takes turns with it.
-const idleActivities = ['walk', 'toss'];
+// Idle activities take turns. During its turn, walking goes back and forth across the room.
+const idleActivities = ['walk', 'toss', 'nap'];
 export const toolPanel = tool => /^(create|cancel|list)_timer/.test(tool) ? 'timer'
   : tool?.startsWith('spotify_') ? 'music' : tool === 'routine_save' ? 'routine-saved'
     : ['routine_read', 'routine_use'].includes(tool) ? 'routine' : tool === 'show_connections' ? 'connections' : tool === 'home_control' ? 'lights' : null;
@@ -23,7 +23,7 @@ const thinkingPose = destination => faceStates.has(destination) ? 'faceThink' : 
 const identity = panel => panel?.type==='connections' ? 'connections' : panel?.id ? `${panel.type?.startsWith('routine')?'routine':panel.type}:${panel.id}` : ['music','lights','oven','speaker','schedule'].includes(panel?.type) ? panel.type : null;
 const sameTimer = (a,b) => ['id','label','status','durationSeconds','endsAt','timeZone'].every(key=>a?.[key]===b?.[key]);
 export function presentationLayout(view, states) {
-  const available = new Set(states || ['ready','bodyThink','face','faceThink','search','camera','walk','walkReverse','toss','dance',...Object.keys(surfaces),...Object.keys(surfaces).map(state=>state+'Think')]);
+  const available = new Set(states || ['ready','bodyThink','face','faceThink','search','camera','walk','walkReverse','toss','nap','dance',...Object.keys(surfaces),...Object.keys(surfaces).map(state=>state+'Think')]);
   let destination = view.destination;
   if (!available.has(destination)) {
     const base=destination?.replace(/Think$/, '');
@@ -220,7 +220,6 @@ export class Orchestrator {
     if(this.now()<this.deadline)return;
     if(['followup','error'].includes(this.phase)){this.standby();return;}
     if(!['idle','ambient'].includes(this.phase)||this.reducedMotion||this.panel)return;
-    if(this.phase==='ambient'&&this.view.destination==='walk'&&!this.musicPlaying){this.deadline=this.now()+30_000;return;}
     this.phase='ambient';const activity=this.musicPlaying?'dance':idleActivities[this.idleIndex++%idleActivities.length];
     this.deadline=this.now()+30_000;this.show(activity,'Here when you need me');
   }
