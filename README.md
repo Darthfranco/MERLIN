@@ -1,68 +1,128 @@
 # MERLIN
 
-A voice-first, Jarvis-inspired home assistant that learns about its household, manages connected devices and services, and stays accessible through a companion app.
+**A friendly robot home assistant that lives on a screen in your home. You talk, he answers out loud and gets things done.**
 
-Built for the **2026 Meta Global AI Developer Hackathon**, hosted by Meta and Cerebral Valley. MERLIN aims to make everyday home tasks useful, simple, and natural through Meta models and a polished companion interface.
+Built on Meta's Muse models for the **2026 Meta Global AI Developer Hackathon**.
 
-**Status:** Blender character and landscape room assets are available in [assets/merlin-character](assets/merlin-character/README.md), retaining the original proportions and lighting. The latest interaction extension adds a more natural wake-up, expressive face acting, a white panel pulled in from the right and dismissed with a tap, and matching transitions into and out of a full-frame face with a cyan seven-bar mouth. Its 19-clip Blender/GLB assets, four Cycles stills, and [31.17-second interaction movie](assets/merlin-character/previews/merlin-interactions.mp4) are complete and verified, including independent GLB re-import and review of the encoded movie. The earlier verified portrait, casual-room, and [41.75-second ready/activity transition movie](assets/merlin-character/previews/merlin-transitions.mp4) remain available. The text-only application prototype implements Meta-driven web search (an explicit “look it up” always runs a search, and factual or time-sensitive questions are searched too; see [web lookups](docs/PROTOTYPE.md#web-lookups)), local timers, persistent inspectable memory, compiled standing instructions, named documents, user-defined keyword routines, and a Spotify connection with typed music requests and playback controls. Spotify needs your developer app and account connection; live account playback has not yet been verified. Other features below remain product goals, not working integrations.
+![MERLIN, a small blue robot, standing in his room on the home display](assets/merlin-character/previews/merlin-hero.png)
 
-**Combined MERLIN interface:** run `npm start` and open [MERLIN at home](http://127.0.0.1:3000/companion/). The 3D character now follows actual assistant/voice/tool work: face conversation, body actions, two retained live panel slots, and automatic idle activities. Voice uses the existing setup below. Timers and routines share the real backend and memory; Spotify stays typed/manual. Ask how to connect something, or ask for a device that is not connected, and MERLIN pulls down the big screen with tap-to-use connection options and live status. Real connectors exist for Home Assistant, Philips Hue, Shelly, SwitchBot and Rachio (set up at [the Connection Center](http://127.0.0.1:3000/connections/); not yet tried on real hardware), plus Spotify; everything else is an honest setup guide. The oven and schedules remain unavailable with real hardware. For demonstrations, `MERLIN_DEMO_HOME=1` adds clearly labeled, simulated lights, oven and gym speaker that pull out their own panels ([details](docs/CONNECTORS.md#demo-home-opt-in-simulated)). MERLIN searches the web whenever you ask it to look something up and can read a page it found. See the [orchestration plan and run notes](docs/ORCHESTRATION.md).
+## MERLIN in 30 seconds
 
-**Home display:** open [MERLIN full screen](http://127.0.0.1:3000/companionfull/) for the robot-only version meant for a wall or counter iPad. Voice starts by itself and acknowledgments are always on. Anything that needs a hand, such as cancelling a timer, turning a light off, pausing music or closing a panel, is a large button on MERLIN's own panels. A small mic button in the corner mutes him. See [how it works and its limits](docs/ORCHESTRATION.md#home-display-companionfull--november-3-2026).
+Say "MERLIN" and ask for something. A small 3D robot on a wall or counter screen hears you, answers in his own voice, and acts it out: he thinks, searches, and pulls out a panel for whatever you asked about.
 
-**Spoken acknowledgments:** when MERLIN takes a slower request at `/companion/`, it says one short prerecorded line in Fenrir, such as “You got it. I'll work on that right now,” while the real work runs, then moves straight into the answer. This shortens the felt wait, not the model's actual processing time. Turn it off with **Acknowledge requests aloud** on the page. The clips ship in the repository; `npm run prepare:acknowledgments -- --force` records them again. See [how it works](docs/ORCHESTRATION.md#prerecorded-acknowledgments--november-2-2026).
+- **Talk instead of typing.** He listens for his name, knows when you've finished talking, lets you interrupt, and keeps the conversation going until it goes quiet.
+- **He gets things done.** Timers, web searches, lights, the oven, Spotify, and your own routines ("when I say goodnight, turn off the lights").
+- **He remembers your household.** Preferences and facts are learned from conversations with him, and you can see, edit or delete all of it.
+- **He follows your rules.** "Never talk about politics" or "always use Celsius" is checked against every reply and every action.
+- **He asks before using his camera.** Ask "Does my outfit match?" and he asks first, takes one picture, answers, and then throws the picture away.
 
-**MERLIN's camera:** ask “Does my outfit match?” at `/companion/`. MERLIN always asks before turning on the camera, then its face switches to camera mode: lens eyes and a live viewfinder. SAM 3.1 finds what's in the picture, Muse Spark reads it, and MERLIN answers and remembers what it saw in words. The picture isn't kept. Doorbells and home cameras such as Ring are never used for this. See [how it works and its limits](docs/CAMERA.md).
+## Try it: demo mode
 
-**Separate voice lab:** run `npm ci` and `npm run setup:voice` once, then `npm run voice` and open [localhost:3001](http://127.0.0.1:3001). Choose a Fenrir delivery and type, record, or enable local “MERLIN” wake detection. The lab supports automatic speech completion, interruption, and follow-ups. Idle audio stays local; active clips go to Meta for transcription, then local Kokoro reads the words back. See [voice setup and privacy](docs/VOICE.md).
+Demo mode starts MERLIN with a **simulated home** already connected, so you can try device control without any smart-home hardware.
 
-**Four-model voice comparison:** run `npm run setup:voice-compare` once on an Apple Silicon Mac, then `npm run voice:compare` and open [localhost:3004](http://127.0.0.1:3004). Compare actual Pocket 100M, Chatterbox Nano, Qwen 0.6B Base ANE, and Kokoro Fenrir audio with first/warm timings. Reference conditioning is supported; no model weights are trained. See [setup, reference requirements, and timing definitions](docs/VOICE_COMPARISON.md).
+You need Node.js 22.16 or newer, a Meta Model API key, Chrome or Safari, and Python 3.12 (or `uv`) for MERLIN's local voice.
 
-**Connection Center:** open [localhost:3000/connections](http://127.0.0.1:3000/connections/) while MERLIN runs. Connect the services that have real connectors, or read a clearly labeled setup guide for the rest; nothing is simulated. `npm run connections` serves a guide-only copy at [localhost:3002](http://127.0.0.1:3002). See [Connection Center](docs/CONNECTIONS.md) and [connectors, limits, and what still needs live verification](docs/CONNECTORS.md).
+```bash
+git clone https://github.com/Darthfranco/MERLIN.git
+```
 
-**Phone companion demo:** run `npm run phone` and open [localhost:3003](http://127.0.0.1:3003). Chat with attachments, talk with the original MERLIN face, and browse branded connection settings. History and preferences stay in this browser; responses/actions are simulated and the phone is not yet connected to the home-display assistant. See [phone demo details](docs/PHONE.md).
+```bash
+cd MERLIN && npm ci && cp .env.example .env
+```
 
-**Want to host MERLIN yourself?** Read [hosting options and setup tools](docs/HOSTING.md) for Mac mini, Linux/home server, cloud VM, and managed-cloud approaches. The guide includes current local setup, an offline prerequisite inspector, optional startup templates, backups, and the work still required for shared phone/iPad access. It does not deploy or connect anything automatically.
+Put your key in `.env` as `META_API_KEY=...`. Then:
 
-## Product vision
+```bash
+npm run setup:voice
+```
 
-MERLIN talks like a friendly, upbeat AI assistant: short replies with a light sense of humor, never over the top, no form of address unless you choose one, calm corrections, and a conversational plain mode. This wording is reused by the text prototype and combined character/voice surface. See [personality behavior and examples](docs/PROTOTYPE.md#merlins-personality).
+```bash
+npm run demo
+```
 
-- **Home device and companion app:** remain available on a home device/display, with a companion app for communication, configuration, and remote access. Reach as many users and devices as practical; specific platforms remain TBD.
-- **Voice and interface:** activate through a wake word and respond conversationally, with a clean Jarvis-inspired interface requiring little or no touch. The owner has requested a simple, cute robot modeled in Blender, refined to a lighter blue with rounded head and body forms, matte/satin surfaces, minimal reflections, and premium refinement comparable to Meta or Apple products. Preserve the original character proportions. Its screen sits flush within the head, with luminous cyan/blue face details grading toward pale white and a few subtle head and torso panel seams. Include bottom lighting, waving/jumping, and a landscape room using the original lighting for casual walking/whistling, wall-and-floor ball tossing, and napping. Add two-way transitions between the central, forward-facing ready stance and the three casual activities, with a wave on return. The iPad-style scene framing is a composition choice; the wake phrase is “MERLIN,” while production voice deployment and app platforms remain TBD; the combined local character integration is available above.
-- **Memory and personalization:** learn useful preferences and context from conversations directed at MERLIN, using one shared household identity initially. Keep memory visible, editable, and removable; do not learn by monitoring ambient conversations.
-- **Standing instructions:** keep explicit do/don't instructions separate from learned preferences and check every outgoing response against them in context. A prohibited word and a prohibited topic are different instructions.
-- **Everyday assistance:** play music through connected speakers and services, connect with a calendar, search and summarize information, and run multiple labeled timers with optional generated images.
-- **Home cameras and doorbell:** show authorized camera feeds and doorbell alerts, including access through the companion app while away.
-- **MERLIN's own camera:** answer questions about what the user chooses to show, such as objects, food calories, math homework, or clothing combinations. These are incidental assistant features, not separate coaching products.
-- **Schedules and automation:** create device schedules by voice or app, including lights, supported oven controls, and AC. Established schedules run through ordinary scheduling logic without a new AI call for every execution; authorization follows the user's one-time or recurring intent.
-- **Custom commands and routines:** let users define phrases and their actions. “Goodnight” is only an example, with no preset behavior. A workout routine can follow an uploaded plan and coordinate lights, music, and AC; look up workout advice when asked.
-- **Information sharing and remote control:** accept documents, text, plans, and schedules through the app, support remote device actions, and use permitted location access for requests such as preheating when five minutes from home.
+`setup:voice` is a one-time step that downloads MERLIN's voice and wake-word models. After `npm run demo`, open **<http://127.0.0.1:3000/companionfull/>**, tap once so the browser allows sound, say "MERLIN", and try:
 
-MERLIN is a home assistant, not an open-ended chat or autonomous coaching product. Privacy matters: wake-word availability does not authorize ambient conversation learning. The detailed requirements and unresolved decisions live in [project context](docs/PROJECT_CONTEXT.md).
+- "Turn on the kitchen lights."
+- "Preheat the oven to 400."
+- "Set a pasta timer for eight minutes."
+- "Look up the weather in Brooklyn."
+- "When I say movie night, turn off the living room lights."
+- "Does my outfit match?"
 
-Meta models are a core product requirement. Kokoro is the tentative speech synthesis choice. The application stack, hardware, integrations, and final model routing remain open; iPad and Ring remain examples or candidates. Spotify is now selected for the local typed prototype; production and voice support remain separate decisions.
+The **Connection Center** is at **<http://127.0.0.1:3000/connections/>**. You can also just ask MERLIN "How do I connect my lights?"
 
-## Start here
+**What's in the demo home:** living room, kitchen and gym lights, a gym speaker and an oven. They are simulated: nothing physical is controlled, they reset when the server restarts, and the app labels them "Demo device · simulated". Run `npm start` instead of `npm run demo` to get MERLIN with only the services you really connect.
 
-**Every coding agent and contributor should read [AGENTS.md](AGENTS.md) before making changes.** It includes the owner's standing instruction to commit and push project changes to GitHub unless explicitly told otherwise.
+## How MERLIN uses Meta's models
 
-| Document | Purpose |
+| What MERLIN does | Meta model |
 | --- | --- |
-| [Project context](docs/PROJECT_CONTEXT.md) | Owner's requirements, ten feature areas, clarified decisions, and open questions |
-| [Hackathon brief](docs/HACKATHON.md) | Rules from the supplied materials, schedule, judging, and submission checklist |
-| [Model reference](docs/MODELS.md) | Meta catalog, tentative model roles, pricing snapshot, and Kokoro reference |
-| [Project status](docs/STATUS.md) | Current implementation state, decisions, and next steps |
-| [Hosting options](docs/HOSTING.md) and [optional toolkit](deploy/README.md) | Compare home/cloud routes, inspect prerequisites, and supervise the current local assistant; shared-device access remains pending |
-| [Phone companion](docs/PHONE.md) | Standalone phone demo, shared text/voice browser memory, attachments, and branded connection settings |
-| [MERLIN's camera](docs/CAMERA.md) | Asking first, device versus home cameras, SAM 3.1 and Muse Spark, what leaves the home, verification, and limits |
-| [Spotify setup and privacy](docs/SPOTIFY.md) | Connect an account, playback controls, data boundaries, and limitations |
-| [Memory and routines](docs/MEMORY.md) | Memory lab, rule scopes, retention, routine activation, and testing (legacy engine) |
-| [Memory engine v2](docs/MEMORY_V2.md) | Owner's replacement memory procedure: lifecycle, hybrid retrieval, setup, rollback, and limits |
-| [Original event overview](docs/sources/event-overview.txt) and [participant guide](docs/sources/participant-guide.txt) | User-supplied source snapshots |
+| Understands you, decides what to do, calls tools, writes the reply | **Muse Spark 1.3** |
+| Searches the web and reads pages it found | Muse Spark's built-in web search |
+| Turns your speech into text | **Muse Voice Transcribe 1.0** |
+| Looks through his own camera | **SAM 3.1** finds what's in the picture, Muse Spark explains it |
+| Learns household memories in the background | Muse Spark |
+| Says a short "checking the weather in Brooklyn" line while a search runs | Muse Spark (a separate small call) |
+| Artwork on routine panels | **Muse Image 1.0** |
 
-Submission target: **November 4, 2026 at 9:00 PM America/New_York (EST)**. A public repository and a three-minute video demonstrating work built during the hackathon are required by the supplied participant guide.
+MERLIN's voice is [Kokoro](https://github.com/hexgrad/kokoro) (Fenrir voice), running on your machine. Listening for "MERLIN" also happens on your machine; nothing is sent to the cloud until he hears his name.
 
-Run the text prototype with Node.js 22.16+: copy `.env.example` to `.env` if it does not exist, set `META_API_KEY` locally, then run `npm run check:meta` and `npm start`. Open [localhost:3000](http://127.0.0.1:3000). Run `npm ci` and `npm test` for the offline test suite. See [prototype setup, architecture, and privacy](docs/PROTOTYPE.md). An open-source license has not yet been selected.
+## How it works
 
-The character's [Blender workflow](assets/merlin-character/README.md) includes rebuilding, rendering, animation playback, and asset validation instructions.
+```text
+ microphone ─► "MERLIN" heard locally ─► Muse Voice Transcribe
+                                               │
+ memory + your rules ─────────────────► Muse Spark ─► timers · search · devices · Spotify · camera
+                                               │            (real results, written by code)
+                              every reply and action checked against your rules
+                                               │
+                     Kokoro voice (local)  +  3D robot and panels on screen (three.js)
+```
+
+The model decides what to do. The code carries it out and reports what actually happened. MERLIN never says a light turned on unless the device reported it.
+
+## What works today
+
+| Works | Simulated | Not built yet |
+| --- | --- | --- |
+| Voice conversation with wake word and interruptions | Demo home devices (`npm run demo`) | Home cameras and doorbells (e.g. Ring) |
+| Web search, with sources | | Schedules ("every weekday at 7") |
+| Timers, several at once | | Calendar |
+| Memory you can inspect and delete | | Location triggers ("preheat when I'm 5 minutes away") |
+| Standing rules and custom routines | | Phone app connected to the home display |
+| Camera that asks first | | |
+| Spotify (you tap to play) | | |
+| Connectors for Home Assistant, Philips Hue, Shelly, SwitchBot and Rachio | | |
+
+The real device connectors are written and tested against simulated device APIs, but have not been tried on real hardware yet. See [ROADMAP.md](ROADMAP.md) for the honest list of what's next.
+
+## Privacy
+
+- Everything MERLIN remembers stays in `data/` on your machine, and one button clears all of it.
+- The microphone is visibly on, and idle audio never leaves the machine.
+- Camera pictures go only to the two Meta vision requests and are never saved.
+- Device and Spotify passwords and tokens stay on the server and never reach the browser, the logs, or Meta.
+
+## Built during the hackathon
+
+Everything in this repository was built during the hackathon, starting at kickoff on October 26, 2026. The git history shows the work day by day.
+
+Third-party pieces it uses:
+
+- [three.js](https://threejs.org/) (MIT) for the 3D robot, copied into `assets/merlin-character/viewer/vendor/three/`
+- [`ws`](https://github.com/websockets/ws) (MIT), the only npm dependency
+- [Kokoro](https://github.com/hexgrad/kokoro) (Apache-2.0) and [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) wake-word and voice-detection models, downloaded by `npm run setup:voice`
+- Blender 4.0 to build the robot and his animations (source files are in `assets/merlin-character/`)
+
+## Project map
+
+| Folder | What's in it |
+| --- | --- |
+| `src/` | The server: assistant, memory, rules, routines, timers, voice, camera and device connectors |
+| `public/companion/` | The home display (`/companionfull/`) |
+| `public/connections/` | The Connection Center |
+| `assets/merlin-character/` | The Blender robot, his animations, and an animation studio |
+| `test/` | Automated tests. Run `npm test`, no API key needed |
+| `docs/` | Guides for each feature. Start at [docs/README.md](docs/README.md) |
+
+More: [ROADMAP.md](ROADMAP.md) (known issues and next steps) · [docs/STATUS.md](docs/STATUS.md) (current state) · [AGENTS.md](AGENTS.md) (instructions for coding assistants)

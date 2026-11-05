@@ -10,6 +10,7 @@
   "scripts": {
     "start": "node --env-file-if-exists=.env src/server.js",
     "dev": "node --env-file-if-exists=.env --watch src/server.js",
+    "demo": "node --env-file-if-exists=.env src/server.js --demo",
     "connections": "node src/connections-server.js",
     "dev:connections": "node --watch src/connections-server.js",
     "test": "node --test",

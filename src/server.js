@@ -596,6 +596,8 @@ export async function createApp({ dataDir = join(ROOT, 'data'), meta = new MetaC
 }
 
 async function main() {
+  // `npm run demo` passes --demo: the same server with the labeled, simulated Demo home connected.
+  if (process.argv.includes('--demo')) process.env.MERLIN_DEMO_HOME = '1';
   const port = Number(process.env.PORT || 3000);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT must be an integer from 1 to 65535.');
   const dataDir = join(ROOT, 'data');
@@ -621,7 +623,8 @@ async function main() {
   try {
     const { server, meta, memory, learning, closeVoice } = await createApp({ dataDir });
     await new Promise((done, fail) => { server.once('error', fail); server.listen(port, '127.0.0.1', done); });
-    console.log(`MERLIN test UI: http://127.0.0.1:${port}`);
+    console.log(`MERLIN home display: http://127.0.0.1:${port}/companionfull/`);
+    console.log(`Connection Center:   http://127.0.0.1:${port}/connections/`);
     console.log(`Memory engine: ${memory.kind}${memory.kind === 'v2' ? ` (semantic retrieval: ${learning.status().semantic.state})` : ''}.`);
     if (process.env.MERLIN_DEMO_HOME === '1') console.log('Demo home is on: its lights, oven and speaker are simulated and labeled as such.');
     console.log(meta.configured ? `Meta adapter: ${meta.model} (credentials configured; use npm run check:meta to verify access).` : 'Meta key is not configured. Manual timers are available.');
