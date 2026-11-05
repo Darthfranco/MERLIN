@@ -8,7 +8,7 @@ Before planning or changing code, read:
 
 1. [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md): the ten feature areas, owner clarifications, and open decisions.
 2. [docs/HACKATHON.md](docs/HACKATHON.md): hackathon constraints and submission requirements.
-3. [docs/STATUS.md](docs/STATUS.md): actual current state and next steps.
+3. [docs/STATUS.md](docs/STATUS.md): actual current state and next steps, on one screen. The dated history of every change is [docs/devlog.md](docs/devlog.md).
 4. [docs/MODELS.md](docs/MODELS.md) when working on AI, voice, vision, model hosting, or costs.
 
 Read any more specific instructions in the directories you edit. If your tool does not load this file automatically, open it explicitly. Keep these documents current when decisions, implementation status, or requirements change. Record user decisions as decisions and agent proposals as proposals.
@@ -68,6 +68,6 @@ These are project engineering defaults, not additional hackathon rules:
 
 ## Handoffs and completion
 
-Update [docs/STATUS.md](docs/STATUS.md) when a task changes implementation state or important decisions. Record what works, meaningful checks, remaining limitations, and the next useful step. Avoid copying secrets or private household data into documentation.
+When a task changes implementation state or important decisions, add a dated entry at the top of [docs/devlog.md](docs/devlog.md): what changed, meaningful checks, remaining limitations, and the next useful step. Keep [docs/STATUS.md](docs/STATUS.md) to one screen and change its lists only when what works, what is simulated, or what is next changes. Known issues go in [ROADMAP.md](ROADMAP.md). The README and ROADMAP are for people, including hackathon judges: keep them short and plain, and put detail in `docs/`. Design notes live in `docs/design/`. Avoid copying secrets or private household data into documentation.
 
 In the final task response, summarize what changed, how it was checked, and whether it was pushed. Keep future agents able to pick up the repository without access to this conversation.

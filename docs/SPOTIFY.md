@@ -11,7 +11,7 @@ The owner requested Spotify integration on October 26, 2026. MERLIN now has a Sp
 
 The shared connector hub (`src/connectors/spotify.js`, [CONNECTORS.md](CONNECTORS.md)) reports Spotify's real status to the Connection Center and the big screen: **Connected** only after Spotify issued tokens to MERLIN, **Setup unfinished** when only the Client ID is saved. Those screens link back here for setup; this page's OAuth flow is unchanged.
 
-No Spotify developer credentials are bundled. A passing offline test suite does not establish access to a real account. See [current verification](STATUS.md).
+No Spotify developer credentials are bundled. A passing offline test suite does not establish access to a real account. See [current verification](devlog.md).
 
 ## Available controls
 

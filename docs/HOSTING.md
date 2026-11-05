@@ -31,7 +31,7 @@ flowchart LR
     Merlin -. future, where required .-> Gateway[Home device gateway]
 ```
 
-Both interfaces would use the same memory and service authorization. Replies and device updates would return to the appropriate screen. The phone's existing mock connections are not live credentials; its browser history and attachments do not become server data merely by hosting the files. Importing demo data would need an explicit migration choice. See [phone scope](PHONE.md) and [current assistant orchestration](ORCHESTRATION.md).
+Both interfaces would use the same memory and service authorization. Replies and device updates would return to the appropriate screen. The phone's existing mock connections are not live credentials; its browser history and attachments do not become server data merely by hosting the files. Importing demo data would need an explicit migration choice. See phone scope and [current assistant orchestration](ORCHESTRATION.md).
 
 ## Start with the current local assistant
 
@@ -67,13 +67,6 @@ These steps run the existing application on the chosen host. They do **not** mak
 
    `check:meta` contacts Meta; it is distinct from the offline doctor. On the same host, open [the home-display interface](http://127.0.0.1:3000/companion/) or [the text/memory test interface](http://127.0.0.1:3000/). Without a key, direct manual timer testing remains available. Stop with Ctrl+C before replacing a foreground run with a startup service.
 
-5. To preview the independent phone UI, use another terminal in the checkout:
-
-   ```sh
-   npm run phone
-   ```
-
-   Open [the phone demo](http://127.0.0.1:3003/) on that same computer. It needs no Meta key. It remains a separate demo with browser-local data.
 
 For voice, run `npm run setup:voice` once as described in [VOICE.md](VOICE.md); this downloads dependencies and model files. It is optional for text. The host's voice runtime is separate from the browser microphone and speaker permissions. See [current limitations](ORCHESTRATION.md#run-the-combined-surface) before expecting unattended audio or alarms.
 
@@ -102,7 +95,7 @@ For voice, run `npm run setup:voice` once as described in [VOICE.md](VOICE.md); 
 This route is a private development/evaluation setup today. A VPS is a remote computer you administer; it does not add a household login to MERLIN.
 
 1. Choose a Linux VM provider and region after reviewing data residency and cost. [DigitalOcean's VM creation guide](https://docs.digitalocean.com/products/droplets/how-to/create/) is one concrete example, not a MERLIN provider selection. Its [SSH guide](https://docs.digitalocean.com/products/droplets/how-to/connect-with-ssh/) covers account/key access.
-2. Set up an unprivileged account and restrict administrative access to your intended administrators. Leave MERLIN ports **3000–3003 closed to public inbound traffic**. Do not upload household data or enable voice just to test hosting.
+2. Set up an unprivileged account and restrict administrative access to your intended administrators. Leave MERLIN ports **3000–3002 closed to public inbound traffic**. Do not upload household data or enable voice just to test hosting.
 3. Follow the Linux route and common setup on the VM. Store `.env` there privately. Use durable storage for the full `data/` directory, and make encrypted backups outside the VM. One assistant process owns these files.
 4. View it privately through an SSH local forward from your administrator computer. This works with the existing loopback boundary and needs no reverse proxy:
 

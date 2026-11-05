@@ -11,7 +11,7 @@ The owner asked to slow the animations down a bit, to make walking continuous (w
 - **Slower conversation motion.** Conversation transitions play at 2.5× instead of 4×. A walk or toss finishing its cycle before a conversation also uses that pace, instead of up to eight seconds at normal speed, so the face arrives sooner and the 2.5-second safety snap to the speaking pose has more room. Idle loops keep their authored speed.
 - **Lightbulb thinking face (asset only).** New face state `idea` (`FaceToIdea`, `FaceIdea`, `IdeaToFace`) under `face`, authored in Blender like the search face: the display eyes fold away and two lightbulbs appear. Each 4-second loop ponders (flickering filaments, a sway and a slow "hmm" in the mouth), then the bulbs light with rays and a bigger smile, then dim. It is in `merlin-states.glb` and the studio. **The companion does not use it yet:** thinking still shows `faceThink`, per the owner's decision. To use it later, return `'idea'` where `thinkingPose()`/`begin()` choose `faceThink` in `orchestrator.js`, add it to `faceStates`, and add it to the face checks in `app.js`.
 
-Checks are listed in [STATUS.md](STATUS.md#animation-cleanup--november-3-2026).
+Checks are listed in [STATUS.md](devlog.md#animation-cleanup--november-3-2026).
 
 ## Home display: `/companionfull/` — November 3, 2026
 
@@ -117,7 +117,7 @@ Owner decisions: trigger on connection questions and on requests for an unconnec
 - **Presentation:** the panel is a retained scene record. Face conversation hides it and restores it, “Close panel” dismisses it, and a displaced timer or music panel moves to the free side. Replies stay in the body next to the open panel. No device action is ever authorized by a preview connection.
 - **Verification targets:** classifier table, store and API validation, panel layout (no target overlaps the robot zone or leaves the card), the assistant path with a scripted model, orchestrator behavior, and desktop/phone browser checks with real clicks.
 
-**Implemented October 31, 2026** (checks in [STATUS.md](STATUS.md)). Where it lives: `src/connection-intents.js` (triggers), `src/connections.js` and `/api/connections*` (preview store), `public/companion/connections-panel.js` (data and tap reducer), `assets/merlin-character/viewer/panels/connections.js` (layout, painter, tap targets), `character.screenGeometry()` (where the card sits), and the tap layer in `public/companion/app.js`.
+**Implemented October 31, 2026** (checks in [STATUS.md](devlog.md)). Where it lives: `src/connection-intents.js` (triggers), `src/connections.js` and `/api/connections*` (preview store), `public/companion/connections-panel.js` (data and tap reducer), `assets/merlin-character/viewer/panels/connections.js` (layout, painter, tap targets), `character.screenGeometry()` (where the card sits), and the tap layer in `public/companion/app.js`.
 
 Known limits: the painted text is a texture, so on a phone-width screen it is small (tap targets are grown to at least 30 CSS pixels, but the artwork is not). A finishing timer or music change does not reopen over the big screen; it stays in Activity and the floating cards until the screen is closed. A displaced second physical panel is dropped from the screen slots (the timer or music stays in Activity). Docking left/right is disabled for this screen because its tap geometry is measured only for the ceiling card. Preview connections are separate from the standalone Connection Center, which keeps its own browser-local list.
 

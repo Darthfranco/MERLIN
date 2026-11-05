@@ -44,3 +44,6 @@ coverage/
 
 # Blender's rotating local backup files
 *.blend[0-9]*
+
+# Design-tool review output (screenshots and notes); kept locally only
+.impeccable/

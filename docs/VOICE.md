@@ -85,7 +85,7 @@ npm run check:voice-session
 
 These checks use authored synthetic phrases without microphone access, household data, or audio files. The completed session check used **three Meta uploads**: wake-only activation, a full activated phrase, and a follow-up without another MERLIN. Unrelated standby speech made zero transcription calls. It exercised the real local detector and Meta/Fenrir path, but did not validate physical microphone/speaker echo cancellation.
 
-Focused session/listener/prosody regressions cover privacy, bounds, interruption, and text preservation. Real offline synthesis produced valid, distinct WAVs for all four deliveries; installed Misaki consumes native stress markup as phoneme stress rather than spoken tag words. A browser Lively/native-stress check reached playback completion at 3.555 seconds with no warnings/errors. See [STATUS.md](STATUS.md) for the final suite and live-check results, and [VOICE_DESIGN.md](VOICE_DESIGN.md) for UI behavior.
+Focused session/listener/prosody regressions cover privacy, bounds, interruption, and text preservation. Real offline synthesis produced valid, distinct WAVs for all four deliveries; installed Misaki consumes native stress markup as phoneme stress rather than spoken tag words. A browser Lively/native-stress check reached playback completion at 3.555 seconds with no warnings/errors. See [STATUS.md](devlog.md) for the final suite and live-check results, and [VOICE_DESIGN.md](design/voice.md) for UI behavior.
 
 ## Sources and dependencies
 

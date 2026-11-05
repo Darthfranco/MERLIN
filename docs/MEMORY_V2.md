@@ -1,6 +1,6 @@
 # MERLIN memory engine v2
 
-This is the owner's *Home Agent Memory Procedure* (version 1, October 28, 2026), implemented as a selectable engine beside the existing one. The procedure is the behavioral source of truth for v2. [MEMORY.md](MEMORY.md) describes the legacy engine, which stays available as the rollback. Status and check results are in [STATUS.md](STATUS.md).
+This is the owner's *Home Agent Memory Procedure* (version 1, October 28, 2026), implemented as a selectable engine beside the existing one. The procedure is the behavioral source of truth for v2. [MEMORY.md](MEMORY.md) describes the legacy engine, which stays available as the rollback. Status and check results are in [STATUS.md](devlog.md).
 
 **Legacy is still the default.** The owner's condition for making v2 the default is that its real semantic adapter is usable. As of November 1, 2026 that holds on the development Mac, where Ollama and `nomic-embed-text` are installed and checked. Switching the default remains the owner's decision, so v2 is still an explicit opt-in. That Mac opted in on November 2, 2026 through its local `.env`. A machine with no embedding service runs v2 with semantic retrieval reported as degraded, and lexical, entity, and lifecycle behavior still work.
 

@@ -28,7 +28,7 @@ The supplied guide names Muse Spark, Muse Wonder, Muse Image, Muse Voice Transcr
 
 ## Rules that affect development
 
-- **Public repository:** repositories must be publicly accessible. The guide labels this “Open source,” but the supplied text does not specify a repository license. Confirm licensing separately and ensure rights to all code, data, and assets.
+- **Public repository:** repositories must be publicly accessible. The guide labels this “Open source,” but the supplied text does not specify a repository license. Confirm licensing separately and ensure rights to all code, data, and assets. **Owner, November 4, 2026:** the organizers said the repository is fine without a license file.
 - **Team:** solo participation is allowed; the maximum is **four participants**. Every project enters one track. Track selection remains open; the overview describes Indie Developer for individual builders/students and Startup for teams/founders building a real product. Do not infer the track solely from team size.
 - **New work:** presented features, code, and functionality must have been built during the event. Startups may build on existing products/codebases, but must clearly distinguish the new work.
 - **Demo boundaries:** highlight only the features, code, and functionality built during the hackathon. Judges must clearly identify original contributions; failing to do so can cause immediate disqualification at their discretion.
@@ -83,12 +83,12 @@ The MERLIN column is project guidance derived from the rubric, not organizer wor
 ## Submission checklist
 
 - [ ] Verify participant acceptance, eligibility, and Official Rules acceptance.
-- [ ] Resolve the October 26 versus October 27 build-start ambiguity with organizers.
+- [x] Resolve the October 26 versus October 27 build-start ambiguity with organizers. **Owner, November 4, 2026:** the organizers said October 26 work counts, and everything in the repository was built during the hackathon.
 - [ ] Choose one track; confirm the full team roster contains no more than four participants.
 - [ ] Appoint one **Representative** to act and submit on behalf of the team/startup.
 - [ ] Obtain the actual CV submission URL from the event portal; the pasted guide's link target is missing.
 - [ ] Ensure the public repository is accessible, reproducible enough to review, and free of secrets or private household data.
-- [ ] Explain the Meta integrations and distinguish hackathon work from any pre-existing code, libraries, assets, or product baseline.
+- [x] Explain the Meta integrations and distinguish hackathon work from any pre-existing code, libraries, assets, or product baseline. Done in the README (November 4, 2026).
 - [ ] Record an accessible **three-minute demo video** highlighting the specific features, code, and functionality built during the event.
 - [ ] Verify the video link, public repository link, and any live-product link work for judges.
 - [ ] List **everyone who worked on the project** on the submission page.

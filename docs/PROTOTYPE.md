@@ -117,7 +117,7 @@ npm test
 git diff --check
 ```
 
-Tests use temporary directories and scripted provider responses; they do not call Meta or spend credits. Coverage includes persistence/restart/expiry, cancellation, concurrent duplicates, storage failures/corruption, input validation, source URL filtering, tool-result replay, bounded loops, partial failure, host/origin checks, and missing credentials. Live verification is recorded separately in [STATUS.md](STATUS.md).
+Tests use temporary directories and scripted provider responses; they do not call Meta or spend credits. Coverage includes persistence/restart/expiry, cancellation, concurrent duplicates, storage failures/corruption, input validation, source URL filtering, tool-result replay, bounded loops, partial failure, host/origin checks, and missing credentials. Live verification is recorded separately in [STATUS.md](devlog.md).
 
 Official implementation references checked October 26, 2026: [Responses API](https://dev.meta.ai/docs/protocols/responses), [tool calling](https://dev.meta.ai/docs/tool-calling), [search grounding](https://dev.meta.ai/docs/search-grounding), [models](https://dev.meta.ai/docs/models), [terms](https://dev.meta.ai/legal/terms-of-service), and [ZDR limits](https://dev.meta.ai/help/policies-and-privacy/zero-data-retention).
 

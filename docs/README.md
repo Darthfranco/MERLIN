@@ -21,8 +21,10 @@ Start with the [main README](../README.md) for what MERLIN is and how to run the
 | Doc | What it covers |
 | --- | --- |
 | [Status](STATUS.md) | What works right now, what's simulated, what's next |
+| [Development log](devlog.md) | Every change, dated, with how it was checked |
 | [Roadmap and known issues](../ROADMAP.md) | The short list of what needs work |
 | [Project context](PROJECT_CONTEXT.md) | The owner's requirements and the ten feature areas |
 | [Hackathon](HACKATHON.md) | Event rules, judging and submission checklist |
 | [Models](MODELS.md) | Meta models, roles and costs |
 | [Memory research](MEMORY_RESEARCH.md) | Background research behind the memory design |
+| [Design notes](design/) | Visual design references for the home display, panels, studio, voice and Connection Center |

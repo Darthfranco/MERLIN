@@ -27,7 +27,7 @@ Credentials and connection state live in the server's ignored `data/connectors.j
 - `src/connections-server.js`: importable static server and CLI entry point for the guide-only copy on port 3002.
 - `test/connections-*.test.js`, `test/connector-*.test.js`: catalog, page server, hub and per-connector checks.
 
-No new runtime package, external font, third-party image, or downloaded brand asset is used. Icons are original simple SVG geometry. This page inherits the existing prototype's visual vocabulary; its layout is documented in [Connection Center design](CONNECTIONS_DESIGN.md).
+No new runtime package, external font, third-party image, or downloaded brand asset is used. Icons are original simple SVG geometry. This page inherits the existing prototype's visual vocabulary; its layout is documented in [Connection Center design](design/connections.md).
 
 The October 27, 2026 research was re-checked against official documentation on November 1, 2026 (see [CONNECTORS.md](CONNECTORS.md#why-these-were-chosen-and-not-others)). A catalog entry is still not proof of working MERLIN hardware support: only the services marked **Connects to MERLIN** have a connector, and none has yet been run against a real account or device.
 
